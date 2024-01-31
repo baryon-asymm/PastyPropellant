@@ -1,3 +1,0 @@
-[submodule "libs/DifferentialEvolution"]
-	path = libs/DifferentialEvolution
-	url = https://github.com/baryon-asymm/differential-evolution.git
