@@ -8,6 +8,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ParametricCombustionModel",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ParametricCombustionModel.Computation", "src\ParametricCombustionModel\ParametricCombustionModel.Computation\ParametricCombustionModel.Computation.vcxproj", "{FC601A40-D454-43A5-9E2F-4332EA114110}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ThermodynamicEquilibriumModel", "ThermodynamicEquilibriumModel", "{A4157443-1918-484C-9F7C-9721480555E1}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ThermodynamicEquilibriumModel.Computation", "src\ThermodynamicEquilibriumModel\ThermodynamicEquilibriumModel.Computation\ThermodynamicEquilibriumModel.Computation.vcxproj", "{6AE5977E-74CD-4E06-A3C6-E3DBB6E70CE8}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PastyPropellant.Core.Computatuion", "src\PastyPropellant.Core.Computatuion\PastyPropellant.Core.Computatuion.vcxproj", "{3070774E-BA31-41D8-BE92-24B4C0394E44}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,6 +23,9 @@ Global
 		{BAE42977-795B-4773-883E-8927B8C4C340} = {031423A5-B481-4761-8367-6038EA9BD95D}
 		{BA46341D-81C5-44E2-8DF9-8A67032B083C} = {031423A5-B481-4761-8367-6038EA9BD95D}
 		{FC601A40-D454-43A5-9E2F-4332EA114110} = {BA46341D-81C5-44E2-8DF9-8A67032B083C}
+		{A4157443-1918-484C-9F7C-9721480555E1} = {031423A5-B481-4761-8367-6038EA9BD95D}
+		{6AE5977E-74CD-4E06-A3C6-E3DBB6E70CE8} = {A4157443-1918-484C-9F7C-9721480555E1}
+		{3070774E-BA31-41D8-BE92-24B4C0394E44} = {031423A5-B481-4761-8367-6038EA9BD95D}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{BAE42977-795B-4773-883E-8927B8C4C340}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -27,5 +36,13 @@ Global
 		{FC601A40-D454-43A5-9E2F-4332EA114110}.Debug|Any CPU.Build.0 = Debug|Win32
 		{FC601A40-D454-43A5-9E2F-4332EA114110}.Release|Any CPU.ActiveCfg = Release|Win32
 		{FC601A40-D454-43A5-9E2F-4332EA114110}.Release|Any CPU.Build.0 = Release|Win32
+		{6AE5977E-74CD-4E06-A3C6-E3DBB6E70CE8}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{6AE5977E-74CD-4E06-A3C6-E3DBB6E70CE8}.Debug|Any CPU.Build.0 = Debug|Win32
+		{6AE5977E-74CD-4E06-A3C6-E3DBB6E70CE8}.Release|Any CPU.ActiveCfg = Release|Win32
+		{6AE5977E-74CD-4E06-A3C6-E3DBB6E70CE8}.Release|Any CPU.Build.0 = Release|Win32
+		{3070774E-BA31-41D8-BE92-24B4C0394E44}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{3070774E-BA31-41D8-BE92-24B4C0394E44}.Debug|Any CPU.Build.0 = Debug|Win32
+		{3070774E-BA31-41D8-BE92-24B4C0394E44}.Release|Any CPU.ActiveCfg = Release|Win32
+		{3070774E-BA31-41D8-BE92-24B4C0394E44}.Release|Any CPU.Build.0 = Release|Win32
 	EndGlobalSection
 EndGlobal

@@ -1,0 +1,3 @@
+[submodule "libs/DifferentialEvolution"]
+	path = libs/DifferentialEvolution
+	url = https://github.com/adrianmichel/differential-evolution.git
