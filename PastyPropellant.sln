@@ -13,11 +13,15 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ParametricCombustionModel.C
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ThermodynamicEquilibriumModel", "ThermodynamicEquilibriumModel", "{A4157443-1918-484C-9F7C-9721480555E1}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ThermodynamicEquilibriumModel.Computation", "src\ThermodynamicEquilibriumModel\ThermodynamicEquilibriumModel.Computation\ThermodynamicEquilibriumModel.Computation.vcxproj", "{6AE5977E-74CD-4E06-A3C6-E3DBB6E70CE8}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PastyPropellant.Core.Computatuion", "src\PastyPropellant.Core.Computatuion\PastyPropellant.Core.Computatuion.vcxproj", "{3070774E-BA31-41D8-BE92-24B4C0394E44}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "libs", "libs", "{7105418D-99E7-4423-9291-9F74FE027D9E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DifferentialEvolution", "libs\DifferentialEvolution\DifferentialEvolution.vcxproj", "{CB7C9C95-C613-4961-8DFD-1C464252875F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PastyPropellant.ConsoleApp", "src\PastyPropellant.ConsoleApp\PastyPropellant.ConsoleApp.csproj", "{BE0292B9-7E87-43DA-8F60-7AF92F421429}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ThermodynamicEquilibriumModel.Computation", "src\ThermodynamicEquilibriumModel\ThermodynamicEquilibriumModel.Computation\ThermodynamicEquilibriumModel.Computation.vcxproj", "{DD3199E2-6CB5-442A-B6A7-57CF7AB004A2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,18 +33,26 @@ Global
 		{BAE42977-795B-4773-883E-8927B8C4C340}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BAE42977-795B-4773-883E-8927B8C4C340}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BAE42977-795B-4773-883E-8927B8C4C340}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FC601A40-D454-43A5-9E2F-4332EA114110}.Debug|Any CPU.ActiveCfg = Debug|Win32
-		{FC601A40-D454-43A5-9E2F-4332EA114110}.Debug|Any CPU.Build.0 = Debug|Win32
 		{FC601A40-D454-43A5-9E2F-4332EA114110}.Release|Any CPU.ActiveCfg = Release|Win32
 		{FC601A40-D454-43A5-9E2F-4332EA114110}.Release|Any CPU.Build.0 = Release|Win32
-		{6AE5977E-74CD-4E06-A3C6-E3DBB6E70CE8}.Debug|Any CPU.ActiveCfg = Debug|Win32
-		{6AE5977E-74CD-4E06-A3C6-E3DBB6E70CE8}.Debug|Any CPU.Build.0 = Debug|Win32
-		{6AE5977E-74CD-4E06-A3C6-E3DBB6E70CE8}.Release|Any CPU.ActiveCfg = Release|Win32
-		{6AE5977E-74CD-4E06-A3C6-E3DBB6E70CE8}.Release|Any CPU.Build.0 = Release|Win32
+		{FC601A40-D454-43A5-9E2F-4332EA114110}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{FC601A40-D454-43A5-9E2F-4332EA114110}.Debug|Any CPU.Build.0 = Debug|x64
 		{3070774E-BA31-41D8-BE92-24B4C0394E44}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{3070774E-BA31-41D8-BE92-24B4C0394E44}.Debug|Any CPU.Build.0 = Debug|x64
 		{3070774E-BA31-41D8-BE92-24B4C0394E44}.Release|Any CPU.ActiveCfg = Release|Win32
 		{3070774E-BA31-41D8-BE92-24B4C0394E44}.Release|Any CPU.Build.0 = Release|Win32
+		{CB7C9C95-C613-4961-8DFD-1C464252875F}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{CB7C9C95-C613-4961-8DFD-1C464252875F}.Debug|Any CPU.Build.0 = Debug|x64
+		{CB7C9C95-C613-4961-8DFD-1C464252875F}.Release|Any CPU.ActiveCfg = Release|Win32
+		{CB7C9C95-C613-4961-8DFD-1C464252875F}.Release|Any CPU.Build.0 = Release|Win32
+		{BE0292B9-7E87-43DA-8F60-7AF92F421429}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE0292B9-7E87-43DA-8F60-7AF92F421429}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE0292B9-7E87-43DA-8F60-7AF92F421429}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE0292B9-7E87-43DA-8F60-7AF92F421429}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD3199E2-6CB5-442A-B6A7-57CF7AB004A2}.Release|Any CPU.ActiveCfg = Release|Win32
+		{DD3199E2-6CB5-442A-B6A7-57CF7AB004A2}.Release|Any CPU.Build.0 = Release|Win32
+		{DD3199E2-6CB5-442A-B6A7-57CF7AB004A2}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{DD3199E2-6CB5-442A-B6A7-57CF7AB004A2}.Debug|Any CPU.Build.0 = Debug|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -50,8 +62,10 @@ Global
 		{BA46341D-81C5-44E2-8DF9-8A67032B083C} = {031423A5-B481-4761-8367-6038EA9BD95D}
 		{FC601A40-D454-43A5-9E2F-4332EA114110} = {BA46341D-81C5-44E2-8DF9-8A67032B083C}
 		{A4157443-1918-484C-9F7C-9721480555E1} = {031423A5-B481-4761-8367-6038EA9BD95D}
-		{6AE5977E-74CD-4E06-A3C6-E3DBB6E70CE8} = {A4157443-1918-484C-9F7C-9721480555E1}
 		{3070774E-BA31-41D8-BE92-24B4C0394E44} = {031423A5-B481-4761-8367-6038EA9BD95D}
+		{CB7C9C95-C613-4961-8DFD-1C464252875F} = {7105418D-99E7-4423-9291-9F74FE027D9E}
+		{BE0292B9-7E87-43DA-8F60-7AF92F421429} = {031423A5-B481-4761-8367-6038EA9BD95D}
+		{DD3199E2-6CB5-442A-B6A7-57CF7AB004A2} = {A4157443-1918-484C-9F7C-9721480555E1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {63BC0756-BFC7-436A-8E63-EE23CC9C8FEC}
