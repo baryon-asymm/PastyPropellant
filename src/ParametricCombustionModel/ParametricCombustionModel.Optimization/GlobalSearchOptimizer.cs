@@ -70,7 +70,7 @@ public class GlobalSearchOptimizer : IParametricModelOptimizer
                                                                     IEnumerable<IEnumerable<MixedPropellantSolver>>
                                                                         solverMatrix)
     {
-        var experimentalBurningRates = context.Propellants.GetExperimentalBurningRates(context.Pressures);
+        var experimentalBurningRates = context.Propellants.GetExperimentalBurnRates(context.Pressures);
         var solver = new TargetFunctionNonlconSolver(experimentalBurningRates,
                                                      solverMatrix.Select(x => x.ToArray().AsReadOnly())
                                                                  .ToArray()

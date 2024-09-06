@@ -12,8 +12,9 @@ public static class CombustionSolverParamsHelper
         329530.9272203463, 622053.027122523, 0.10394228947409136
     ];
 
-    public static CombustionSolverParams GetDefaultCombustionSolverParams()
-    {
-        return CombustionSolverParams.FromVector(DefaultVector);
-    }
+    public static CombustionSolverParams GetDefaultCombustionSolverParams() =>
+        CombustionSolverParams.FromVector(DefaultVector);
+
+    public static CombustionSolverParamsByDoubles GetDefaultCombustionSolverParamsByDoubles() =>
+        CombustionSolverParamsByDoubles.FromVector(DefaultVector);
 }

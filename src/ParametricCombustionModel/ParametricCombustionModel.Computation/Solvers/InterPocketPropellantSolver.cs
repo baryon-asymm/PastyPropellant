@@ -14,7 +14,13 @@ public sealed class InterPocketPropellantSolver : BaseKineticPropellantSolver
 {
 #region Overridden Methods
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    /// <summary>
+    /// Visits a problem context using <see cref="CombustionSolverParams"/> and updates the context with the computed
+    /// surface temperature, burn rate, and heat flux errors.
+    /// </summary>
+    /// <param name="solverParams">The parameters related to the combustion process, provided as <see cref="CombustionSolverParams"/>.</param>
+    /// <param name="context">The problem context, provided as <see cref="ProblemContextByUnits"/>.</param>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public override void Visit(
         in CombustionSolverParams solverParams,
         ProblemContextByUnits context)
@@ -39,19 +45,13 @@ public sealed class InterPocketPropellantSolver : BaseKineticPropellantSolver
     /// with the sublimation heat flux. This method uses the surface temperature, pressure, and burn parameters
     /// to compute the heat fluxes and their difference.
     /// </summary>
-    /// <param name="pressure">
-    /// The pressure in the combustion chamber of the rocket engine.
-    /// </param>
-    /// <param name="surfaceTemperature">
-    /// The temperature of the propellant surface.
-    /// </param>
-    /// <param name="solverParams">
-    /// The parameters related to the burn process, including the enthalpy change and specific heat capacity.
-    /// </param>
+    /// <param name="surfaceTemperature">The temperature of the propellant surface, provided as <see cref="Temperature"/>.</param>
+    /// <param name="solverParams">The parameters related to the burn process, including the enthalpy change and specific heat capacity, provided as <see cref="CombustionSolverParams"/>.</param>
+    /// <param name="context">The problem context, provided as <see cref="ProblemContextByUnits"/>.</param>
     /// <returns>
-    /// The difference between the kinetic flame heat flux and the sublimation heat flux as a <see cref="HeatFlux"/>.
+    /// The difference between the kinetic flame heat flux and the sublimation heat flux, as a <see cref="HeatFlux"/>.
     /// </returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     protected override HeatFlux GetSurfaceHeatFluxesError(
         in Temperature surfaceTemperature,
         in CombustionSolverParams solverParams,
@@ -87,20 +87,104 @@ public sealed class InterPocketPropellantSolver : BaseKineticPropellantSolver
     /// Extracts the kinetic burn parameters specific to the InterPocket model from the provided burn parameters.
     /// This method retrieves the pre-exponential factor and activation energy for the kinetic flame.
     /// </summary>
-    /// <param name="solverParams">
-    /// A reference to the parameters related to the burn process, provided as a <see cref="CombustionSolverParams"/> object.
-    /// </param>
-    /// <param name="aKineticFlame">
-    /// The pre-exponential factor for the kinetic flame, returned as a <see cref="Frequency"/> object.
-    /// </param>
-    /// <param name="eKineticFlame">
-    /// The activation energy for the kinetic flame, returned as a <see cref="MolarEnergy"/> object.
-    /// </param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    /// <param name="solverParams">A reference to the parameters related to the burn process, provided as <see cref="CombustionSolverParams"/>.</param>
+    /// <param name="aKineticFlame">The pre-exponential factor for the kinetic flame, returned as a <see cref="Frequency"/> object.</param>
+    /// <param name="eKineticFlame">The activation energy for the kinetic flame, returned as a <see cref="MolarEnergy"/> object.</param>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     protected override void ExtractKineticBurnParams(
         in CombustionSolverParams solverParams,
         out Frequency aKineticFlame,
         out MolarEnergy eKineticFlame)
+    {
+        aKineticFlame = solverParams.AKineticFlameInterPocket;
+        eKineticFlame = solverParams.EKineticFlameInterPocket;
+    }
+
+#endregion
+
+#region Overridden Methods with Double Parameters
+
+    /// <summary>
+    /// Visits a problem context using <see cref="CombustionSolverParamsByDoubles"/> and updates the context with the computed
+    /// surface temperature, burn rate, and heat flux errors.
+    /// </summary>
+    /// <param name="solverParams">The parameters related to the combustion process, provided as <see cref="CombustionSolverParamsByDoubles"/>.</param>
+    /// <param name="context">The problem context, provided as <see cref="ProblemContextByDoubles"/>.</param>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    public override void Visit(
+        in CombustionSolverParamsByDoubles solverParams,
+        ProblemContextByDoubles context)
+    {
+        ref var contextBag = ref context.InterPocketCombustionParams;
+
+        contextBag.BurnRateIsFound = TryGetSurfaceTemperature(solverParams, context, out contextBag.SurfaceTemperature);
+
+        if (contextBag.BurnRateIsFound)
+        {
+            // Update the context bags with the latest surface temperature
+            contextBag.SurfaceHeatFluxesError = GetSurfaceHeatFluxesError(contextBag.SurfaceTemperature,
+                                                                          solverParams,
+                                                                          context);
+            // Get the burn rate using the updated context bags
+            contextBag.BurnRate = GetBurnRate(contextBag.DecomposeRate, context.PropellantParams);
+        }
+    }
+
+    /// <summary>
+    /// Calculates the error in heat fluxes at the propellant surface by comparing the kinetic flame heat flux
+    /// with the sublimation heat flux. This method uses the surface temperature, pressure, and burn parameters
+    /// to compute the heat fluxes and their difference.
+    /// </summary>
+    /// <param name="surfaceTemperature">The temperature of the propellant surface, provided as a double.</param>
+    /// <param name="solverParams">The parameters related to the burn process, including the enthalpy change and specific heat capacity, provided as <see cref="CombustionSolverParamsByDoubles"/>.</param>
+    /// <param name="context">The problem context, provided as <see cref="ProblemContextByDoubles"/>.</param>
+    /// <returns>
+    /// The difference between the kinetic flame heat flux and the sublimation heat flux, as a double.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    protected override double GetSurfaceHeatFluxesError(
+        double surfaceTemperature,
+        in CombustionSolverParamsByDoubles solverParams,
+        ProblemContextByDoubles context)
+    {
+        var deltaH = solverParams.DeltaH;
+        var specificHeatCapacity = context.PropellantParams.SpecificHeatCapacity;
+        var initialTemperature = context.PropellantParams.InitialTemperature;
+
+        ref var contextBag = ref context.InterPocketCombustionParams;
+        ref var kineticContextBag = ref contextBag.KineticFlameCombustionParams;
+
+        contextBag.DecomposeRate = GetDecomposeRate(surfaceTemperature,
+                                                    solverParams);
+        kineticContextBag.KineticFlameHeatFlux = GetKineticFlameHeatFlux(context.Pressure,
+                                                                         surfaceTemperature,
+                                                                         contextBag.DecomposeRate,
+                                                                         solverParams,
+                                                                         context.InterPocketKineticFlameParams,
+                                                                         ref kineticContextBag);
+
+        var enthalpyChange = specificHeatCapacity
+                             * (surfaceTemperature - initialTemperature)
+                             + deltaH;
+        contextBag.SublimationHeatFlux =
+            contextBag.DecomposeRate
+            * enthalpyChange;
+
+        return kineticContextBag.KineticFlameHeatFlux - contextBag.SublimationHeatFlux;
+    }
+
+    /// <summary>
+    /// Extracts the kinetic burn parameters specific to the InterPocket model from the provided burn parameters.
+    /// This method retrieves the pre-exponential factor and activation energy for the kinetic flame.
+    /// </summary>
+    /// <param name="solverParams">A reference to the parameters related to the burn process, provided as <see cref="CombustionSolverParamsByDoubles"/>.</param>
+    /// <param name="aKineticFlame">The pre-exponential factor for the kinetic flame, returned as a double.</param>
+    /// <param name="eKineticFlame">The activation energy for the kinetic flame, returned as a double.</param>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    protected override void ExtractKineticBurnParams(
+        in CombustionSolverParamsByDoubles solverParams,
+        out double aKineticFlame,
+        out double eKineticFlame)
     {
         aKineticFlame = solverParams.AKineticFlameInterPocket;
         eKineticFlame = solverParams.EKineticFlameInterPocket;

@@ -31,6 +31,10 @@ public sealed class MixedPropellantSolver : ISolverVisitor
 
 #region Constructors
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MixedPropellantSolver"/> class, setting up the necessary solvers for 
+    /// inter-pocket and pocket propellant regions.
+    /// </summary>
     public MixedPropellantSolver()
     {
         _interPocketPropellantSolver = new InterPocketPropellantSolver();
@@ -41,10 +45,53 @@ public sealed class MixedPropellantSolver : ISolverVisitor
 
 #region Visit Methods
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    /// <summary>
+    /// Visits the <see cref="ProblemContextByUnits"/> with the provided <see cref="CombustionSolverParams"/> to calculate the 
+    /// combustion parameters for the mixed propellant.
+    /// </summary>
+    /// <param name="solverParams">
+    /// The parameters related to the combustion process, including enthalpy change and specific heat capacity.
+    /// </param>
+    /// <param name="context">
+    /// The context that contains parameters for both the inter-pocket and pocket combustion models.
+    /// </param>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public void Visit(
         in CombustionSolverParams solverParams,
         ProblemContextByUnits context)
+    {
+        ref var mixedContextBag = ref context.MixedCombustionParams;
+
+        context.Accept(solverParams, _interPocketPropellantSolver);
+        ref var interPocketContextBag = ref context.InterPocketCombustionParams;
+        if (interPocketContextBag.BurnRateIsFound)
+        {
+            context.Accept(solverParams, _pocketPropellantSolver);
+            ref var pocketContextBag = ref context.PocketCombustionParams;
+            if (pocketContextBag.BurnRateIsFound)
+            {
+                mixedContextBag.BurnRate = GetBurnRate(context);
+            }
+        }
+
+        mixedContextBag.BurnRateIsFound = interPocketContextBag.BurnRateIsFound
+                                          && context.PocketCombustionParams.BurnRateIsFound;
+    }
+
+    /// <summary>
+    /// Visits the <see cref="ProblemContextByDoubles"/> with the provided <see cref="CombustionSolverParamsByDoubles"/> to calculate the 
+    /// combustion parameters for the mixed propellant.
+    /// </summary>
+    /// <param name="solverParams">
+    /// The parameters related to the combustion process, including enthalpy change and specific heat capacity.
+    /// </param>
+    /// <param name="context">
+    /// The context that contains parameters for both the inter-pocket and pocket combustion models.
+    /// </param>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    public void Visit(
+        in CombustionSolverParamsByDoubles solverParams,
+        ProblemContextByDoubles context)
     {
         ref var mixedContextBag = ref context.MixedCombustionParams;
 
@@ -71,11 +118,13 @@ public sealed class MixedPropellantSolver : ISolverVisitor
     /// <summary>
     /// Calculates the burn rate of the mixed propellant based on the surface temperatures of both regions and burn parameters.
     /// </summary>
-    /// <param name="interPocketSurfaceTemperature">The surface temperature for the inter-pocket region.</param>
-    /// <param name="pocketSurfaceTemperature">The surface temperature for the pocket region.</param>
-    /// <param name="solverParams">The parameters related to the burn process, including the enthalpy change and specific heat capacity.</param>
-    /// <returns>The burn rate of the mixed propellant as a <see cref="Speed"/> object.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    /// <param name="context">
+    /// The context that contains parameters for both the inter-pocket and pocket combustion models, including volume fractions and burn rates.
+    /// </param>
+    /// <returns>
+    /// The burn rate of the mixed propellant as a <see cref="Speed"/> object, representing the rate in meters per second.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private Speed GetBurnRate(
         ProblemContextByUnits context)
     {
@@ -88,6 +137,36 @@ public sealed class MixedPropellantSolver : ISolverVisitor
                   context.InterPocketVolumeFraction.DecimalFractions / interPocketContextBag.BurnRate.MetersPerSecond
                   + context.PocketVolumeFraction.DecimalFractions / pocketContextBag.BurnRate.MetersPerSecond
               ));
+
+        return mixedPropellantBurnRate;
+    }
+
+#endregion
+
+#region Computation Methods with Double Parameters
+
+    /// <summary>
+    /// Calculates the burn rate of the mixed propellant based on the surface temperatures of both regions and burn parameters.
+    /// </summary>
+    /// <param name="context">
+    /// The context that contains parameters for both the inter-pocket and pocket combustion models, including volume fractions and burn rates.
+    /// </param>
+    /// <returns>
+    /// The burn rate of the mixed propellant as a <see cref="double"/> value, representing the rate in meters per second.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    private double GetBurnRate(
+        ProblemContextByDoubles context)
+    {
+        ref var interPocketContextBag = ref context.InterPocketCombustionParams;
+        ref var pocketContextBag = ref context.PocketCombustionParams;
+
+        var mixedPropellantBurnRate =
+            1.0
+            / (
+                  context.InterPocketVolumeFraction / interPocketContextBag.BurnRate
+                  + context.PocketVolumeFraction / pocketContextBag.BurnRate
+              );
 
         return mixedPropellantBurnRate;
     }

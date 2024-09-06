@@ -4,6 +4,116 @@ using UnitsNet;
 
 namespace ParametricCombustionModel.Computation.Models.KnownParams;
 
+#region Utilization of Double
+
+/// <summary>
+/// Represents the parameters related to the burn process using native double values.
+/// </summary>
+public readonly ref struct CombustionSolverParamsByDoubles
+{
+    /// <summary>
+    /// Decomposition rate constant (pre-exponential factor).
+    /// Measured in kg/(m^2*s).
+    /// </summary>
+    public required double ADecompose { get; init; }
+
+    /// <summary>
+    /// Activation energy for decomposition.
+    /// Measured in J/mol.
+    /// </summary>
+    public required double EDecompose { get; init; }
+
+    /// <summary>
+    /// Frequency factor for the kinetic flame inter-pocket.
+    /// Measured in 1/s.
+    /// </summary>
+    public required double AKineticFlameInterPocket { get; init; }
+
+    /// <summary>
+    /// Activation energy for the kinetic flame inter-pocket.
+    /// Measured in J/mol.
+    /// </summary>
+    public required double EKineticFlameInterPocket { get; init; }
+
+    /// <summary>
+    /// Frequency factor for the kinetic flame pocket out skeleton.
+    /// Measured in 1/s.
+    /// </summary>
+    public required double AKineticFlamePocketOutSkeleton { get; init; }
+
+    /// <summary>
+    /// Activation energy for the kinetic flame pocket out skeleton.
+    /// Measured in J/mol.
+    /// </summary>
+    public required double EKineticFlamePocketOutSkeleton { get; init; }
+
+    /// <summary>
+    /// Frequency factor for the kinetic flame pocket skeleton.
+    /// Measured in 1/s.
+    /// </summary>
+    public required double AKineticFlamePocketSkeleton { get; init; }
+
+    /// <summary>
+    /// Activation energy for the kinetic flame pocket skeleton.
+    /// Measured in J/mol.
+    /// </summary>
+    public required double EKineticFlamePocketSkeleton { get; init; }
+
+    /// <summary>
+    /// Order of chemical reactions in kinetic flames.
+    /// </summary>
+    public required double Nu { get; init; }
+
+    /// <summary>
+    /// Metal burning coefficient.
+    /// Measured in W/(K*m^2).
+    /// </summary>
+    public required double HMetalBurning { get; init; }
+
+    /// <summary>
+    /// Activation energy for metal burning.
+    /// Measured in J/mol.
+    /// </summary>
+    public required double EMetalBurning { get; init; }
+
+    /// <summary>
+    /// Specific energy change of the binder.
+    /// Measured in J/kg.
+    /// </summary>
+    public required double DeltaH { get; init; }
+
+    /// <summary>
+    /// Diffusion height coefficient.
+    /// </summary>
+    public required double KDiffusionHeight { get; init; }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static CombustionSolverParamsByDoubles FromVector(
+        Span<double> vector)
+    {
+        return new CombustionSolverParamsByDoubles
+        {
+            ADecompose = vector[0],
+            EDecompose = vector[1],
+            AKineticFlameInterPocket = vector[2],
+            EKineticFlameInterPocket = vector[3],
+            AKineticFlamePocketOutSkeleton = vector[4],
+            EKineticFlamePocketOutSkeleton = vector[5],
+            AKineticFlamePocketSkeleton = vector[6],
+            EKineticFlamePocketSkeleton = vector[7],
+            Nu = vector[8],
+            HMetalBurning = vector[9],
+            EMetalBurning = vector[10],
+            DeltaH = vector[11],
+            KDiffusionHeight = vector[12]
+        };
+    }
+}
+
+#endregion
+
+#region Utilization of UnitsNet
+
 /// <summary>
 /// Represents the parameters related to the burn process in units.
 /// </summary>
@@ -107,3 +217,5 @@ public readonly ref struct CombustionSolverParams
         };
     }
 }
+
+#endregion

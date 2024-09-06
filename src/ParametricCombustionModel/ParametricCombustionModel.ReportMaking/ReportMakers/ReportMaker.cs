@@ -51,7 +51,7 @@ public static class ReportMaker
         Span<double> surfaceTemperatures = stackalloc double[2];
         var burningParams = BurningParams.FromVector(context.Point.ToArray());
         var solverMatrix = GetMixedSolverMatrix(propellants, pressures);
-        var experimentalBurningRatesMatrix = propellants.GetExperimentalBurningRates(pressures);
+        var experimentalBurningRatesMatrix = propellants.GetExperimentalBurnRates(pressures);
 
         var propellantReports = new List<PropellantReport>();
 
@@ -91,7 +91,7 @@ public static class ReportMaker
         var pressures = context.PressuresForTargetFunction;
         var solverMatrix = GetMixedSolverMatrix(propellants, pressures);
         
-        var experimentalBurningRates = propellants.GetExperimentalBurningRates(pressures);
+        var experimentalBurningRates = propellants.GetExperimentalBurnRates(pressures);
         return new TargetFunctionSolver(experimentalBurningRates, solverMatrix);
     }
 

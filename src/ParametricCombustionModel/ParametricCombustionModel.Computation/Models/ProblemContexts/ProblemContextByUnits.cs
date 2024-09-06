@@ -6,36 +6,104 @@ using UnitsNet;
 
 namespace ParametricCombustionModel.Computation.Models.ProblemContexts;
 
+/// <summary>
+/// Represents the problem context for combustion modeling using UnitsNet types for physical parameters.
+/// This class holds various combustion-related parameters and supports the visitor pattern for applying solvers.
+/// </summary>
 public record ProblemContextByUnits : IVisitable
 {
 #region Fields
 
+    /// <summary>
+    /// Gets or sets the pressure within the combustion context.
+    /// Measured in units of pressure (Pa).
+    /// </summary>
     public required Pressure Pressure;
+
+    /// <summary>
+    /// Gets or sets the propellant parameters for the current context.
+    /// These parameters define the material properties of the propellant.
+    /// </summary>
     public required PropellantParams PropellantParams;
 
+    /// <summary>
+    /// Gets or sets the kinetic flame parameters for the inter-pocket combustion process.
+    /// </summary>
     public required KineticFlameParams InterPocketKineticFlameParams;
 
+    /// <summary>
+    /// Gets or sets the kinetic flame parameters for the skeleton combustion process inside a pocket.
+    /// </summary>
     public required KineticFlameParams PocketSkeletonKineticFlameParams;
+
+    /// <summary>
+    /// Gets or sets the kinetic flame parameters for the combustion process outside the skeleton in a pocket.
+    /// </summary>
     public required KineticFlameParams PocketOutSkeletonKineticFlameParams;
+
+    /// <summary>
+    /// Gets or sets the diffusion flame parameters for the combustion process in a pocket.
+    /// </summary>
     public required DiffusionFlameParams PocketDiffusionFlameParams;
+
+    /// <summary>
+    /// Gets or sets the metal combustion parameters for the pocket combustion process.
+    /// </summary>
     public required MetalCombustionParams PocketMetalCombustionParams;
 
+    /// <summary>
+    /// Gets or sets the volume fraction of inter-pocket combustion.
+    /// Represents the ratio of volume occupied by the inter-pocket combustion zone.
+    /// </summary>
     public required Ratio InterPocketVolumeFraction;
+
+    /// <summary>
+    /// Gets or sets the volume fraction of the combustion process inside the pocket.
+    /// Represents the ratio of volume occupied by the pocket combustion zone.
+    /// </summary>
     public required Ratio PocketVolumeFraction;
 
+    /// <summary>
+    /// Gets or sets the mixed combustion parameters for the current context.
+    /// </summary>
     public required MixedCombustionParams MixedCombustionParams;
+
+    /// <summary>
+    /// Gets or sets the inter-pocket combustion parameters for the current context.
+    /// </summary>
     public required InterPocketCombustionParams InterPocketCombustionParams;
+
+    /// <summary>
+    /// Gets or sets the pocket combustion parameters for the current context.
+    /// </summary>
     public required PocketCombustionParams PocketCombustionParams;
 
 #endregion
 
 #region Accept Methods
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    /// <summary>
+    /// Accepts a solver that operates on the problem context using UnitsNet types for the parameters.
+    /// This method uses aggressive optimization to improve performance.
+    /// </summary>
+    /// <param name="solverParams">The solver parameters, represented by UnitsNet types.</param>
+    /// <param name="solver">The solver implementing the <see cref="ISolverVisitor"/> interface.</param>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public void Accept(
         in CombustionSolverParams solverParams,
         ISolverVisitor solver) =>
         solver.Visit(solverParams, this);
+
+    /// <summary>
+    /// Throws an exception, as the method is not supported for native double parameters in this context.
+    /// </summary>
+    /// <param name="solverParams">The solver parameters, represented by native double types.</param>
+    /// <param name="solver">The solver implementing the <see cref="ISolverVisitor"/> interface.</param>
+    /// <exception cref="NotSupportedException">Thrown because this method does not support double-based parameters.</exception>
+    public void Accept(
+        in CombustionSolverParamsByDoubles solverParams,
+        ISolverVisitor solver) =>
+        throw new NotSupportedException("This method is not supported.");
 
 #endregion
 }

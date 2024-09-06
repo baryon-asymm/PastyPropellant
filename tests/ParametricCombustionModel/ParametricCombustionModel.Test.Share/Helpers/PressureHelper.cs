@@ -9,10 +9,10 @@ public static class PressureHelper
 
     public static IEnumerable<Pressure> GetPressures()
     {
-        const int count = 5;
-        
+        const int count = 100;
+
         var step = (MaxPressure.Atmospheres - MinPressure.Atmospheres) / count;
         return Enumerable.Range(0, count)
-            .Select(i => MinPressure + Pressure.FromAtmospheres(step * i));
+                         .Select(i => MinPressure + Pressure.FromAtmospheres(step * i));
     }
 }

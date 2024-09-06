@@ -2,6 +2,52 @@
 
 namespace ParametricCombustionModel.Computation.Models.KnownParams;
 
+#region Utilization of Doubles
+
+/// <summary>
+/// Represents a set of kinetic flame parameters for modeling combustion processes in a kinetic flame model using native double values.
+/// This struct includes properties such as the final temperature of the flame, average molar mass of the gas mixture,
+/// thermal conductivity, and volumetric specific heat capacity. These parameters are essential for accurately characterizing
+/// the behavior and properties of combustion gases in kinetic flame models.
+/// </summary>
+public readonly struct KineticFlameParamsByDoubles
+{
+    /// <summary>
+    /// Gets the final temperature of the kinetic flame, which is crucial for characterizing the combustion process.
+    /// The final temperature determines the thermal state of the combustion products and affects reaction rates and energy release.
+    /// Measured in Kelvin (K).
+    /// </summary>
+    public required double FinalTemperature { get; init; }
+
+    /// <summary>
+    /// Gets the average molar mass of the gas mixture involved in the kinetic flame.
+    /// This property is important for understanding the mass-based properties of the combustion gases, including diffusion rates
+    /// and molecular interactions within the flame.
+    /// Measured in kg/mol.
+    /// </summary>
+    public required double AverageMolarMass { get; init; }
+
+    /// <summary>
+    /// Gets the thermal conductivity of the gas mixture in the kinetic flame.
+    /// Thermal conductivity measures the ability of the gas mixture to conduct heat, which is critical for modeling heat transfer
+    /// processes and temperature distributions within the flame.
+    /// Measured in W/(m*K).
+    /// </summary>
+    public required double ThermalConductivity { get; init; }
+
+    /// <summary>
+    /// Gets the volumetric specific heat capacity of the gas mixture in the kinetic flame.
+    /// The volumetric specific heat capacity measures how much heat energy the gas mixture can store per unit volume, which is
+    /// important for energy balance calculations and understanding the thermal dynamics of the flame.
+    /// Measured in J/(m^3*K).
+    /// </summary>
+    public required double VolumetricSpecificHeatCapacity { get; init; }
+}
+
+#endregion
+
+#region Utilization of UnitsNet
+
 /// <summary>
 /// Represents a set of kinetic flame parameters for modeling combustion processes in a kinetic flame model.
 /// This struct includes properties such as the final temperature of the flame, average molar mass of the gas mixture,
@@ -10,8 +56,6 @@ namespace ParametricCombustionModel.Computation.Models.KnownParams;
 /// </summary>
 public readonly struct KineticFlameParams
 {
-#region Properties
-
     /// <summary>
     /// Gets the final temperature of the kinetic flame, which is crucial for characterizing the combustion process.
     /// The final temperature determines the thermal state of the combustion products and affects reaction rates and energy release.
@@ -39,6 +83,6 @@ public readonly struct KineticFlameParams
     /// the thermal dynamics of the flame.
     /// </summary>
     public required SpecificEntropy VolumetricSpecificHeatCapacity { get; init; }
+}
 
 #endregion
-}

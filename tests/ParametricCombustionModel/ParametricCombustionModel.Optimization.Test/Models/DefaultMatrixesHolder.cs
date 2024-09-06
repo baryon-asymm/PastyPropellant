@@ -27,7 +27,7 @@ public class DefaultMatrixesHolder
         {
             Propellant[] propellants =
                 [DefaultPropellant.Propellant, DefaultPropellant.Propellant, DefaultPropellant.Propellant];
-            return propellants.GetExperimentalBurningRates(DefaultPressuresHolder.Pressures);
+            return propellants.GetExperimentalBurnRates(DefaultPressuresHolder.Pressures);
         }
     }
 }

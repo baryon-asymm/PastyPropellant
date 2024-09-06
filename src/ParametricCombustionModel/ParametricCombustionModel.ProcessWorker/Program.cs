@@ -56,7 +56,7 @@ var title =
 //var mixedPropellantSolvers = MixedSolverParamsRecordersBuilder.FromPropellants(propellants)
 //    .ForPressures(pressures)
 //    .Build();
-//var experimentalBurningRates = propellants.GetExperimentalBurningRates(pressures);
+//var experimentalBurningRates = propellants.GetExperimentalBurnRates(pressures);
 //var solver = new TargetFunctionNonlconSolver(experimentalBurningRates, mixedPropellantSolvers, (600, 750));
 //var constrainer = new PocketHeatFlowOffsetConstrainer(mixedPropellantSolvers, solver, 100);
 //var value = constrainer.GetPenaltyValue(point);

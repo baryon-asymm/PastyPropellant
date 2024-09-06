@@ -103,7 +103,7 @@ public class DifferentialEvolutionRuntime
     private ITargetFunctionSolver GetTargetFunctionSolver(OptimizationContext context,
                                                           IEnumerable<IEnumerable<MixedPropellantSolver>> solverMatrix)
     {
-        var experimentalBurningRates = context.Propellants.GetExperimentalBurningRates(context.Pressures);
+        var experimentalBurningRates = context.Propellants.GetExperimentalBurnRates(context.Pressures);
         var solver = new TargetFunctionNonlconSolver(experimentalBurningRates, solverMatrix, (600, 750));
         return solver;
     }

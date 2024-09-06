@@ -14,7 +14,7 @@ public class MetricsGlobalSearchOptimizer : GlobalSearchOptimizer
                                                                      IEnumerable<IEnumerable<MixedPropellantSolver>>
                                                                          solverMatrix)
     {
-        var experimentalBurningRates = context.Propellants.GetExperimentalBurningRates(context.Pressures);
+        var experimentalBurningRates = context.Propellants.GetExperimentalBurnRates(context.Pressures);
         var solver = new TargetFunctionMetricsRecorder(experimentalBurningRates,
                                                        solverMatrix,
                                                        (context.MinSurfaceTemperature, context.MaxSurfaceTemperature));
