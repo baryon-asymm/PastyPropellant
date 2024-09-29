@@ -2,6 +2,7 @@
 using ParametricCombustionModel.Computation.Interfaces;
 using ParametricCombustionModel.Computation.Models.ComputedParams;
 using ParametricCombustionModel.Computation.Models.KnownParams;
+using ParametricCombustionModel.Core.Models;
 
 namespace ParametricCombustionModel.Computation.Models.ProblemContexts;
 
@@ -9,9 +10,14 @@ namespace ParametricCombustionModel.Computation.Models.ProblemContexts;
 /// Represents the problem context for combustion modeling using native double values for physical parameters.
 /// This class holds various combustion-related parameters and supports the visitor pattern for applying solvers.
 /// </summary>
-public class ProblemContextByDoubles : IVisitable
+public class ProblemContextByDoubles : IComputationVisitable
 {
 #region Fields
+
+    /// <summary>
+    /// The propellant being used in this problem context.
+    /// </summary>
+    public required Propellant Propellant;
 
     /// <summary>
     /// Gets or sets the pressure within the combustion context.
@@ -79,16 +85,34 @@ public class ProblemContextByDoubles : IVisitable
 
 #endregion
 
+#region Parametric Constraints
+
+    /// <summary>
+    /// The minimum surface temperature for the propellant combustion process.
+    /// This property is used as the lower bound in binary search algorithms for solving the transcendental equation
+    /// to find the surface temperature of the propellant (condensed phase).
+    /// </summary>
+    public double MinSurfaceTemperature = 600;
+
+    /// <summary>
+    /// The maximum surface temperature for the propellant combustion process.
+    /// This property is used as the upper bound in binary search algorithms for solving the transcendental equation
+    /// to find the surface temperature of the propellant (condensed phase).
+    /// </summary>
+    public double MaxSurfaceTemperature = 750;
+
+#endregion
+
 #region Accept Methods
 
     /// <summary>
     /// Throws an exception, as the method is not supported for UnitsNet-based parameters in this context.
     /// </summary>
-    /// <param name="solverParams">The solver parameters, represented by UnitsNet types.</param>
+    /// <param name="solverParamsByUnits">The solver parameters, represented by UnitsNet types.</param>
     /// <param name="solver">The solver implementing the <see cref="ISolverVisitor"/> interface.</param>
     /// <exception cref="NotSupportedException">Thrown because this method does not support UnitsNet-based parameters.</exception>
     public void Accept(
-        in CombustionSolverParams solverParams,
+        in CombustionSolverParamsByUnits solverParamsByUnits,
         ISolverVisitor solver) =>
         throw new NotSupportedException("This method is not supported.");
 

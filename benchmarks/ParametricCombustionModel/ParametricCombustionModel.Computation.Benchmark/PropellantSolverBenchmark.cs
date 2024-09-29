@@ -43,12 +43,12 @@ public class PropellantSolverBenchmark
     }
 
     /// <summary>
-    /// Benchmarks the creation of <see cref="CombustionSolverParams"/> from a vector of doubles.
+    /// Benchmarks the creation of <see cref="CombustionSolverParamsByUnits"/> from a vector of doubles.
     /// </summary>
     [Benchmark]
     public void CombustionSolverParamsFromVector()
     {
-        _ = CombustionSolverParams.FromVector(_vector);
+        _ = CombustionSolverParamsByUnits.FromVector(_vector);
     }
 
 #region Utilization of UnitsNet
@@ -59,7 +59,7 @@ public class PropellantSolverBenchmark
     [Benchmark]
     public void MixedPropellantSolverUnits()
     {
-        var solverParams = CombustionSolverParams.FromVector(_vector);
+        var solverParams = CombustionSolverParamsByUnits.FromVector(_vector);
         _problemContextByUnits.Accept(solverParams, _mixedPropellantSolver);
     }
 
@@ -69,7 +69,7 @@ public class PropellantSolverBenchmark
     [Benchmark]
     public void InterPocketPropellantSolverUnits()
     {
-        var solverParams = CombustionSolverParams.FromVector(_vector);
+        var solverParams = CombustionSolverParamsByUnits.FromVector(_vector);
         _problemContextByUnits.Accept(solverParams, _interPocketPropellantSolver);
     }
 
@@ -79,7 +79,7 @@ public class PropellantSolverBenchmark
     [Benchmark]
     public void PocketPropellantSolverUnits()
     {
-        var solverParams = CombustionSolverParams.FromVector(_vector);
+        var solverParams = CombustionSolverParamsByUnits.FromVector(_vector);
         _problemContextByUnits.Accept(solverParams, _pocketPropellantSolver);
     }
 

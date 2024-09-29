@@ -15,28 +15,28 @@ public sealed class InterPocketPropellantSolver : BaseKineticPropellantSolver
 #region Overridden Methods
 
     /// <summary>
-    /// Visits a problem context using <see cref="CombustionSolverParams"/> and updates the context with the computed
+    /// Visits a problem context using <see cref="CombustionSolverParamsByUnits"/> and updates the context with the computed
     /// surface temperature, burn rate, and heat flux errors.
     /// </summary>
-    /// <param name="solverParams">The parameters related to the combustion process, provided as <see cref="CombustionSolverParams"/>.</param>
+    /// <param name="solverParamsByUnits">The parameters related to the combustion process, provided as <see cref="CombustionSolverParamsByUnits"/>.</param>
     /// <param name="context">The problem context, provided as <see cref="ProblemContextByUnits"/>.</param>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public override void Visit(
-        in CombustionSolverParams solverParams,
+        in CombustionSolverParamsByUnits solverParamsByUnits,
         ProblemContextByUnits context)
     {
         ref var contextBag = ref context.InterPocketCombustionParams;
 
-        contextBag.BurnRateIsFound = TryGetSurfaceTemperature(solverParams, context, out contextBag.SurfaceTemperature);
+        contextBag.BurnRateIsFound = TryGetSurfaceTemperature(solverParamsByUnits, context, out contextBag.SurfaceTemperature);
 
         if (contextBag.BurnRateIsFound)
         {
             // Update the context bags with the latest surface temperature
             contextBag.SurfaceHeatFluxesError = GetSurfaceHeatFluxesError(contextBag.SurfaceTemperature,
-                                                                          solverParams,
+                                                                          solverParamsByUnits,
                                                                           context);
             // Get the burn rate using the updated context bags
-            contextBag.BurnRate = GetBurnRate(contextBag.DecomposeRate, context.PropellantParams);
+            contextBag.BurnRate = GetBurnRate(contextBag.DecomposeRate, context.PropellantParamsByUnits);
         }
     }
 
@@ -46,7 +46,7 @@ public sealed class InterPocketPropellantSolver : BaseKineticPropellantSolver
     /// to compute the heat fluxes and their difference.
     /// </summary>
     /// <param name="surfaceTemperature">The temperature of the propellant surface, provided as <see cref="Temperature"/>.</param>
-    /// <param name="solverParams">The parameters related to the burn process, including the enthalpy change and specific heat capacity, provided as <see cref="CombustionSolverParams"/>.</param>
+    /// <param name="solverParamsByUnits">The parameters related to the burn process, including the enthalpy change and specific heat capacity, provided as <see cref="CombustionSolverParamsByUnits"/>.</param>
     /// <param name="context">The problem context, provided as <see cref="ProblemContextByUnits"/>.</param>
     /// <returns>
     /// The difference between the kinetic flame heat flux and the sublimation heat flux, as a <see cref="HeatFlux"/>.
@@ -54,23 +54,23 @@ public sealed class InterPocketPropellantSolver : BaseKineticPropellantSolver
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     protected override HeatFlux GetSurfaceHeatFluxesError(
         in Temperature surfaceTemperature,
-        in CombustionSolverParams solverParams,
+        in CombustionSolverParamsByUnits solverParamsByUnits,
         ProblemContextByUnits context)
     {
-        var deltaH = solverParams.DeltaH;
-        var specificHeatCapacity = context.PropellantParams.SpecificHeatCapacity;
-        var initialTemperature = context.PropellantParams.InitialTemperature;
+        var deltaH = solverParamsByUnits.DeltaH;
+        var specificHeatCapacity = context.PropellantParamsByUnits.SpecificHeatCapacity;
+        var initialTemperature = context.PropellantParamsByUnits.InitialTemperature;
 
         ref var contextBag = ref context.InterPocketCombustionParams;
         ref var kineticContextBag = ref contextBag.KineticFlameCombustionParams;
 
         contextBag.DecomposeRate = GetDecomposeRate(surfaceTemperature,
-                                                    solverParams);
+                                                    solverParamsByUnits);
         kineticContextBag.KineticFlameHeatFlux = GetKineticFlameHeatFlux(context.Pressure,
                                                                          surfaceTemperature,
                                                                          contextBag.DecomposeRate,
-                                                                         solverParams,
-                                                                         context.InterPocketKineticFlameParams,
+                                                                         solverParamsByUnits,
+                                                                         context.InterPocketKineticFlameParamsByUnits,
                                                                          ref kineticContextBag);
 
         var enthalpyChange = specificHeatCapacity
@@ -87,17 +87,17 @@ public sealed class InterPocketPropellantSolver : BaseKineticPropellantSolver
     /// Extracts the kinetic burn parameters specific to the InterPocket model from the provided burn parameters.
     /// This method retrieves the pre-exponential factor and activation energy for the kinetic flame.
     /// </summary>
-    /// <param name="solverParams">A reference to the parameters related to the burn process, provided as <see cref="CombustionSolverParams"/>.</param>
+    /// <param name="solverParamsByUnits">A reference to the parameters related to the burn process, provided as <see cref="CombustionSolverParamsByUnits"/>.</param>
     /// <param name="aKineticFlame">The pre-exponential factor for the kinetic flame, returned as a <see cref="Frequency"/> object.</param>
     /// <param name="eKineticFlame">The activation energy for the kinetic flame, returned as a <see cref="MolarEnergy"/> object.</param>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     protected override void ExtractKineticBurnParams(
-        in CombustionSolverParams solverParams,
+        in CombustionSolverParamsByUnits solverParamsByUnits,
         out Frequency aKineticFlame,
         out MolarEnergy eKineticFlame)
     {
-        aKineticFlame = solverParams.AKineticFlameInterPocket;
-        eKineticFlame = solverParams.EKineticFlameInterPocket;
+        aKineticFlame = solverParamsByUnits.AKineticFlameInterPocket;
+        eKineticFlame = solverParamsByUnits.EKineticFlameInterPocket;
     }
 
 #endregion
@@ -127,6 +127,8 @@ public sealed class InterPocketPropellantSolver : BaseKineticPropellantSolver
                                                                           context);
             // Get the burn rate using the updated context bags
             contextBag.BurnRate = GetBurnRate(contextBag.DecomposeRate, context.PropellantParams);
+
+            contextBag.BurnRateIsFound = contextBag.BurnRate > 0.0;
         }
     }
 

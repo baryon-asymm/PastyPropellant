@@ -1,16 +1,16 @@
-﻿using System.IO.Pipes;
+﻿using System.Globalization;
 using System.Text;
 using System.Text.Json;
-using DifferentialEvolution.Optimizer.PopulationGenerators;
-using ParametricCombustionModel.Core.DTOs;
-using ParametricCombustionModel.Optimization.Events;
+using ParametricCombustionModel.PlotRenderer.Models;
+using ParametricCombustionModel.PlotRenderer.Renderers;
 using ParametricCombustionModel.ProcessWorker.Helpers;
 using ParametricCombustionModel.ProcessWorker.Scenarios;
-using ParametricCombustionModel.Telemetry.GCMetricsRecorders;
-using ParametricCombustionModel.Telemetry.MetricsRecorders;
-using PastyPropellant.Core.IPCHelpers;
+using ParametricCombustionModel.ReportMaking;
+using ParametricCombustionModel.ReportMaking.ReportMakers;
 using PastyPropellant.Core.Models.Events;
 using PastyPropellant.Core.Utils;
+using PDFsharp.Api.Adapters;
+using UnitsNet;
 
 Console.WriteLine("popSize numberOfGenerations inputFileName");
 
@@ -21,21 +21,18 @@ var populationSize = int.Parse(args[0]);
 var numberOfGenerations = int.Parse(args[1]);
 var inputFileName = args[2];
 
-const double maxPressure = 6.5e6;
-const double minPressure = 1e6;
+var maxPressure = Pressure.FromMegapascals(6.5);
+var minPressure = Pressure.FromMegapascals(1);
 
 const int pressurePointsForOpt = 10;
-double[] pressures = Enumerable.Range(0, pressurePointsForOpt + 1)
-                               .Select(x => minPressure + (maxPressure - minPressure) / pressurePointsForOpt * x)
-                               .ToArray();
+const int pressurePointsForReport = 10000;
+var pressures = Enumerable.Range(0, pressurePointsForOpt + 1)
+                          .Select(x => minPressure + (maxPressure - minPressure) / pressurePointsForOpt * x)
+                          .ToArray();
+var reportingPressures = Enumerable.Range(0, pressurePointsForReport + 1)
+                                   .Select(x => minPressure + (maxPressure - minPressure) / pressurePointsForReport * x)
+                                   .ToArray();
 const double heatFlowsSegmentSize = 100;
-double[] reportingPressures = [1e6, 3.5e6, 6.5e6];
-var title =
-    $"Настоящий отчет сформирован на основе расчета с функциональным ограничением температуры поверхности условных топлив от 600 до 750 К, " +
-    $"с параметрическим ограничением на энергию активации в газовой фазе, " +
-    $"с нелинейным ограничением на плотности тепловых потоков в «кармане» (могут отстоят друг от друга не более, чем в {heatFlowsSegmentSize:#,0.0} раз), " +
-    $"со «штрафом» за превышение линейной скорости горения «кармана» над скоростью горения МКМ, " +
-    $"а также со «штрафом» за превышение значения плотности теплового потока кинетического пламени (1*10^8).";
 
 //double[] point =
 //[999999535644.0491, 123555.67822485132, 171448766466.25543, 199999.969478126, 32337545.002464958, 50418.056112171966,
@@ -57,9 +54,9 @@ var title =
 //    .ForPressures(pressures)
 //    .Build();
 //var experimentalBurningRates = propellants.GetExperimentalBurnRates(pressures);
-//var solver = new TargetFunctionNonlconSolver(experimentalBurningRates, mixedPropellantSolvers, (600, 750));
-//var constrainer = new PocketHeatFlowOffsetConstrainer(mixedPropellantSolvers, solver, 100);
-//var value = constrainer.GetPenaltyValue(point);
+//var evaluator = new FitnessFunctionNonlconEvaluator(experimentalBurningRates, mixedPropellantSolvers, (600, 750));
+//var constraintPenaltyEvaluator = new PocketHeatFluxRatioCompetitionPenaltyEvaluator(mixedPropellantSolvers, evaluator, 100);
+//var value = constraintPenaltyEvaluator.GetPenaltyValue(point);
 //ReportPdfPrintScenario.GetPrintedReport(point, pressures, $"result29042024.txt", "../data/propellant_bas_1.json");
 
 //double[] lowerBound = [1e1, 1e1, 1e1, 5e4, 1e1, 5e4, 1.3856, 1e2, 1e2, 1e1, 1e-6];
@@ -84,7 +81,7 @@ double[] upperBound = [double.MaxValue, 1e9, 1e12, 2e5, 1e12, 2e5, 1e12, 2e5, 1.
 //     -410382.28067308106, 0.6524484901077885
 // ];
 
-using (BinaryReader reader = new BinaryReader(File.Open($"{inputFileName}_v.bin", FileMode.Open)))
+/*using (BinaryReader reader = new BinaryReader(File.Open($"{inputFileName}_v.bin", FileMode.Open)))
 {
     int length = reader.ReadInt32();
     double[] data = new double[length];
@@ -93,14 +90,14 @@ using (BinaryReader reader = new BinaryReader(File.Open($"{inputFileName}_v.bin"
     {
         data[i] = reader.ReadDouble();
     }
-    
+
     Array.Copy(data, lowerBound, lowerBound.Length);
     Array.Copy(data, upperBound, upperBound.Length);
 
     lowerBound[0] = lowerBound[1] = 1;
     upperBound[0] = double.MaxValue;
     upperBound[1] = 1e9;
-}
+}*/
 
 //double[] startPoint =
 //[
@@ -112,123 +109,84 @@ using (BinaryReader reader = new BinaryReader(File.Open($"{inputFileName}_v.bin"
 //    upperBound.AsReadOnly(),
 //    lowerBound.AsReadOnly(),
 //    startPoint.AsReadOnly());
-var populationGenerator = new PopulationGenerator(populationSize, upperBound.AsReadOnly(), lowerBound.AsReadOnly());
 var scenario = new DifferentialEvolutionRuntime(
-    lowerBound,
-    upperBound,
-    pressures,
-    heatFlowsSegmentSize,
+    populationSize,
     numberOfGenerations,
     inputFileName,
-    populationGenerator,
-    populationGenerator
+    pressures,
+    reportingPressures,
+    lowerBound,
+    upperBound
 );
-var individual = scenario.Run();
-EventBus<string>.Publish($"Individual: {JsonSerializer.Serialize(individual)}");
-
-using (BinaryWriter writer = new BinaryWriter(File.Open($"{inputFileName}_v.bin", FileMode.Create)))
+var operationResult = await scenario.RunAsync();
+if (operationResult.Exception is not null)
 {
-    writer.Write(individual.Vector.Length);
-
-    foreach (double value in individual.Vector.ToArray())
-    {
-        writer.Write(value);
-    }
+    EventBus<string>.Publish(operationResult.Exception.ToString());
 }
 
+/*var base64String =
+    "T9qj80BWxEG2USzJfN/2QAr9dwJqt1RCQF/2//9pCEEoHICYIolpQRCuWwAAauhAdpecDfD4X0E6J3AAAGroQM9m1edqK/Y/fo+NmQuW/0Hj3VwOzgcTQeU9KMDS9ClBf66VbmO34j8=";
+var byteArray = Convert.FromBase64String(base64String);
+var doubleArray = new double[byteArray.Length / sizeof(double)];
+Buffer.BlockCopy(byteArray, 0, doubleArray, 0, byteArray.Length);
+
+var scenario = new ReportPdfPrintScenario(inputFileName, reportingPressures);
+var pressurePointCount = scenario.OptimizationProblemContext.ProblemContextMatrix.GetLength(1);
+for (int i = 0; i < pressurePointCount; i++)
+{
+    scenario.OptimizationProblemContext.ProblemContextMatrix[1, i].PocketMetalCombustionParamsByUnits.MetalMeltingTemperature -= TemperatureDelta.FromKelvins(300);
+    scenario.OptimizationProblemContext.ProblemContextMatrix[1, i].PropellantParamsByUnits.SkeletonSurfaceFraction += Ratio.FromDecimalFractions(0.2 / pressurePointCount * i);
+}*/
+
+// var operationResult = await scenario.RunAsync(doubleArray);
+// if (operationResult.Exception is not null)
+// {
+//     EventBus<string>.Publish(operationResult.Exception.ToString());
+// }
+
+EventBus<string>.Publish(
+    $"Individual: {JsonSerializer.Serialize(operationResult.Value.BestSolverParamsBySpan.ToArray())}");
+
+var reportMaker = TextReportMaker.FromOptimizationResult(operationResult.Value);
+var report = reportMaker.MakeReport();
+CultureInfo.CurrentCulture = new CultureInfo("ru-RU");
+Console.OutputEncoding = Encoding.UTF8;
+Console.WriteLine(report);
+
+var settings = new PlotSettings
+{
+    Title = "Burning Rates",
+    XAxisMinimum = 0.9,
+    XAxisMaximum = 6.6,
+    XAxisTitle = "Pressure, MPa",
+    YAxisTitle = "mm/s"
+};
+var plotRenderer = new BurningRatePlotRenderer();
+plotRenderer.Render(operationResult.Value, settings);
+
+var pdfGeneratorAdapter = new PdfSharpAdapter("report.pdf");
+var pdfReportMaker = PdfReportMaker.FromOptimizationResult(operationResult.Value, pdfGeneratorAdapter);
+pdfReportMaker.MakeReport();
+
+// using (BinaryWriter writer = new BinaryWriter(File.Open($"{inputFileName}_v.bin", FileMode.Create)))
+// {
+//     writer.Write(individual.Vector.Length);
+//
+//     foreach (double value in individual.Vector.ToArray())
+//     {
+//         writer.Write(value);
+//     }
+// }
+
+return;
 const int pressurePoints = 100000;
 pressures = Enumerable.Range(0, pressurePoints + 1)
                       .Select(x => minPressure + (maxPressure - minPressure) / pressurePoints * x)
                       .ToArray();
-ReportPdfPrintScenario.GetPrintedReport([title],
-    individual.Vector.ToArray(),
-    reportingPressures,
-    pressures,
-    $"{inputFileName}.pdf",
-    $"../data/{inputFileName}");
+// // ReportPdfPrintScenario.GetPrintedReport([title],
+// //                                         individual.Vector.ToArray(),
+// //                                         reportingPressures,
+// //                                         pressures,
+// //                                         $"{inputFileName}.pdf",
+//                                         $"../data/{inputFileName}");
 Console.WriteLine("pdf generated for 100 points (diffs FFVal)");
-return;
-if (args.Length == 0)
-{
-    EventBus<LogEvent>.Publish(new LogEvent { Message = "No arguments provided.".AsMemory() });
-    return;
-}
-
-var pipeName = args[0];
-EventBus<LogEvent>.Publish(new LogEvent { Message = $"Pipe name: {pipeName}".AsMemory() });
-
-var pipeClient = new NamedPipeClientStream(pipeName);
-
-try
-{
-    await pipeClient.ConnectAsync(TimeSpan.FromMinutes(1), CancellationToken.None);
-}
-catch (Exception ex)
-{
-    EventBus<LogEvent>.Publish(new LogEvent { Message = $"Pipe connection failed: {ex.Message}".AsMemory() });
-    return;
-}
-
-var optimizer = new MetricsGlobalSearchOptimizer();
-var helper = new StreamString(pipeClient);
-
-var workerName = await helper.ReadStringAsync();
-
-var lastMessage = DateTime.Now;
-var msgBuilder = new StringBuilder();
-EventBus<OptimizationUpdatedEvent>.Subscribe(updatedEvent =>
-{
-    if (DateTime.Now - lastMessage < TimeSpan.FromMinutes(10) && updatedEvent.State == State.iter)
-        return;
-
-    msgBuilder.AppendLine($"Name: {workerName}");
-    msgBuilder.AppendLine($"GC time {GCCounter.PauseTimePercentage} %");
-    msgBuilder.AppendLine($"AllocMemory {GCCounter.TotalMemory / 1024.0 / 1024.0:#,0.000000} MB");
-    msgBuilder.AppendLine($"Gen0CollCount {GCCounter.GetCollectionCount(0)}");
-    msgBuilder.AppendLine($"Gen1CollCount {GCCounter.GetCollectionCount(1)}");
-    msgBuilder.AppendLine($"Gen2CollCount {GCCounter.GetCollectionCount(2)}");
-    msgBuilder.AppendLine(
-        $"TargetFunctionCallsCount {optimizer.TargetFunctionMetricsRecorder.TargetFunctionCallsCount}");
-    msgBuilder.AppendLine(
-        $"MeanExecutionTime {optimizer.TargetFunctionMetricsRecorder.MeanExecutionTime:#,0.000000} ms");
-    msgBuilder.AppendLine(
-        $"StdDevExecutionTime {optimizer.TargetFunctionMetricsRecorder.StdDevExecutionTime:#,0.000000} ms");
-    msgBuilder.AppendLine($"State: {updatedEvent.State}");
-    msgBuilder.AppendLine($"StepIndex: {updatedEvent.Args.Span[0]}");
-    msgBuilder.AppendLine($"FunCounts: {updatedEvent.Args.Span[1]}");
-
-    if (updatedEvent.State == State.iter || updatedEvent.State == State.done)
-    {
-        msgBuilder.AppendLine($"\nBestFVal: {updatedEvent.Args.Span[2]}\n");
-        for (var i = 3; i < updatedEvent.Args.Span.Length; i++)
-            msgBuilder.AppendLine($"Point[{i - 3}]: {updatedEvent.Args.Span[i]}");
-    }
-
-    EventBus<LogEvent>.Publish(new LogEvent { Message = msgBuilder.ToString().AsMemory() });
-    msgBuilder.Clear();
-    lastMessage = DateTime.Now;
-});
-
-EventBus<LogEvent>.Publish(new LogEvent { Message = "Pipe connected".AsMemory() });
-
-var msg = await helper.ReadStringAsync();
-while (msg != StreamString.InitWorkerExit)
-{
-    var context = JsonSerializer.Deserialize<OptimizationContext>(msg);
-
-    var result = await optimizer.RunAsync(context);
-
-    if (result.IsSuccess == false)
-    {
-        EventBus<LogEvent>.Publish(new LogEvent
-            { Message = $"Optimizer fault: {result.Exception.Message}".AsMemory() });
-        return;
-    }
-
-    await helper.WriteStringAsync(StreamString.InitReceiveResult);
-
-    var resultStr = JsonSerializer.Serialize(result.Value);
-    await helper.WriteStringAsync(resultStr);
-
-    msg = await helper.ReadStringAsync();
-}

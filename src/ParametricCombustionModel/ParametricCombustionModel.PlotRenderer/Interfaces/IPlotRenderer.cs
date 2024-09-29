@@ -1,17 +1,17 @@
 ﻿using OxyPlot;
+using ParametricCombustionModel.Optimization.Models;
 using ParametricCombustionModel.PlotRenderer.Models;
-using ParametricCombustionModel.ReportMaking.Models;
 
 namespace ParametricCombustionModel.PlotRenderer.Interfaces;
 
 public interface IPlotRenderer
 {
     /// <summary>
-    /// Renders the plot based on the provided report and settings.
+    /// Renders the plot based on the provided result and settings.
     /// </summary>
-    /// <param name="report">The report containing the data for the plot.</param>
+    /// <param name="result">The result containing the data for the plot.</param>
     /// <param name="settings">Settings for the plot such as titles, axis labels, and other parameters.</param>
-    void Render(Report report, PlotSettings settings);
+    void Render(OptimizationResult result, PlotSettings settings);
 
     /// <summary>
     /// Saves the rendered plot to a file.

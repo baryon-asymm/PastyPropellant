@@ -51,8 +51,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Matlab", "Matlab", "{4ED214
 		libs\Matlab\runtime.zip = libs\Matlab\runtime.zip
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MatlabGlobalSearch.Api", "src\MatlabGlobalSearch.Api\MatlabGlobalSearch.Api.csproj", "{9F2506B5-E678-4125-9B0F-BB5139C7A45F}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelegramBot.Api.Test", "tests\TelegramBot.Api.Test\TelegramBot.Api.Test.csproj", "{F8A0DC0B-76FB-4BEA-A188-828D4D9CB27E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ParametricCombustionModel.Optimization", "src\ParametricCombustionModel\ParametricCombustionModel.Optimization\ParametricCombustionModel.Optimization.csproj", "{B44A4D2F-9E33-4AC7-8E02-26156EB75262}"
@@ -81,8 +79,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PDFsharp", "PDFsharp", "{58
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PDFsharp.Api", "src\PDFsharp\PDFsharp.Api\PDFsharp.Api.csproj", "{4EC52994-4C78-4354-B1AA-F931D9D2315C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ParametricCombustionModel.ParamsRecording", "src\ParametricCombustionModel\ParametricCombustionModel.ParamsRecording\ParametricCombustionModel.ParamsRecording.csproj", "{E6369F94-6AB1-4E19-BA28-5E4A926AEE63}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ParametricCombustionModel.ReportMaking", "src\ParametricCombustionModel\ParametricCombustionModel.ReportMaking\ParametricCombustionModel.ReportMaking.csproj", "{20F16CCE-152E-47A1-B6DD-A4A3CD02437E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ParametricCombustionModel", "ParametricCombustionModel", "{8F15AC02-EB09-493F-8E9A-BF216D645BF1}"
@@ -90,12 +86,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ParametricCombustionModel.Computation.Test", "tests\ParametricCombustionModel\ParametricCombustionModel.Computation.Test\ParametricCombustionModel.Computation.Test.csproj", "{6D42E0B3-D9DF-4273-80AB-0C1A71D5A789}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ParametricCombustionModel.Optimization.Test", "tests\ParametricCombustionModel\ParametricCombustionModel.Optimization.Test\ParametricCombustionModel.Optimization.Test.csproj", "{7E8EF1EF-3FA4-470B-B414-6AD8273996F0}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ParametricCombustionModel.Computation.Gpu", "src\ParametricCombustionModel\ParametricCombustionModel.Computation.Gpu\ParametricCombustionModel.Computation.Gpu.csproj", "{DB527186-09D2-44B0-A020-E40F0D7113E1}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParametricCombustionModel.Computation.Gpu.Test", "tests\ParametricCombustionModel\ParametricCombustionModel.Computation.Gpu.Test\ParametricCombustionModel.Computation.Gpu.Test.csproj", "{8DB9EEC0-4D1E-4D00-AB65-3E676429A04F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParametricCombustionModel.PdfReportMaking", "src\ParametricCombustionModel\ParametricCombustionModel.PdfReportMaking\ParametricCombustionModel.PdfReportMaking.csproj", "{C16D870D-E4A8-4320-91BD-EAF1F5D29623}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParametricCombustionModel.PlotRenderer", "src\ParametricCombustionModel\ParametricCombustionModel.PlotRenderer\ParametricCombustionModel.PlotRenderer.csproj", "{32042685-C086-4A55-BB5A-4EF58F2B15CE}"
 EndProject
@@ -140,10 +130,6 @@ Global
 		{7A3A6F40-417E-4ABE-BF40-2C098ED9C2C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7A3A6F40-417E-4ABE-BF40-2C098ED9C2C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7A3A6F40-417E-4ABE-BF40-2C098ED9C2C5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9F2506B5-E678-4125-9B0F-BB5139C7A45F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9F2506B5-E678-4125-9B0F-BB5139C7A45F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9F2506B5-E678-4125-9B0F-BB5139C7A45F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9F2506B5-E678-4125-9B0F-BB5139C7A45F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F8A0DC0B-76FB-4BEA-A188-828D4D9CB27E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F8A0DC0B-76FB-4BEA-A188-828D4D9CB27E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F8A0DC0B-76FB-4BEA-A188-828D4D9CB27E}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -188,10 +174,6 @@ Global
 		{4EC52994-4C78-4354-B1AA-F931D9D2315C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4EC52994-4C78-4354-B1AA-F931D9D2315C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4EC52994-4C78-4354-B1AA-F931D9D2315C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E6369F94-6AB1-4E19-BA28-5E4A926AEE63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E6369F94-6AB1-4E19-BA28-5E4A926AEE63}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E6369F94-6AB1-4E19-BA28-5E4A926AEE63}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E6369F94-6AB1-4E19-BA28-5E4A926AEE63}.Release|Any CPU.Build.0 = Release|Any CPU
 		{20F16CCE-152E-47A1-B6DD-A4A3CD02437E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{20F16CCE-152E-47A1-B6DD-A4A3CD02437E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{20F16CCE-152E-47A1-B6DD-A4A3CD02437E}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -204,18 +186,6 @@ Global
 		{7E8EF1EF-3FA4-470B-B414-6AD8273996F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7E8EF1EF-3FA4-470B-B414-6AD8273996F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7E8EF1EF-3FA4-470B-B414-6AD8273996F0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DB527186-09D2-44B0-A020-E40F0D7113E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DB527186-09D2-44B0-A020-E40F0D7113E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DB527186-09D2-44B0-A020-E40F0D7113E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DB527186-09D2-44B0-A020-E40F0D7113E1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8DB9EEC0-4D1E-4D00-AB65-3E676429A04F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8DB9EEC0-4D1E-4D00-AB65-3E676429A04F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8DB9EEC0-4D1E-4D00-AB65-3E676429A04F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8DB9EEC0-4D1E-4D00-AB65-3E676429A04F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C16D870D-E4A8-4320-91BD-EAF1F5D29623}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C16D870D-E4A8-4320-91BD-EAF1F5D29623}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C16D870D-E4A8-4320-91BD-EAF1F5D29623}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C16D870D-E4A8-4320-91BD-EAF1F5D29623}.Release|Any CPU.Build.0 = Release|Any CPU
 		{32042685-C086-4A55-BB5A-4EF58F2B15CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{32042685-C086-4A55-BB5A-4EF58F2B15CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{32042685-C086-4A55-BB5A-4EF58F2B15CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -244,7 +214,6 @@ Global
 		{492698A5-7FBE-49B3-BFA9-56CDCF27AB7E} = {BA46341D-81C5-44E2-8DF9-8A67032B083C}
 		{7A3A6F40-417E-4ABE-BF40-2C098ED9C2C5} = {55AD3984-96F6-4D5D-9E26-3E89974E4BC5}
 		{4ED214A5-B20C-4C37-A122-29058F1B8991} = {7105418D-99E7-4423-9291-9F74FE027D9E}
-		{9F2506B5-E678-4125-9B0F-BB5139C7A45F} = {031423A5-B481-4761-8367-6038EA9BD95D}
 		{F8A0DC0B-76FB-4BEA-A188-828D4D9CB27E} = {55AD3984-96F6-4D5D-9E26-3E89974E4BC5}
 		{B44A4D2F-9E33-4AC7-8E02-26156EB75262} = {BA46341D-81C5-44E2-8DF9-8A67032B083C}
 		{6F8D3B17-DC16-48CF-B443-5C561AC53A80} = {BA46341D-81C5-44E2-8DF9-8A67032B083C}
@@ -259,14 +228,10 @@ Global
 		{79372ADE-A988-4DDE-B926-EBC916C49FE9} = {55AD3984-96F6-4D5D-9E26-3E89974E4BC5}
 		{581F3173-5CEE-4EE6-9DF5-0111582CB75B} = {031423A5-B481-4761-8367-6038EA9BD95D}
 		{4EC52994-4C78-4354-B1AA-F931D9D2315C} = {581F3173-5CEE-4EE6-9DF5-0111582CB75B}
-		{E6369F94-6AB1-4E19-BA28-5E4A926AEE63} = {BA46341D-81C5-44E2-8DF9-8A67032B083C}
 		{20F16CCE-152E-47A1-B6DD-A4A3CD02437E} = {BA46341D-81C5-44E2-8DF9-8A67032B083C}
 		{8F15AC02-EB09-493F-8E9A-BF216D645BF1} = {55AD3984-96F6-4D5D-9E26-3E89974E4BC5}
 		{6D42E0B3-D9DF-4273-80AB-0C1A71D5A789} = {8F15AC02-EB09-493F-8E9A-BF216D645BF1}
 		{7E8EF1EF-3FA4-470B-B414-6AD8273996F0} = {8F15AC02-EB09-493F-8E9A-BF216D645BF1}
-		{DB527186-09D2-44B0-A020-E40F0D7113E1} = {BA46341D-81C5-44E2-8DF9-8A67032B083C}
-		{8DB9EEC0-4D1E-4D00-AB65-3E676429A04F} = {8F15AC02-EB09-493F-8E9A-BF216D645BF1}
-		{C16D870D-E4A8-4320-91BD-EAF1F5D29623} = {BA46341D-81C5-44E2-8DF9-8A67032B083C}
 		{32042685-C086-4A55-BB5A-4EF58F2B15CE} = {BA46341D-81C5-44E2-8DF9-8A67032B083C}
 		{45900881-1EAD-4C19-9715-3D5AF57C1EA7} = {F33784C0-0645-40EF-8383-C74A991B1E0D}
 		{8DAB085C-9AFF-4E4D-A11F-94D53164F276} = {45900881-1EAD-4C19-9715-3D5AF57C1EA7}

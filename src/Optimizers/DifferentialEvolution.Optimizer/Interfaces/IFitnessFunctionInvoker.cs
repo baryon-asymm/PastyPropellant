@@ -2,5 +2,7 @@
 
 public interface IFitnessFunctionInvoker
 {
-    public double Invoke(Span<double> point);
+    public double Invoke(
+        int threadIndex,
+        Span<double> point);
 }

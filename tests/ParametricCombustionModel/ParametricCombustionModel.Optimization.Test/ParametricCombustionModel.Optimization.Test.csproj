@@ -18,6 +18,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\..\src\ParametricCombustionModel\ParametricCombustionModel.Optimization\ParametricCombustionModel.Optimization.csproj"/>
+        <ProjectReference Include="..\ParametricCombustionModel.Test.Share\ParametricCombustionModel.Test.Share.csproj" />
     </ItemGroup>
 
     <ItemGroup>

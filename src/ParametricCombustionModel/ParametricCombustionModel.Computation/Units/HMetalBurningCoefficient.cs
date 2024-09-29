@@ -119,5 +119,10 @@ public readonly struct HMetalBurningCoefficient
         return new HMetalBurningCoefficient(value, MetalBurningCoefficientUnit.WattsPerKelvinPerSquareMeter);
     }
 
+    public override string ToString()
+    {
+        return $"{_value:0.00e+00} W/(K·m²)";
+    }
+
 #endregion
 }

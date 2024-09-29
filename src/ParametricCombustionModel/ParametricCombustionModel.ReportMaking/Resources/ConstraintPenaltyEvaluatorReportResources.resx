@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral,
+            PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral,
+            PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <data name="HeaderOfConstraintPenaltyEvaluators" xml:space="preserve">
+        <value>Функциональные ограничения</value>
+    </data>
+
+    <data name="InterPocketFasterBurnPenaltyEvaluator" xml:space="preserve">
+        <value>Линейная скорость горения первого условного топлива больше, чем у второго.</value>
+    </data>
+
+    <data name="KineticFlameHeatFluxPenaltyEvaluator" xml:space="preserve">
+        <value>Ограничение на максимальную плотность тепловых потоков кинетических пламен.</value>
+    </data>
+    <data name="MaxInterPocketKineticFlameHeatFlux" xml:space="preserve">
+        <value>Максимальная плотность теплового потока кинетического пламени в МКМ {0:0.00e+00}</value>
+    </data>
+    <data name="MaxSkeletonKineticFlameHeatFlux" xml:space="preserve">
+        <value>Максимальная плотность теплового потока кинетического пламени в пределах КС {0:0.00e+00}</value>
+    </data>
+    <data name="MaxOutSkeletonKineticFlameHeatFlux" xml:space="preserve">
+        <value>Максимальная плотность теплового потока кинетического пламени в пределах «кармана» вне КС {0:0.00e+00}</value>
+    </data>
+
+    <data name="PocketHeatFluxRatioCompetitionPenaltyEvaluator" xml:space="preserve">
+        <value>Условие реализации конкуренции пламен в пределах «кармана».</value>
+    </data>
+    <data name="HeatFluxRatioThreshold" xml:space="preserve">
+        <value>Максимальное отношение плотностей тепловых потоков (max/min) {0:0.00}</value>
+    </data>
+
+    <data name="PenaltyRate" xml:space="preserve">
+        <value>Постоянный коэффициент «штрафа» {0:0.0000}</value>
+    </data>
+</root>

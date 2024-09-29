@@ -23,16 +23,9 @@
         <ProjectReference Include="..\..\NotifyService\TelegramBot.Service.Shared\TelegramBot.Service.Shared.csproj"/>
         <ProjectReference Include="..\..\Optimizers\DifferentialEvolution.Optimizer\DifferentialEvolution.Optimizer.csproj"/>
         <ProjectReference Include="..\..\PDFsharp\PDFsharp.Api\PDFsharp.Api.csproj"/>
-        <ProjectReference Include="..\ParametricCombustionModel.PdfReportMaking\ParametricCombustionModel.PdfReportMaking.csproj" />
+        <ProjectReference Include="..\ParametricCombustionModel.Optimization\ParametricCombustionModel.Optimization.csproj" />
         <ProjectReference Include="..\ParametricCombustionModel.PlotRenderer\ParametricCombustionModel.PlotRenderer.csproj" />
-        <ProjectReference Include="..\ParametricCombustionModel.ReportMaking\ParametricCombustionModel.ReportMaking.csproj"/>
-        <ProjectReference Include="..\ParametricCombustionModel.Telemetry\ParametricCombustionModel.Telemetry.csproj"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Reference Include="GlobalSearchOptimize">
-            <HintPath>..\..\MatlabScripts\GlobalSearch\GlobalSearchOptimize\for_redistribution_files_only\GlobalSearchOptimize.dll</HintPath>
-        </Reference>
+        <ProjectReference Include="..\ParametricCombustionModel.ReportMaking\ParametricCombustionModel.ReportMaking.csproj" />
     </ItemGroup>
 
 </Project>

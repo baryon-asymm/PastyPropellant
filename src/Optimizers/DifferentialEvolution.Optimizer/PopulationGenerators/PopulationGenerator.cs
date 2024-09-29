@@ -31,7 +31,7 @@ public class PopulationGenerator : IPopulationGenerator
             for (var j = 0; j < _lowerBound.Count; j++)
                 vectors[i][j] = random.NextDouble() * (_upperBound[j] - _lowerBound[j]) + _lowerBound[j];
 
-            var individual = new Individual(fitnessFunctionInvoker.Invoke(vectors[i]), vectors[i]);
+            var individual = new Individual(fitnessFunctionInvoker.Invoke(0, vectors[i]), vectors[i]);
             individuals[i] = individual;
         }
 

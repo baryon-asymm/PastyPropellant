@@ -30,11 +30,11 @@ public sealed class KineticSkeletonHelper : BaseKineticPropellantSolver
     /// <param name="decomposeRate">
     /// The rate at which the propellant decomposes, provided as a <see cref="MassFlux"/> object.
     /// </param>
-    /// <param name="solverParams">
-    /// The parameters related to the burn process, including enthalpy change and specific heat capacity, provided as a <see cref="CombustionSolverParams"/> object.
+    /// <param name="solverParamsByUnits">
+    /// The parameters related to the burn process, including enthalpy change and specific heat capacity, provided as a <see cref="CombustionSolverParamsByUnits"/> object.
     /// </param>
-    /// <param name="kineticFlameParams">
-    /// The parameters specific to the kinetic flame, provided as a <see cref="KineticFlameParams"/> object.
+    /// <param name="kineticFlameParamsByUnits">
+    /// The parameters specific to the kinetic flame, provided as a <see cref="KineticFlameParamsByUnits"/> object.
     /// </param>
     /// <param name="contextBag">
     /// A reference to the context bag containing kinetic flame combustion parameters for the Skeleton layer.
@@ -47,14 +47,14 @@ public sealed class KineticSkeletonHelper : BaseKineticPropellantSolver
         in Pressure pressure,
         in Temperature surfaceTemperature,
         in MassFlux decomposeRate,
-        in CombustionSolverParams solverParams,
-        in KineticFlameParams kineticFlameParams,
+        in CombustionSolverParamsByUnits solverParamsByUnits,
+        in KineticFlameParamsByUnits kineticFlameParamsByUnits,
         ref KineticFlameCombustionParams contextBag) =>
         base.GetKineticFlameHeatFlux(pressure,
                                      surfaceTemperature,
                                      decomposeRate,
-                                     solverParams,
-                                     kineticFlameParams,
+                                     solverParamsByUnits,
+                                     kineticFlameParamsByUnits,
                                      ref contextBag);
 
     /// <summary>
@@ -101,13 +101,13 @@ public sealed class KineticSkeletonHelper : BaseKineticPropellantSolver
 #region Overridden Methods
 
     public override void Visit(
-        in CombustionSolverParams solverParams,
+        in CombustionSolverParamsByUnits solverParamsByUnits,
         ProblemContextByUnits context) =>
         throw new NotImplementedException();
 
     protected override HeatFlux GetSurfaceHeatFluxesError(
         in Temperature surfaceTemperature,
-        in CombustionSolverParams solverParams,
+        in CombustionSolverParamsByUnits solverParamsByUnits,
         ProblemContextByUnits context) =>
         throw new NotImplementedException();
 
@@ -115,8 +115,8 @@ public sealed class KineticSkeletonHelper : BaseKineticPropellantSolver
     /// Extracts the kinetic burn parameters specific to the Skeleton layer from the provided burn parameters.
     /// This method retrieves the pre-exponential factor and activation energy for the kinetic flame within the Skeleton layer.
     /// </summary>
-    /// <param name="solverParams">
-    /// A reference to the parameters related to the burn process, provided as a <see cref="CombustionSolverParams"/> object.
+    /// <param name="solverParamsByUnits">
+    /// A reference to the parameters related to the burn process, provided as a <see cref="CombustionSolverParamsByUnits"/> object.
     /// </param>
     /// <param name="aKineticFlame">
     /// The pre-exponential factor for the kinetic flame, returned as a <see cref="Frequency"/> object.
@@ -126,12 +126,12 @@ public sealed class KineticSkeletonHelper : BaseKineticPropellantSolver
     /// </param>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     protected override void ExtractKineticBurnParams(
-        in CombustionSolverParams solverParams,
+        in CombustionSolverParamsByUnits solverParamsByUnits,
         out Frequency aKineticFlame,
         out MolarEnergy eKineticFlame)
     {
-        aKineticFlame = solverParams.AKineticFlamePocketSkeleton;
-        eKineticFlame = solverParams.EKineticFlamePocketSkeleton;
+        aKineticFlame = solverParamsByUnits.AKineticFlamePocketSkeleton;
+        eKineticFlame = solverParamsByUnits.EKineticFlamePocketSkeleton;
     }
 
 #endregion
@@ -196,11 +196,11 @@ public sealed class KineticOutSkeletonHelper : BaseKineticPropellantSolver
     /// <param name="decomposeRate">
     /// The rate at which the propellant decomposes, provided as a <see cref="MassFlux"/> object.
     /// </param>
-    /// <param name="solverParams">
-    /// The parameters related to the burn process, including enthalpy change and specific heat capacity, provided as a <see cref="CombustionSolverParams"/> object.
+    /// <param name="solverParamsByUnits">
+    /// The parameters related to the burn process, including enthalpy change and specific heat capacity, provided as a <see cref="CombustionSolverParamsByUnits"/> object.
     /// </param>
-    /// <param name="kineticFlameParams">
-    /// The parameters specific to the kinetic flame, provided as a <see cref="KineticFlameParams"/> object.
+    /// <param name="kineticFlameParamsByUnits">
+    /// The parameters specific to the kinetic flame, provided as a <see cref="KineticFlameParamsByUnits"/> object.
     /// </param>
     /// <param name="contextBag">
     /// A reference to the context bag containing kinetic flame combustion parameters for the OutSkeleton region.
@@ -213,14 +213,14 @@ public sealed class KineticOutSkeletonHelper : BaseKineticPropellantSolver
         in Pressure pressure,
         in Temperature surfaceTemperature,
         in MassFlux decomposeRate,
-        in CombustionSolverParams solverParams,
-        in KineticFlameParams kineticFlameParams,
+        in CombustionSolverParamsByUnits solverParamsByUnits,
+        in KineticFlameParamsByUnits kineticFlameParamsByUnits,
         ref KineticFlameCombustionParams contextBag) =>
         base.GetKineticFlameHeatFlux(pressure,
                                      surfaceTemperature,
                                      decomposeRate,
-                                     solverParams,
-                                     kineticFlameParams,
+                                     solverParamsByUnits,
+                                     kineticFlameParamsByUnits,
                                      ref contextBag);
 
     /// <summary>
@@ -267,13 +267,13 @@ public sealed class KineticOutSkeletonHelper : BaseKineticPropellantSolver
 #region Overridden Methods
 
     public override void Visit(
-        in CombustionSolverParams solverParams,
+        in CombustionSolverParamsByUnits solverParamsByUnits,
         ProblemContextByUnits context) =>
         throw new NotImplementedException();
 
     protected override HeatFlux GetSurfaceHeatFluxesError(
         in Temperature surfaceTemperature,
-        in CombustionSolverParams solverParams,
+        in CombustionSolverParamsByUnits solverParamsByUnits,
         ProblemContextByUnits context) =>
         throw new NotImplementedException();
 
@@ -281,8 +281,8 @@ public sealed class KineticOutSkeletonHelper : BaseKineticPropellantSolver
     /// Extracts the kinetic burn parameters specific to the "OutSkeleton" region from the provided burn parameters.
     /// This method retrieves the pre-exponential factor and activation energy for the kinetic flame within the "OutSkeleton" region.
     /// </summary>
-    /// <param name="solverParams">
-    /// A reference to the parameters related to the burn process, provided as a <see cref="CombustionSolverParams"/> object.
+    /// <param name="solverParamsByUnits">
+    /// A reference to the parameters related to the burn process, provided as a <see cref="CombustionSolverParamsByUnits"/> object.
     /// </param>
     /// <param name="aKineticFlame">
     /// The pre-exponential factor for the kinetic flame, returned as a <see cref="Frequency"/> object.
@@ -292,12 +292,12 @@ public sealed class KineticOutSkeletonHelper : BaseKineticPropellantSolver
     /// </param>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     protected override void ExtractKineticBurnParams(
-        in CombustionSolverParams solverParams,
+        in CombustionSolverParamsByUnits solverParamsByUnits,
         out Frequency aKineticFlame,
         out MolarEnergy eKineticFlame)
     {
-        aKineticFlame = solverParams.AKineticFlamePocketOutSkeleton;
-        eKineticFlame = solverParams.EKineticFlamePocketOutSkeleton;
+        aKineticFlame = solverParamsByUnits.AKineticFlamePocketOutSkeleton;
+        eKineticFlame = solverParamsByUnits.EKineticFlamePocketOutSkeleton;
     }
 
 #endregion
@@ -375,9 +375,9 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
 
     /// <summary>
     /// Visits the specified <see cref="ProblemContextByUnits"/> and updates the context with the calculated surface temperature,
-    /// heat fluxes, and burn rate based on the provided <see cref="CombustionSolverParams"/>.
+    /// heat fluxes, and burn rate based on the provided <see cref="CombustionSolverParamsByUnits"/>.
     /// </summary>
-    /// <param name="solverParams">
+    /// <param name="solverParamsByUnits">
     /// The parameters related to the burn process, including enthalpy change, specific heat capacity, and other combustion parameters.
     /// </param>
     /// <param name="context">
@@ -385,21 +385,21 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
     /// </param>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public override void Visit(
-        in CombustionSolverParams solverParams,
+        in CombustionSolverParamsByUnits solverParamsByUnits,
         ProblemContextByUnits context)
     {
         ref var contextBag = ref context.PocketCombustionParams;
 
-        contextBag.BurnRateIsFound = TryGetSurfaceTemperature(solverParams, context, out contextBag.SurfaceTemperature);
+        contextBag.BurnRateIsFound = TryGetSurfaceTemperature(solverParamsByUnits, context, out contextBag.SurfaceTemperature);
 
         if (contextBag.BurnRateIsFound)
         {
             // Update the context bags with the latest surface temperature
             contextBag.SurfaceHeatFluxesError = GetSurfaceHeatFluxesError(contextBag.SurfaceTemperature,
-                                                                          solverParams,
+                                                                          solverParamsByUnits,
                                                                           context);
             // Get the burn rate using the updated context bags
-            contextBag.BurnRate = GetBurnRate(contextBag.DecomposeRate, context.PropellantParams);
+            contextBag.BurnRate = GetBurnRate(contextBag.DecomposeRate, context.PropellantParamsByUnits);
         }
     }
 
@@ -411,7 +411,7 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
     /// <param name="surfaceTemperature">
     /// The temperature of the propellant surface, provided as a <see cref="Temperature"/> object.
     /// </param>
-    /// <param name="solverParams">
+    /// <param name="solverParamsByUnits">
     /// The parameters related to the burn process, including the enthalpy change and specific heat capacity.
     /// </param>
     /// <param name="context">
@@ -423,7 +423,7 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     protected override HeatFlux GetSurfaceHeatFluxesError(
         in Temperature surfaceTemperature,
-        in CombustionSolverParams solverParams,
+        in CombustionSolverParamsByUnits solverParamsByUnits,
         ProblemContextByUnits context)
     {
         ref var contextBag = ref context.PocketCombustionParams;
@@ -431,51 +431,51 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
         ref var outSkeletonKineticFlameParams = ref contextBag.OutSkeletonKineticFlameCombustionParams;
 
         contextBag.DecomposeRate = GetDecomposeRate(surfaceTemperature,
-                                                    solverParams);
+                                                    solverParamsByUnits);
 
         skeletonKineticFlameParams.KineticFlameHeatFlux =
             _skeletonHelper.GetKineticFlameHeatFlux(context.Pressure,
                                                     surfaceTemperature,
                                                     contextBag.DecomposeRate,
-                                                    solverParams,
-                                                    context.PocketSkeletonKineticFlameParams,
+                                                    solverParamsByUnits,
+                                                    context.PocketSkeletonKineticFlameParamsByUnits,
                                                     ref skeletonKineticFlameParams);
         outSkeletonKineticFlameParams.KineticFlameHeatFlux =
             _outSkeletonHelper.GetKineticFlameHeatFlux(context.Pressure,
                                                        surfaceTemperature,
                                                        contextBag.DecomposeRate,
-                                                       solverParams,
-                                                       context.PocketOutSkeletonKineticFlameParams,
+                                                       solverParamsByUnits,
+                                                       context.PocketOutSkeletonKineticFlameParamsByUnits,
                                                        ref outSkeletonKineticFlameParams);
 
         contextBag.AverageMetalBurningTemperature =
-            GetAverageMetalBurningTemperature(context.PocketMetalCombustionParams);
+            GetAverageMetalBurningTemperature(context.PocketMetalCombustionParamsByUnits);
         contextBag.MetalBurningHeatFlux =
             GetMetalBurningHeatFlux(contextBag.AverageMetalBurningTemperature,
-                                    solverParams);
+                                    solverParamsByUnits);
 
         contextBag.DiffusionFlameHeight = GetDiffusionFlameHeight(contextBag.DecomposeRate,
-                                                                  solverParams,
-                                                                  context.PocketDiffusionFlameParams,
-                                                                  context.PropellantParams);
+                                                                  solverParamsByUnits,
+                                                                  context.PocketDiffusionFlameParamsByUnits,
+                                                                  context.PropellantParamsByUnits);
         contextBag.DiffusionFlameHeatFlux = GetDiffusionFlameHeatFlux(surfaceTemperature,
                                                                       contextBag.DiffusionFlameHeight,
-                                                                      context.PocketDiffusionFlameParams);
+                                                                      context.PocketDiffusionFlameParamsByUnits);
 
         var fullRatio = Ratio.FromDecimalFractions(1.0);
-        var outSkeletonSurfaceFraction = fullRatio - context.PropellantParams.SkeletonSurfaceFraction;
+        var outSkeletonSurfaceFraction = fullRatio - context.PropellantParamsByUnits.SkeletonSurfaceFraction;
         contextBag.OutSkeletonHeatFlux = outSkeletonSurfaceFraction.DecimalFractions
                                          * outSkeletonKineticFlameParams.KineticFlameHeatFlux;
-        contextBag.SkeletonHeatFlux = context.PropellantParams.SkeletonSurfaceFraction.DecimalFractions
+        contextBag.SkeletonHeatFlux = context.PropellantParamsByUnits.SkeletonSurfaceFraction.DecimalFractions
                                       * (contextBag.MetalBurningHeatFlux
                                          + skeletonKineticFlameParams.KineticFlameHeatFlux);
         contextBag.ToSurfaceTotalHeatFlux = contextBag.OutSkeletonHeatFlux
                                             + contextBag.SkeletonHeatFlux
                                             + contextBag.DiffusionFlameHeatFlux;
 
-        var enthalpyChange = context.PropellantParams.SpecificHeatCapacity
-                             * (surfaceTemperature - context.PropellantParams.InitialTemperature)
-                             + solverParams.DeltaH;
+        var enthalpyChange = context.PropellantParamsByUnits.SpecificHeatCapacity
+                             * (surfaceTemperature - context.PropellantParamsByUnits.InitialTemperature)
+                             + solverParamsByUnits.DeltaH;
         contextBag.SublimationHeatFlux = HeatFlux.FromWattsPerSquareMeter(
             contextBag.DecomposeRate.KilogramsPerSecondPerSquareMeter
             * enthalpyChange.JoulesPerKilogram);
@@ -490,7 +490,7 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
     /// <summary>
     /// Calculates the average metal burning temperature based on the melting and boiling temperatures of the metal skeleton.
     /// </summary>
-    /// <param name="metalCombustionParams">
+    /// <param name="metalCombustionParamsByUnits">
     /// The parameters related to metal combustion, including melting and boiling temperatures.
     /// </param>
     /// <returns>
@@ -498,10 +498,10 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private Temperature GetAverageMetalBurningTemperature(
-        in MetalCombustionParams metalCombustionParams)
+        in MetalCombustionParamsByUnits metalCombustionParamsByUnits)
     {
-        var metalMeltingTemperatureDouble = metalCombustionParams.MetalMeltingTemperature.Kelvins;
-        var metalBoilingTemperatureDouble = metalCombustionParams.MetalBoilingTemperature.Kelvins;
+        var metalMeltingTemperatureDouble = metalCombustionParamsByUnits.MetalMeltingTemperature.Kelvins;
+        var metalBoilingTemperatureDouble = metalCombustionParamsByUnits.MetalBoilingTemperature.Kelvins;
 
         var averageMetalBurningTemperature = Temperature.FromKelvins(
             (metalMeltingTemperatureDouble + metalBoilingTemperatureDouble) / 2.0);
@@ -515,7 +515,7 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
     /// <param name="averageMetalBurningTemperature">
     /// The average temperature at which the metal burns, provided as a <see cref="Temperature"/> object.
     /// </param>
-    /// <param name="solverParams">
+    /// <param name="solverParamsByUnits">
     /// The parameters related to the burn process, including the enthalpy change and specific heat capacity.
     /// </param>
     /// <returns>
@@ -524,10 +524,10 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static HeatFlux GetMetalBurningHeatFlux(
         in Temperature averageMetalBurningTemperature,
-        in CombustionSolverParams solverParams)
+        in CombustionSolverParamsByUnits solverParamsByUnits)
     {
-        var hMetalBurning = solverParams.HMetalBurning;
-        var eMetalBurning = solverParams.EMetalBurning;
+        var hMetalBurning = solverParamsByUnits.HMetalBurning;
+        var eMetalBurning = solverParamsByUnits.EMetalBurning;
         const double gasConstant = PhysicalConstants.UniversalGasConstant;
 
         var molarEnergy = MolarEnergy.FromJoulesPerMole(
@@ -544,13 +544,13 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
     /// <param name="decomposeRate">
     /// The mass flux rate at which the propellant decomposes, provided as a <see cref="MassFlux"/> object.
     /// </param>
-    /// <param name="solverParams">
+    /// <param name="solverParamsByUnits">
     /// The parameters related to the burn process, including the enthalpy change and specific heat capacity.
     /// </param>
-    /// <param name="diffusionFlameParams">
+    /// <param name="diffusionFlameParamsByUnits">
     /// The parameters related to the diffusion flame, including volumetric specific heat capacity and thermal conductivity.
     /// </param>
-    /// <param name="propellantParams">
+    /// <param name="propellantParamsByUnits">
     /// The parameters related to the propellant, including the average oxidizer diameter.
     /// </param>
     /// <returns>
@@ -559,18 +559,18 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private Length GetDiffusionFlameHeight(
         in MassFlux decomposeRate,
-        in CombustionSolverParams solverParams,
-        in DiffusionFlameParams diffusionFlameParams,
-        in PropellantParams propellantParams)
+        in CombustionSolverParamsByUnits solverParamsByUnits,
+        in DiffusionFlameParamsByUnits diffusionFlameParamsByUnits,
+        in PropellantParamsByUnits propellantParamsByUnits)
     {
-        var averageOxidizerDiameter = propellantParams.AverageOxidizerDiameter;
-        var volumedSpecificHeatCapacity = diffusionFlameParams.VolumetricSpecificHeatCapacity;
-        var lambdaGas = diffusionFlameParams.ThermalConductivity;
+        var averageOxidizerDiameter = propellantParamsByUnits.AverageOxidizerDiameter;
+        var volumedSpecificHeatCapacity = diffusionFlameParamsByUnits.VolumetricSpecificHeatCapacity;
+        var lambdaGas = diffusionFlameParamsByUnits.ThermalConductivity;
 
         var massFlow = decomposeRate * (averageOxidizerDiameter * averageOxidizerDiameter);
         var thermalConductanceDouble =
             volumedSpecificHeatCapacity.JoulesPerKilogramKelvin * massFlow.KilogramsPerSecond;
-        var heightDouble = solverParams.KDiffusionHeight
+        var heightDouble = solverParamsByUnits.KDiffusionHeight
                            * thermalConductanceDouble
                            / lambdaGas.WattsPerMeterKelvin;
 
@@ -586,7 +586,7 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
     /// <param name="diffusionFlameHeight">
     /// The height of the diffusion flame, provided as a <see cref="Length"/> object.
     /// </param>
-    /// <param name="diffusionFlameParams">
+    /// <param name="diffusionFlameParamsByUnits">
     /// The parameters related to the diffusion flame, including final temperature and thermal conductivity.
     /// </param>
     /// <returns>
@@ -596,10 +596,10 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
     private HeatFlux GetDiffusionFlameHeatFlux(
         in Temperature surfaceTemperature,
         in Length diffusionFlameHeight,
-        in DiffusionFlameParams diffusionFlameParams)
+        in DiffusionFlameParamsByUnits diffusionFlameParamsByUnits)
     {
-        var lambdaGas = diffusionFlameParams.ThermalConductivity;
-        var diffusionFlameTemperature = diffusionFlameParams.FinalTemperature;
+        var lambdaGas = diffusionFlameParamsByUnits.ThermalConductivity;
+        var diffusionFlameTemperature = diffusionFlameParamsByUnits.FinalTemperature;
 
         var heatFluxDouble = lambdaGas.WattsPerMeterKelvin
                              * (diffusionFlameTemperature - surfaceTemperature).Kelvins

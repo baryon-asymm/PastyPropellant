@@ -1,7 +1,7 @@
-﻿using ParametricCombustionModel.Computation.Models.ComputedParams;
+﻿using ParametricCombustionModel.Computation.Extensions;
+using ParametricCombustionModel.Computation.Models.ComputedParams;
 using ParametricCombustionModel.Computation.Models.KnownParams;
 using ParametricCombustionModel.Computation.Models.ProblemContexts;
-using ParametricCombustionModel.Computation.Utils;
 using ParametricCombustionModel.Core.Models;
 using UnitsNet;
 
@@ -96,6 +96,7 @@ public class ProblemContextByDoublesMatrixBuilder
 
                 matrix[i, j] = new ProblemContextByDoubles
                 {
+                    Propellant = propellant,
                     Pressure = pressure.Pascals,
                     PropellantParams = GetPropellantParams(pressure, propellant),
                     InterPocketKineticFlameParams = GetInterPocketKineticFlameParams(propellant),

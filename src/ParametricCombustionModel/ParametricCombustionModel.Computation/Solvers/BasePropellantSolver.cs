@@ -20,34 +20,16 @@ namespace ParametricCombustionModel.Computation.Solvers;
 /// </remarks>
 public abstract class BasePropellantSolver : ISolverVisitor
 {
-#region Properties
-
-    /// <summary>
-    /// The minimum surface temperature for the propellant combustion process.
-    /// This property is used as the lower bound in binary search algorithms for solving the transcendental equation
-    /// to find the surface temperature of the propellant (condensed phase).
-    /// </summary>
-    public static Temperature MinSurfaceTemperature { get; set; } = Temperature.FromKelvins(100);
-
-    /// <summary>
-    /// The maximum surface temperature for the propellant combustion process.
-    /// This property is used as the upper bound in binary search algorithms for solving the transcendental equation
-    /// to find the surface temperature of the propellant (condensed phase).
-    /// </summary>
-    public static Temperature MaxSurfaceTemperature { get; set; } = Temperature.FromKelvins(5000);
-
-#endregion
-
 #region Abstracts
 
     /// <summary>
     /// Accepts a visitor to process combustion solver parameters and problem context using units.
     /// This method must be implemented by derived classes to provide specific behavior for handling the visitor pattern.
     /// </summary>
-    /// <param name="solverParams">A reference to the parameters related to the burn process, provided as <see cref="CombustionSolverParams"/>.</param>
+    /// <param name="solverParamsByUnits">A reference to the parameters related to the burn process, provided as <see cref="CombustionSolverParamsByUnits"/>.</param>
     /// <param name="context">The problem context, provided as <see cref="ProblemContextByUnits"/>.</param>
     public abstract void Visit(
-        in CombustionSolverParams solverParams,
+        in CombustionSolverParamsByUnits solverParamsByUnits,
         ProblemContextByUnits context);
 
     /// <summary>
@@ -56,7 +38,7 @@ public abstract class BasePropellantSolver : ISolverVisitor
     /// how well the current temperature matches the desired thermal equilibrium condition.
     /// </summary>
     /// <param name="surfaceTemperature">The surface temperature of the propellant (temperature of the condensed phase) for which the error in heat fluxes is calculated.</param>
-    /// <param name="solverParams">A reference to the parameters related to the burn process, including factors such as reaction kinetics and activation energy, provided as <see cref="CombustionSolverParams"/>.</param>
+    /// <param name="solverParamsByUnits">A reference to the parameters related to the burn process, including factors such as reaction kinetics and activation energy, provided as <see cref="CombustionSolverParamsByUnits"/>.</param>
     /// <param name="context">The problem context, provided as <see cref="ProblemContextByUnits"/>.</param>
     /// <returns>
     /// The error in surface heat fluxes as a <see cref="HeatFlux"/>. This value represents the difference between the calculated and expected heat fluxes
@@ -65,7 +47,7 @@ public abstract class BasePropellantSolver : ISolverVisitor
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     protected abstract HeatFlux GetSurfaceHeatFluxesError(
         in Temperature surfaceTemperature,
-        in CombustionSolverParams solverParams,
+        in CombustionSolverParamsByUnits solverParamsByUnits,
         ProblemContextByUnits context);
 
     /// <summary>
@@ -105,7 +87,7 @@ public abstract class BasePropellantSolver : ISolverVisitor
     /// within the predefined temperature range from <see cref="MinSurfaceTemperature"/> to <see cref="MaxSurfaceTemperature"/>.
     /// </summary>
     /// <param name="pressure">The pressure in the rocket engine combustion chamber, which influences the equilibrium temperature.</param>
-    /// <param name="solverParams">A reference to the parameters related to the burn process, including factors like reaction kinetics and activation energy, provided as <see cref="CombustionSolverParams"/>.</param>
+    /// <param name="solverParamsByUnits">A reference to the parameters related to the burn process, including factors like reaction kinetics and activation energy, provided as <see cref="CombustionSolverParamsByUnits"/>.</param>
     /// <param name="surfaceTemperature">
     /// When this method returns, contains the surface temperature of the propellant, if a valid temperature
     /// is found within the defined range and tolerance; otherwise, it contains a temperature value less than or equal to zero.
@@ -122,15 +104,15 @@ public abstract class BasePropellantSolver : ISolverVisitor
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     protected virtual bool TryGetSurfaceTemperature(
-        in CombustionSolverParams solverParams,
+        in CombustionSolverParamsByUnits solverParamsByUnits,
         ProblemContextByUnits context,
         out Temperature surfaceTemperature)
     {
-        var leftTemperature = MinSurfaceTemperature;
-        var rightTemperature = MaxSurfaceTemperature;
+        var leftTemperature = context.MinSurfaceTemperature;
+        var rightTemperature = context.MaxSurfaceTemperature;
         var tolerance = TemperatureDelta.FromKelvins(1e-8);
 
-        surfaceTemperature = GetSurfaceTemperatureByBinarySearchOrFail(solverParams,
+        surfaceTemperature = GetSurfaceTemperatureByBinarySearchOrFail(solverParamsByUnits,
                                                                        context,
                                                                        ref leftTemperature,
                                                                        ref rightTemperature,
@@ -144,22 +126,22 @@ public abstract class BasePropellantSolver : ISolverVisitor
     /// The burn rate is determined by dividing the decomposition rate by the propellant density.
     /// </summary>
     /// <param name="decomposeRate">The rate at which the propellant decomposes, represented as a <see cref="MassFlux"/> (kg/(m²·s)).</param>
-    /// <param name="propellantParams">A reference to the parameters related to the propellant, including its density, provided as <see cref="PropellantParams"/>.</param>
+    /// <param name="propellantParamsByUnits">A reference to the parameters related to the propellant, including its density, provided as <see cref="PropellantParamsByUnits"/>.</param>
     /// <returns>
     /// The burn rate as a <see cref="Speed"/>, representing the velocity at which the propellant's surface recedes (m/s).
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     protected virtual Speed GetBurnRate(
         in MassFlux decomposeRate,
-        in PropellantParams propellantParams) =>
-        decomposeRate / propellantParams.Density;
+        in PropellantParamsByUnits propellantParamsByUnits) =>
+        decomposeRate / propellantParamsByUnits.Density;
 
     /// <summary>
     /// Calculates the decomposition rate of the propellant based on the given surface temperature and burn parameters 
     /// using the Arrhenius equation.
     /// </summary>
     /// <param name="surfaceTemperature">The surface temperature of the propellant (temperature of the condensed phase), provided as a <see cref="Temperature"/>.</param>
-    /// <param name="solverParams">A reference to the parameters related to the burn process, provided as <see cref="CombustionSolverParams"/>.</param>
+    /// <param name="solverParamsByUnits">A reference to the parameters related to the burn process, provided as <see cref="CombustionSolverParamsByUnits"/>.</param>
     /// <returns>
     /// The decomposition rate as a <see cref="MassFlux"/>, representing the mass flux of decomposed material 
     /// per unit area per unit time (kg/(m²·s)).
@@ -167,10 +149,10 @@ public abstract class BasePropellantSolver : ISolverVisitor
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     protected virtual MassFlux GetDecomposeRate(
         in Temperature surfaceTemperature,
-        in CombustionSolverParams solverParams)
+        in CombustionSolverParamsByUnits solverParamsByUnits)
     {
-        var aDecompose = solverParams.ADecompose;
-        var eDecompose = solverParams.EDecompose;
+        var aDecompose = solverParamsByUnits.ADecompose;
+        var eDecompose = solverParamsByUnits.EDecompose;
         const double gasConstant = PhysicalConstants.UniversalGasConstant; // J/(mol*K)
 
         var molarEnergy = MolarEnergy.FromJoulesPerMole(gasConstant * surfaceTemperature.Kelvins);
@@ -188,7 +170,7 @@ public abstract class BasePropellantSolver : ISolverVisitor
     /// where the heat flux error function crosses zero, indicating thermal equilibrium.
     /// </summary>
     /// <param name="pressure">The pressure in the rocket engine combustion chamber, influencing the equilibrium temperature.</param>
-    /// <param name="solverParams">A reference to the parameters related to the burn process, including reaction kinetics and activation energy, provided as <see cref="CombustionSolverParams"/>.</param>
+    /// <param name="solverParamsByUnits">A reference to the parameters related to the burn process, including reaction kinetics and activation energy, provided as <see cref="CombustionSolverParamsByUnits"/>.</param>
     /// <param name="leftTemperature">
     /// A reference to the lower bound of the temperature range for the binary search. 
     /// This value is updated during the search process to reflect the current search interval.
@@ -209,7 +191,7 @@ public abstract class BasePropellantSolver : ISolverVisitor
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private Temperature GetSurfaceTemperatureByBinarySearchOrFail(
-        in CombustionSolverParams solverParams,
+        in CombustionSolverParamsByUnits solverParamsByUnits,
         ProblemContextByUnits context,
         ref Temperature leftTemperature,
         ref Temperature rightTemperature,
@@ -218,8 +200,8 @@ public abstract class BasePropellantSolver : ISolverVisitor
         if (leftTemperature > rightTemperature)
             (leftTemperature, rightTemperature) = (rightTemperature, leftTemperature);
 
-        var leftValue = GetSurfaceHeatFluxesError(leftTemperature, solverParams, context);
-        var rightValue = GetSurfaceHeatFluxesError(rightTemperature, solverParams, context);
+        var leftValue = GetSurfaceHeatFluxesError(leftTemperature, solverParamsByUnits, context);
+        var rightValue = GetSurfaceHeatFluxesError(rightTemperature, solverParamsByUnits, context);
 
         const double greaterThisNotExistSolution = 0.0;
         const double unavailableSurfaceTemperature = -1.0;
@@ -230,7 +212,7 @@ public abstract class BasePropellantSolver : ISolverVisitor
         var meanTemperature = Temperature.FromKelvins(meanTemperatureDouble);
         while ((rightTemperature - leftTemperature) > tolerance)
         {
-            var middleValue = GetSurfaceHeatFluxesError(meanTemperature, solverParams, context);
+            var middleValue = GetSurfaceHeatFluxesError(meanTemperature, solverParamsByUnits, context);
 
             if (middleValue.WattsPerSquareMeter * leftValue.WattsPerSquareMeter < 0.0)
             {
@@ -280,9 +262,9 @@ public abstract class BasePropellantSolver : ISolverVisitor
         ProblemContextByDoubles context,
         out double surfaceTemperature)
     {
-        var leftTemperature = MinSurfaceTemperature.Kelvins;
-        var rightTemperature = MaxSurfaceTemperature.Kelvins;
-        var tolerance = 1e-8;
+        var leftTemperature = context.MinSurfaceTemperature;
+        var rightTemperature = context.MaxSurfaceTemperature;
+        const double tolerance = 1e-8;
 
         surfaceTemperature = GetSurfaceTemperatureByBinarySearchOrFail(solverParams,
                                                                        context,

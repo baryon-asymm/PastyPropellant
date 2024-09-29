@@ -12,7 +12,7 @@ namespace ParametricCombustionModel.Computation.Solvers;
 /// such as heat flux, average temperature, density, and flame height.
 /// </summary>
 /// <remarks>
-/// Derived classes must implement the abstract methods <see cref="ExtractKineticBurnParams(CombustionSolverParams, out Frequency, out MolarEnergy)"/>
+/// Derived classes must implement the abstract methods <see cref="ExtractKineticBurnParams(CombustionSolverParamsByUnits, out Frequency, out MolarEnergy)"/>
 /// and <see cref="ExtractKineticBurnParams(CombustionSolverParamsByDoubles, out double, out double)"/>
 /// to provide specific logic for extracting kinetic flame parameters.
 /// </remarks>
@@ -25,8 +25,8 @@ public abstract class BaseKineticPropellantSolver : BasePropellantSolver
     /// This method retrieves the pre-exponential factor and activation energy
     /// specific to the kinetic flame from the provided burn parameters.
     /// </summary>
-    /// <param name="solverParams">
-    /// A reference to the parameters related to the burn process, provided as <see cref="CombustionSolverParams"/>.
+    /// <param name="solverParamsByUnits">
+    /// A reference to the parameters related to the burn process, provided as <see cref="CombustionSolverParamsByUnits"/>.
     /// </param>
     /// <param name="aKineticFlame">
     /// The pre-exponential factor for the kinetic flame, returned as a <see cref="Frequency"/>.
@@ -43,7 +43,7 @@ public abstract class BaseKineticPropellantSolver : BasePropellantSolver
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     protected abstract void ExtractKineticBurnParams(
-        in CombustionSolverParams solverParams,
+        in CombustionSolverParamsByUnits solverParamsByUnits,
         out Frequency aKineticFlame,
         out MolarEnergy eKineticFlame);
 
@@ -87,8 +87,8 @@ public abstract class BaseKineticPropellantSolver : BasePropellantSolver
     /// <param name="pressure">The pressure in the rocket engine combustion chamber, expressed as a <see cref="Pressure"/>.</param>
     /// <param name="surfaceTemperature">The surface temperature of the propellant, expressed as a <see cref="Temperature"/>.</param>
     /// <param name="decomposeRate">The mass flux rate at which the propellant decomposes, expressed as a <see cref="MassFlux"/>.</param>
-    /// <param name="solverParams">A reference to the parameters related to the burn process, provided as <see cref="CombustionSolverParams"/>.</param>
-    /// <param name="kineticFlameParams">A reference to the parameters related to the kinetic flame, provided as <see cref="KineticFlameParams"/>.</param>
+    /// <param name="solverParamsByUnits">A reference to the parameters related to the burn process, provided as <see cref="CombustionSolverParamsByUnits"/>.</param>
+    /// <param name="kineticFlameParamsByUnits">A reference to the parameters related to the kinetic flame, provided as <see cref="KineticFlameParamsByUnits"/>.</param>
     /// <param name="contextBag">A reference to the <see cref="KineticFlameCombustionParams"/> context for storing intermediate computation results.</param>
     /// <returns>
     /// The heat flux from the kinetic flame to the propellant surface, represented as a <see cref="HeatFlux"/>.
@@ -102,25 +102,25 @@ public abstract class BaseKineticPropellantSolver : BasePropellantSolver
         in Pressure pressure,
         in Temperature surfaceTemperature,
         in MassFlux decomposeRate,
-        in CombustionSolverParams solverParams,
-        in KineticFlameParams kineticFlameParams,
+        in CombustionSolverParamsByUnits solverParamsByUnits,
+        in KineticFlameParamsByUnits kineticFlameParamsByUnits,
         ref KineticFlameCombustionParams contextBag)
     {
-        var thermalConductivity = kineticFlameParams.ThermalConductivity;
-        var kineticFlameTemperature = kineticFlameParams.FinalTemperature;
+        var thermalConductivity = kineticFlameParamsByUnits.ThermalConductivity;
+        var kineticFlameTemperature = kineticFlameParamsByUnits.FinalTemperature;
 
         contextBag.AverageKineticFlameTemperature =
             GetAverageKineticFlameTemperature(surfaceTemperature,
-                                              kineticFlameParams);
+                                              kineticFlameParamsByUnits);
         contextBag.AverageKineticFlameDensity =
             GetAverageKineticFlameDensity(pressure,
                                           contextBag.AverageKineticFlameTemperature,
-                                          kineticFlameParams);
+                                          kineticFlameParamsByUnits);
         contextBag.KineticFlameHeight =
             GetKineticFlameHeight(decomposeRate,
                                   contextBag.AverageKineticFlameTemperature,
                                   contextBag.AverageKineticFlameDensity,
-                                  solverParams);
+                                  solverParamsByUnits);
 
         var heatFluxDouble = thermalConductivity.WattsPerMeterKelvin
                              * (kineticFlameTemperature - surfaceTemperature).Kelvins
@@ -137,7 +137,7 @@ public abstract class BaseKineticPropellantSolver : BasePropellantSolver
     /// of the kinetic flame layer, which is useful for further thermal analysis and heat flux calculations.
     /// </summary>
     /// <param name="surfaceTemperature">The surface temperature of the propellant, expressed as a <see cref="Temperature"/>.</param>
-    /// <param name="kineticFlameParams">A reference to the parameters related to the kinetic flame, including properties such as the final flame temperature.</param>
+    /// <param name="kineticFlameParamsByUnits">A reference to the parameters related to the kinetic flame, including properties such as the final flame temperature.</param>
     /// <returns>
     /// The average kinetic flame temperature as a <see cref="Temperature"/>.
     /// </returns>
@@ -148,9 +148,9 @@ public abstract class BaseKineticPropellantSolver : BasePropellantSolver
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     protected virtual Temperature GetAverageKineticFlameTemperature(
         in Temperature surfaceTemperature,
-        in KineticFlameParams kineticFlameParams)
+        in KineticFlameParamsByUnits kineticFlameParamsByUnits)
     {
-        var kineticFlameTemperature = kineticFlameParams.FinalTemperature;
+        var kineticFlameTemperature = kineticFlameParamsByUnits.FinalTemperature;
 
         var averageKineticFlameTemperatureDouble =
             (kineticFlameTemperature.Kelvins + surfaceTemperature.Kelvins) / 2.0;
@@ -166,7 +166,7 @@ public abstract class BaseKineticPropellantSolver : BasePropellantSolver
     /// </summary>
     /// <param name="pressure">The pressure in the rocket engine combustion chamber, expressed as a <see cref="Pressure"/>.</param>
     /// <param name="averageKineticFlameTemperature">The average temperature of the kinetic flame, expressed as a <see cref="Temperature"/>.</param>
-    /// <param name="kineticFlameParams">A reference to the parameters related to the kinetic flame, such as the average molar mass of the flame components.</param>
+    /// <param name="kineticFlameParamsByUnits">A reference to the parameters related to the kinetic flame, such as the average molar mass of the flame components.</param>
     /// <returns>
     /// The average kinetic flame density as a <see cref="Density"/>.
     /// </returns>
@@ -179,9 +179,9 @@ public abstract class BaseKineticPropellantSolver : BasePropellantSolver
     protected virtual Density GetAverageKineticFlameDensity(
         in Pressure pressure,
         in Temperature averageKineticFlameTemperature,
-        in KineticFlameParams kineticFlameParams)
+        in KineticFlameParamsByUnits kineticFlameParamsByUnits)
     {
-        var averageMolarMass = kineticFlameParams.AverageMolarMass;
+        var averageMolarMass = kineticFlameParamsByUnits.AverageMolarMass;
         const double gasConstant = PhysicalConstants.UniversalGasConstant; // J/(mol*K)
 
         var averageDensityDouble = pressure.Pascals
@@ -202,7 +202,7 @@ public abstract class BaseKineticPropellantSolver : BasePropellantSolver
     /// <param name="decomposeRate">The mass flux rate at which the propellant decomposes, expressed as a <see cref="MassFlux"/>.</param>
     /// <param name="averageKineticFlameTemperature">The average temperature of the kinetic flame, expressed as a <see cref="Temperature"/>.</param>
     /// <param name="averageKineticFlameDensity">The average density of the kinetic flame, expressed as a <see cref="Density"/>.</param>
-    /// <param name="solverParams">A reference to the parameters related to the burn process, provided as <see cref="CombustionSolverParams"/>.</param>
+    /// <param name="solverParamsByUnits">A reference to the parameters related to the burn process, provided as <see cref="CombustionSolverParamsByUnits"/>.</param>
     /// <returns>
     /// The height of the kinetic flame, calculated as a <see cref="Length"/>.
     /// </returns>
@@ -216,10 +216,10 @@ public abstract class BaseKineticPropellantSolver : BasePropellantSolver
         in MassFlux decomposeRate,
         in Temperature averageKineticFlameTemperature,
         in Density averageKineticFlameDensity,
-        in CombustionSolverParams solverParams)
+        in CombustionSolverParamsByUnits solverParamsByUnits)
     {
-        ExtractKineticBurnParams(solverParams, out var aKineticFlame, out var eKineticFlame);
-        var nu = solverParams.Nu;
+        ExtractKineticBurnParams(solverParamsByUnits, out var aKineticFlame, out var eKineticFlame);
+        var nu = solverParamsByUnits.Nu;
         const double gasConstant = PhysicalConstants.UniversalGasConstant; // J/(mol*K)
 
         var molarEnergy = MolarEnergy.FromJoulesPerMole(gasConstant * averageKineticFlameTemperature.Kelvins);

@@ -42,7 +42,7 @@ public class DifferentialEvolutionOptimizerTester
         }
 
         var optimizer =
-            new DifferentialEvolutionOptimizer(mutationStrategy,
+            new Optimizer(mutationStrategy,
                                                fitnessFunctionInvoker,
                                                populations[0],
                                                populations[1],

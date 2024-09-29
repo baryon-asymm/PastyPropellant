@@ -1,8 +1,8 @@
 ﻿using System.Collections;
 using OxyPlot;
 using OxyPlot.Series;
+using ParametricCombustionModel.Optimization.Models;
 using ParametricCombustionModel.PlotRenderer.Models;
-using ParametricCombustionModel.ReportMaking.Models;
 
 namespace ParametricCombustionModel.PlotRenderer.Renderers;
 
@@ -16,12 +16,12 @@ public class PocketSurfaceFractionPlotRenderer : BasePlotRenderer
         OxyColors.Violet
     ];
     
-    public override void Render(Report report, PlotSettings settings)
+    public override void Render(OptimizationResult result, PlotSettings settings)
     {
         var plotModel = CreatePlotModel(settings);
 
         // Extract and prepare data for each propellant
-        var seriesData = PreparePocketSurfaceFractionData(report);
+        var seriesData = PreparePocketSurfaceFractionData(result);
 
         // Add each series to the plot
         foreach (var (propellantName, dataPoints) in seriesData)
@@ -36,19 +36,19 @@ public class PocketSurfaceFractionPlotRenderer : BasePlotRenderer
         SavePlotToFile(plotModel, "pocket_surface_fraction_plot.jpg", settings);
     }
 
-    private Dictionary<string, IEnumerable<DataPoint>> PreparePocketSurfaceFractionData(Report report)
+    private Dictionary<string, IEnumerable<DataPoint>> PreparePocketSurfaceFractionData(OptimizationResult result)
     {
         var seriesData = new Dictionary<string, IEnumerable<DataPoint>>();
 
-        foreach (var propellantReport in report.PropellantReports)
-        {
-            var dataPoints = propellantReport.PressureFrameReports
-                                             .Select(pfr => new DataPoint(pfr.Pressure,
-                                                 pfr.PocketPropellantReport.PocketSurfaceFraction))
-                                             .ToList();
-
-            seriesData[propellantReport.Propellant.Name] = dataPoints;
-        }
+        // foreach (var propellantReport in report.PropellantReports)
+        // {
+        //     var dataPoints = propellantReport.PressureFrameReports
+        //                                      .Select(pfr => new DataPoint(pfr.Pressure,
+        //                                          pfr.PocketPropellantReport.PocketSurfaceFraction))
+        //                                      .ToList();
+        //
+        //     seriesData[propellantReport.Propellant.Name] = dataPoints;
+        // }
 
         return seriesData;
     }

@@ -8,8 +8,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\MatlabGlobalSearch.Api\MatlabGlobalSearch.Api.csproj"/>
-        <ProjectReference Include="..\ParametricCombustionModel.ParamsRecording\ParametricCombustionModel.ParamsRecording.csproj"/>
+      <ProjectReference Include="..\..\Optimizers\DifferentialEvolution.Optimizer\DifferentialEvolution.Optimizer.csproj" />
+      <ProjectReference Include="..\ParametricCombustionModel.Computation\ParametricCombustionModel.Computation.csproj" />
     </ItemGroup>
 
 </Project>

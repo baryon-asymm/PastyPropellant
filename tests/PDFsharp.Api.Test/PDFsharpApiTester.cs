@@ -8,7 +8,7 @@ public class PDFsharpApiTester
     [Fact]
     public void TestGeneratePdfFile()
     {
-        var pdfGenerator = new PDFsharpAdapter("tmp.pdf");
+        var pdfGenerator = new PdfSharpAdapter("tmp.pdf");
 
         // Add simple paragraph with left text alignment
         AddSimpleParagraph(pdfGenerator, TextAlignment.Left);
@@ -29,7 +29,7 @@ public class PDFsharpApiTester
         Assert.True(operationResult.IsSuccess);
     }
 
-    private static void AddSimpleParagraph(PDFsharpAdapter adapter, TextAlignment textAlignment)
+    private static void AddSimpleParagraph(PdfSharpAdapter adapter, TextAlignment textAlignment)
     {
         adapter.AddParagraph(textAlignment);
         adapter.AddText("Just text\n");

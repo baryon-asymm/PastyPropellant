@@ -1,41 +1,36 @@
 ﻿using System.Collections.ObjectModel;
 using System.Text.Json;
-using DifferentialEvolution.Optimizer;
-using DifferentialEvolution.Optimizer.Interfaces;
 using DifferentialEvolution.Optimizer.Models;
-using DifferentialEvolution.Optimizer.MutationStrategies;
-using DifferentialEvolution.Optimizer.PopulationGenerators.Interfaces;
+using ParametricCombustionModel.Computation.Builders;
+using ParametricCombustionModel.Computation.Models.ProblemContexts;
 using ParametricCombustionModel.Computation.Solvers;
-using ParametricCombustionModel.Computation.Utils;
-using ParametricCombustionModel.Core.DTOs;
 using ParametricCombustionModel.Core.Models;
-using ParametricCombustionModel.Optimization.Constrainers;
-using ParametricCombustionModel.Optimization.TargetFunctions;
-using ParametricCombustionModel.Optimization.TargetFunctions.Interfaces;
-using ParametricCombustionModel.ParamsRecording.Builders;
-using ParametricCombustionModel.ParamsRecording.ParamsRecorders;
+using ParametricCombustionModel.Optimization.ConstraintPenaltyEvaluators;
+using ParametricCombustionModel.Optimization.ConstraintPenaltyEvaluators.Interfaces;
+using ParametricCombustionModel.Optimization.FitnessFunctionEvaluators;
+using ParametricCombustionModel.Optimization.Interfaces;
+using ParametricCombustionModel.Optimization.Models;
+using ParametricCombustionModel.Optimization.Optimizers;
 using PastyPropellant.Core.Utils;
+using UnitsNet;
 
 namespace ParametricCombustionModel.ProcessWorker.Scenarios;
 
 public class DifferentialEvolutionRuntime
 {
-    private readonly FitnessFunctionInvoker _fitnessFunctionInvoker;
-
     private readonly ReadOnlyCollection<double> _lowerBound;
-    private readonly DifferentialEvolutionOptimizer _optimizer;
-
-    private readonly ITargetFunctionSolver _solver;
     private readonly ReadOnlyCollection<double> _upperBound;
 
-    public DifferentialEvolutionRuntime(IEnumerable<double> lowerBound,
-                                        IEnumerable<double> upperBound,
-                                        IEnumerable<double> pressures,
-                                        double heatFlowsSegmentSize,
-                                        int numberOfGenerations,
-                                        string propellantsFileName,
-                                        IPopulationGenerator firstPopulationGenerator,
-                                        IPopulationGenerator secondPopulationGenerator)
+    private readonly DifferentialEvolutionOptimizer _optimizer;
+
+    public DifferentialEvolutionRuntime(
+        int populationSize,
+        int maxStagnationStreak,
+        string propellantsFilePath,
+        IEnumerable<Pressure> pressures,
+        IEnumerable<Pressure> reportPressures,
+        IEnumerable<double> lowerBound,
+        IEnumerable<double> upperBound)
     {
         _lowerBound = lowerBound.ToList().AsReadOnly();
         _upperBound = upperBound.ToList().AsReadOnly();
@@ -43,145 +38,115 @@ public class DifferentialEvolutionRuntime
         if (_lowerBound.Count != _upperBound.Count)
             throw new ArgumentException("Lower and upper bounds must have the same length");
 
-        var context = GetOptimizationContext($"../data/{propellantsFileName}", pressures);
-        var solverMatrix = GetMixedPropellantSolvers(context);
-        _solver = GetTargetFunctionSolver(context, solverMatrix);
-        double[] penaltyRates = [1e1, 1e1, 1, 1];
-        //var surfaceTemperaturesConstrainer = new SurfaceTemperaturesConstrainer(context.MinSurfaceTemperature, context.MaxSurfaceTemperature, penaltyRates[0], solverMatrix, _solver);
-        var heatFlowsConstrainer =
-            new PocketHeatFlowOffsetConstrainer(heatFlowsSegmentSize, penaltyRates[1], solverMatrix, _solver);
-        var interPocketConstrainer =
-            new InterPocketBurningFasterConstrainer(penaltyRates[2], solverMatrix, _solver, heatFlowsConstrainer);
-        //var kineticFlameHeightConstrainer = new KineticFlameHeightConstrainer(100e-6, 1000e-6, penaltyRates[3], solverMatrix, _solver, interPocketConstrainer);
-        var kineticFlameHeatFlowConstrainer =
-            new KineticFlameHeatFlowConstrainer(1e8, penaltyRates[3], solverMatrix, _solver, interPocketConstrainer);
-
-        _fitnessFunctionInvoker = new FitnessFunctionInvoker(_solver, kineticFlameHeatFlowConstrainer);
-
-        _optimizer = new DifferentialEvolutionOptimizer(new MutationStrategy(lowerBound, upperBound, 0.5, 0.9),
-                                                        _fitnessFunctionInvoker,
-                                                        firstPopulationGenerator.Generate(_fitnessFunctionInvoker),
-                                                        secondPopulationGenerator.Generate(_fitnessFunctionInvoker),
-                                                        numberOfGenerations,
-                                                        Callback);
-    }
-
-    private void Callback(int generation, Individual best)
-    {
-        if (generation % 1000 != 0)
-            return;
-        
-        var penaltyValue = _fitnessFunctionInvoker.GetTotalPenalty(best.Vector.Span);
-        var targetValue = best.FitnessFunctionCost - penaltyValue;
-        EventBus<string>
-            .Publish(
-                $"Generation: {generation}\tBestFVal {best.FitnessFunctionCost:#,0.000000000}\tTargetValue {targetValue:#,0.000000000}\t\tPenalty {penaltyValue:#,0.000000000}");
-    }
-
-    private OptimizationContext GetOptimizationContext(string propellantsFilePath, IEnumerable<double> pressures)
-    {
         var propellants = GetPropellants(propellantsFilePath);
-        return new OptimizationContext(pressures, null, 0, 0, _lowerBound, _upperBound, 600, 750, propellants);
+        var penaltyEvaluators = GetPenaltyEvaluators();
+        var optimizationProblemContext = GetOptimizationProblemContextByDoubles(
+            pressures,
+            propellants,
+            penaltyEvaluators);
+        var contextMatrixByUnits = GetProblemContextMatrixByUnits(reportPressures, propellants);
+        var optimizationProblemContextByUnits = GetOptimizationProblemContextByUnits(
+            contextMatrixByUnits,
+            penaltyEvaluators);
+        var fitnessFunctionEvaluator = GetTargetFunctionSolver();
+
+        _optimizer = DifferentialEvolutionOptimizerBuilder.FromPropellants(propellants)
+                                                          .WithLowerBound(lowerBound.ToArray().AsReadOnly())
+                                                          .WithUpperBound(upperBound.ToArray().AsReadOnly())
+                                                          .WithOptimizationContexts(
+                                                              optimizationProblemContext,
+                                                              optimizationProblemContextByUnits)
+                                                          .WithPopulationSize(populationSize)
+                                                          .WithFitnessFunctionEvaluator(fitnessFunctionEvaluator)
+                                                          .WithMaxStagnationStreak(maxStagnationStreak)
+                                                          .Build();
     }
 
-    private ReadOnlyCollection<Propellant> GetPropellants(string filePath)
+    private ReadOnlyCollection<Propellant> GetPropellants(
+        string filePath)
     {
         using FileStream fileStream = new(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
         var result = JsonSerializer.DeserializeAsync<List<Propellant>>(fileStream).Result;
         return result.AsReadOnly();
     }
 
-    private ReadOnlyCollection<ReadOnlyCollection<MixedSolverParamsRecorder>> GetMixedPropellantSolvers(
-        OptimizationContext context)
+    private ProblemContextByDoubles[,] GetProblemContextMatrixByDoubles(
+        IEnumerable<Pressure> pressures,
+        IEnumerable<Propellant> propellants)
     {
-        var solvers = MixedSolverParamsRecordersBuilder.FromPropellants(context.Propellants)
-                                                       .ForPressures(context.Pressures)
-                                                       .Build();
-        return solvers.Select(x => x.ToList().AsReadOnly()).ToList().AsReadOnly();
+        var contextMatrix = ProblemContextByDoublesMatrixBuilder.FromPropellants(propellants)
+                                                                .ForPressures(pressures)
+                                                                .BuildMatrix();
+
+        return contextMatrix;
     }
 
-    private ITargetFunctionSolver GetTargetFunctionSolver(OptimizationContext context,
-                                                          IEnumerable<IEnumerable<MixedPropellantSolver>> solverMatrix)
+    private ProblemContextByUnits[,] GetProblemContextMatrixByUnits(
+        IEnumerable<Pressure> pressures,
+        IEnumerable<Propellant> propellants)
     {
-        var experimentalBurningRates = context.Propellants.GetExperimentalBurnRates(context.Pressures);
-        var solver = new TargetFunctionNonlconSolver(experimentalBurningRates, solverMatrix, (600, 750));
+        var contextMatrix = ProblemContextByUnitsMatrixBuilder.FromPropellants(propellants)
+                                                              .ForPressures(pressures)
+                                                              .BuildMatrix();
+
+        return contextMatrix;
+    }
+
+    private IEnumerable<IPenaltyEvaluator> GetPenaltyEvaluators()
+    {
+        var penaltyRate = 1.0;
+        var heatFluxRatioThreshold = 100.0;
+
+        var maxInterPocketKineticFlameHeatFlux = HeatFlux.FromWattsPerSquareMeter(1e9);
+        var maxSkeletonKineticFlameHeatFlux = HeatFlux.FromWattsPerSquareMeter(1e8);
+        var maxOutSkeletonKineticFlameHeatFlux = HeatFlux.FromWattsPerSquareMeter(1e8);
+
+        var penaltyEvaluators = new List<IPenaltyEvaluator>
+        {
+            new PocketHeatFluxRatioCompetitionPenaltyEvaluator(penaltyRate, heatFluxRatioThreshold),
+            new InterPocketFasterBurnPenaltyEvaluator(penaltyRate),
+            new KineticFlameHeatFluxPenaltyEvaluator(penaltyRate,
+                                                     maxInterPocketKineticFlameHeatFlux,
+                                                     maxSkeletonKineticFlameHeatFlux,
+                                                     maxOutSkeletonKineticFlameHeatFlux)
+        };
+
+        return penaltyEvaluators;
+    }
+
+    private OptimizationProblemContextByDoubles[] GetOptimizationProblemContextByDoubles(
+        IEnumerable<Pressure> pressures,
+        IEnumerable<Propellant> propellants,
+        IEnumerable<IPenaltyEvaluator> penaltyEvaluators)
+    {
+        var solver = new MixedPropellantSolver();
+        var contexts = new List<OptimizationProblemContextByDoubles>();
+        for (var i = 0; i < Environment.ProcessorCount; i++)
+        {
+            var contextMatrix = GetProblemContextMatrixByDoubles(pressures, propellants);
+            contexts.Add(new OptimizationProblemContextByDoubles(contextMatrix, solver, penaltyEvaluators));
+        }
+
+        return contexts.ToArray();
+    }
+
+    private OptimizationProblemContextByUnits GetOptimizationProblemContextByUnits(
+        ProblemContextByUnits[,] contextMatrix,
+        IEnumerable<IPenaltyEvaluator> penaltyEvaluators)
+    {
+        var solver = new MixedPropellantSolver();
+        var context = new OptimizationProblemContextByUnits(contextMatrix, solver, penaltyEvaluators);
+        return context;
+    }
+
+    private IFitnessFunctionVisitor GetTargetFunctionSolver()
+    {
+        var solver = new PenaltyFitnessFunctionEvaluator();
         return solver;
     }
 
-    public Individual Run()
+    public Task<OperationResult<OptimizationResult>> RunAsync()
     {
-        return _optimizer.Run();
-    }
-}
-
-public class FitnessFunctionInvoker : IFitnessFunctionInvoker
-{
-    private readonly BaseConstrainer _constrainer;
-    private readonly ITargetFunctionSolver _solver;
-
-    public FitnessFunctionInvoker(ITargetFunctionSolver solver,
-                                  BaseConstrainer constrainer)
-    {
-        _solver = solver;
-        _constrainer = constrainer;
-    }
-
-    public double Invoke(Span<double> point)
-    {
-        Span<double> values = stackalloc double[3];
-        _solver.RunTargetFunction(point, values);
-
-        if (values[0] == double.MaxValue)
-            return double.MaxValue;
-
-        var penaltyValue = _constrainer.GetPenaltyValue(point);
-
-        return values[0] + penaltyValue;
-    }
-
-    public double GetTotalPenalty(Span<double> point)
-    {
-        Span<double> values = stackalloc double[3];
-        _solver.RunTargetFunction(point, values);
-
-        if (values[0] == double.MaxValue)
-            return double.MaxValue;
-
-        return _constrainer.GetPenaltyValue(point);
-    }
-}
-
-public class CustomPopulationGenerator(int populationSize,
-                                       ReadOnlyCollection<double> upperBound,
-                                       ReadOnlyCollection<double> lowerBound,
-                                       ReadOnlyCollection<double> startPoint) : IPopulationGenerator
-{
-    public Population Generate(IFitnessFunctionInvoker fitnessFunctionInvoker)
-    {
-        var random = new Random();
-        var individuals = new Individual[populationSize];
-        var vectors = new double[populationSize][];
-        for (var i = 0; i < populationSize; i++)
-        {
-            vectors[i] = new double[lowerBound.Count];
-            for (var j = 0; j < lowerBound.Count; j++)
-            {
-                var upperBoundByStartPoint = startPoint[j] * 1.1; // +10%
-                var lowerBoundByStartPoint = startPoint[j] * 0.9; // -10%
-
-                if (upperBoundByStartPoint > upperBound[j])
-                    upperBoundByStartPoint = upperBound[j];
-
-                if (lowerBoundByStartPoint > lowerBound[j])
-                    lowerBoundByStartPoint = lowerBound[j];
-                
-                vectors[i][j] = random.NextDouble() * (upperBoundByStartPoint - lowerBoundByStartPoint) + lowerBoundByStartPoint;
-            }
-
-            var individual = new Individual(fitnessFunctionInvoker.Invoke(vectors[i]), vectors[i]);
-            individuals[i] = individual;
-        }
-
-        return new Population(individuals.ToArray());
+        return _optimizer.RunAsync();
     }
 }

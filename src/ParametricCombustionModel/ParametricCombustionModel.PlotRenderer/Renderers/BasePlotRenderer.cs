@@ -3,18 +3,21 @@ using OxyPlot.Axes;
 using OxyPlot.Legends;
 using OxyPlot.Series;
 using OxyPlot.SkiaSharp;
+using ParametricCombustionModel.Optimization.Models;
 using ParametricCombustionModel.PlotRenderer.Extensions;
 using ParametricCombustionModel.PlotRenderer.Interfaces;
 using ParametricCombustionModel.PlotRenderer.Models;
-using ParametricCombustionModel.ReportMaking.Models;
 
 namespace ParametricCombustionModel.PlotRenderer.Renderers;
 
 public abstract class BasePlotRenderer : IPlotRenderer
 {
-    public abstract void Render(Report report, PlotSettings settings);
+    public abstract void Render(
+        OptimizationResult result,
+        PlotSettings settings);
 
-    protected PlotModel CreatePlotModel(PlotSettings settings)
+    protected PlotModel CreatePlotModel(
+        PlotSettings settings)
     {
         var plotModel = new PlotModel
         {
@@ -58,7 +61,10 @@ public abstract class BasePlotRenderer : IPlotRenderer
         return plotModel;
     }
 
-    protected void AddLineSeries(PlotModel plotModel, IEnumerable<DataPoint> data, string seriesTitle)
+    protected void AddLineSeries(
+        PlotModel plotModel,
+        IEnumerable<DataPoint> data,
+        string seriesTitle)
     {
         var series = new LineSeries
         {
@@ -70,20 +76,27 @@ public abstract class BasePlotRenderer : IPlotRenderer
         plotModel.Series.Add(series);
     }
 
-    public void SavePlotToFile(PlotModel plotModel, string filePath, PlotSettings settings)
+    public void SavePlotToFile(
+        PlotModel plotModel,
+        string filePath,
+        PlotSettings settings)
     {
         using var stream = File.Create(filePath);
         JpegExporter.Export(plotModel, stream, settings.Width, settings.Height, settings.Quality, settings.Dpi);
     }
 
-    public byte[] GetPlotAsByteArray(PlotModel plotModel, PlotSettings settings)
+    public byte[] GetPlotAsByteArray(
+        PlotModel plotModel,
+        PlotSettings settings)
     {
         using var stream = new MemoryStream();
         JpegExporter.Export(plotModel, stream, settings.Width, settings.Height, settings.Quality, settings.Dpi);
         return stream.ToArray();
     }
 
-    public Stream GetPlotAsStream(PlotModel plotModel, PlotSettings settings)
+    public Stream GetPlotAsStream(
+        PlotModel plotModel,
+        PlotSettings settings)
     {
         var stream = new MemoryStream();
         JpegExporter.Export(plotModel, stream, settings.Width, settings.Height, settings.Quality, settings.Dpi);

@@ -2,6 +2,7 @@
 using ParametricCombustionModel.Computation.Interfaces;
 using ParametricCombustionModel.Computation.Models.ComputedParams;
 using ParametricCombustionModel.Computation.Models.KnownParams;
+using ParametricCombustionModel.Core.Models;
 using UnitsNet;
 
 namespace ParametricCombustionModel.Computation.Models.ProblemContexts;
@@ -10,9 +11,14 @@ namespace ParametricCombustionModel.Computation.Models.ProblemContexts;
 /// Represents the problem context for combustion modeling using UnitsNet types for physical parameters.
 /// This class holds various combustion-related parameters and supports the visitor pattern for applying solvers.
 /// </summary>
-public record ProblemContextByUnits : IVisitable
+public record ProblemContextByUnits : IComputationVisitable
 {
 #region Fields
+
+    /// <summary>
+    /// The propellant being used in this problem context.
+    /// </summary>
+    public required Propellant Propellant;
 
     /// <summary>
     /// Gets or sets the pressure within the combustion context.
@@ -24,32 +30,32 @@ public record ProblemContextByUnits : IVisitable
     /// Gets or sets the propellant parameters for the current context.
     /// These parameters define the material properties of the propellant.
     /// </summary>
-    public required PropellantParams PropellantParams;
+    public required PropellantParamsByUnits PropellantParamsByUnits;
 
     /// <summary>
     /// Gets or sets the kinetic flame parameters for the inter-pocket combustion process.
     /// </summary>
-    public required KineticFlameParams InterPocketKineticFlameParams;
+    public required KineticFlameParamsByUnits InterPocketKineticFlameParamsByUnits;
 
     /// <summary>
     /// Gets or sets the kinetic flame parameters for the skeleton combustion process inside a pocket.
     /// </summary>
-    public required KineticFlameParams PocketSkeletonKineticFlameParams;
+    public required KineticFlameParamsByUnits PocketSkeletonKineticFlameParamsByUnits;
 
     /// <summary>
     /// Gets or sets the kinetic flame parameters for the combustion process outside the skeleton in a pocket.
     /// </summary>
-    public required KineticFlameParams PocketOutSkeletonKineticFlameParams;
+    public required KineticFlameParamsByUnits PocketOutSkeletonKineticFlameParamsByUnits;
 
     /// <summary>
     /// Gets or sets the diffusion flame parameters for the combustion process in a pocket.
     /// </summary>
-    public required DiffusionFlameParams PocketDiffusionFlameParams;
+    public required DiffusionFlameParamsByUnits PocketDiffusionFlameParamsByUnits;
 
     /// <summary>
     /// Gets or sets the metal combustion parameters for the pocket combustion process.
     /// </summary>
-    public required MetalCombustionParams PocketMetalCombustionParams;
+    public required MetalCombustionParamsByUnits PocketMetalCombustionParamsByUnits;
 
     /// <summary>
     /// Gets or sets the volume fraction of inter-pocket combustion.
@@ -80,19 +86,37 @@ public record ProblemContextByUnits : IVisitable
 
 #endregion
 
+#region Parametric Constraints
+
+    /// <summary>
+    /// The minimum surface temperature for the propellant combustion process.
+    /// This property is used as the lower bound in binary search algorithms for solving the transcendental equation
+    /// to find the surface temperature of the propellant (condensed phase).
+    /// </summary>
+    public Temperature MinSurfaceTemperature = Temperature.FromKelvins(600);
+
+    /// <summary>
+    /// The maximum surface temperature for the propellant combustion process.
+    /// This property is used as the upper bound in binary search algorithms for solving the transcendental equation
+    /// to find the surface temperature of the propellant (condensed phase).
+    /// </summary>
+    public Temperature MaxSurfaceTemperature = Temperature.FromKelvins(750);
+
+#endregion
+
 #region Accept Methods
 
     /// <summary>
     /// Accepts a solver that operates on the problem context using UnitsNet types for the parameters.
     /// This method uses aggressive optimization to improve performance.
     /// </summary>
-    /// <param name="solverParams">The solver parameters, represented by UnitsNet types.</param>
+    /// <param name="solverParamsByUnits">The solver parameters, represented by UnitsNet types.</param>
     /// <param name="solver">The solver implementing the <see cref="ISolverVisitor"/> interface.</param>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public void Accept(
-        in CombustionSolverParams solverParams,
+        in CombustionSolverParamsByUnits solverParamsByUnits,
         ISolverVisitor solver) =>
-        solver.Visit(solverParams, this);
+        solver.Visit(solverParamsByUnits, this);
 
     /// <summary>
     /// Throws an exception, as the method is not supported for native double parameters in this context.

@@ -7,9 +7,10 @@ namespace ParametricCombustionModel.Core.Models;
 
 public class PropellantComponentJsonConverter : JsonConverter<IEnumerable<BaseComponent>>
 {
-    public override IEnumerable<BaseComponent>? Read(ref Utf8JsonReader reader,
-                                                     Type typeToConvert,
-                                                     JsonSerializerOptions options)
+    public override IEnumerable<BaseComponent>? Read(
+        ref Utf8JsonReader reader,
+        Type typeToConvert,
+        JsonSerializerOptions options)
     {
         var components = new List<BaseComponent>();
 
@@ -39,7 +40,10 @@ public class PropellantComponentJsonConverter : JsonConverter<IEnumerable<BaseCo
         return components;
     }
 
-    public override void Write(Utf8JsonWriter writer, IEnumerable<BaseComponent> value, JsonSerializerOptions options)
+    public override void Write(
+        Utf8JsonWriter writer,
+        IEnumerable<BaseComponent> value,
+        JsonSerializerOptions options)
     {
         writer.WriteStartObject();
 
@@ -63,6 +67,18 @@ public class PropellantComponentJsonConverter : JsonConverter<IEnumerable<BaseCo
     }
 }
 
+public record ConfidenceInterval(
+    [property: JsonPropertyName("x_value")]
+    [property: JsonRequired]
+    double XValue,
+    [property: JsonPropertyName("y_value")]
+    [property: JsonRequired]
+    double YValue,
+    [property: JsonPropertyName("size_of_confidence_interval")]
+    [property: JsonRequired]
+    double SizeOfConfidenceInterval
+);
+
 public record Propellant(
     [property: JsonPropertyName("name")]
     [property: JsonRequired]
@@ -85,10 +101,12 @@ public record Propellant(
     [property: JsonPropertyName("pocket_surface_fraction_coefficients")]
     [property: JsonRequired]
     IEnumerable<double> PocketSurfaceFractionCoefficients,
+    [property: JsonPropertyName("confidence_intervals")]
+    IEnumerable<ConfidenceInterval>? ConfidenceIntervals,
     [property: JsonPropertyName("pocket_mass_fraction")]
     [property: JsonRequired]
     double PocketMassFraction,
-    [property: JsonPropertyName("interpocket_gas_phase")]
+    [property: JsonPropertyName("inter_pocket_gas_phase")]
     [property: JsonRequired]
     HomogeneousGasPhase InterPocketGasPhase,
     [property: JsonPropertyName("pocket_gas_phase")]

@@ -46,10 +46,10 @@ public sealed class MixedPropellantSolver : ISolverVisitor
 #region Visit Methods
 
     /// <summary>
-    /// Visits the <see cref="ProblemContextByUnits"/> with the provided <see cref="CombustionSolverParams"/> to calculate the 
+    /// Visits the <see cref="ProblemContextByUnits"/> with the provided <see cref="CombustionSolverParamsByUnits"/> to calculate the 
     /// combustion parameters for the mixed propellant.
     /// </summary>
-    /// <param name="solverParams">
+    /// <param name="solverParamsByUnits">
     /// The parameters related to the combustion process, including enthalpy change and specific heat capacity.
     /// </param>
     /// <param name="context">
@@ -57,16 +57,16 @@ public sealed class MixedPropellantSolver : ISolverVisitor
     /// </param>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public void Visit(
-        in CombustionSolverParams solverParams,
+        in CombustionSolverParamsByUnits solverParamsByUnits,
         ProblemContextByUnits context)
     {
         ref var mixedContextBag = ref context.MixedCombustionParams;
 
-        context.Accept(solverParams, _interPocketPropellantSolver);
+        context.Accept(solverParamsByUnits, _interPocketPropellantSolver);
         ref var interPocketContextBag = ref context.InterPocketCombustionParams;
         if (interPocketContextBag.BurnRateIsFound)
         {
-            context.Accept(solverParams, _pocketPropellantSolver);
+            context.Accept(solverParamsByUnits, _pocketPropellantSolver);
             ref var pocketContextBag = ref context.PocketCombustionParams;
             if (pocketContextBag.BurnRateIsFound)
             {

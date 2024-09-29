@@ -13,10 +13,10 @@ public interface ISolverVisitor
     /// Processes a problem context using combustion parameters represented by UnitsNet types.
     /// This method applies the computational solver to the given problem context.
     /// </summary>
-    /// <param name="solverParams">The combustion solver parameters, represented using UnitsNet types.</param>
+    /// <param name="solverParamsByUnits">The combustion solver parameters, represented using UnitsNet types.</param>
     /// <param name="context">The problem context, defined using UnitsNet types for combustion parameters.</param>
     public void Visit(
-        in CombustionSolverParams solverParams,
+        in CombustionSolverParamsByUnits solverParamsByUnits,
         ProblemContextByUnits context);
 
     /// <summary>

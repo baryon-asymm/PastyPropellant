@@ -1,7 +1,7 @@
-﻿using ParametricCombustionModel.Computation.Models.ComputedParams;
+﻿using ParametricCombustionModel.Computation.Extensions;
+using ParametricCombustionModel.Computation.Models.ComputedParams;
 using ParametricCombustionModel.Computation.Models.KnownParams;
 using ParametricCombustionModel.Computation.Models.ProblemContexts;
-using ParametricCombustionModel.Computation.Utils;
 using ParametricCombustionModel.Core.Models;
 using UnitsNet;
 
@@ -96,13 +96,14 @@ public class ProblemContextByUnitsMatrixBuilder
 
                 matrix[i, j] = new ProblemContextByUnits
                 {
+                    Propellant = propellant,
                     Pressure = pressure,
-                    PropellantParams = GetPropellantParams(pressure, propellant),
-                    InterPocketKineticFlameParams = GetInterPocketKineticFlameParams(propellant),
-                    PocketSkeletonKineticFlameParams = GetPocketSkeletonKineticFlameParams(propellant),
-                    PocketOutSkeletonKineticFlameParams = GetPocketOutSkeletonKineticFlameParams(propellant),
-                    PocketDiffusionFlameParams = GetPocketDiffusionFlameParams(propellant),
-                    PocketMetalCombustionParams = GetPocketMetalCombustionParams(pressure, propellant),
+                    PropellantParamsByUnits = GetPropellantParams(pressure, propellant),
+                    InterPocketKineticFlameParamsByUnits = GetInterPocketKineticFlameParams(propellant),
+                    PocketSkeletonKineticFlameParamsByUnits = GetPocketSkeletonKineticFlameParams(propellant),
+                    PocketOutSkeletonKineticFlameParamsByUnits = GetPocketOutSkeletonKineticFlameParams(propellant),
+                    PocketDiffusionFlameParamsByUnits = GetPocketDiffusionFlameParams(propellant),
+                    PocketMetalCombustionParamsByUnits = GetPocketMetalCombustionParams(pressure, propellant),
                     InterPocketVolumeFraction =
                         Ratio.FromDecimalFractions(propellant.GetInterPocketAreaVolumeFraction()),
                     PocketVolumeFraction =
@@ -122,7 +123,7 @@ public class ProblemContextByUnitsMatrixBuilder
 #region StructParams Extractor Methods From Propellant
 
     /// <summary>
-    /// Extracts the <see cref="PropellantParams"/> from the specified pressure and propellant.
+    /// Extracts the <see cref="PropellantParamsByUnits"/> from the specified pressure and propellant.
     /// </summary>
     /// <param name="pressure">
     /// The <see cref="Pressure"/> instance used in the calculation.
@@ -131,13 +132,13 @@ public class ProblemContextByUnitsMatrixBuilder
     /// The <see cref="Propellant"/> instance used in the calculation.
     /// </param>
     /// <returns>
-    /// A <see cref="PropellantParams"/> instance containing the parameters extracted from the propellant.
+    /// A <see cref="PropellantParamsByUnits"/> instance containing the parameters extracted from the propellant.
     /// </returns>
-    private PropellantParams GetPropellantParams(
+    private PropellantParamsByUnits GetPropellantParams(
         Pressure pressure,
         Propellant propellant)
     {
-        return new PropellantParams
+        return new PropellantParamsByUnits
         {
             AverageOxidizerDiameter = Length.FromMeters(propellant.GetAverageParticlesDiameter()),
             Density = Density.FromKilogramsPerCubicMeter(propellant.Density),
@@ -148,19 +149,19 @@ public class ProblemContextByUnitsMatrixBuilder
     }
 
     /// <summary>
-    /// Extracts the <see cref="KineticFlameParams"/> for the inter-pocket region from the specified propellant.
+    /// Extracts the <see cref="KineticFlameParamsByUnits"/> for the inter-pocket region from the specified propellant.
     /// </summary>
     /// <param name="propellant">
     /// The <see cref="Propellant"/> instance used in the calculation.
     /// </param>
     /// <returns>
-    /// A <see cref="KineticFlameParams"/> instance containing the parameters for the inter-pocket region.
+    /// A <see cref="KineticFlameParamsByUnits"/> instance containing the parameters for the inter-pocket region.
     /// </returns>
-    private KineticFlameParams GetInterPocketKineticFlameParams(
+    private KineticFlameParamsByUnits GetInterPocketKineticFlameParams(
         Propellant propellant)
     {
         var interPocketGasPhase = propellant.InterPocketGasPhase;
-        return new KineticFlameParams
+        return new KineticFlameParamsByUnits
         {
             FinalTemperature = Temperature.FromKelvins(interPocketGasPhase.KineticFlameTemperature),
             AverageMolarMass = MolarMass.FromKilogramsPerMole(interPocketGasPhase.AverageMolarMass),
@@ -171,19 +172,19 @@ public class ProblemContextByUnitsMatrixBuilder
     }
 
     /// <summary>
-    /// Extracts the <see cref="KineticFlameParams"/> for the pocket skeleton region from the specified propellant.
+    /// Extracts the <see cref="KineticFlameParamsByUnits"/> for the pocket skeleton region from the specified propellant.
     /// </summary>
     /// <param name="propellant">
     /// The <see cref="Propellant"/> instance used in the calculation.
     /// </param>
     /// <returns>
-    /// A <see cref="KineticFlameParams"/> instance containing the parameters for the pocket skeleton region.
+    /// A <see cref="KineticFlameParamsByUnits"/> instance containing the parameters for the pocket skeleton region.
     /// </returns>
-    private KineticFlameParams GetPocketSkeletonKineticFlameParams(
+    private KineticFlameParamsByUnits GetPocketSkeletonKineticFlameParams(
         Propellant propellant)
     {
         var pocketSkeletonGasPhase = propellant.PocketGasPhase.SkeletonGasPhase;
-        return new KineticFlameParams
+        return new KineticFlameParamsByUnits
         {
             FinalTemperature = Temperature.FromKelvins(pocketSkeletonGasPhase.KineticFlameTemperature),
             AverageMolarMass = MolarMass.FromKilogramsPerMole(pocketSkeletonGasPhase.AverageMolarMass),
@@ -194,19 +195,19 @@ public class ProblemContextByUnitsMatrixBuilder
     }
 
     /// <summary>
-    /// Extracts the <see cref="KineticFlameParams"/> for the pocket out skeleton region from the specified propellant.
+    /// Extracts the <see cref="KineticFlameParamsByUnits"/> for the pocket out skeleton region from the specified propellant.
     /// </summary>
     /// <param name="propellant">
     /// The <see cref="Propellant"/> instance used in the calculation.
     /// </param>
     /// <returns>
-    /// A <see cref="KineticFlameParams"/> instance containing the parameters for the pocket out skeleton region.
+    /// A <see cref="KineticFlameParamsByUnits"/> instance containing the parameters for the pocket out skeleton region.
     /// </returns>
-    private KineticFlameParams GetPocketOutSkeletonKineticFlameParams(
+    private KineticFlameParamsByUnits GetPocketOutSkeletonKineticFlameParams(
         Propellant propellant)
     {
         var pocketOutSkeletonGasPhase = propellant.PocketGasPhase.OutSkeletonGasPhase;
-        return new KineticFlameParams
+        return new KineticFlameParamsByUnits
         {
             FinalTemperature = Temperature.FromKelvins(pocketOutSkeletonGasPhase.KineticFlameTemperature),
             AverageMolarMass = MolarMass.FromKilogramsPerMole(pocketOutSkeletonGasPhase.AverageMolarMass),
@@ -217,19 +218,19 @@ public class ProblemContextByUnitsMatrixBuilder
     }
 
     /// <summary>
-    /// Extracts the <see cref="DiffusionFlameParams"/> for the pocket diffusion flame from the specified propellant.
+    /// Extracts the <see cref="DiffusionFlameParamsByUnits"/> for the pocket diffusion flame from the specified propellant.
     /// </summary>
     /// <param name="propellant">
     /// The <see cref="Propellant"/> instance used in the calculation.
     /// </param>
     /// <returns>
-    /// A <see cref="DiffusionFlameParams"/> instance containing the parameters for the pocket diffusion flame.
+    /// A <see cref="DiffusionFlameParamsByUnits"/> instance containing the parameters for the pocket diffusion flame.
     /// </returns>
-    private DiffusionFlameParams GetPocketDiffusionFlameParams(
+    private DiffusionFlameParamsByUnits GetPocketDiffusionFlameParams(
         Propellant propellant)
     {
         var pocketGasPhase = propellant.PocketGasPhase;
-        return new DiffusionFlameParams
+        return new DiffusionFlameParamsByUnits
         {
             FinalTemperature = Temperature.FromKelvins(pocketGasPhase.DiffusionFlameTemperature),
             AverageMolarMass = MolarMass.FromKilogramsPerMole(pocketGasPhase.AverageMolarMass),
@@ -240,7 +241,7 @@ public class ProblemContextByUnitsMatrixBuilder
     }
 
     /// <summary>
-    /// Extracts the <see cref="MetalCombustionParams"/> from the specified pressure and propellant.
+    /// Extracts the <see cref="MetalCombustionParamsByUnits"/> from the specified pressure and propellant.
     /// </summary>
     /// <param name="pressure">
     /// The <see cref="Pressure"/> instance used in the calculation.
@@ -249,13 +250,13 @@ public class ProblemContextByUnitsMatrixBuilder
     /// The <see cref="Propellant"/> instance used in the calculation.
     /// </param>
     /// <returns>
-    /// A <see cref="MetalCombustionParams"/> instance containing the parameters for metal combustion.
+    /// A <see cref="MetalCombustionParamsByUnits"/> instance containing the parameters for metal combustion.
     /// </returns>
-    private MetalCombustionParams GetPocketMetalCombustionParams(
+    private MetalCombustionParamsByUnits GetPocketMetalCombustionParams(
         Pressure pressure,
         Propellant propellant)
     {
-        return new MetalCombustionParams
+        return new MetalCombustionParamsByUnits
         {
             MetalBoilingTemperature = Temperature.FromKelvins(propellant.GetMetalBoilingTemperature(pressure.Pascals)),
             MetalMeltingTemperature = Temperature.FromKelvins(propellant.GetMetalMeltingTemperature())

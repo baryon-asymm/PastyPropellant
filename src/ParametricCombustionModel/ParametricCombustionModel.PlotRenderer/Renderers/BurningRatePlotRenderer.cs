@@ -1,8 +1,9 @@
 ﻿using OxyPlot;
 using OxyPlot.Series;
+using ParametricCombustionModel.Optimization.Models;
+using ParametricCombustionModel.PlotRenderer.Drawers;
 using ParametricCombustionModel.PlotRenderer.Extensions;
 using ParametricCombustionModel.PlotRenderer.Models;
-using ParametricCombustionModel.ReportMaking.Models;
 
 namespace ParametricCombustionModel.PlotRenderer.Renderers;
 
@@ -16,12 +17,14 @@ public class BurningRatePlotRenderer : BasePlotRenderer
         OxyColors.Violet
     ];
 
-    public override void Render(Report report, PlotSettings settings)
+    public override void Render(
+        OptimizationResult result,
+        PlotSettings settings)
     {
         var plotModel = CreatePlotModel(settings);
 
         // Prepare data and colors for each propellant
-        var seriesData = PrepareBurningRateData(report);
+        var seriesData = PrepareBurningRateData(result);
 
         // Add series to the plot
         foreach (var (propellantName, data) in seriesData)
@@ -43,6 +46,24 @@ public class BurningRatePlotRenderer : BasePlotRenderer
                 data.ExperimentalBurningRates,
                 $"{propellantName} (Experimental)",
                 color);
+
+            // Add confidence intervals
+            var propellantConfidenceIntervals = result
+                                                .OptimizedContext.ProblemContextMatrix[colorIndex, 0].Propellant
+                                                .ConfidenceIntervals;
+            if (propellantConfidenceIntervals != null)
+            {
+                foreach (var confidenceInterval in propellantConfidenceIntervals)
+                {
+                    var confidenceIntervalDrawer = new ConfidenceIntervalDrawer(
+                        confidenceInterval.XValue,
+                        confidenceInterval.YValue,
+                        confidenceInterval.SizeOfConfidenceInterval,
+                        0.1);
+
+                    confidenceIntervalDrawer.Draw(plotModel, color);
+                }
+            }
         }
 
         // Optionally save or return the plot as needed
@@ -50,34 +71,42 @@ public class BurningRatePlotRenderer : BasePlotRenderer
     }
 
     private Dictionary<string, (IEnumerable<DataPoint> CalculatedBurningRates, IEnumerable<DataPoint>
-        ExperimentalBurningRates)> PrepareBurningRateData(Report report)
+        ExperimentalBurningRates)> PrepareBurningRateData(
+        OptimizationResult result)
     {
         var seriesData =
             new Dictionary<string, (IEnumerable<DataPoint> CalculatedBurningRates, IEnumerable<DataPoint>
                 ExperimentalBurningRates)>();
 
-        foreach (var propellantReport in report.PropellantReports)
+        for (int i = 0; i < result.OptimizedContext.PropellantCount; i++)
         {
-            var calculatedDataPoints = propellantReport.PressureFrameReports
-                                                       .Select(pfr => new DataPoint(pfr.Pressure, pfr.BurningRate * 1e3))
-                                                       .ToList();
+            var calculatedDataPoints = new List<DataPoint>();
+            var experimentalDataPoints = new List<DataPoint>();
+            for (int j = 0; j < result.OptimizedContext.PressureCount; j++)
+            {
+                calculatedDataPoints.Add(new DataPoint(
+                                             result.OptimizedContext.ProblemContextMatrix[i, j].Pressure.Megapascals,
+                                             result.OptimizedContext.ProblemContextMatrix[i, j].MixedCombustionParams
+                                                   .BurnRate.MillimetersPerSecond));
+                experimentalDataPoints.Add(new DataPoint(
+                                               result.OptimizedContext.ProblemContextMatrix[i, j].Pressure.Megapascals,
+                                               result.OptimizedContext.ExperimentalBurnRates[i, j]
+                                                     .MillimetersPerSecond));
+            }
 
-            var experimentalDataPoints = propellantReport.PressureFrameReports
-                                                         .Select(pfr =>
-                                                             new DataPoint(pfr.Pressure, pfr.ExperimentalBurningRate * 1e3))
-                                                         .ToList();
-
-            seriesData[propellantReport.Propellant.Name] = (calculatedDataPoints, experimentalDataPoints);
+            seriesData[result.OptimizedContext.ProblemContextMatrix[i, 0].Propellant.Name] =
+                (calculatedDataPoints, experimentalDataPoints);
         }
 
         return seriesData;
     }
 
-    protected void AddLineSeries(PlotModel plotModel,
-                                 IEnumerable<DataPoint> data,
-                                 string seriesTitle,
-                                 OxyColor color,
-                                 LineStyle lineStyle = LineStyle.Solid)
+    protected void AddLineSeries(
+        PlotModel plotModel,
+        IEnumerable<DataPoint> data,
+        string seriesTitle,
+        OxyColor color,
+        LineStyle lineStyle = LineStyle.Solid)
     {
         var series = new LineSeries
         {
