@@ -65,7 +65,7 @@ const double heatFlowsSegmentSize = 100;
 //var results = await finder.GetPoolAsync();
 //File.WriteAllText("results100.txt", JsonSerializer.Serialize(results));
 
-double[] lowerBound = [1, 1, 1, 5e4, 1, 5e4, 1, 5e4, 1.3856, 1, 1, -1e12, 1e-6];
+double[] lowerBound = [1, 1, 1, 5e4, 1, 5e4, 1, 5e4, 1.3856, 1, 1, -1e12, 1e-6, 0.0];
 // double[] lowerBound =
 // [
 //     1.7665858321993308E+308, 3925354.1746398024, 2128756552.6065316, 199994.60572671256, 2321040.0404703906,
@@ -73,7 +73,7 @@ double[] lowerBound = [1, 1, 1, 5e4, 1, 5e4, 1, 5e4, 1.3856, 1, 1, -1e12, 1e-6];
 //     -410382.28067308106, 0.6524484901077885
 // ];
 
-double[] upperBound = [double.MaxValue, 1e9, 1e12, 2e5, 1e12, 2e5, 1e12, 2e5, 1.3856, 1e12, 1e9, 1e12, 3];
+double[] upperBound = [double.MaxValue, 1e9, 1e12, 2e5, 1e12, 2e5, 1e12, 2e5, 1.3856, 1e12, 1e9, 1e12, 3, 1.0];
 // double[] upperBound =
 // [
 //     1.7665858321993308E+308, 3925354.1746398024, 2128756552.6065316, 199994.60572671256, 2321040.0404703906,
