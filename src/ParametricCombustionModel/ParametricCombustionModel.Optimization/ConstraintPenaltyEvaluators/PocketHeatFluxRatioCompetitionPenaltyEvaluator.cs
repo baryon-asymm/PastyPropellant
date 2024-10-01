@@ -22,9 +22,9 @@ public sealed class PocketHeatFluxRatioCompetitionPenaltyEvaluator : BaseConstra
     public override double GetPenaltyValue(
         ProblemContextByUnits updatedProblemContext)
     {
-        double maxHeatFlow, minHeatFlow;
+        double minHeatFlow;
         ref var pocketParams = ref updatedProblemContext.PocketCombustionParams;
-        maxHeatFlow = minHeatFlow = pocketParams.DiffusionFlameHeatFlux.WattsPerSquareMeter;
+        var maxHeatFlow = minHeatFlow = pocketParams.DiffusionFlameHeatFlux.WattsPerSquareMeter;
         ref var skeletonParams = ref pocketParams.SkeletonKineticFlameCombustionParams;
         ref var outSkeletonParams = ref pocketParams.OutSkeletonKineticFlameCombustionParams;
 
@@ -36,13 +36,8 @@ public sealed class PocketHeatFluxRatioCompetitionPenaltyEvaluator : BaseConstra
                                 ref minHeatFlow);
 
         var actualHeatFluxRatio = maxHeatFlow / minHeatFlow;
-        var a = 0.0;
-        var b = 0.0;
-        if (pocketParams.MetalBurningHeatFlux.WattsPerSquareMeter < maxHeatFlow)
-            a = PenaltyRate * maxHeatFlow / pocketParams.MetalBurningHeatFlux.WattsPerSquareMeter;
         if (actualHeatFluxRatio > HeatFluxRatioThreshold)
-            b = PenaltyRate * actualHeatFluxRatio;
-        return a + b;
+            return PenaltyRate * actualHeatFluxRatio;
 
         return ZeroPenaltyValue;
     }
@@ -65,13 +60,8 @@ public sealed class PocketHeatFluxRatioCompetitionPenaltyEvaluator : BaseConstra
                                 ref minHeatFlow);
 
         var actualHeatFluxRatio = maxHeatFlow / minHeatFlow;
-        var a = 0.0;
-        var b = 0.0;
-        if (pocketParams.MetalBurningHeatFlux < maxHeatFlow)
-            a = PenaltyRate * maxHeatFlow / pocketParams.MetalBurningHeatFlux;
         if (actualHeatFluxRatio > HeatFluxRatioThreshold)
-            b = PenaltyRate * actualHeatFluxRatio;
-        return a + b;
+            return PenaltyRate * actualHeatFluxRatio;
 
         return ZeroPenaltyValue;
     }
