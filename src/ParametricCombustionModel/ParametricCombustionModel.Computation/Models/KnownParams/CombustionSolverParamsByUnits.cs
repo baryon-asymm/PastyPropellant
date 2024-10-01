@@ -87,6 +87,11 @@ public readonly ref struct CombustionSolverParamsByDoubles
     /// </summary>
     public required double KDiffusionHeight { get; init; }
 
+    /// <summary>
+    /// Coefficient computing the average temperature of the metal.
+    /// </summary>
+    public required double KMetalTemperature { get; init; }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static CombustionSolverParamsByDoubles FromVector(
         Span<double> vector)
@@ -105,7 +110,8 @@ public readonly ref struct CombustionSolverParamsByDoubles
             HMetalBurning = vector[9],
             EMetalBurning = vector[10],
             DeltaH = vector[11],
-            KDiffusionHeight = vector[12]
+            KDiffusionHeight = vector[12],
+            KMetalTemperature = vector[13]
         };
     }
 }
@@ -195,6 +201,12 @@ public readonly ref struct CombustionSolverParamsByUnits
     /// </summary>
     public required double KDiffusionHeight { get; init; }
 
+    /// <summary>
+    /// Coefficient computing the average temperature of the metal.
+    /// Measured from 0.0 to 1.0.
+    /// </summary>
+    public required Ratio KMetalTemperature { get; init; }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static CombustionSolverParamsByUnits FromVector(
         Span<double> vector)
@@ -213,7 +225,8 @@ public readonly ref struct CombustionSolverParamsByUnits
             HMetalBurning = HMetalBurningCoefficient.FromWattsPerKelvinPerSquareMeter(vector[9]),
             EMetalBurning = MolarEnergy.FromJoulesPerMole(vector[10]),
             DeltaH = SpecificEnergy.FromJoulesPerKilogram(vector[11]),
-            KDiffusionHeight = vector[12]
+            KDiffusionHeight = vector[12],
+            KMetalTemperature = Ratio.FromDecimalFractions(vector[13])
         };
     }
 }
