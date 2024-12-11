@@ -61,7 +61,15 @@ public class CombustionSolverParamsReport : BaseReport, ITransformable<Queue<IPd
                                TextStyle.None));
         operations.Enqueue(new LineBreakOperation());
         operations.Enqueue(new PrintTextOperation(
-                               string.Format(CombustionSolverParamsReportResources.Nu, solverParams.Nu),
+                               "Order of the chemical reactions at the inter pocket region" + solverParams.NuInterPocket,
+                               TextStyle.None));
+        operations.Enqueue(new LineBreakOperation());
+        operations.Enqueue(new PrintTextOperation(
+                               "Order of the chemical reactions at the pocket skeleton region" + solverParams.NuPocketSkeleton,
+                               TextStyle.None));
+        operations.Enqueue(new LineBreakOperation());
+        operations.Enqueue(new PrintTextOperation(
+                               "Order of the chemical reactions at the pocket out skeleton region" + solverParams.NuPocketOutSkeleton,
                                TextStyle.None));
         operations.Enqueue(new LineBreakOperation());
         operations.Enqueue(new PrintTextOperation(

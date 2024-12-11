@@ -94,10 +94,12 @@ public sealed class InterPocketPropellantSolver : BaseKineticPropellantSolver
     protected override void ExtractKineticBurnParams(
         in CombustionSolverParamsByUnits solverParamsByUnits,
         out Frequency aKineticFlame,
-        out MolarEnergy eKineticFlame)
+        out MolarEnergy eKineticFlame,
+        out double nu)
     {
         aKineticFlame = solverParamsByUnits.AKineticFlameInterPocket;
         eKineticFlame = solverParamsByUnits.EKineticFlameInterPocket;
+        nu = solverParamsByUnits.NuInterPocket;
     }
 
 #endregion
@@ -186,10 +188,12 @@ public sealed class InterPocketPropellantSolver : BaseKineticPropellantSolver
     protected override void ExtractKineticBurnParams(
         in CombustionSolverParamsByDoubles solverParams,
         out double aKineticFlame,
-        out double eKineticFlame)
+        out double eKineticFlame,
+        out double nu)
     {
         aKineticFlame = solverParams.AKineticFlameInterPocket;
         eKineticFlame = solverParams.EKineticFlameInterPocket;
+        nu = solverParams.NuInterPocket;
     }
 
 #endregion

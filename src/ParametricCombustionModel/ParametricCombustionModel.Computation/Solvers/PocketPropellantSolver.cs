@@ -128,10 +128,12 @@ public sealed class KineticSkeletonHelper : BaseKineticPropellantSolver
     protected override void ExtractKineticBurnParams(
         in CombustionSolverParamsByUnits solverParamsByUnits,
         out Frequency aKineticFlame,
-        out MolarEnergy eKineticFlame)
+        out MolarEnergy eKineticFlame,
+        out double nu)
     {
         aKineticFlame = solverParamsByUnits.AKineticFlamePocketSkeleton;
         eKineticFlame = solverParamsByUnits.EKineticFlamePocketSkeleton;
+        nu = solverParamsByUnits.NuPocketSkeleton;
     }
 
 #endregion
@@ -166,10 +168,12 @@ public sealed class KineticSkeletonHelper : BaseKineticPropellantSolver
     protected override void ExtractKineticBurnParams(
         in CombustionSolverParamsByDoubles solverParams,
         out double aKineticFlame,
-        out double eKineticFlame)
+        out double eKineticFlame,
+        out double nu)
     {
         aKineticFlame = solverParams.AKineticFlamePocketSkeleton;
         eKineticFlame = solverParams.EKineticFlamePocketSkeleton;
+        nu = solverParams.NuPocketSkeleton;
     }
 
 #endregion
@@ -294,10 +298,12 @@ public sealed class KineticOutSkeletonHelper : BaseKineticPropellantSolver
     protected override void ExtractKineticBurnParams(
         in CombustionSolverParamsByUnits solverParamsByUnits,
         out Frequency aKineticFlame,
-        out MolarEnergy eKineticFlame)
+        out MolarEnergy eKineticFlame,
+        out double nu)
     {
         aKineticFlame = solverParamsByUnits.AKineticFlamePocketOutSkeleton;
         eKineticFlame = solverParamsByUnits.EKineticFlamePocketOutSkeleton;
+        nu = solverParamsByUnits.NuPocketOutSkeleton;
     }
 
 #endregion
@@ -332,10 +338,12 @@ public sealed class KineticOutSkeletonHelper : BaseKineticPropellantSolver
     protected override void ExtractKineticBurnParams(
         in CombustionSolverParamsByDoubles solverParams,
         out double aKineticFlame,
-        out double eKineticFlame)
+        out double eKineticFlame,
+        out double nu)
     {
         aKineticFlame = solverParams.AKineticFlamePocketOutSkeleton;
         eKineticFlame = solverParams.EKineticFlamePocketOutSkeleton;
+        nu = solverParams.NuPocketOutSkeleton;
     }
 
 #endregion

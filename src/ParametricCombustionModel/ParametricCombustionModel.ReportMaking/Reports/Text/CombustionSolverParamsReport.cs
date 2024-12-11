@@ -40,7 +40,7 @@ public class CombustionSolverParamsReport : BaseReport, ITransformable<string>
         stringBuilder.AppendFormat(CombustionSolverParamsReportResources.EKineticFlamePocketSkeleton,
                                    solverParams.EKineticFlamePocketSkeleton);
         stringBuilder.AppendLine();
-        stringBuilder.AppendFormat(CombustionSolverParamsReportResources.Nu, solverParams.Nu);
+        //stringBuilder.AppendFormat(CombustionSolverParamsReportResources.Nu, solverParams.Nu);
         stringBuilder.AppendLine();
         stringBuilder.AppendFormat(CombustionSolverParamsReportResources.HMetalBurning, solverParams.HMetalBurning);
         stringBuilder.AppendLine();

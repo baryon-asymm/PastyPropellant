@@ -101,7 +101,7 @@ public class PdfReportMaker : IReportMaker, IPdfOperationVisitor
 
         var base64String = Convert.ToBase64String(_optimizationResult.BestSolverParamsBySpan.ToArray()
                                                                      .SelectMany(BitConverter.GetBytes).ToArray());
-        const int indexOfSlice = 40;
+        var indexOfSlice = base64String.Length / 2;
         stringBuilder.AppendLine(base64String[..indexOfSlice]);
         stringBuilder.AppendLine(base64String[indexOfSlice..]);
 
