@@ -12,7 +12,7 @@
       -1.8288189,
       0.077299666
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -31,7 +31,7 @@
       8.2107246,
       -0.33683477
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -50,7 +50,7 @@
       -0.05078677,
       0.0012198069
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -69,7 +69,7 @@
       -6.7118939,
       0.26221123
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -88,7 +88,7 @@
       -9.5273706,
       0.39463884
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -107,7 +107,7 @@
       6.354249,
       -0.24584606
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -126,7 +126,7 @@
       -10.692381,
       0.44473991
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -145,7 +145,7 @@
       -0.91401847,
       0.034707465
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -164,7 +164,7 @@
       -3.6804323,
       0.17165783
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -183,7 +183,7 @@
       0.23100461,
       0.010371999
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -202,7 +202,7 @@
       17.028796,
       -0.65324526
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -221,7 +221,7 @@
       15.966009,
       -0.63457855
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -240,7 +240,7 @@
       1.0918904,
       -0.041516648
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -259,7 +259,7 @@
       -1.7365992,
       0.091892333
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -278,7 +278,7 @@
       14.331037,
       -0.5571496
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -297,7 +297,7 @@
       6.3600005,
       0.26818599
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -316,7 +316,7 @@
       0.232008,
       0.023195333
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -335,7 +335,7 @@
       -6.8574345,
       0.34726656
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -354,7 +354,7 @@
       0.54956908,
       0.85787231
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -373,7 +373,7 @@
       2.3306754,
       -0.069697286
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -392,7 +392,7 @@
       -35.387148,
       1.6701439
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -411,7 +411,7 @@
       23.28568,
       -0.84549689
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -430,7 +430,7 @@
       4.7150342,
       -0.15823205
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -449,7 +449,7 @@
       9.4751889,
       -0.31340876
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -468,7 +468,7 @@
       -5.9895783,
       0.25327447
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -487,7 +487,7 @@
       -7.6326178,
       0.34109395
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -506,7 +506,7 @@
       -4.843263,
       0.2235078
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -525,7 +525,7 @@
       4.2940662,
       -0.14269823
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -544,7 +544,7 @@
       9.9874612,
       -0.39947113
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -563,7 +563,7 @@
       13.078434,
       -0.49703757
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -582,7 +582,7 @@
       5.7149653,
       -0.21963155
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -601,7 +601,7 @@
       3.4771606,
       -0.15018714
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -620,7 +620,7 @@
       7.575904,
       -0.3312931
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -639,7 +639,7 @@
       -6.1047321,
       0.2562386
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -658,7 +658,7 @@
       -1.28685,
       0.04968433
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -677,7 +677,7 @@
       4.531692,
       -0.20704043
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -696,7 +696,7 @@
       10.133181,
       -0.42657171
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -715,7 +715,7 @@
       17.859557,
       -0.70592896
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -734,7 +734,7 @@
       33.81638,
       -1.3602516
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -753,7 +753,7 @@
       15.884332,
       -0.64202099
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -772,7 +772,7 @@
       -9.0819456,
       0.38410163
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -791,7 +791,7 @@
       -5.6263912,
       0.27648478
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -810,7 +810,7 @@
       22.070979,
       -1.1245125
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -829,7 +829,7 @@
       2.1649513,
       -0.069181667
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -848,7 +848,7 @@
       -1.9717155,
       0.078909087
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -867,7 +867,7 @@
       16.237997,
       -0.70184362
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -886,7 +886,7 @@
       -6.6921267,
       0.26015507
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -905,7 +905,7 @@
       5.0764072,
       -0.18781085
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -924,7 +924,7 @@
       19.677613,
       -0.78961654
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -943,7 +943,7 @@
       37.581882,
       -1.5234514
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -962,7 +962,7 @@
       52.434991,
       2.1199771
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -981,7 +981,7 @@
       7.5641493,
       -0.3077673
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -1000,7 +1000,7 @@
       28.827311,
       -1.250163
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -1019,7 +1019,7 @@
       5.5205241,
       -0.23011892
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -1038,7 +1038,7 @@
       4.4182662,
       -0.2003623
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -1057,7 +1057,7 @@
       9.0740465,
       -0.37644653
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -1076,7 +1076,7 @@
       14.260425,
       -0.58269795
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -1095,7 +1095,7 @@
       7.5743928,
       -0.30962628
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -1114,7 +1114,7 @@
       13.608812,
       -0.55917125
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -1133,7 +1133,7 @@
       15.58204,
       -0.63700017
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -1152,7 +1152,7 @@
       27.050368,
       1.099834
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -1171,7 +1171,7 @@
       -0.61930206,
       0.032455259
     ],
-    "phase": 1,
+    "phase": "gas",
     "temperature_range": {
       "min": 1000,
       "max": 5000
@@ -1190,7 +1190,7 @@
       0,
       0
     ],
-    "phase": 1,
+    "phase": "liquid",
     "temperature_range": {
       "min": 300,
       "max": 932
@@ -1209,7 +1209,7 @@
       0,
       0
     ],
-    "phase": 1,
+    "phase": "liquid",
     "temperature_range": {
       "min": 932,
       "max": 4300
@@ -1228,7 +1228,7 @@
       0,
       0
     ],
-    "phase": 1,
+    "phase": "liquid",
     "temperature_range": {
       "min": 300,
       "max": 900
@@ -1247,7 +1247,7 @@
       0,
       0
     ],
-    "phase": 1,
+    "phase": "liquid",
     "temperature_range": {
       "min": 900,
       "max": 2303
@@ -1266,7 +1266,7 @@
       0,
       0
     ],
-    "phase": 1,
+    "phase": "liquid",
     "temperature_range": {
       "min": 2303,
       "max": 6000
@@ -1285,7 +1285,7 @@
       0,
       0
     ],
-    "phase": 1,
+    "phase": "liquid",
     "temperature_range": {
       "min": 300,
       "max": 900
@@ -1304,7 +1304,7 @@
       0,
       0
     ],
-    "phase": 1,
+    "phase": "liquid",
     "temperature_range": {
       "min": 900,
       "max": 2000
@@ -1323,7 +1323,7 @@
       0,
       0
     ],
-    "phase": 1,
+    "phase": "liquid",
     "temperature_range": {
       "min": 2000,
       "max": 5000

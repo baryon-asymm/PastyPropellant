@@ -109,7 +109,7 @@ double[] upperBound = [double.MaxValue, 1e9, 1e12, 2e5, 1e12, 2e5, 1e12, 2e5, 10
 //    upperBound.AsReadOnly(),
 //    lowerBound.AsReadOnly(),
 //    startPoint.AsReadOnly());
-/*var scenario = new DifferentialEvolutionRuntime(
+var scenario = new DifferentialEvolutionRuntime(
     populationSize,
     numberOfGenerations,
     inputFileName,
@@ -122,9 +122,9 @@ var operationResult = await scenario.RunAsync();
 if (operationResult.Exception is not null)
 {
     EventBus<string>.Publish(operationResult.Exception.ToString());
-}*/
+}
 
- var base64String =
+/*var base64String =
      "hktKotOdt3t0017v4XxNQZqt8gb3lNlBuqEswBxnCEFmHuc5t8QoQU4vYQkAauhAQKIWc8kp80DLNGKP/dbvQPe2yp9JjQZA8VtaJzqP8z9J7TD9c37/P8Go+MeTLy1Bwr7r4uE6CUG8qPP5/LogwdLIMMP5/wdAXvEGlEXCaj4=";
  var byteArray = Convert.FromBase64String(base64String);
  var doubleArray = new double[byteArray.Length / sizeof(double)];
@@ -145,7 +145,7 @@ var scenario = new ReportPdfPrintScenario(inputFileName, reportingPressures);
  }
 
 EventBus<string>.Publish(
-    $"Individual: {JsonSerializer.Serialize(operationResult.Value.BestSolverParamsBySpan.ToArray())}");
+    $"Individual: {JsonSerializer.Serialize(operationResult.Value.BestSolverParamsBySpan.ToArray())}");*/
 
 var reportMaker = TextReportMaker.FromOptimizationResult(operationResult.Value);
 var report = reportMaker.MakeReport();

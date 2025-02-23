@@ -98,7 +98,7 @@ public readonly ref struct CombustionSolverParamsByDoubles
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static CombustionSolverParamsByDoubles FromVector(
-        Span<double> vector)
+        ReadOnlySpan<double> vector)
     {
         return new CombustionSolverParamsByDoubles
         {
@@ -219,7 +219,7 @@ public readonly ref struct CombustionSolverParamsByUnits
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static CombustionSolverParamsByUnits FromVector(
-        Span<double> vector)
+        ReadOnlySpan<double> vector)
     {
         return new CombustionSolverParamsByUnits
         {

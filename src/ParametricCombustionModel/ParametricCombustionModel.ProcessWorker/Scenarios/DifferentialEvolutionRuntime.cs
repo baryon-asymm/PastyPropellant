@@ -1,6 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 using System.Text.Json;
-using DifferentialEvolution.Optimizer.Models;
 using ParametricCombustionModel.Computation.Builders;
 using ParametricCombustionModel.Computation.Models.ProblemContexts;
 using ParametricCombustionModel.Computation.Solvers;
@@ -20,7 +19,7 @@ public class DifferentialEvolutionRuntime
 {
     private readonly ReadOnlyCollection<double> _lowerBound;
     private readonly ReadOnlyCollection<double> _upperBound;
-
+    
     private readonly DifferentialEvolutionOptimizer _optimizer;
 
     public DifferentialEvolutionRuntime(

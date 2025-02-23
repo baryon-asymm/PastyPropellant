@@ -46,7 +46,7 @@ public class BurningRatePlotRenderer : BasePlotRenderer
                 plotModel,
                 data.CalculatedBurningRates,
                 $"{propellantName} (Calculated)",
-                OxyColors.Black,
+                color,
                 markerType,
                 renderInLegend: true);
 
@@ -55,7 +55,7 @@ public class BurningRatePlotRenderer : BasePlotRenderer
                 plotModel,
                 data.ExperimentalBurningRates,
                 $"{propellantName} (Experimental)",
-                OxyColors.Gray,
+                color,
                 markerType,
                 renderInLegend: true,
                 lineStyle: LineStyle.Dash);
@@ -74,7 +74,7 @@ public class BurningRatePlotRenderer : BasePlotRenderer
                         confidenceInterval.SizeOfConfidenceInterval,
                         0.1);
 
-                    confidenceIntervalDrawer.Draw(plotModel, OxyColors.Gray);
+                    confidenceIntervalDrawer.Draw(plotModel, color);
                 }
             }
         }
