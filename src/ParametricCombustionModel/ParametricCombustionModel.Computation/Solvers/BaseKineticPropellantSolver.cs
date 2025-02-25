@@ -45,7 +45,8 @@ public abstract class BaseKineticPropellantSolver : BasePropellantSolver
     protected abstract void ExtractKineticBurnParams(
         in CombustionSolverParamsByUnits solverParamsByUnits,
         out Frequency aKineticFlame,
-        out MolarEnergy eKineticFlame);
+        out MolarEnergy eKineticFlame,
+        out double nu);
 
     /// <summary>
     /// Extracts the kinetic flame parameters from the given burn parameters using native double types.
@@ -72,7 +73,8 @@ public abstract class BaseKineticPropellantSolver : BasePropellantSolver
     protected abstract void ExtractKineticBurnParams(
         in CombustionSolverParamsByDoubles solverParams,
         out double aKineticFlame,
-        out double eKineticFlame);
+        out double eKineticFlame,
+        out double nu);
 
 #endregion
 
@@ -218,8 +220,7 @@ public abstract class BaseKineticPropellantSolver : BasePropellantSolver
         in Density averageKineticFlameDensity,
         in CombustionSolverParamsByUnits solverParamsByUnits)
     {
-        ExtractKineticBurnParams(solverParamsByUnits, out var aKineticFlame, out var eKineticFlame);
-        var nu = solverParamsByUnits.Nu;
+        ExtractKineticBurnParams(solverParamsByUnits, out var aKineticFlame, out var eKineticFlame, out var nu);
         const double gasConstant = PhysicalConstants.UniversalGasConstant; // J/(mol*K)
 
         var molarEnergy = MolarEnergy.FromJoulesPerMole(gasConstant * averageKineticFlameTemperature.Kelvins);
@@ -376,8 +377,7 @@ public abstract class BaseKineticPropellantSolver : BasePropellantSolver
         in double averageKineticFlameDensity,
         in CombustionSolverParamsByDoubles solverParams)
     {
-        ExtractKineticBurnParams(solverParams, out var aKineticFlame, out var eKineticFlame);
-        var nu = solverParams.Nu;
+        ExtractKineticBurnParams(solverParams, out var aKineticFlame, out var eKineticFlame, out var nu);
         const double gasConstant = PhysicalConstants.UniversalGasConstant; // J/(mol*K)
 
         var molarEnergy = gasConstant * averageKineticFlameTemperature;

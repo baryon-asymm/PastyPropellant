@@ -25,7 +25,7 @@ var maxPressure = Pressure.FromMegapascals(6.5);
 var minPressure = Pressure.FromMegapascals(1);
 
 const int pressurePointsForOpt = 10;
-const int pressurePointsForReport = 10000;
+const int pressurePointsForReport = 7;
 var pressures = Enumerable.Range(0, pressurePointsForOpt + 1)
                           .Select(x => minPressure + (maxPressure - minPressure) / pressurePointsForOpt * x)
                           .ToArray();
@@ -65,7 +65,7 @@ const double heatFlowsSegmentSize = 100;
 //var results = await finder.GetPoolAsync();
 //File.WriteAllText("results100.txt", JsonSerializer.Serialize(results));
 
-double[] lowerBound = [1, 1, 1, 5e4, 1, 5e4, 1, 5e4, 1.3856, 1, 1, -1e12, 1e-6];
+double[] lowerBound = [1, 1, 1, 5e4, 1, 5e4, 1, 5e4, 0.1, 0.1, 0.1, 1, 1, -1e12, 1e-6, 0.0];
 // double[] lowerBound =
 // [
 //     1.7665858321993308E+308, 3925354.1746398024, 2128756552.6065316, 199994.60572671256, 2321040.0404703906,
@@ -73,7 +73,7 @@ double[] lowerBound = [1, 1, 1, 5e4, 1, 5e4, 1, 5e4, 1.3856, 1, 1, -1e12, 1e-6];
 //     -410382.28067308106, 0.6524484901077885
 // ];
 
-double[] upperBound = [double.MaxValue, 1e9, 1e12, 2e5, 1e12, 2e5, 1e12, 2e5, 1.3856, 1e12, 1e9, 1e12, 3];
+double[] upperBound = [double.MaxValue, 1e9, 1e12, 2e5, 1e12, 2e5, 1e12, 2e5, 10.0, 10.0, 10.0, 1e12, 1e9, 1e12, 3, 1.0];
 // double[] upperBound =
 // [
 //     1.7665858321993308E+308, 3925354.1746398024, 2128756552.6065316, 199994.60572671256, 2321040.0404703906,
@@ -125,41 +125,45 @@ if (operationResult.Exception is not null)
 }
 
 /*var base64String =
-    "T9qj80BWxEG2USzJfN/2QAr9dwJqt1RCQF/2//9pCEEoHICYIolpQRCuWwAAauhAdpecDfD4X0E6J3AAAGroQM9m1edqK/Y/fo+NmQuW/0Hj3VwOzgcTQeU9KMDS9ClBf66VbmO34j8=";
-var byteArray = Convert.FromBase64String(base64String);
-var doubleArray = new double[byteArray.Length / sizeof(double)];
-Buffer.BlockCopy(byteArray, 0, doubleArray, 0, byteArray.Length);
+     "hktKotOdt3t0017v4XxNQZqt8gb3lNlBuqEswBxnCEFmHuc5t8QoQU4vYQkAauhAQKIWc8kp80DLNGKP/dbvQPe2yp9JjQZA8VtaJzqP8z9J7TD9c37/P8Go+MeTLy1Bwr7r4uE6CUG8qPP5/LogwdLIMMP5/wdAXvEGlEXCaj4=";
+ var byteArray = Convert.FromBase64String(base64String);
+ var doubleArray = new double[byteArray.Length / sizeof(double)];
+ Buffer.BlockCopy(byteArray, 0, doubleArray, 0, byteArray.Length);
 
 var scenario = new ReportPdfPrintScenario(inputFileName, reportingPressures);
-var pressurePointCount = scenario.OptimizationProblemContext.ProblemContextMatrix.GetLength(1);
-for (int i = 0; i < pressurePointCount; i++)
-{
-    scenario.OptimizationProblemContext.ProblemContextMatrix[1, i].PocketMetalCombustionParamsByUnits.MetalMeltingTemperature -= TemperatureDelta.FromKelvins(300);
-    scenario.OptimizationProblemContext.ProblemContextMatrix[1, i].PropellantParamsByUnits.SkeletonSurfaceFraction += Ratio.FromDecimalFractions(0.2 / pressurePointCount * i);
-}*/
+ var pressurePointCount = scenario.OptimizationProblemContext.ProblemContextMatrix.GetLength(1);
+ for (int i = 0; i < pressurePointCount; i++)
+ {
+     scenario.OptimizationProblemContext.ProblemContextMatrix[1, i].PocketMetalCombustionParamsByUnits.MetalMeltingTemperature -= TemperatureDelta.FromKelvins(300);
+     scenario.OptimizationProblemContext.ProblemContextMatrix[1, i].PropellantParamsByUnits.SkeletonSurfaceFraction += Ratio.FromDecimalFractions(0.2 / pressurePointCount * i);
+ }
 
-// var operationResult = await scenario.RunAsync(doubleArray);
-// if (operationResult.Exception is not null)
-// {
-//     EventBus<string>.Publish(operationResult.Exception.ToString());
-// }
+ var operationResult = await scenario.RunAsync(doubleArray);
+ if (operationResult.Exception is not null)
+ {
+     EventBus<string>.Publish(operationResult.Exception.ToString());
+ }
 
 EventBus<string>.Publish(
-    $"Individual: {JsonSerializer.Serialize(operationResult.Value.BestSolverParamsBySpan.ToArray())}");
+    $"Individual: {JsonSerializer.Serialize(operationResult.Value.BestSolverParamsBySpan.ToArray())}");*/
 
 var reportMaker = TextReportMaker.FromOptimizationResult(operationResult.Value);
 var report = reportMaker.MakeReport();
 CultureInfo.CurrentCulture = new CultureInfo("ru-RU");
 Console.OutputEncoding = Encoding.UTF8;
-Console.WriteLine(report);
+// Console.WriteLine(report);
 
 var settings = new PlotSettings
 {
     Title = "Burning Rates",
+    TitleFontSize = 22,
     XAxisMinimum = 0.9,
     XAxisMaximum = 6.6,
     XAxisTitle = "Pressure, MPa",
-    YAxisTitle = "mm/s"
+    YAxisTitle = "mm/s",
+    Width = 800,
+    Height = 800,
+    Dpi = 96
 };
 var plotRenderer = new BurningRatePlotRenderer();
 plotRenderer.Render(operationResult.Value, settings);

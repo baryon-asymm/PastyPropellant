@@ -8,8 +8,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Optimizers\DifferentialEvolution.Optimizer\DifferentialEvolution.Optimizer.csproj" />
       <ProjectReference Include="..\ParametricCombustionModel.Computation\ParametricCombustionModel.Computation.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="DotNetDifferentialEvolution" Version="1.1.1" />
     </ItemGroup>
 
 </Project>

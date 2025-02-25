@@ -61,15 +61,25 @@ public class CombustionSolverParamsReport : BaseReport, ITransformable<Queue<IPd
                                TextStyle.None));
         operations.Enqueue(new LineBreakOperation());
         operations.Enqueue(new PrintTextOperation(
-                               string.Format(CombustionSolverParamsReportResources.Nu, solverParams.Nu),
+                               "Order of the chemical reactions at the inter pocket region" + solverParams.NuInterPocket,
                                TextStyle.None));
         operations.Enqueue(new LineBreakOperation());
         operations.Enqueue(new PrintTextOperation(
-                               string.Format(CombustionSolverParamsReportResources.HMetalBurning, solverParams.HMetalBurning),
+                               "Order of the chemical reactions at the pocket skeleton region" + solverParams.NuPocketSkeleton,
                                TextStyle.None));
         operations.Enqueue(new LineBreakOperation());
         operations.Enqueue(new PrintTextOperation(
-                               string.Format(CombustionSolverParamsReportResources.EMetalBurning, solverParams.EMetalBurning),
+                               "Order of the chemical reactions at the pocket out skeleton region" + solverParams.NuPocketOutSkeleton,
+                               TextStyle.None));
+        operations.Enqueue(new LineBreakOperation());
+        operations.Enqueue(new PrintTextOperation(
+                               string.Format(CombustionSolverParamsReportResources.HMetalBurning,
+                                             solverParams.HMetalBurning),
+                               TextStyle.None));
+        operations.Enqueue(new LineBreakOperation());
+        operations.Enqueue(new PrintTextOperation(
+                               string.Format(CombustionSolverParamsReportResources.EMetalBurning,
+                                             solverParams.EMetalBurning),
                                TextStyle.None));
         operations.Enqueue(new LineBreakOperation());
         operations.Enqueue(new PrintTextOperation(
@@ -79,6 +89,10 @@ public class CombustionSolverParamsReport : BaseReport, ITransformable<Queue<IPd
         operations.Enqueue(new PrintTextOperation(
                                string.Format(CombustionSolverParamsReportResources.KDiffusionHeight,
                                              solverParams.KDiffusionHeight),
+                               TextStyle.None));
+        operations.Enqueue(new LineBreakOperation());
+        operations.Enqueue(new PrintTextOperation(
+                               "Coefficient of the metal burning temperature: " + solverParams.KMetalTemperature,
                                TextStyle.None));
         operations.Enqueue(new LineBreakOperation());
 

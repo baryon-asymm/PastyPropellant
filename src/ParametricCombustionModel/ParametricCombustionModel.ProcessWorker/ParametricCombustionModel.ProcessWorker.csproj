@@ -21,7 +21,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\NotifyService\TelegramBot.Service.Shared\TelegramBot.Service.Shared.csproj"/>
-        <ProjectReference Include="..\..\Optimizers\DifferentialEvolution.Optimizer\DifferentialEvolution.Optimizer.csproj"/>
         <ProjectReference Include="..\..\PDFsharp\PDFsharp.Api\PDFsharp.Api.csproj"/>
         <ProjectReference Include="..\ParametricCombustionModel.Optimization\ParametricCombustionModel.Optimization.csproj" />
         <ProjectReference Include="..\ParametricCombustionModel.PlotRenderer\ParametricCombustionModel.PlotRenderer.csproj" />

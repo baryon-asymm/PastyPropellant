@@ -1,0 +1,45 @@
+rocket_thermodynamics/
+├── README.md
+├── requirements.txt          # Зависимости (numpy, scipy, matplotlib, и т.д.)
+├── setup.py                  # (опционально) для установки пакета
+├── data/
+│   ├── combustion_products.json   # JSON с описанием возможных продуктов сгорания
+│   └── input_substance.json       # JSON с записью входного вещества
+│
+├── src/
+│   ├── main.py               # Точка входа: связывает слои, читает входные данные, запускает расчёты и построение графиков
+│   │
+│   ├── domain/               # Доменный слой: бизнес-сущности и правила
+│   │   ├── __init__.py
+│   │   ├── chemical_formula.py   # Определяет класс ChemicalFormula (например, словарь элементов и их масс)
+│   │   ├── reaction_product.py   # Определяет класс ReactionProduct, включающий:
+│   │   │    # formula (строка, напр. "O")
+│   │   │    # coefficients (список чисел)
+│   │   │    # phase (строка: "gas", "condensed", и т.д.)
+│   │   │    # temperature_range (объект TemperatureRange)
+│   │   └── temperature_range.py  # Класс TemperatureRange с полями min и max
+│   │
+│   ├── application/          # Прикладной слой: use-case'ы и бизнес-логика (расчёты термодинамических параметров)
+│   │   ├── __init__.py
+│   │   └── thermo_service.py  # Содержит класс или функции для расчёта термодинамических параметров,
+│   │                             # аналогичные функции tdclc в Matlab
+│   │
+│   ├── infrastructure/       # Инфраструктурный слой: взаимодействие с внешними системами и библиотеками
+│   │   ├── __init__.py
+│   │   ├── json_reader.py     # Модуль для чтения и валидации JSON-файлов и преобразования их в объекты домена.
+│   │                            # Здесь реализуются функции вроде load_combustion_products() и load_input_substance()
+│   │   ├── optimizer.py       # Обёртка для вызова оптимизатора (например, scipy.optimize) для минимизации функции Гиббса
+│   │   └── plotter.py         # Модуль для построения графиков (используя matplotlib)
+│   │
+│   ├── config/               # Конфигурационные файлы и константы
+│   │   ├── __init__.py
+│   │   └── settings.py      # Настройки: значения давления, температуры и пр.
+│   │
+│   └── utils/                # Вспомогательные утилиты (например, математические функции)
+│       ├── __init__.py
+│       └── math_utils.py
+│
+└── tests/                    # Тесты (модульные, интеграционные)
+    ├── __init__.py
+    ├── test_thermo_service.py
+    └── test_json_reader.py   # Тесты для проверки корректности чтения и преобразования JSON в объекты домена

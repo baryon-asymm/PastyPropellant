@@ -1,9 +1,8 @@
 ﻿using System.Collections.ObjectModel;
-using DifferentialEvolution.Optimizer;
-using DifferentialEvolution.Optimizer.Interfaces;
-using DifferentialEvolution.Optimizer.Models;
-using DifferentialEvolution.Optimizer.MutationStrategies;
-using DifferentialEvolution.Optimizer.PopulationGenerators;
+using DotNetDifferentialEvolution;
+using DotNetDifferentialEvolution.Interfaces;
+using DotNetDifferentialEvolution.Models;
+using DotNetDifferentialEvolution.TerminationStrategies;
 using ParametricCombustionModel.Computation.Models.KnownParams;
 using ParametricCombustionModel.Core.Models;
 using ParametricCombustionModel.Optimization.Interfaces;
@@ -92,7 +91,7 @@ public class DifferentialEvolutionOptimizerBuilder
     }
 }
 
-public class DifferentialEvolutionOptimizer : IParametricCombustionModelOptimizer, IFitnessFunctionInvoker
+public class DifferentialEvolutionOptimizer : IParametricCombustionModelOptimizer, IFitnessFunctionEvaluator
 {
 #region Fields
 
@@ -141,57 +140,74 @@ public class DifferentialEvolutionOptimizer : IParametricCombustionModelOptimize
         return GetOptimizationResultAsync();
     }
 
-    private Task<OperationResult<OptimizationResult>> GetOptimizationResultAsync()
+    private async Task<OperationResult<OptimizationResult>> GetOptimizationResultAsync()
     {
         try
         {
-            var optimizationResult = TryGetOptimizationResult();
-            return Task.FromResult(new OperationResult<OptimizationResult>(optimizationResult));
+            var optimizationResult = await TryGetOptimizationResultAsync();
+            return new OperationResult<OptimizationResult>(optimizationResult);
         }
         catch (Exception ex)
         {
-            return Task.FromResult(new OperationResult<OptimizationResult>(ex));
+            return new OperationResult<OptimizationResult>(ex);
         }
     }
 
-    private OptimizationResult TryGetOptimizationResult()
+    private async Task<OptimizationResult> TryGetOptimizationResultAsync()
     {
-        var populationGenerator = new PopulationGenerator(PopulationSize, UpperBound, LowerBound);
-        var optimizer = new Optimizer(new MutationStrategy(LowerBound, UpperBound, 0.5, 0.9),
-                                      this,
-                                      populationGenerator.Generate(this),
-                                      populationGenerator.Generate(this),
-                                      MaxStagnationStreak,
-                                      GetOutputCallbackInvoker());
+        var terminationStrategy =
+            new StagnationStreakTerminationStrategy(maxStagnationStreak: 100_000, stagnationThreshold: 1e-6);
+        using var de = DifferentialEvolutionBuilder.ForFunction(this)
+                                          .WithBounds(LowerBound.ToArray(), UpperBound.ToArray())
+                                          .WithPopulationSize(PopulationSize)
+                                          .WithUniformPopulationSampling()
+                                          .WithDefaultMutationStrategy(
+                                              mutationForce: 0.5, crossoverProbability: 0.9)
+                                          .WithDefaultSelectionStrategy()
+                                          .WithTerminationCondition(terminationStrategy)
+                                          .UseProcessors(processorsCount: 12)
+                                          .WithPopulationUpdateHandler(new PopulationUpdateHandler())
+                                          .Build();
 
-        var individual = optimizer.Run();
+        var population = await de.RunAsync();
 
-        var solverParams = CombustionSolverParamsByUnits.FromVector(individual.Vector.Span);
-        _optimizationContextByUnits.Accept(solverParams, FitnessFunctionSolver);
+        _optimizationContextByUnits.Accept(
+            CombustionSolverParamsByUnits.FromVector(population.IndividualCursor.Genes.ToArray()),
+            FitnessFunctionSolver);
 
-        var result = new OptimizationResult(individual.Vector, _optimizationContextByUnits);
+        var result = new OptimizationResult(population.IndividualCursor.Genes.ToArray(), _optimizationContextByUnits);
 
         return result;
     }
-
-    protected virtual Action<int, Individual> GetOutputCallbackInvoker()
+    
+    private class PopulationUpdateHandler : IPopulationUpdatedHandler
     {
-        Action<int, Individual> outputCallbackInvoker = (
-            generation,
-            individual) =>
+        private DateTime _lastUpdate = DateTime.Now;
+        private readonly TimeSpan _updateInterval = TimeSpan.FromSeconds(3);
+        
+        public void Handle(
+            Population population)
         {
-            Console.WriteLine($"Generation: {generation}, Best individual: {individual.FitnessFunctionCost}");
-        };
+            if (DateTime.Now - _lastUpdate < _updateInterval)
+                return;
 
-        return outputCallbackInvoker;
+            population.MoveCursorToBestIndividual();
+            
+            _lastUpdate = DateTime.Now;
+            Console.WriteLine($"Generation: {population.GenerationNumber}, Best individual: {population.IndividualCursor.FitnessFunctionValue}");
+        }
     }
 
-    public double Invoke(
-        int threadIndex,
-        Span<double> point)
+    public double Evaluate(
+        ReadOnlySpan<double> genes) =>
+        Evaluate(workerIndex: 0, genes);
+
+    public double Evaluate(
+        int workerIndex,
+        ReadOnlySpan<double> genes)
     {
-        var solverParams = CombustionSolverParamsByDoubles.FromVector(point);
-        var context = _optimizationContexts[threadIndex];
+        var solverParams = CombustionSolverParamsByDoubles.FromVector(genes);
+        var context = _optimizationContexts[workerIndex];
 
         FitnessFunctionSolver.Visit(solverParams, context);
 

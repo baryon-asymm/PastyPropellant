@@ -16,6 +16,14 @@ public class BurningRatePlotRenderer : BasePlotRenderer
         OxyColors.Red,
         OxyColors.Violet
     ];
+    
+    private static readonly MarkerType[] MarkerTypes =
+    [
+        MarkerType.Circle,
+        MarkerType.Triangle,
+        MarkerType.Plus,
+        MarkerType.Square
+    ];
 
     public override void Render(
         OptimizationResult result,
@@ -31,6 +39,7 @@ public class BurningRatePlotRenderer : BasePlotRenderer
         {
             var colorIndex = seriesData.Keys.ToList().IndexOf(propellantName);
             var color = Colors[colorIndex % Colors.Length];
+            var markerType = MarkerTypes[colorIndex % MarkerTypes.Length];
 
             // Add calculated burning rate series (lighter color)
             AddLineSeries(
@@ -38,14 +47,18 @@ public class BurningRatePlotRenderer : BasePlotRenderer
                 data.CalculatedBurningRates,
                 $"{propellantName} (Calculated)",
                 color,
-                LineStyle.Dash);
+                markerType,
+                renderInLegend: true);
 
             // Add experimental burning rate series (darker color)
             AddLineSeries(
                 plotModel,
                 data.ExperimentalBurningRates,
                 $"{propellantName} (Experimental)",
-                color);
+                color,
+                markerType,
+                renderInLegend: true,
+                lineStyle: LineStyle.Dash);
 
             // Add confidence intervals
             var propellantConfidenceIntervals = result
@@ -80,6 +93,13 @@ public class BurningRatePlotRenderer : BasePlotRenderer
 
         for (int i = 0; i < result.OptimizedContext.PropellantCount; i++)
         {
+            // skip if the propellant name is Bas_21 or bas_22
+            if (result.OptimizedContext.ProblemContextMatrix[i, 0].Propellant.Name.Equals("Bas_21")
+                || result.OptimizedContext.ProblemContextMatrix[i, 0].Propellant.Name.Equals("Bas_22"))
+            {
+                continue;
+            }
+            
             var calculatedDataPoints = new List<DataPoint>();
             var experimentalDataPoints = new List<DataPoint>();
             for (int j = 0; j < result.OptimizedContext.PressureCount; j++)
@@ -106,6 +126,8 @@ public class BurningRatePlotRenderer : BasePlotRenderer
         IEnumerable<DataPoint> data,
         string seriesTitle,
         OxyColor color,
+        MarkerType markerType,
+        bool renderInLegend = true,
         LineStyle lineStyle = LineStyle.Solid)
     {
         var series = new LineSeries
@@ -113,7 +135,10 @@ public class BurningRatePlotRenderer : BasePlotRenderer
             Title = seriesTitle,
             ItemsSource = data,
             Color = color,
-            LineStyle = lineStyle
+            LineStyle = lineStyle,
+            RenderInLegend = renderInLegend,
+            MarkerType = markerType,
+            MarkerSize = 4
         };
 
         plotModel.Series.Add(series);

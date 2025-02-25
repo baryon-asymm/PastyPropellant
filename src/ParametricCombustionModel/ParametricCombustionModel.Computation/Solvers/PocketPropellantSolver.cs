@@ -128,10 +128,12 @@ public sealed class KineticSkeletonHelper : BaseKineticPropellantSolver
     protected override void ExtractKineticBurnParams(
         in CombustionSolverParamsByUnits solverParamsByUnits,
         out Frequency aKineticFlame,
-        out MolarEnergy eKineticFlame)
+        out MolarEnergy eKineticFlame,
+        out double nu)
     {
         aKineticFlame = solverParamsByUnits.AKineticFlamePocketSkeleton;
         eKineticFlame = solverParamsByUnits.EKineticFlamePocketSkeleton;
+        nu = solverParamsByUnits.NuPocketSkeleton;
     }
 
 #endregion
@@ -166,10 +168,12 @@ public sealed class KineticSkeletonHelper : BaseKineticPropellantSolver
     protected override void ExtractKineticBurnParams(
         in CombustionSolverParamsByDoubles solverParams,
         out double aKineticFlame,
-        out double eKineticFlame)
+        out double eKineticFlame,
+        out double nu)
     {
         aKineticFlame = solverParams.AKineticFlamePocketSkeleton;
         eKineticFlame = solverParams.EKineticFlamePocketSkeleton;
+        nu = solverParams.NuPocketSkeleton;
     }
 
 #endregion
@@ -294,10 +298,12 @@ public sealed class KineticOutSkeletonHelper : BaseKineticPropellantSolver
     protected override void ExtractKineticBurnParams(
         in CombustionSolverParamsByUnits solverParamsByUnits,
         out Frequency aKineticFlame,
-        out MolarEnergy eKineticFlame)
+        out MolarEnergy eKineticFlame,
+        out double nu)
     {
         aKineticFlame = solverParamsByUnits.AKineticFlamePocketOutSkeleton;
         eKineticFlame = solverParamsByUnits.EKineticFlamePocketOutSkeleton;
+        nu = solverParamsByUnits.NuPocketOutSkeleton;
     }
 
 #endregion
@@ -332,10 +338,12 @@ public sealed class KineticOutSkeletonHelper : BaseKineticPropellantSolver
     protected override void ExtractKineticBurnParams(
         in CombustionSolverParamsByDoubles solverParams,
         out double aKineticFlame,
-        out double eKineticFlame)
+        out double eKineticFlame,
+        out double nu)
     {
         aKineticFlame = solverParams.AKineticFlamePocketOutSkeleton;
         eKineticFlame = solverParams.EKineticFlamePocketOutSkeleton;
+        nu = solverParams.NuPocketOutSkeleton;
     }
 
 #endregion
@@ -390,7 +398,8 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
     {
         ref var contextBag = ref context.PocketCombustionParams;
 
-        contextBag.BurnRateIsFound = TryGetSurfaceTemperature(solverParamsByUnits, context, out contextBag.SurfaceTemperature);
+        contextBag.BurnRateIsFound =
+            TryGetSurfaceTemperature(solverParamsByUnits, context, out contextBag.SurfaceTemperature);
 
         if (contextBag.BurnRateIsFound)
         {
@@ -449,7 +458,7 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
                                                        ref outSkeletonKineticFlameParams);
 
         contextBag.AverageMetalBurningTemperature =
-            GetAverageMetalBurningTemperature(context.PocketMetalCombustionParamsByUnits);
+            GetAverageMetalBurningTemperature(solverParamsByUnits, context.PocketMetalCombustionParamsByUnits);
         contextBag.MetalBurningHeatFlux =
             GetMetalBurningHeatFlux(contextBag.AverageMetalBurningTemperature,
                                     solverParamsByUnits);
@@ -498,13 +507,15 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private Temperature GetAverageMetalBurningTemperature(
+        in CombustionSolverParamsByUnits solverParams,
         in MetalCombustionParamsByUnits metalCombustionParamsByUnits)
     {
         var metalMeltingTemperatureDouble = metalCombustionParamsByUnits.MetalMeltingTemperature.Kelvins;
         var metalBoilingTemperatureDouble = metalCombustionParamsByUnits.MetalBoilingTemperature.Kelvins;
 
+        var k = solverParams.KMetalTemperature.DecimalFractions;
         var averageMetalBurningTemperature = Temperature.FromKelvins(
-            (metalMeltingTemperatureDouble + metalBoilingTemperatureDouble) / 2.0);
+            k * metalMeltingTemperatureDouble + (1.0 - k) * metalBoilingTemperatureDouble);
 
         return averageMetalBurningTemperature;
     }
@@ -688,7 +699,7 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
                                                        ref outSkeletonKineticFlameParams);
 
         contextBag.AverageMetalBurningTemperature =
-            GetAverageMetalBurningTemperature(context.PocketMetalCombustionParams);
+            GetAverageMetalBurningTemperature(solverParams, context.PocketMetalCombustionParams);
         contextBag.MetalBurningHeatFlux =
             GetMetalBurningHeatFlux(contextBag.AverageMetalBurningTemperature,
                                     solverParams);
@@ -737,13 +748,15 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private double GetAverageMetalBurningTemperature(
+        in CombustionSolverParamsByDoubles solverParams,
         in MetalCombustionParamsByDoubles metalCombustionParams)
     {
         var metalMeltingTemperatureDouble = metalCombustionParams.MetalMeltingTemperature;
         var metalBoilingTemperatureDouble = metalCombustionParams.MetalBoilingTemperature;
 
+        var k = solverParams.KMetalTemperature;
         var averageMetalBurningTemperature =
-            (metalMeltingTemperatureDouble + metalBoilingTemperatureDouble) / 2.0;
+            k * metalMeltingTemperatureDouble + (1.0 - k) * metalBoilingTemperatureDouble;
 
         return averageMetalBurningTemperature;
     }

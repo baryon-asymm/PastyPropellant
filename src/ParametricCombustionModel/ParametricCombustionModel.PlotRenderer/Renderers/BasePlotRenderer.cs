@@ -24,7 +24,8 @@ public abstract class BasePlotRenderer : IPlotRenderer
             Title = settings.Title,
             TitleFontSize = settings.TitleFontSize,
             Background = settings.BackgroundColor,
-            IsLegendVisible = settings.ShowLegend
+            IsLegendVisible = settings.ShowLegend,
+            DefaultFontSize = 22
         };
 
         plotModel.Axes.Add(new LinearAxis

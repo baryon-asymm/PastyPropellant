@@ -60,9 +60,13 @@ public readonly ref struct CombustionSolverParamsByDoubles
     public required double EKineticFlamePocketSkeleton { get; init; }
 
     /// <summary>
-    /// Order of chemical reactions in kinetic flames.
+    /// Order of chemical reactions in kinetic flames at the inter pocket region.
     /// </summary>
-    public required double Nu { get; init; }
+    public required double NuInterPocket { get; init; }
+    
+    public required double NuPocketOutSkeleton { get; init; }
+    
+    public required double NuPocketSkeleton { get; init; }
 
     /// <summary>
     /// Metal burning coefficient.
@@ -87,9 +91,14 @@ public readonly ref struct CombustionSolverParamsByDoubles
     /// </summary>
     public required double KDiffusionHeight { get; init; }
 
+    /// <summary>
+    /// Coefficient computing the average temperature of the metal.
+    /// </summary>
+    public required double KMetalTemperature { get; init; }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static CombustionSolverParamsByDoubles FromVector(
-        Span<double> vector)
+        ReadOnlySpan<double> vector)
     {
         return new CombustionSolverParamsByDoubles
         {
@@ -101,11 +110,14 @@ public readonly ref struct CombustionSolverParamsByDoubles
             EKineticFlamePocketOutSkeleton = vector[5],
             AKineticFlamePocketSkeleton = vector[6],
             EKineticFlamePocketSkeleton = vector[7],
-            Nu = vector[8],
-            HMetalBurning = vector[9],
-            EMetalBurning = vector[10],
-            DeltaH = vector[11],
-            KDiffusionHeight = vector[12]
+            NuInterPocket = vector[8],
+            NuPocketOutSkeleton = vector[9],
+            NuPocketSkeleton = vector[10],
+            HMetalBurning = vector[11],
+            EMetalBurning = vector[12],
+            DeltaH = vector[13],
+            KDiffusionHeight = vector[14],
+            KMetalTemperature = vector[15]
         };
     }
 }
@@ -168,9 +180,13 @@ public readonly ref struct CombustionSolverParamsByUnits
     public required MolarEnergy EKineticFlamePocketSkeleton { get; init; }
 
     /// <summary>
-    /// Gets the order of chemical reactions in kinetic flames.
+    /// Gets the order of chemical reactions in kinetic flames at the inter pocket region.
     /// </summary>
-    public required double Nu { get; init; }
+    public required double NuInterPocket { get; init; }
+    
+    public required double NuPocketOutSkeleton { get; init; }
+    
+    public required double NuPocketSkeleton { get; init; }
 
     /// <summary>
     /// Gets the metal burning coefficient (complex coefficient in the metal burning law within the skeleton layer).
@@ -195,9 +211,15 @@ public readonly ref struct CombustionSolverParamsByUnits
     /// </summary>
     public required double KDiffusionHeight { get; init; }
 
+    /// <summary>
+    /// Coefficient computing the average temperature of the metal.
+    /// Measured from 0.0 to 1.0.
+    /// </summary>
+    public required Ratio KMetalTemperature { get; init; }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static CombustionSolverParamsByUnits FromVector(
-        Span<double> vector)
+        ReadOnlySpan<double> vector)
     {
         return new CombustionSolverParamsByUnits
         {
@@ -209,11 +231,14 @@ public readonly ref struct CombustionSolverParamsByUnits
             EKineticFlamePocketOutSkeleton = MolarEnergy.FromJoulesPerMole(vector[5]),
             AKineticFlamePocketSkeleton = Frequency.FromPerSecond(vector[6]),
             EKineticFlamePocketSkeleton = MolarEnergy.FromJoulesPerMole(vector[7]),
-            Nu = vector[8],
-            HMetalBurning = HMetalBurningCoefficient.FromWattsPerKelvinPerSquareMeter(vector[9]),
-            EMetalBurning = MolarEnergy.FromJoulesPerMole(vector[10]),
-            DeltaH = SpecificEnergy.FromJoulesPerKilogram(vector[11]),
-            KDiffusionHeight = vector[12]
+            NuInterPocket = vector[8],
+            NuPocketOutSkeleton = vector[9],
+            NuPocketSkeleton = vector[10],
+            HMetalBurning = HMetalBurningCoefficient.FromWattsPerKelvinPerSquareMeter(vector[11]),
+            EMetalBurning = MolarEnergy.FromJoulesPerMole(vector[12]),
+            DeltaH = SpecificEnergy.FromJoulesPerKilogram(vector[13]),
+            KDiffusionHeight = vector[14],
+            KMetalTemperature = Ratio.FromDecimalFractions(vector[15])
         };
     }
 }
