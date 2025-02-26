@@ -1,0 +1,74 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../../../../../externals/src/dotnet/PDFsharp/src/PDFsharp.Api/PDFsharp.Api.csproj" />
+        <ProjectReference Include="..\ParametricCombustionModel.Optimization\ParametricCombustionModel.Optimization.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Update="Resources\PropellantReportResources.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>PropellantReportResources.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Resources\CombustionSolverParamsReportResources.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>CombustionSolverParamsReportResources.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Resources\ProblemContextReportResources.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>ProblemContextReportResources.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Resources\ConstraintPenaltyEvaluatorReportResources.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>ConstraintPenaltyEvaluatorReportResources.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Resources\ParametricConstraintReportResources.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>ParametricConstraintReportResources.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Resources\FitnessFunctionEvaluatorReportResources.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>FitnessFunctionEvaluatorReportResources.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Resources\PropellantReportResources.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>PropellantReportResources.resx</DependentUpon>
+      </Compile>
+      <Compile Update="Resources\CombustionSolverParamsReportResources.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>CombustionSolverParamsReportResources.resx</DependentUpon>
+      </Compile>
+      <Compile Update="Resources\ProblemContextReportResources.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>ProblemContextReportResources.resx</DependentUpon>
+      </Compile>
+      <Compile Update="Resources\ConstraintPenaltyEvaluatorReportResources.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>ConstraintPenaltyEvaluatorReportResources.resx</DependentUpon>
+      </Compile>
+      <Compile Update="Resources\ParametricConstraintReportResources.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>ParametricConstraintReportResources.resx</DependentUpon>
+      </Compile>
+      <Compile Update="Resources\FitnessFunctionEvaluatorReportResources.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>FitnessFunctionEvaluatorReportResources.resx</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
+</Project>

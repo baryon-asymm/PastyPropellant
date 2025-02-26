@@ -1,49 +1,223 @@
 [
-  {
-      "name": "Bas_1",
-      "a": 9.000448e-7,
-      "nu": 0.7,
-      "density": 1659,
-      "specific_heat_capacity": 1500,
-      "initial_temperature": 298,
-      "pocket_surface_fraction_coefficients": [0.3871888128423973, -0.15993047126375545, 0.04323865626533666, -0.006316468753512198, 0.0004719595486120565, -1.447964550264008E-05],
-      "pocket_mass_fraction": 0.7,
-      "components": {
-          "CombustibleBinder": {
-              "mass_fraction": 0.21,
-              "density": 950
+    {
+        "name": "Bas_1",
+        "a": 9.000448e-7,
+        "nu": 0.7,
+        "density": 1659,
+        "specific_heat_capacity": 1500,
+        "initial_temperature": 298,
+        "pocket_surface_fraction_coefficients": [0.3871888128423973, -0.15993047126375545, 0.04323865626533666, -0.006316468753512198, 0.0004719595486120565, -1.447964550264008E-05],
+        "pocket_mass_fraction": 0.7,
+        "confidence_intervals": [
+          {
+            "x_value": 6.31,
+            "y_value": 53.15,
+            "size_of_confidence_interval": 5.19
           },
-          "AmmoniumPerchlorate": {
-              "mass_fraction": 0.3,
-              "density": 1952,
-              "large_particles_fraction": 0.65,
-              "average_particles_diameter": 0.000204
+          {
+            "x_value": 4.34,
+            "y_value": 38.98,
+            "size_of_confidence_interval": 3.70
           },
-          "Aluminum": {
-              "mass_fraction": 0.2073,
-              "density": 2700
+          {
+            "x_value": 2.31,
+            "y_value": 26.94,
+            "size_of_confidence_interval": 2.96
           },
-          "Octogen": {
-              "mass_fraction": 0.2827,
-              "density": 1870
+          {
+            "x_value": 1.32,
+            "y_value": 16.85,
+            "size_of_confidence_interval": 3.33
           }
-      },
-      "interpocket_gas_phase": {
+        ],
+        "components": {
+            "CombustibleBinder": {
+                "mass_fraction": 0.21,
+                "density": 950
+            },
+            "AmmoniumPerchlorate": {
+                "mass_fraction": 0.3,
+                "density": 1952,
+                "large_particles_fraction": 0.65,
+                "average_particles_diameter": 0.000135
+            },
+            "Aluminum": {
+                "mass_fraction": 0.2073,
+                "density": 2700
+            },
+            "Octogen": {
+                "mass_fraction": 0.2827,
+                "density": 1870
+            }
+        },
+        "inter_pocket_gas_phase": {
+            "lambda_gas": 0.1,
+            "average_molar_mass": 32.7e-3,
+            "c_volume": 635.6,
+            "T_kinetic_flame": 3707
+        },
+        "pocket_gas_phase": {
+            "lambda_gas": 0.1,
+            "average_molar_mass": 32.7e-3,
+            "c_volume": 635.6,
+            "T_diffusion_flame": 3666,
+            "skeleton_gas_phase": {
+              "lambda_gas": 0.1,
+              "average_molar_mass": 32.7e-3,
+              "c_volume": 635.6,
+              "T_kinetic_flame": 1591
+            },
+            "out_skeleton_gas_phase": {
+              "lambda_gas": 0.1,
+              "average_molar_mass": 32.7e-3,
+              "c_volume": 635.6,
+              "T_kinetic_flame": 2365
+            }
+        }
+    },
+    {
+        "name": "Bas_2",
+        "a": 1.285341e-5,
+        "nu": 0.52,
+        "density": 1659,
+        "specific_heat_capacity": 1500,
+        "initial_temperature": 298,
+        "pocket_surface_fraction_coefficients": [0.2440979022437878, 0.01147918731121176, -0.004557442506902735, 0.00023310022859899398],
+        "pocket_mass_fraction": 0.7,
+        "confidence_intervals": [
+          {
+            "x_value": 6.32,
+            "y_value": 45,
+            "size_of_confidence_interval": 3.70
+          },
+          {
+            "x_value": 4.32,
+            "y_value": 36.11,
+            "size_of_confidence_interval": 2.22
+          },
+          {
+            "x_value": 2.26,
+            "y_value": 25.93,
+            "size_of_confidence_interval": 2.96
+          },
+          {
+            "x_value": 1.0,
+            "y_value": 17.96,
+            "size_of_confidence_interval": 2.96
+          }
+        ],
+        "components": {
+            "CombustibleBinder": {
+                "mass_fraction": 0.21,
+                "density": 950
+            },
+            "AmmoniumPerchlorate": {
+                "mass_fraction": 0.3,
+                "density": 1952,
+                "large_particles_fraction": 0.65,
+                "average_particles_diameter": 0.000135
+            },
+            "Aluminum": {
+                "mass_fraction": 0.2073,
+                "density": 2700
+            },
+            "Octogen": {
+                "mass_fraction": 0.2827,
+                "density": 1870
+            }
+        },
+        "inter_pocket_gas_phase": {
+            "lambda_gas": 0.1,
+            "average_molar_mass": 32.7e-3,
+            "c_volume": 635.6,
+            "T_kinetic_flame": 3707
+        },
+        "pocket_gas_phase": {
+            "lambda_gas": 0.1,
+            "average_molar_mass": 32.7e-3,
+            "c_volume": 635.6,
+            "T_diffusion_flame": 3604,
+            "skeleton_gas_phase": {
+              "lambda_gas": 0.1,
+              "average_molar_mass": 32.7e-3,
+              "c_volume": 635.6,
+              "T_kinetic_flame": 1591
+            },
+            "out_skeleton_gas_phase": {
+              "lambda_gas": 0.1,
+              "average_molar_mass": 32.7e-3,
+              "c_volume": 635.6,
+              "T_kinetic_flame": 2365
+            }
+        }
+    },
+    {
+        "name": "Bas_3",
+        "a": 2.203002e-6,
+        "nu": 0.64,
+        "density": 1659,
+        "specific_heat_capacity": 1500,
+        "initial_temperature": 298,
+        "pocket_surface_fraction_coefficients": [0.18985236987285337, -0.010617974640070237, -0.0008857808796132974, 1.0360009859915167E-05],
+        "pocket_mass_fraction": 0.57,
+        "confidence_intervals": [
+          {
+            "x_value": 6.31,
+            "y_value": 50,
+            "size_of_confidence_interval": 4.04
+          },
+          {
+            "x_value": 4.29,
+            "y_value": 38.98,
+            "size_of_confidence_interval": 2.22
+          },
+          {
+            "x_value": 2.19,
+            "y_value": 25,
+            "size_of_confidence_interval": 5.19
+          },
+          {
+            "x_value": 1.26,
+            "y_value": 18.7,
+            "size_of_confidence_interval": 4.07
+          }
+        ],
+        "components": {
+            "CombustibleBinder": {
+                "mass_fraction": 0.21,
+                "density": 950
+            },
+            "AmmoniumPerchlorate": {
+                "mass_fraction": 0.3,
+                "density": 1952,
+                "large_particles_fraction": 0,
+                "average_particles_diameter": 0.000050
+            },
+            "Aluminum": {
+                "mass_fraction": 0.2073,
+                "density": 2700
+            },
+            "Octogen": {
+                "mass_fraction": 0.2827,
+                "density": 1870
+            }
+        },
+        "inter_pocket_gas_phase": {
           "lambda_gas": 0.1,
           "average_molar_mass": 32.7e-3,
           "c_volume": 635.6,
           "T_kinetic_flame": 3707
-      },
-      "pocket_gas_phase": {
+        },
+        "pocket_gas_phase": {
           "lambda_gas": 0.1,
           "average_molar_mass": 32.7e-3,
           "c_volume": 635.6,
-          "T_diffusion_flame": 3666,
+          "T_diffusion_flame": 3674,
           "skeleton_gas_phase": {
             "lambda_gas": 0.1,
             "average_molar_mass": 32.7e-3,
             "c_volume": 635.6,
-            "T_kinetic_flame": 1591
+            "T_kinetic_flame": 2623
           },
           "out_skeleton_gas_phase": {
             "lambda_gas": 0.1,
@@ -51,168 +225,82 @@
             "c_volume": 635.6,
             "T_kinetic_flame": 2365
           }
-      }
-  },
-  {
-      "name": "Bas_2",
-      "a": 1.285341e-5,
-      "nu": 0.52,
-      "density": 1659,
-      "specific_heat_capacity": 1500,
-      "initial_temperature": 298,
-      "pocket_surface_fraction_coefficients": [0.2440979022437878, 0.01147918731121176, -0.004557442506902735, 0.00023310022859899398],
-      "pocket_mass_fraction": 0.7,
-      "components": {
-          "CombustibleBinder": {
-              "mass_fraction": 0.21,
-              "density": 950
+        }
+    },
+    {
+        "name": "Bas_4",
+        "a": 6.137894e-7,
+        "nu": 0.7,
+        "density": 1659,
+        "specific_heat_capacity": 1500,
+        "initial_temperature": 298,
+        "pocket_surface_fraction_coefficients": [0.2971002332343009, -0.0011137752148531604, 0.00013586415670452482, -1.2432013705540037E-05],
+        "pocket_mass_fraction": 0.56,
+        "confidence_intervals": [
+          {
+            "x_value": 6.31,
+            "y_value": 35,
+            "size_of_confidence_interval": 5.56
           },
-          "AmmoniumPerchlorate": {
-              "mass_fraction": 0.3,
-              "density": 1952,
-              "large_particles_fraction": 0.65,
-              "average_particles_diameter": 0.000204
+          {
+            "x_value": 4.29,
+            "y_value": 27.13,
+            "size_of_confidence_interval": 2.96
           },
-          "Aluminum": {
-              "mass_fraction": 0.2073,
-              "density": 2700
+          {
+            "x_value": 2.21,
+            "y_value": 17.41,
+            "size_of_confidence_interval": 1.85
           },
-          "Octogen": {
-              "mass_fraction": 0.2827,
-              "density": 1870
+          {
+            "x_value": 1.31,
+            "y_value": 11.48,
+            "size_of_confidence_interval": 3.33
           }
-      },
-      "interpocket_gas_phase": {
+        ],
+        "components": {
+            "CombustibleBinder": {
+                "mass_fraction": 0.21,
+                "density": 950
+            },
+            "AmmoniumPerchlorate": {
+                "mass_fraction": 0.3,
+                "density": 1952,
+                "large_particles_fraction": 1,
+                "average_particles_diameter": 0.000180
+            },
+            "Aluminum": {
+                "mass_fraction": 0.2073,
+                "density": 2700
+            },
+            "Octogen": {
+                "mass_fraction": 0.2827,
+                "density": 1870
+            }
+        },
+        "inter_pocket_gas_phase": {
           "lambda_gas": 0.1,
           "average_molar_mass": 32.7e-3,
           "c_volume": 635.6,
           "T_kinetic_flame": 3707
-      },
-      "pocket_gas_phase": {
+        },
+        "pocket_gas_phase": {
           "lambda_gas": 0.1,
           "average_molar_mass": 32.7e-3,
           "c_volume": 635.6,
-          "T_diffusion_flame": 3604,
+          "T_diffusion_flame": 3580,
           "skeleton_gas_phase": {
             "lambda_gas": 0.1,
             "average_molar_mass": 32.7e-3,
             "c_volume": 635.6,
-            "T_kinetic_flame": 1591
+            "T_kinetic_flame": 1241
           },
           "out_skeleton_gas_phase": {
             "lambda_gas": 0.1,
             "average_molar_mass": 32.7e-3,
             "c_volume": 635.6,
-            "T_kinetic_flame": 2365
+            "T_kinetic_flame": 1042
           }
-      }
-  },
-  {
-      "name": "Bas_3",
-      "a": 2.203002e-6,
-      "nu": 0.64,
-      "density": 1659,
-      "specific_heat_capacity": 1500,
-      "initial_temperature": 298,
-      "pocket_surface_fraction_coefficients": [0.18985236987285337, -0.010617974640070237, -0.0008857808796132974, 1.0360009859915167E-05],
-      "pocket_mass_fraction": 0.57,
-      "components": {
-          "CombustibleBinder": {
-              "mass_fraction": 0.21,
-              "density": 950
-          },
-          "AmmoniumPerchlorate": {
-              "mass_fraction": 0.3,
-              "density": 1952,
-              "large_particles_fraction": 0,
-              "average_particles_diameter": 0.000189
-          },
-          "Aluminum": {
-              "mass_fraction": 0.2073,
-              "density": 2700
-          },
-          "Octogen": {
-              "mass_fraction": 0.2827,
-              "density": 1870
-          }
-      },
-      "interpocket_gas_phase": {
-        "lambda_gas": 0.1,
-        "average_molar_mass": 32.7e-3,
-        "c_volume": 635.6,
-        "T_kinetic_flame": 3707
-      },
-      "pocket_gas_phase": {
-        "lambda_gas": 0.1,
-        "average_molar_mass": 32.7e-3,
-        "c_volume": 635.6,
-        "T_diffusion_flame": 3674,
-        "skeleton_gas_phase": {
-          "lambda_gas": 0.1,
-          "average_molar_mass": 32.7e-3,
-          "c_volume": 635.6,
-          "T_kinetic_flame": 2623
-        },
-        "out_skeleton_gas_phase": {
-          "lambda_gas": 0.1,
-          "average_molar_mass": 32.7e-3,
-          "c_volume": 635.6,
-          "T_kinetic_flame": 2365
         }
-      }
-  },
-  {
-      "name": "Bas_4",
-      "a": 6.137894e-7,
-      "nu": 0.7,
-      "density": 1800,
-      "specific_heat_capacity": 1500,
-      "initial_temperature": 298,
-      "pocket_surface_fraction_coefficients": [0.2971002332343009, -0.0011137752148531604, 0.00013586415670452482, -1.2432013705540037E-05],
-      "pocket_mass_fraction": 0.56,
-      "components": {
-          "CombustibleBinder": {
-              "mass_fraction": 0.21,
-              "density": 950
-          },
-          "AmmoniumPerchlorate": {
-              "mass_fraction": 0.3,
-              "density": 1952,
-              "large_particles_fraction": 1,
-              "average_particles_diameter": 0.000212
-          },
-          "Aluminum": {
-              "mass_fraction": 0.2073,
-              "density": 2700
-          },
-          "Octogen": {
-              "mass_fraction": 0.2827,
-              "density": 1870
-          }
-      },
-      "interpocket_gas_phase": {
-        "lambda_gas": 0.1,
-        "average_molar_mass": 32.7e-3,
-        "c_volume": 635.6,
-        "T_kinetic_flame": 3707
-      },
-      "pocket_gas_phase": {
-        "lambda_gas": 0.1,
-        "average_molar_mass": 32.7e-3,
-        "c_volume": 635.6,
-        "T_diffusion_flame": 3580,
-        "skeleton_gas_phase": {
-          "lambda_gas": 0.1,
-          "average_molar_mass": 32.7e-3,
-          "c_volume": 635.6,
-          "T_kinetic_flame": 1241
-        },
-        "out_skeleton_gas_phase": {
-          "lambda_gas": 0.1,
-          "average_molar_mass": 32.7e-3,
-          "c_volume": 635.6,
-          "T_kinetic_flame": 1042
-        }
-      }
-  }
+    }
 ]

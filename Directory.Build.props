@@ -1,0 +1,6 @@
+<Project>
+    <PropertyGroup>
+        <OutputPath>$(MSBuildThisFileDirectory)artifacts/bin/$(MSBuildProjectName)/$(Configuration)/</OutputPath>
+        <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)artifacts/obj/$(MSBuildProjectName)/$(Configuration)/</BaseIntermediateOutputPath>
+    </PropertyGroup>
+</Project>
