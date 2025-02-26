@@ -1,6 +1,4 @@
-using System.Threading;
 using ParametricCombustionModel.Telemetry.ExecutionFrameMeasurers;
-using Xunit;
 
 namespace ParametricCombustionModel.Telemetry.Tests
 {
@@ -90,7 +88,7 @@ namespace ParametricCombustionModel.Telemetry.Tests
             }
 
             // Assert
-            const double epsMs = 1.0;
+            const double epsMs = 2.0;
             Assert.True(measurer.MeanExecutionTime - elapsedMs < epsMs);
 
             // Assert

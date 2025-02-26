@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../../PastyPropellant.Core/src/PastyPropellant.ProcessHandling/PastyPropellant.ProcessHandling.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="UnitsNet" Version="6.0.0-pre011" />
+  </ItemGroup>
+
+</Project>

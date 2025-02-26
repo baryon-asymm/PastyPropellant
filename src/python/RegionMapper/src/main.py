@@ -20,12 +20,12 @@ def parse_args():
         argparse.Namespace: Parsed arguments.
     """
     parser = argparse.ArgumentParser(
-        description="Calculate and export region data for a propellant."
+        description="Calculate and export region data for the propellants."
     )
     parser.add_argument(
-        "--propellant",
+        "--propellants",
         required=True,
-        help="Path to the propellant JSON file (e.g., propellant.json)."
+        help="Path to the propellant JSON file (e.g., propellants.json)."
     )
     parser.add_argument(
         "--components",
@@ -76,7 +76,7 @@ def main():
 
         # Load data
         components = read_components(args.components)
-        propellants = read_propellants(args.propellant)
+        propellants = read_propellants(args.propellants)
 
         # Ensure the output directory exists
         ensure_directory_exists(args.output_dir)

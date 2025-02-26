@@ -55,6 +55,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{35DD94A1
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParametricCombustionModel.Telemetry.Tests", "src\dotnet\ParametricCombustionModel\tests\ParametricCombustionModel.Telemetry.Tests\ParametricCombustionModel.Telemetry.Tests.csproj", "{A2FE4074-5490-49AA-AE24-54E9A69B1410}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PastyPropellant.RegionMapper", "PastyPropellant.RegionMapper", "{865B02C0-36B9-45ED-87F9-F7CA60E754F4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{312FEB97-AE0C-42C9-89BD-5F7CFD47757A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PastyPropellant.RegionMapper", "src\dotnet\PastyPropellant.RegionMapper\src\PastyPropellant.RegionMapper\PastyPropellant.RegionMapper.csproj", "{B4387EE6-D40A-4D25-89AD-8A1119E158E0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PastyPropellant.ProcessHandling", "src\dotnet\PastyPropellant.Core\src\PastyPropellant.ProcessHandling\PastyPropellant.ProcessHandling.csproj", "{34462DEA-12FB-4991-B217-5191B5FCDEB0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{7D4D7FD6-AE6E-4229-BFFE-72A38EDA86F1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PastyPropellant.RegionMapper.Tests", "src\dotnet\PastyPropellant.RegionMapper\tests\PastyPropellant.RegionMapper.Tests\PastyPropellant.RegionMapper.Tests.csproj", "{3723C2E5-99D4-4296-AB13-C359CD8E64E5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -101,6 +113,18 @@ Global
 		{A2FE4074-5490-49AA-AE24-54E9A69B1410}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A2FE4074-5490-49AA-AE24-54E9A69B1410}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A2FE4074-5490-49AA-AE24-54E9A69B1410}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4387EE6-D40A-4D25-89AD-8A1119E158E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4387EE6-D40A-4D25-89AD-8A1119E158E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4387EE6-D40A-4D25-89AD-8A1119E158E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4387EE6-D40A-4D25-89AD-8A1119E158E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{34462DEA-12FB-4991-B217-5191B5FCDEB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{34462DEA-12FB-4991-B217-5191B5FCDEB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{34462DEA-12FB-4991-B217-5191B5FCDEB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{34462DEA-12FB-4991-B217-5191B5FCDEB0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3723C2E5-99D4-4296-AB13-C359CD8E64E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3723C2E5-99D4-4296-AB13-C359CD8E64E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3723C2E5-99D4-4296-AB13-C359CD8E64E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3723C2E5-99D4-4296-AB13-C359CD8E64E5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -126,6 +150,12 @@ Global
 		{5425BD17-072D-47C0-9CE6-E420358B1E9F} = {662DB1B6-9A15-4A96-94CF-37129C44B6AF}
 		{35DD94A1-7BBD-4418-AC8B-642A7B33DBB6} = {A7870785-C33B-4D89-A5B6-02AA43179141}
 		{A2FE4074-5490-49AA-AE24-54E9A69B1410} = {35DD94A1-7BBD-4418-AC8B-642A7B33DBB6}
+		{865B02C0-36B9-45ED-87F9-F7CA60E754F4} = {5F32DD9C-718A-4489-86DC-F53B34A90F2E}
+		{312FEB97-AE0C-42C9-89BD-5F7CFD47757A} = {865B02C0-36B9-45ED-87F9-F7CA60E754F4}
+		{B4387EE6-D40A-4D25-89AD-8A1119E158E0} = {312FEB97-AE0C-42C9-89BD-5F7CFD47757A}
+		{34462DEA-12FB-4991-B217-5191B5FCDEB0} = {A606532A-65CE-496F-A8C2-41F532ADD42D}
+		{7D4D7FD6-AE6E-4229-BFFE-72A38EDA86F1} = {865B02C0-36B9-45ED-87F9-F7CA60E754F4}
+		{3723C2E5-99D4-4296-AB13-C359CD8E64E5} = {7D4D7FD6-AE6E-4229-BFFE-72A38EDA86F1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {63BC0756-BFC7-436A-8E63-EE23CC9C8FEC}
