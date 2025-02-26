@@ -1,6 +1,6 @@
-﻿namespace ParametricCombustionModel.Telemetry.GCMetricsRecorders;
+﻿namespace ParametricCombustionModel.Telemetry.GCMeasurers;
 
-public static class GCCounter
+public static class GCMeasurer
 {
     public static long TotalMemory => GC.GetTotalMemory(false);
 
