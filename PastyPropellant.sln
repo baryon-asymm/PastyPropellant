@@ -49,6 +49,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParametricCombustionModel.P
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParametricCombustionModel.ProcessWorker", "src\dotnet\ParametricCombustionModel\src\ParametricCombustionModel.ProcessWorker\ParametricCombustionModel.ProcessWorker.csproj", "{3C2C1E67-8D55-4FF9-8F55-F76DA420F14B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParametricCombustionModel.Telemetry", "src\dotnet\ParametricCombustionModel\src\ParametricCombustionModel.Telemetry\ParametricCombustionModel.Telemetry.csproj", "{5425BD17-072D-47C0-9CE6-E420358B1E9F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +89,10 @@ Global
 		{3C2C1E67-8D55-4FF9-8F55-F76DA420F14B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3C2C1E67-8D55-4FF9-8F55-F76DA420F14B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3C2C1E67-8D55-4FF9-8F55-F76DA420F14B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5425BD17-072D-47C0-9CE6-E420358B1E9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5425BD17-072D-47C0-9CE6-E420358B1E9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5425BD17-072D-47C0-9CE6-E420358B1E9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5425BD17-072D-47C0-9CE6-E420358B1E9F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -109,6 +115,7 @@ Global
 		{F86D00E0-C267-46E9-B4FF-EEDE893E8837} = {755E6B50-DD48-4AD8-9396-7D715F29873C}
 		{9EB56861-B547-4B97-A753-08CD3855F617} = {662DB1B6-9A15-4A96-94CF-37129C44B6AF}
 		{3C2C1E67-8D55-4FF9-8F55-F76DA420F14B} = {662DB1B6-9A15-4A96-94CF-37129C44B6AF}
+		{5425BD17-072D-47C0-9CE6-E420358B1E9F} = {662DB1B6-9A15-4A96-94CF-37129C44B6AF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {63BC0756-BFC7-436A-8E63-EE23CC9C8FEC}
