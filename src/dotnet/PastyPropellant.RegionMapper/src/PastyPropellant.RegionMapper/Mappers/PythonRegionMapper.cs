@@ -43,7 +43,7 @@ public class PythonRegionMapper : IRegionMapper
         string propellantsFilePath, string componentsFilePath)
     {
         var operationResult = await ExecutePythonScriptAsync(
-            ScriptPath, propellantsFilePath, componentsFilePath);
+            propellantsFilePath, componentsFilePath);
         if (operationResult.IsSuccess == false)
             throw operationResult.Exception!;
 
@@ -51,13 +51,13 @@ public class PythonRegionMapper : IRegionMapper
     }
 
     private async Task<OperationResult> ExecutePythonScriptAsync(
-        string scriptPath, string propellantsFilePath, string componentsFilePath)
+        string propellantsFilePath, string componentsFilePath)
     {
         foreach (var pressure in Pressures)
         {
             var command = $"{PythonPath}";
             var outputDirectoryPath = Path.Combine(OutputDirectoryPath, pressure.Pascals.ToString());
-            var arguments = $"{scriptPath} --propellants {propellantsFilePath} --components {componentsFilePath} --pressure {pressure.Pascals} --output-dir {outputDirectoryPath}";
+            var arguments = $"{ScriptPath} --propellants {propellantsFilePath} --components {componentsFilePath} --pressure {pressure.Pascals} --output-dir {outputDirectoryPath}";
             var operationResult = await ProcessHandler.RunProcessAsync(command, arguments);
             if (operationResult.IsSuccess == false)
             {
