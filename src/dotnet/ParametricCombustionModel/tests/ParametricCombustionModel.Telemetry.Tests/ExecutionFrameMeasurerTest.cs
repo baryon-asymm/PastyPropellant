@@ -80,7 +80,7 @@ namespace ParametricCombustionModel.Telemetry.Tests
             var measurer = new ExecutionFrameMeasurer();
 
             // Act
-            for (var i = 0; i < 100; i++)
+            for (var i = 0; i < 1000; i++)
             {
                 measurer.StartFrame();
                 Thread.Sleep(elapsedMs); // Simulate some execution time
@@ -88,11 +88,11 @@ namespace ParametricCombustionModel.Telemetry.Tests
             }
 
             // Assert
-            const double epsMs = 2.0;
+            const double epsMs = elapsedMs;
             Assert.True(measurer.MeanExecutionTime - elapsedMs < epsMs);
 
             // Assert
-            Assert.True(measurer.StdDevExecutionTime < epsMs);
+            Assert.True(measurer.StdDevExecutionTime < epsMs / 2.0);
         }
     }
 }
