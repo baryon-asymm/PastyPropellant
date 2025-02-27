@@ -8,7 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="../../../PastyPropellant.Core/src/PastyPropellant.Core/PastyPropellant.Core.csproj" />
+      <ProjectReference Include="../../../Common/src/PastyPropellant.Core/PastyPropellant.Core.csproj" />
       <ProjectReference Include="..\ParametricCombustionModel.Computation\ParametricCombustionModel.Computation.csproj" />
     </ItemGroup>
 

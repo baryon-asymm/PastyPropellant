@@ -19,7 +19,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PastyPropellant.Core", "Pas
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A606532A-65CE-496F-A8C2-41F532ADD42D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PastyPropellant.Core", "src\dotnet\PastyPropellant.Core\src\PastyPropellant.Core\PastyPropellant.Core.csproj", "{BC3715F3-0C79-4D29-B7F5-B1ECA77141C1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PastyPropellant.Core", "src\dotnet\Common\src\PastyPropellant.Core\PastyPropellant.Core.csproj", "{BC3715F3-0C79-4D29-B7F5-B1ECA77141C1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ParametricCombustionModel", "ParametricCombustionModel", "{A7870785-C33B-4D89-A5B6-02AA43179141}"
 EndProject
@@ -61,7 +61,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{312FEB97-AE0
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PastyPropellant.RegionMapper", "src\dotnet\PastyPropellant.RegionMapper\src\PastyPropellant.RegionMapper\PastyPropellant.RegionMapper.csproj", "{B4387EE6-D40A-4D25-89AD-8A1119E158E0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PastyPropellant.ProcessHandling", "src\dotnet\PastyPropellant.Core\src\PastyPropellant.ProcessHandling\PastyPropellant.ProcessHandling.csproj", "{34462DEA-12FB-4991-B217-5191B5FCDEB0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PastyPropellant.ProcessHandling", "src\dotnet\Common\src\PastyPropellant.ProcessHandling\PastyPropellant.ProcessHandling.csproj", "{34462DEA-12FB-4991-B217-5191B5FCDEB0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{7D4D7FD6-AE6E-4229-BFFE-72A38EDA86F1}"
 EndProject

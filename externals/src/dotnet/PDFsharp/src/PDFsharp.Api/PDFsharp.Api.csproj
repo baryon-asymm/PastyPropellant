@@ -28,7 +28,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="../../../../../../src/dotnet/PastyPropellant.Core/src/PastyPropellant.Core/PastyPropellant.Core.csproj" />
+      <ProjectReference Include="../../../../../../src/dotnet/Common/src/PastyPropellant.Core/PastyPropellant.Core.csproj" />
     </ItemGroup>
 
 </Project>

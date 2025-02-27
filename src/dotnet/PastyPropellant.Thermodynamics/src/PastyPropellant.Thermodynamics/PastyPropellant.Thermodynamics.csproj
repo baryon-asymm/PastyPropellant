@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../../PastyPropellant.Core/src/PastyPropellant.ProcessHandling/PastyPropellant.ProcessHandling.csproj" />
+    <ProjectReference Include="../../../Common/src/PastyPropellant.ProcessHandling/PastyPropellant.ProcessHandling.csproj" />
   </ItemGroup>
 
   <ItemGroup>
