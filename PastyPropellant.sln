@@ -77,6 +77,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{A0D96F83
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PastyPropellant.Thermodynamics.Tests", "src\dotnet\PastyPropellant.Thermodynamics\tests\PastyPropellant.Thermodynamics.Tests\PastyPropellant.Thermodynamics.Tests.csproj", "{1B448A3D-D334-4D58-85E9-804C549F981F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParametricCombustionModel.Core.Tests", "src\dotnet\ParametricCombustionModel\tests\ParametricCombustionModel.Core.Tests\ParametricCombustionModel.Core.Tests.csproj", "{EE181BBC-9908-4415-AE52-683206BEC317}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -143,6 +145,10 @@ Global
 		{1B448A3D-D334-4D58-85E9-804C549F981F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1B448A3D-D334-4D58-85E9-804C549F981F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1B448A3D-D334-4D58-85E9-804C549F981F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE181BBC-9908-4415-AE52-683206BEC317}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE181BBC-9908-4415-AE52-683206BEC317}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE181BBC-9908-4415-AE52-683206BEC317}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE181BBC-9908-4415-AE52-683206BEC317}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -179,6 +185,7 @@ Global
 		{16F4732F-17D5-4889-9EF5-95153FE67143} = {3FF22E81-C374-48EB-9C05-9C6618812C1A}
 		{A0D96F83-957B-4E28-AE2C-533B1367B210} = {30E2549F-1205-4411-82A8-51CEE776F599}
 		{1B448A3D-D334-4D58-85E9-804C549F981F} = {A0D96F83-957B-4E28-AE2C-533B1367B210}
+		{EE181BBC-9908-4415-AE52-683206BEC317} = {35DD94A1-7BBD-4418-AC8B-642A7B33DBB6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {63BC0756-BFC7-436A-8E63-EE23CC9C8FEC}

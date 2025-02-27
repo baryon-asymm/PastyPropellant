@@ -27,7 +27,7 @@ public class ReportPdfPrintScenario
     {
         var propellants = GetPropellants(propellantsFilePath);
         var penaltyEvaluators = GetPenaltyEvaluators();
-        var contextMatrixByUnits = GetProblemContextMatrixByUnits(pressures, propellants);
+        var contextMatrixByUnits = GetProblemContextMatrixByUnits(propellants);
 
         OptimizationProblemContext = GetOptimizationProblemContextByUnits(
             contextMatrixByUnits,
@@ -67,11 +67,9 @@ public class ReportPdfPrintScenario
     }
 
     private ProblemContextByUnits[,] GetProblemContextMatrixByUnits(
-        IEnumerable<Pressure> pressures,
         IEnumerable<Propellant> propellants)
     {
         var contextMatrix = ProblemContextByUnitsMatrixBuilder.FromPropellants(propellants)
-                                                              .ForPressures(pressures)
                                                               .BuildMatrix();
 
         return contextMatrix;

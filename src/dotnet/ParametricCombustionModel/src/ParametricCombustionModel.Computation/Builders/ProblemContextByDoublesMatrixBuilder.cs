@@ -45,31 +45,12 @@ public class ProblemContextByDoublesMatrixBuilder
         ArgumentNullException.ThrowIfNull(propellants, nameof(propellants));
         
         Propellants = propellants;
-        Pressures = [];
+        Pressures = propellants.First().PressureFrames.Select(p => Pressure.FromPascals(p.Pressure));
     }
 
 #endregion
 
 #region Publics
-
-    /// <summary>
-    /// Sets the collection of pressures for building the problem context matrix.
-    /// </summary>
-    /// <param name="pressures">
-    /// The collection of <see cref="Pressure"/> instances.
-    /// </param>
-    /// <returns>
-    /// The current instance of the <see cref="ProblemContextByDoublesMatrixBuilder"/> class.
-    /// </returns>
-    /// <exception cref="ArgumentNullException">
-    /// Thrown when <paramref name="pressures"/> is <c>null</c>.
-    /// </exception>
-    public ProblemContextByDoublesMatrixBuilder ForPressures(
-        IEnumerable<Pressure> pressures)
-    {
-        Pressures = pressures ?? throw new ArgumentNullException(nameof(pressures));
-        return this;
-    }
 
     /// <summary>
     /// Builds a matrix of <see cref="ProblemContextByDoubles"/> based on the configured propellants and pressures.
@@ -102,10 +83,10 @@ public class ProblemContextByDoublesMatrixBuilder
                     Propellant = propellant,
                     Pressure = pressure.Pascals,
                     PropellantParams = GetPropellantParams(pressure, propellant),
-                    InterPocketKineticFlameParams = GetInterPocketKineticFlameParams(propellant),
-                    PocketSkeletonKineticFlameParams = GetPocketSkeletonKineticFlameParams(propellant),
-                    PocketOutSkeletonKineticFlameParams = GetPocketOutSkeletonKineticFlameParams(propellant),
-                    PocketDiffusionFlameParams = GetPocketDiffusionFlameParams(propellant),
+                    InterPocketKineticFlameParams = GetInterPocketKineticFlameParams(pressure, propellant),
+                    PocketSkeletonKineticFlameParams = GetPocketSkeletonKineticFlameParams(pressure, propellant),
+                    PocketOutSkeletonKineticFlameParams = GetPocketOutSkeletonKineticFlameParams(pressure, propellant),
+                    PocketDiffusionFlameParams = GetPocketDiffusionFlameParams(pressure, propellant),
                     PocketMetalCombustionParams = GetPocketMetalCombustionParams(pressure, propellant),
                     InterPocketVolumeFraction = propellant.GetInterPocketAreaVolumeFraction(),
                     PocketVolumeFraction = propellant.GetPocketAreaVolumeFraction(),
@@ -159,9 +140,10 @@ public class ProblemContextByDoublesMatrixBuilder
     /// A <see cref="KineticFlameParamsByDoubles"/> instance containing the parameters for the inter-pocket region.
     /// </returns>
     private KineticFlameParamsByDoubles GetInterPocketKineticFlameParams(
+        Pressure pressure,
         Propellant propellant)
     {
-        var interPocketGasPhase = propellant.InterPocketGasPhase;
+        var interPocketGasPhase = propellant.PressureFrames.First(x => x.Pressure == pressure.Pascals).InterPocketGasPhase;
         return new KineticFlameParamsByDoubles
         {
             FinalTemperature = interPocketGasPhase.KineticFlameTemperature,
@@ -181,9 +163,10 @@ public class ProblemContextByDoublesMatrixBuilder
     /// A <see cref="KineticFlameParamsByDoubles"/> instance containing the parameters for the pocket skeleton region.
     /// </returns>
     private KineticFlameParamsByDoubles GetPocketSkeletonKineticFlameParams(
+        Pressure pressure,
         Propellant propellant)
     {
-        var pocketSkeletonGasPhase = propellant.PocketGasPhase.SkeletonGasPhase;
+        var pocketSkeletonGasPhase = propellant.PressureFrames.First(x => x.Pressure == pressure.Pascals).PocketGasPhase.SkeletonGasPhase;
         return new KineticFlameParamsByDoubles
         {
             FinalTemperature = pocketSkeletonGasPhase.KineticFlameTemperature,
@@ -203,9 +186,10 @@ public class ProblemContextByDoublesMatrixBuilder
     /// A <see cref="KineticFlameParamsByDoubles"/> instance containing the parameters for the pocket out skeleton region.
     /// </returns>
     private KineticFlameParamsByDoubles GetPocketOutSkeletonKineticFlameParams(
+        Pressure pressure,
         Propellant propellant)
     {
-        var pocketOutSkeletonGasPhase = propellant.PocketGasPhase.OutSkeletonGasPhase;
+        var pocketOutSkeletonGasPhase = propellant.PressureFrames.First(x => x.Pressure == pressure.Pascals).PocketGasPhase.OutSkeletonGasPhase;
         return new KineticFlameParamsByDoubles
         {
             FinalTemperature = pocketOutSkeletonGasPhase.KineticFlameTemperature,
@@ -225,9 +209,10 @@ public class ProblemContextByDoublesMatrixBuilder
     /// A <see cref="DiffusionFlameParamsByDoubles"/> instance containing the parameters for the pocket diffusion flame.
     /// </returns>
     private DiffusionFlameParamsByDoubles GetPocketDiffusionFlameParams(
+        Pressure pressure,
         Propellant propellant)
     {
-        var pocketGasPhase = propellant.PocketGasPhase;
+        var pocketGasPhase = propellant.PressureFrames.First(x => x.Pressure == pressure.Pascals).PocketGasPhase;
         return new DiffusionFlameParamsByDoubles
         {
             FinalTemperature = pocketGasPhase.DiffusionFlameTemperature,

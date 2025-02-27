@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using ParametricCombustionModel.Core.Models.GasPhases;
 using ParametricCombustionModel.Core.Models.PropellantComponents;
 
 namespace ParametricCombustionModel.Core.Models;
@@ -89,6 +88,10 @@ public record Propellant(
     [property: JsonPropertyName("nu")]
     [property: JsonRequired]
     double Nu,
+    [property: JsonPropertyName("components")]
+    [property: JsonRequired]
+    [property: JsonConverter(typeof(PropellantComponentJsonConverter))]
+    IEnumerable<BaseComponent> Components,
     [property: JsonPropertyName("density")]
     [property: JsonRequired]
     double Density,
@@ -106,14 +109,8 @@ public record Propellant(
     [property: JsonPropertyName("pocket_mass_fraction")]
     [property: JsonRequired]
     double PocketMassFraction,
-    [property: JsonPropertyName("inter_pocket_gas_phase")]
+
+    [property: JsonPropertyName("pressure_frames")]
     [property: JsonRequired]
-    HomogeneousGasPhase InterPocketGasPhase,
-    [property: JsonPropertyName("pocket_gas_phase")]
-    [property: JsonRequired]
-    HeterogeneousGasPhase PocketGasPhase,
-    [property: JsonPropertyName("components")]
-    [property: JsonRequired]
-    [property: JsonConverter(typeof(PropellantComponentJsonConverter))]
-    IEnumerable<BaseComponent> Components
+    IEnumerable<PressureFrame> PressureFrames
 );

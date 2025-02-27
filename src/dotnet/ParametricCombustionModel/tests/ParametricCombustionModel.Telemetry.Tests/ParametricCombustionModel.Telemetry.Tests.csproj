@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../../src/ParametricCombustionModel.Telemetry/ParametricCombustionModel.Telemetry.csproj" />
+    <ProjectReference Include="..\..\src\ParametricCombustionModel.Core\ParametricCombustionModel.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

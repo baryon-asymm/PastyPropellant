@@ -114,8 +114,6 @@ var scenario = new DifferentialEvolutionRuntime(
     populationSize,
     numberOfGenerations,
     inputFileName,
-    pressures,
-    reportingPressures,
     lowerBound,
     upperBound
 );

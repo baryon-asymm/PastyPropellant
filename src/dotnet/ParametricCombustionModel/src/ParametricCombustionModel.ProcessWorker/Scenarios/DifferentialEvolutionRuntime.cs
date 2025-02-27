@@ -26,8 +26,6 @@ public class DifferentialEvolutionRuntime
         int populationSize,
         int maxStagnationStreak,
         string propellantsFilePath,
-        IEnumerable<Pressure> pressures,
-        IEnumerable<Pressure> reportPressures,
         IEnumerable<double> lowerBound,
         IEnumerable<double> upperBound)
     {
@@ -40,10 +38,9 @@ public class DifferentialEvolutionRuntime
         var propellants = GetPropellants(propellantsFilePath);
         var penaltyEvaluators = GetPenaltyEvaluators();
         var optimizationProblemContext = GetOptimizationProblemContextByDoubles(
-            pressures,
             propellants,
             penaltyEvaluators);
-        var contextMatrixByUnits = GetProblemContextMatrixByUnits(reportPressures, propellants);
+        var contextMatrixByUnits = GetProblemContextMatrixByUnits(propellants);
         var optimizationProblemContextByUnits = GetOptimizationProblemContextByUnits(
             contextMatrixByUnits,
             penaltyEvaluators);
@@ -71,22 +68,18 @@ public class DifferentialEvolutionRuntime
     }
 
     private ProblemContextByDoubles[,] GetProblemContextMatrixByDoubles(
-        IEnumerable<Pressure> pressures,
         IEnumerable<Propellant> propellants)
     {
         var contextMatrix = ProblemContextByDoublesMatrixBuilder.FromPropellants(propellants)
-                                                                .ForPressures(pressures)
                                                                 .BuildMatrix();
 
         return contextMatrix;
     }
 
     private ProblemContextByUnits[,] GetProblemContextMatrixByUnits(
-        IEnumerable<Pressure> pressures,
         IEnumerable<Propellant> propellants)
     {
         var contextMatrix = ProblemContextByUnitsMatrixBuilder.FromPropellants(propellants)
-                                                              .ForPressures(pressures)
                                                               .BuildMatrix();
 
         return contextMatrix;
@@ -115,7 +108,6 @@ public class DifferentialEvolutionRuntime
     }
 
     private OptimizationProblemContextByDoubles[] GetOptimizationProblemContextByDoubles(
-        IEnumerable<Pressure> pressures,
         IEnumerable<Propellant> propellants,
         IEnumerable<IPenaltyEvaluator> penaltyEvaluators)
     {
@@ -123,7 +115,7 @@ public class DifferentialEvolutionRuntime
         var contexts = new List<OptimizationProblemContextByDoubles>();
         for (var i = 0; i < Environment.ProcessorCount; i++)
         {
-            var contextMatrix = GetProblemContextMatrixByDoubles(pressures, propellants);
+            var contextMatrix = GetProblemContextMatrixByDoubles(propellants);
             contexts.Add(new OptimizationProblemContextByDoubles(contextMatrix, solver, penaltyEvaluators));
         }
 
