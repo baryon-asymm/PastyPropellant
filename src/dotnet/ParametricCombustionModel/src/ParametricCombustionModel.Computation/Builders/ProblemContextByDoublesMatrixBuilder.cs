@@ -45,7 +45,11 @@ public class ProblemContextByDoublesMatrixBuilder
         ArgumentNullException.ThrowIfNull(propellants, nameof(propellants));
         
         Propellants = propellants;
-        Pressures = propellants.First().PressureFrames.Select(p => Pressure.FromPascals(p.Pressure));
+
+        if (propellants.Any(x => x.PressureFrames is null))
+            throw new InvalidOperationException("Pressure frames must be set for all propellants.");
+
+        Pressures = propellants.First().PressureFrames!.Select(p => Pressure.FromPascals(p.Pressure));
     }
 
 #endregion
@@ -143,7 +147,7 @@ public class ProblemContextByDoublesMatrixBuilder
         Pressure pressure,
         Propellant propellant)
     {
-        var interPocketGasPhase = propellant.PressureFrames.First(x => x.Pressure == pressure.Pascals).InterPocketGasPhase;
+        var interPocketGasPhase = propellant.PressureFrames!.First(x => x.Pressure == pressure.Pascals).InterPocketGasPhase;
         return new KineticFlameParamsByDoubles
         {
             FinalTemperature = interPocketGasPhase.KineticFlameTemperature,
@@ -166,7 +170,7 @@ public class ProblemContextByDoublesMatrixBuilder
         Pressure pressure,
         Propellant propellant)
     {
-        var pocketSkeletonGasPhase = propellant.PressureFrames.First(x => x.Pressure == pressure.Pascals).PocketGasPhase.SkeletonGasPhase;
+        var pocketSkeletonGasPhase = propellant.PressureFrames!.First(x => x.Pressure == pressure.Pascals).PocketGasPhase.SkeletonGasPhase;
         return new KineticFlameParamsByDoubles
         {
             FinalTemperature = pocketSkeletonGasPhase.KineticFlameTemperature,
@@ -189,7 +193,7 @@ public class ProblemContextByDoublesMatrixBuilder
         Pressure pressure,
         Propellant propellant)
     {
-        var pocketOutSkeletonGasPhase = propellant.PressureFrames.First(x => x.Pressure == pressure.Pascals).PocketGasPhase.OutSkeletonGasPhase;
+        var pocketOutSkeletonGasPhase = propellant.PressureFrames!.First(x => x.Pressure == pressure.Pascals).PocketGasPhase.OutSkeletonGasPhase;
         return new KineticFlameParamsByDoubles
         {
             FinalTemperature = pocketOutSkeletonGasPhase.KineticFlameTemperature,
@@ -212,7 +216,7 @@ public class ProblemContextByDoublesMatrixBuilder
         Pressure pressure,
         Propellant propellant)
     {
-        var pocketGasPhase = propellant.PressureFrames.First(x => x.Pressure == pressure.Pascals).PocketGasPhase;
+        var pocketGasPhase = propellant.PressureFrames!.First(x => x.Pressure == pressure.Pascals).PocketGasPhase;
         return new DiffusionFlameParamsByDoubles
         {
             FinalTemperature = pocketGasPhase.DiffusionFlameTemperature,

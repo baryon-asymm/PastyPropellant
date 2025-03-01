@@ -9,7 +9,7 @@ Regions:
     1. Inter-pocket region: Homogeneous mixture of all components.
     2. Pocket region without skeleton: Remaining homogeneous mixture excluding large particles.
     3. Pocket region with skeleton: Binder and small fractions of ammonium perchlorate.
-    4. Diffusion region: Includes all components except agglomerated aluminium.
+    4. Diffusion region: Includes all components except agglomerated Aluminum.
 
 Classes:
     - RegionData: DTO for storing the result of preprocessing calculations.
@@ -91,19 +91,19 @@ class InterPocketRegionMapper(BaseMapper):
         # Extract and validate components
         binder = propellant.components.get("CombustibleBinder")
         ap = propellant.components.get("AmmoniumPerchlorate")
-        al = propellant.components.get("Aluminium")
+        al = propellant.components.get("Aluminum")
         hmx = propellant.components.get("Octogen")
 
         self._validate_component(binder, "CombustibleBinder")
         self._validate_component(ap, "AmmoniumPerchlorate")
-        self._validate_component(al, "Aluminium")
+        self._validate_component(al, "Aluminum")
         self._validate_component(hmx, "Octogen")
 
         # Mass fractions are numerically equal to the original propellant's mass fractions
         components = {
             "CombustibleBinder": binder.mass_fraction,
             "AmmoniumPerchlorate": ap.mass_fraction,
-            "Aluminium": al.mass_fraction,
+            "Aluminum": al.mass_fraction,
             "Octogen": hmx.mass_fraction
         }
 
@@ -134,11 +134,11 @@ class PocketRegionWithoutSkeletonMapper(BaseMapper):
         # Extract and validate components
         binder = propellant.components.get("CombustibleBinder")
         ap = propellant.components.get("AmmoniumPerchlorate")
-        al = propellant.components.get("Aluminium")
+        al = propellant.components.get("Aluminum")
 
         self._validate_component(binder, "CombustibleBinder")
         self._validate_component(ap, "AmmoniumPerchlorate")
-        self._validate_component(al, "Aluminium")
+        self._validate_component(al, "Aluminum")
 
         # Assume total propellant mass is 1 kg
         propellant_mass = 1.0
@@ -163,7 +163,7 @@ class PocketRegionWithoutSkeletonMapper(BaseMapper):
         components = {
             "CombustibleBinder": binder_mass / homogeneous_mixture_mass,
             "AmmoniumPerchlorate": ap_mass / homogeneous_mixture_mass,
-            "Aluminium": al_mass / homogeneous_mixture_mass
+            "Aluminum": al_mass / homogeneous_mixture_mass
         }
 
         return RegionData(components)
@@ -221,7 +221,7 @@ class PocketRegionWithSkeletonMapper(BaseMapper):
 
 class DiffusionRegionMapper(BaseMapper):
     """
-    Maps mass fractions for the diffusion region (includes all components except agglomerated aluminium).
+    Maps mass fractions for the diffusion region (includes all components except agglomerated Aluminum).
 
     Methods:
         calculate(propellant: Propellant, pressure: float) -> RegionData:
@@ -245,12 +245,12 @@ class DiffusionRegionMapper(BaseMapper):
         # Extract and validate components
         binder = propellant.components.get("CombustibleBinder")
         ap = propellant.components.get("AmmoniumPerchlorate")
-        al = propellant.components.get("Aluminium")
+        al = propellant.components.get("Aluminum")
         hmx = propellant.components.get("Octogen")
 
         self._validate_component(binder, "CombustibleBinder")
         self._validate_component(ap, "AmmoniumPerchlorate")
-        self._validate_component(al, "Aluminium")
+        self._validate_component(al, "Aluminum")
         self._validate_component(hmx, "Octogen")
 
         # Assume total propellant mass is 1 kg
@@ -261,8 +261,8 @@ class DiffusionRegionMapper(BaseMapper):
         ap_mass = ap.mass_fraction * propellant_mass
         hmx_mass = hmx.mass_fraction * propellant_mass
 
-        # Calculate non-agglomerated aluminium mass
-        al_non_agglomerated_mass = self._calculate_non_agglomerated_aluminium(al, pressure)
+        # Calculate non-agglomerated Aluminum mass
+        al_non_agglomerated_mass = self._calculate_non_agglomerated_Aluminum(al, pressure)
 
         # Total mass of the diffusion region
         diffusion_mass = binder_mass + ap_mass + hmx_mass + al_non_agglomerated_mass
@@ -276,21 +276,21 @@ class DiffusionRegionMapper(BaseMapper):
             "CombustibleBinder": binder_mass / diffusion_mass,
             "AmmoniumPerchlorate": ap_mass / diffusion_mass,
             "Octogen": hmx_mass / diffusion_mass,
-            "Aluminium": al_non_agglomerated_mass / diffusion_mass
+            "Aluminum": al_non_agglomerated_mass / diffusion_mass
         }
 
         return RegionData(components)
 
-    def _calculate_non_agglomerated_aluminium(self, al: PropellantComponent, pressure: float) -> float:
+    def _calculate_non_agglomerated_Aluminum(self, al: PropellantComponent, pressure: float) -> float:
         """
-        Calculate the mass of non-agglomerated aluminium.
+        Calculate the mass of non-agglomerated Aluminum.
 
         Args:
-            al (PropellantComponent): Aluminium component.
+            al (PropellantComponent): Aluminum component.
             pressure (float): Pressure in Pascals.
 
         Returns:
-            float: Mass of non-agglomerated aluminium.
+            float: Mass of non-agglomerated Aluminum.
         """
         agglomeration_fraction = self._calculate_agglomeration_fraction(al.agglomeration_coefficients, pressure)
         # print("Agglomeration fraction", agglomeration_fraction)

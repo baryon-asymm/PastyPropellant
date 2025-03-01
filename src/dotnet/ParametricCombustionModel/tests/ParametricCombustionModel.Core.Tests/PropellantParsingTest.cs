@@ -16,11 +16,11 @@ public class PropellantParsingTest
             File.ReadAllText(PropellantJson));
 
         Assert.NotNull(propellant);
-        Assert.Equal(Pressures.Length, propellant.PressureFrames.Count());
+        Assert.Equal(Pressures.Length, propellant.PressureFrames!.Count());
         
         for (int i = 0; i < Pressures.Length; i++)
         {
-            Assert.Equal(Pressures[i], propellant.PressureFrames.ElementAt(i).Pressure);
+            Assert.Equal(Pressures[i], propellant.PressureFrames!.ElementAt(i).Pressure);
         }
     }
 }

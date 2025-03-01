@@ -111,6 +111,5 @@ public record Propellant(
     double PocketMassFraction,
 
     [property: JsonPropertyName("pressure_frames")]
-    [property: JsonRequired]
-    IEnumerable<PressureFrame> PressureFrames
+    IEnumerable<PressureFrame>? PressureFrames
 );

@@ -45,7 +45,11 @@ public class ProblemContextByUnitsMatrixBuilder
         ArgumentNullException.ThrowIfNull(propellants, nameof(propellants));
 
         Propellants = propellants;
-        Pressures = propellants.First().PressureFrames.Select(p => Pressure.FromPascals(p.Pressure));
+        
+        if (propellants.Any(x => x.PressureFrames is null))
+            throw new InvalidOperationException("Pressure frames must be set for all propellants.");
+
+        Pressures = propellants.First().PressureFrames!.Select(p => Pressure.FromPascals(p.Pressure));
     }
 
 #endregion
@@ -145,7 +149,7 @@ public class ProblemContextByUnitsMatrixBuilder
         Pressure pressure,
         Propellant propellant)
     {
-        var interPocketGasPhase = propellant.PressureFrames.First(pf => pf.Pressure == pressure.Pascals).InterPocketGasPhase;
+        var interPocketGasPhase = propellant.PressureFrames!.First(pf => pf.Pressure == pressure.Pascals).InterPocketGasPhase;
         return new KineticFlameParamsByUnits
         {
             FinalTemperature = Temperature.FromKelvins(interPocketGasPhase.KineticFlameTemperature),
@@ -169,7 +173,7 @@ public class ProblemContextByUnitsMatrixBuilder
         Pressure pressure,
         Propellant propellant)
     {
-        var pocketSkeletonGasPhase = propellant.PressureFrames.First(pf => pf.Pressure == pressure.Pascals).PocketGasPhase.SkeletonGasPhase;
+        var pocketSkeletonGasPhase = propellant.PressureFrames!.First(pf => pf.Pressure == pressure.Pascals).PocketGasPhase.SkeletonGasPhase;
         return new KineticFlameParamsByUnits
         {
             FinalTemperature = Temperature.FromKelvins(pocketSkeletonGasPhase.KineticFlameTemperature),
@@ -193,7 +197,7 @@ public class ProblemContextByUnitsMatrixBuilder
         Pressure pressure,
         Propellant propellant)
     {
-        var pocketOutSkeletonGasPhase = propellant.PressureFrames.First(pf => pf.Pressure == pressure.Pascals).PocketGasPhase.OutSkeletonGasPhase;
+        var pocketOutSkeletonGasPhase = propellant.PressureFrames!.First(pf => pf.Pressure == pressure.Pascals).PocketGasPhase.OutSkeletonGasPhase;
         return new KineticFlameParamsByUnits
         {
             FinalTemperature = Temperature.FromKelvins(pocketOutSkeletonGasPhase.KineticFlameTemperature),
@@ -217,7 +221,7 @@ public class ProblemContextByUnitsMatrixBuilder
         Pressure pressure,
         Propellant propellant)
     {
-        var pocketGasPhase = propellant.PressureFrames.First(pf => pf.Pressure == pressure.Pascals).PocketGasPhase;
+        var pocketGasPhase = propellant.PressureFrames!.First(pf => pf.Pressure == pressure.Pascals).PocketGasPhase;
         return new DiffusionFlameParamsByUnits
         {
             FinalTemperature = Temperature.FromKelvins(pocketGasPhase.DiffusionFlameTemperature),

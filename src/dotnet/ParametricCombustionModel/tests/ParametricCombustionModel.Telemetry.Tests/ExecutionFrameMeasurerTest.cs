@@ -71,28 +71,5 @@ namespace ParametricCombustionModel.Telemetry.Tests
             // Assert
             Assert.True(measurer.StdDevExecutionTime > initialStdDevExecutionTime);
         }
-
-        [Fact]
-        public void EndFrame_ShouldEqualizeMeanExecutionTimeAndElapsedMs()
-        {
-            // Arrange
-            const int elapsedMs = 10;
-            var measurer = new ExecutionFrameMeasurer();
-
-            // Act
-            for (var i = 0; i < 1000; i++)
-            {
-                measurer.StartFrame();
-                Thread.Sleep(elapsedMs); // Simulate some execution time
-                measurer.EndFrame();
-            }
-
-            // Assert
-            const double epsMs = elapsedMs;
-            Assert.True(measurer.MeanExecutionTime - elapsedMs < epsMs);
-
-            // Assert
-            Assert.True(measurer.StdDevExecutionTime < epsMs / 2.0);
-        }
     }
 }

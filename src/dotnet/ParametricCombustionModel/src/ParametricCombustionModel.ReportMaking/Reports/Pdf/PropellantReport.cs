@@ -49,13 +49,13 @@ public class PropellantReport : BaseReport, ITransformable<Queue<IPdfOperation>>
             operations.Enqueue(new PrintTextOperation(PropellantReportResources.HeaderOfInterPocketGasPhase,
                                                       TextStyle.Italic));
             operations.Enqueue(new LineBreakOperation());
-            AddHomogeneousGasPhaseInfo(operations, propellant.PressureFrames.ElementAt(propellant.PressureFrames.Count()).InterPocketGasPhase, 1);
+            AddHomogeneousGasPhaseInfo(operations, propellant.PressureFrames!.ElementAt(propellant.PressureFrames!.Count()).InterPocketGasPhase, 1);
 
             operations.Enqueue(new PrintTextOperation(PropellantReportResources.HeaderOfPocketGasPhase,
                                                       TextStyle.Italic));
             operations.Enqueue(new LineBreakOperation());
 
-            AddHeterogeneousGasPhaseInfo(operations, propellant.PressureFrames.ElementAt(propellant.PressureFrames.Count()).PocketGasPhase, 1);
+            AddHeterogeneousGasPhaseInfo(operations, propellant.PressureFrames!.ElementAt(propellant.PressureFrames!.Count()).PocketGasPhase, 1);
         }
 
         return operations;
