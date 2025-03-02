@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using PastyPropellant.Core.Models.Events.Logs;
 using PastyPropellant.Core.Utils;
 using PastyPropellant.ProcessHandling.Models.Events.Logs;
@@ -83,7 +84,10 @@ public class PreparePropellantDataHelper
             var dictPressureFrames = new Dictionary<string, int>();
             for (int i = 0; i < propellant.PressureFrames.Count; i++)
                 dictPressureFrames.Add(propellant.PressureFrames[i].Pressure.Pascals.ToString(), i);
-            propellant.PressureFrames.AsParallel().ForAll(pressureFrame =>
+            
+            var parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = 4 };
+
+            Parallel.ForEach(propellant.PressureFrames, parallelOptions, pressureFrame =>
             {
                 var interPocketResult = _pythonThermodynamicsCalculator.CalculateThermodynamicPropertiesAsync(
                     pressureFrame.InterPocketFilePath, combustionProductsFilePath, pressureFrame.Pressure);
@@ -93,7 +97,7 @@ public class PreparePropellantDataHelper
                     pressureFrame.PocketWithSkeletonFilePath, combustionProductsFilePath, pressureFrame.Pressure);
                 var diffusionResult = _pythonThermodynamicsCalculator.CalculateThermodynamicPropertiesAsync(
                     pressureFrame.DiffusionFilePath, combustionProductsFilePath, pressureFrame.Pressure);
-                
+
                 Task.WaitAll(interPocketResult, pocketWithoutSkeletonResult, pocketWithSkeletonResult, diffusionResult);
 
                 if (interPocketResult.Result.IsSuccess == false ||

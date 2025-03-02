@@ -48,7 +48,7 @@ public class ConstructPropellantJsonHelperTest
     {
         var maxPressure = Pressure.FromMegapascals(6.5);
         var minPressure = Pressure.FromMegapascals(1);
-        const int pressurePoints = 2;
+        const int pressurePoints = 20;
         return new ReadOnlyCollection<Pressure>(Enumerable.Range(0, pressurePoints)
             .Select(x => minPressure + (maxPressure - minPressure) / (pressurePoints - 1) * x)
             .ToArray());

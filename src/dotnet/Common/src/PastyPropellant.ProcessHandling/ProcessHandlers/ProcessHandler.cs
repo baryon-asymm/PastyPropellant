@@ -10,60 +10,63 @@ public static class ProcessHandler
     public static Task<OperationResult> RunProcessAsync(
         string command, string arguments)
     {
-        var processStartInfo = new ProcessStartInfo
-        {
-            FileName = command,
-            Arguments = arguments,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            CreateNoWindow = true
-        };
-
-        var process = new Process
-        {
-            StartInfo = processStartInfo,
-            EnableRaisingEvents = true
-        };
-
         var tcs = new TaskCompletionSource<OperationResult>();
+        var process = new Process();
 
-        process.OutputDataReceived += (sender, e) =>
+        try
         {
-            if (e.Data != null)
+            process.StartInfo = new ProcessStartInfo
             {
-                EventBus<ProcessInfoLogEvent>.Publish(
-                    new ProcessInfoLogEvent(e.Data, processStartInfo.FileName));
-            }
-        };
+                FileName = command,
+                Arguments = arguments,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
 
-        process.ErrorDataReceived += (sender, e) =>
-        {
-            if (e.Data != null)
+            process.EnableRaisingEvents = true;
+
+            process.OutputDataReceived += (sender, e) =>
             {
-                EventBus<ProcessInfoLogEvent>.Publish(
-                    new ProcessInfoLogEvent(e.Data, processStartInfo.FileName));
-            }
-        };
+                if (string.IsNullOrEmpty(e.Data) == false)
+                {
+                    EventBus<ProcessInfoLogEvent>.Publish(
+                        new ProcessInfoLogEvent(e.Data, process.StartInfo.FileName));
+                }
+            };
 
-        process.Exited += (sender, e) =>
+            process.ErrorDataReceived += (sender, e) =>
+            {
+                if (string.IsNullOrEmpty(e.Data) == false)
+                {
+                    EventBus<ProcessInfoLogEvent>.Publish(
+                        new ProcessInfoLogEvent(e.Data, process.StartInfo.FileName));
+                }
+            };
+
+            process.Exited += (sender, e) =>
+            {
+                process.WaitForExit();
+
+                var exitCode = process.ExitCode;
+                var result = exitCode == 0 
+                    ? new OperationResult() 
+                    : new OperationResult(new Exception($"Process failed. Code: {exitCode}\nCommand: {command} {arguments}"));
+                
+                process.Dispose();
+                tcs.TrySetResult(result);
+            };
+
+            process.Start();
+            process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
+        }
+        catch (Exception ex)
         {
-            var exitCode = process.ExitCode;
             process.Dispose();
-            if (exitCode == 0)
-            {
-                tcs.SetResult(new OperationResult());
-            }
-            else
-            {
-                tcs.SetResult(new OperationResult(
-                    new Exception($"Process exited with code {exitCode}.")));
-            }
-        };
-
-        process.Start();
-        process.BeginOutputReadLine();
-        process.BeginErrorReadLine();
+            tcs.TrySetResult(new OperationResult(ex));
+        }
 
         return tcs.Task;
     }

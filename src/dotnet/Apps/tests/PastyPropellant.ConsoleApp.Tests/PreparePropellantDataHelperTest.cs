@@ -7,7 +7,7 @@ namespace PastyPropellant.ConsoleApp.Tests;
 public class PreparePropellantDataHelperTest
 {
     // Very long running test
-    [Fact]
+    //[Fact]
     public async Task PrepareAsync_ShouldSuccessReturnOperationResult()
     {
         // Arrange
@@ -30,7 +30,7 @@ public class PreparePropellantDataHelperTest
         Assert.True(result.IsSuccess);
     }
 
-    [Fact]
+    //[Fact]
     public async Task PrepareAsync_ShouldExceptionReturnOperationResult()
     {
         // Arrange

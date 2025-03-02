@@ -9,6 +9,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\ParametricCombustionModel\src\ParametricCombustionModel.Core\ParametricCombustionModel.Core.csproj" />
+    <ProjectReference Include="..\..\..\ParametricCombustionModel\src\ParametricCombustionModel.Optimization\ParametricCombustionModel.Optimization.csproj" />
+    <ProjectReference Include="..\..\..\ParametricCombustionModel\src\ParametricCombustionModel.PlotRenderer\ParametricCombustionModel.PlotRenderer.csproj" />
+    <ProjectReference Include="..\..\..\ParametricCombustionModel\src\ParametricCombustionModel.ReportMaking\ParametricCombustionModel.ReportMaking.csproj" />
     <ProjectReference Include="..\..\..\PastyPropellant.RegionMapper\src\PastyPropellant.RegionMapper\PastyPropellant.RegionMapper.csproj" />
     <ProjectReference Include="..\..\..\PastyPropellant.Thermodynamics\src\PastyPropellant.Thermodynamics\PastyPropellant.Thermodynamics.csproj" />
   </ItemGroup>

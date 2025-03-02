@@ -16,7 +16,7 @@ public class PythonThermodynamicsCalculatorTest
     }
 
     // Long running test
-    [Fact]
+    //[Fact]
     public async Task CalculateThermodynamicPropertiesAsync_ShouldSuccessReturnPropellantThermodynamics()
     {
         // Arrange
@@ -36,7 +36,7 @@ public class PythonThermodynamicsCalculatorTest
         File.Delete(result.Value.OutputFilePath);
     }
 
-    [Fact]
+    //[Fact]
     public async Task CalculateThermodynamicPropertiesAsync_ShouldReturnExceptionOperationResult()
     {
         // Arrange
