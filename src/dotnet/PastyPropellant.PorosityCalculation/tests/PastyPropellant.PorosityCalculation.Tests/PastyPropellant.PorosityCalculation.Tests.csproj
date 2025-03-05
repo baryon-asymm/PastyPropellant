@@ -15,11 +15,18 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\ParametricCombustionModel.Core\ParametricCombustionModel.Core.csproj" />
+    <ProjectReference Include="..\..\src\PastyPropellant.PorosityCalculation\PastyPropellant.PorosityCalculation.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+      <None Update="data/pocket_without_skeleton.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>pocket_without_skeleton.json</Link>
+      </None>
   </ItemGroup>
 
   <ItemGroup>

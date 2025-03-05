@@ -5,7 +5,7 @@ namespace ParametricCombustionModel.Core.Tests;
 
 public class PropellantParsingTest
 {
-    public const string PropellantJson = @"propellant.json";
+    public const string PropellantJson = @"propellants.json";
 
     public readonly double[] Pressures = [ 4e6, 7e6 ];
 
