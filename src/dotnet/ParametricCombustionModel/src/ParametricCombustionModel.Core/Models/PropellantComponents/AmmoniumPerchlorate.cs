@@ -13,5 +13,6 @@ public record AmmoniumPerchlorate(
     double AverageParticlesDiameter
 ) : BaseComponent(MassFraction, Density)
 {
+    [property: JsonIgnore]
     public double SmallParticlesFraction => 1.0 - LargeParticlesFraction;
 }

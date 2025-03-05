@@ -1,24 +1,29 @@
 using System.Collections.ObjectModel;
 using PastyPropellant.ConsoleApp.Helpers;
 using PastyPropellant.Core.Utils;
+using PastyPropellant.ProcessHandling.Models.Events.Logs;
 using UnitsNet;
 
 namespace PastyPropellant.ConsoleApp.Tests;
 
 public class ConstructPropellantJsonHelperTest
 {
+    public const string ArtifactDirectoryPath = "../../../../../artifacts/output_construct";
+    public const string PyMapperScriptPath = "../../../../../src/python/RegionMapper/src/main.py";
+    public const string PyThermodynamicsScriptPath = "../../../../../externals/src/python/AerospacePropellantThermodynamics/src/main.py";
+    public const string PyPorosityScriptPath = "../../../../../src/python/PorosityCalculation/src/main.py";
+
     // Very long running test
     [Fact]
     public async Task ConstructAsync_ShouldSuccessReturnOperationResult()
     {
         // Arrange
-        var artifactDirectoryPath = "../../../../../artifacts/output_construction";
         var propellantsFilePath = "../../../../../data/propellants.json";
-        var componentsFilePath = "../../../../../data/propellant_components.json";
+        var componentsFilePath = "../../../../../src/python/RegionMapper/data/components.json";
         var combustionProductsFilePath = "../../../../../externals/src/python/AerospacePropellantThermodynamics/data/combustion_products.json";
-        var outputPropellantsFilePath = Path.Combine(artifactDirectoryPath, "propellants.json");
+        var outputPropellantsFilePath = Path.Combine(ArtifactDirectoryPath, "propellants.json");
         var preparedDataResult = await GetPreparedPropellantDataAsync(
-            artifactDirectoryPath, propellantsFilePath, componentsFilePath, combustionProductsFilePath);
+            ArtifactDirectoryPath, propellantsFilePath, componentsFilePath, combustionProductsFilePath);
         Assert.True(preparedDataResult.IsSuccess);
         var constructPropellantJsonHelper = new ConstructPropellantJsonHelper(propellantsFilePath, preparedDataResult.Value!);
 
@@ -32,11 +37,9 @@ public class ConstructPropellantJsonHelperTest
     private async Task<OperationResult<ReadOnlyCollection<PreparedPropellantData>>> GetPreparedPropellantDataAsync(
         string artifactDirectoryPath, string propellantsFilePath, string componentsFilePath, string combustionProductsFilePath)
     {
-        var pyMapperScriptPath = "../../../../../src/python/RegionMapper/src/main.py";
-        var pyThermodynamicsScriptPath = "../../../../../externals/src/python/AerospacePropellantThermodynamics/src/main.py";
         var pressures = GetPressures();
         var preparePropellantHelper = new PreparePropellantDataHelper(
-            artifactDirectoryPath, pyMapperScriptPath, pyThermodynamicsScriptPath, pressures);
+            artifactDirectoryPath, PyMapperScriptPath, PyThermodynamicsScriptPath, PyPorosityScriptPath, pressures);
 
         var result = await preparePropellantHelper.PrepareAsync(
             propellantsFilePath, componentsFilePath, combustionProductsFilePath);

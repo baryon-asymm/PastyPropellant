@@ -1,77 +1,49 @@
 [
     {
         "name": "Bas_1",
+        "density": 1659,
         "components": {
             "CombustibleBinder": {
-                "mass_fraction": 0.21
+                "mass_fraction": 0.21,
+                "density": 950
             },
             "AmmoniumPerchlorate": {
                 "mass_fraction": 0.3,
+                "density": 1952,
                 "large_particles_fraction": 0.65
             },
             "Aluminum": {
                 "mass_fraction": 0.2073,
+                "density": 2700,
                 "agglomeration_coefficients": [0.3871888128423973, -0.15993047126375545, 0.04323865626533666, -0.006316468753512198, 0.0004719595486120565, -1.447964550264008E-05]
             },
             "Octogen": {
-                "mass_fraction": 0.2827
+                "mass_fraction": 0.2827,
+                "density": 1870
             }
         }
     },
     {
         "name": "Bas_2",
+        "density": 1659,
         "components": {
             "CombustibleBinder": {
-                "mass_fraction": 0.21
+                "mass_fraction": 0.21,
+                "density": 950
             },
             "AmmoniumPerchlorate": {
                 "mass_fraction": 0.3,
+                "density": 1952,
                 "large_particles_fraction": 0.65
             },
             "Aluminum": {
                 "mass_fraction": 0.2073,
+                "density": 2700,
                 "agglomeration_coefficients": [0.2440979022437878, 0.01147918731121176, -0.004557442506902735, 0.00023310022859899398]
             },
             "Octogen": {
-                "mass_fraction": 0.2827
-            }
-        }
-    },
-    {
-        "name": "Bas_3",
-        "components": {
-            "CombustibleBinder": {
-                "mass_fraction": 0.21
-            },
-            "AmmoniumPerchlorate": {
-                "mass_fraction": 0.3,
-                "large_particles_fraction": 0.0
-            },
-            "Aluminum": {
-                "mass_fraction": 0.2073,
-                "agglomeration_coefficients": [0.18985236987285337, -0.010617974640070237, -0.0008857808796132974, 1.0360009859915167E-05]
-            },
-            "Octogen": {
-                "mass_fraction": 0.2827
-            }
-        }
-    },
-    {
-        "name": "Bas_4",
-        "components": {
-            "CombustibleBinder": {
-                "mass_fraction": 0.21
-            },
-            "AmmoniumPerchlorate": {
-                "mass_fraction": 0.3,
-                "large_particles_fraction": 1.0
-            },
-            "Aluminum": {
-                "mass_fraction": 0.2073,
-                "agglomeration_coefficients": [0.2971002332343009, -0.0011137752148531604, 0.00013586415670452482, -1.2432013705540037E-05]
-            },
-            "Octogen": {
-                "mass_fraction": 0.2827
+                "mass_fraction": 0.2827,
+                "density": 1870
             }
         }
     }

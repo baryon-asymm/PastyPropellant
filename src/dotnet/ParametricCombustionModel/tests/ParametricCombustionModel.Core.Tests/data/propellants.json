@@ -53,6 +53,7 @@
     "pressure_frames": [
         {
             "pressure": 4e6,
+            "porosity_within_skeleton": 0.3,
             "inter_pocket_gas_phase": {
                 "lambda_gas": 0.1,
                 "average_molar_mass": 32.7e-3,
@@ -80,6 +81,7 @@
         },
         {
             "pressure": 7e6,
+            "porosity_within_skeleton": 0.3,
             "inter_pocket_gas_phase": {
                 "lambda_gas": 0.1,
                 "average_molar_mass": 32.7e-3,

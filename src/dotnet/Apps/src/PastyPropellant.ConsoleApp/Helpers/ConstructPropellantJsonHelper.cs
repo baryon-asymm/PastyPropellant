@@ -48,13 +48,23 @@ public class ConstructPropellantJsonHelper
             if (propellant.Name != preparedData.Name)
                 throw new InvalidOperationException("The propellant names do not match.");
             
+            var pressureFrameThermodynamicsList = preparedData.PressureFrameThermodynamics.ToList();
+            var pressureFramePorositiesList = preparedData.PorosityPropellants.ToList();
+
+            if (pressureFrameThermodynamicsList.Count != pressureFramePorositiesList.Count)
+                throw new InvalidOperationException("The number of pressure frame thermodynamics and porosities do not match.");
+            
             var pressureFrames = new List<PressureFrame>();
-            foreach (var pressureFrameThermodynamics in preparedData.PressureFrameThermodynamics)
+            for (int j = 0; j < pressureFrameThermodynamicsList.Count; j++)
             {
-                var interPocketThermodynamicsJson = ExtractObjectFromJsonFile<ThermodynamicsJson>(pressureFrameThermodynamics.InterPocketFilePath);
-                var pocketWithoutSkeletonThermodynamicsJson = ExtractObjectFromJsonFile<ThermodynamicsJson>(pressureFrameThermodynamics.PocketWithoutSkeletonFilePath);
-                var pocketWithSkeletonThermodynamicsJson = ExtractObjectFromJsonFile<ThermodynamicsJson>(pressureFrameThermodynamics.PocketWithSkeletonFilePath);
-                var diffusionThermodynamicsJson = ExtractObjectFromJsonFile<ThermodynamicsJson>(pressureFrameThermodynamics.DiffusionFilePath);
+                var pressure = pressureFrameThermodynamicsList[j].Pressure;
+
+                var interPocketThermodynamicsJson = ExtractObjectFromJsonFile<ThermodynamicsJson>(pressureFrameThermodynamicsList[j].InterPocketFilePath);
+                var pocketWithoutSkeletonThermodynamicsJson = ExtractObjectFromJsonFile<ThermodynamicsJson>(pressureFrameThermodynamicsList[j].PocketWithoutSkeletonFilePath);
+                var pocketWithSkeletonThermodynamicsJson = ExtractObjectFromJsonFile<ThermodynamicsJson>(pressureFrameThermodynamicsList[j].PocketWithSkeletonFilePath);
+                var diffusionThermodynamicsJson = ExtractObjectFromJsonFile<ThermodynamicsJson>(pressureFrameThermodynamicsList[j].DiffusionFilePath);
+                
+                var porosityJson = ExtractObjectFromJsonFile<PorosityJson>(pressureFramePorositiesList[j].PorosityFilePath);
 
                 var interPocketGasPhase = new HomogeneousGasPhase(
                     KineticFlameTemperature: interPocketThermodynamicsJson.Temperature,
@@ -83,7 +93,8 @@ public class ConstructPropellantJsonHelper
                 );
 
                 var pressureFrame = new PressureFrame(
-                    Pressure: pressureFrameThermodynamics.Pressure.Pascals,
+                    Pressure: pressure.Pascals,
+                    Porosity: porosityJson.Porosity,
                     InterPocketGasPhase: interPocketGasPhase,
                     PocketGasPhase: pocketGasPhase
                 );
@@ -104,6 +115,11 @@ public class ConstructPropellantJsonHelper
     private record ThermodynamicsJson(
         [property: JsonPropertyName("temperature")]
         double Temperature
+    );
+
+    private record PorosityJson(
+        [property: JsonPropertyName("porosity")]
+        double Porosity
     );
 
     private static T ExtractObjectFromJsonFile<T>(string filePath) where T : class

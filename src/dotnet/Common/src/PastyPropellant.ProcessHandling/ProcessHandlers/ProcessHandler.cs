@@ -40,8 +40,8 @@ public static class ProcessHandler
             {
                 if (string.IsNullOrEmpty(e.Data) == false)
                 {
-                    EventBus<ProcessInfoLogEvent>.Publish(
-                        new ProcessInfoLogEvent(e.Data, process.StartInfo.FileName));
+                    EventBus<ProcessErrorLogEvent>.Publish(
+                        new ProcessErrorLogEvent(e.Data, process.StartInfo.FileName));
                 }
             };
 

@@ -12,6 +12,7 @@
     <ProjectReference Include="..\..\..\ParametricCombustionModel\src\ParametricCombustionModel.Optimization\ParametricCombustionModel.Optimization.csproj" />
     <ProjectReference Include="..\..\..\ParametricCombustionModel\src\ParametricCombustionModel.PlotRenderer\ParametricCombustionModel.PlotRenderer.csproj" />
     <ProjectReference Include="..\..\..\ParametricCombustionModel\src\ParametricCombustionModel.ReportMaking\ParametricCombustionModel.ReportMaking.csproj" />
+    <ProjectReference Include="..\..\..\PastyPropellant.PorosityCalculation\src\PastyPropellant.PorosityCalculation\PastyPropellant.PorosityCalculation.csproj" />
     <ProjectReference Include="..\..\..\PastyPropellant.RegionMapper\src\PastyPropellant.RegionMapper\PastyPropellant.RegionMapper.csproj" />
     <ProjectReference Include="..\..\..\PastyPropellant.Thermodynamics\src\PastyPropellant.Thermodynamics\PastyPropellant.Thermodynamics.csproj" />
   </ItemGroup>

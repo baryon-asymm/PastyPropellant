@@ -7,6 +7,9 @@ public record PressureFrame(
     [property: JsonRequired]
     [property: JsonPropertyName("pressure")]
     double Pressure,
+    [property: JsonRequired]
+    [property: JsonPropertyName("porosity_within_skeleton")]
+    double Porosity,
     [property: JsonPropertyName("inter_pocket_gas_phase")]
     [property: JsonRequired]
     HomogeneousGasPhase InterPocketGasPhase,

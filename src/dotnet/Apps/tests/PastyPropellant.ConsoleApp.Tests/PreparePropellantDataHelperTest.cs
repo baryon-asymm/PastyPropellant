@@ -6,17 +6,19 @@ namespace PastyPropellant.ConsoleApp.Tests;
 
 public class PreparePropellantDataHelperTest
 {
+    public const string ArtifactDirectoryPath = "../../../../../artifacts/output_prepare";
+    public const string PyMapperScriptPath = "../../../../../src/python/RegionMapper/src/main.py";
+    public const string PyThermodynamicsScriptPath = "../../../../../externals/src/python/AerospacePropellantThermodynamics/src/main.py";
+    public const string PyPorosityScriptPath = "../../../../../src/python/PorosityCalculation/src/main.py";
+
     // Very long running test
     [Fact]
     public async Task PrepareAsync_ShouldSuccessReturnOperationResult()
     {
         // Arrange
-        var artifactDirectoryPath = "../../../../../artifacts/output_prepare";
-        var pyMapperScriptPath = "../../../../../src/python/RegionMapper/src/main.py";
-        var pyThermodynamicsScriptPath = "../../../../../externals/src/python/AerospacePropellantThermodynamics/src/main.py";
         var pressures = GetPressures();
         var preparePropellantHelper = new PreparePropellantDataHelper(
-            artifactDirectoryPath, pyMapperScriptPath, pyThermodynamicsScriptPath, pressures);
+            ArtifactDirectoryPath, PyMapperScriptPath, PyThermodynamicsScriptPath, PyPorosityScriptPath, pressures);
 
         var propellantsFilePath = "../../../../../src/python/RegionMapper/data/propellants.json";
         var componentsFilePath = "../../../../../src/python/RegionMapper/data/components.json";
@@ -34,12 +36,9 @@ public class PreparePropellantDataHelperTest
     public async Task PrepareAsync_ShouldExceptionReturnOperationResult()
     {
         // Arrange
-        var artifactDirectoryPath = "../../../../../artifacts/output_prepare";
-        var pyMapperScriptPath = "../../../../../src/python/RegionMapper/src/main.py";
-        var pyThermodynamicsScriptPath = "../../../../../externals/src/python/AerospacePropellantThermodynamics/src/main.py";
         var pressures = GetPressures();
         var preparePropellantHelper = new PreparePropellantDataHelper(
-            artifactDirectoryPath, pyMapperScriptPath, pyThermodynamicsScriptPath, pressures);
+            ArtifactDirectoryPath, PyMapperScriptPath, PyThermodynamicsScriptPath, PyPorosityScriptPath, pressures);
 
         var propellantsFilePath = "../../../../../src/python/RegionMapper/fake/propellants.json";
         var componentsFilePath = "../../../../../src/python/RegionMapper/fake/components.json";
