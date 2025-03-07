@@ -457,11 +457,30 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
                                                        context.PocketOutSkeletonKineticFlameParamsByUnits,
                                                        ref outSkeletonKineticFlameParams);
 
+        contextBag.BurnRate = GetBurnRate(contextBag.DecomposeRate, context.PropellantParamsByUnits);
         contextBag.AverageMetalBurningTemperature =
-            GetAverageMetalBurningTemperature(solverParamsByUnits, context.PocketMetalCombustionParamsByUnits);
-        contextBag.MetalBurningHeatFlux =
-            GetMetalBurningHeatFlux(contextBag.AverageMetalBurningTemperature,
-                                    solverParamsByUnits);
+            GetAverageMetalBurningTemperature(surfaceTemperature, context.PocketMetalCombustionParamsByUnits);
+        contextBag.SkeletonLayerThickness = GetSkeletonLayerThickness(contextBag.BurnRate, solverParamsByUnits);
+        contextBag.PoreDiameter = GetPoreDiameter(contextBag.BurnRate, solverParamsByUnits);
+        contextBag.RadiativeThermalConductivity = GetRadiativeThermalConductivity(
+            contextBag.AverageMetalBurningTemperature,
+            contextBag.PoreDiameter,
+            context.SkeletonLayerParamsByUnits);
+        var minConductiveThermalConductivity = ThermalConductivity.FromWattsPerMeterKelvin(0.0);
+        var maxConductiveThermalConductivity = ThermalConductivity.FromWattsPerMeterKelvin(100_000.0);
+        contextBag.ConductiveThermalConductivity = GetConductiveThermalConductivityByBinarySearch(
+            context.SkeletonLayerParamsByUnits,
+            context.PocketDiffusionFlameParamsByUnits,
+            ref minConductiveThermalConductivity,
+            ref maxConductiveThermalConductivity,
+            ThermalConductivity.FromWattsPerMeterKelvin(1e-6));
+        contextBag.ConductiveThermalConductivityBalanceError = GetConductiveThermalConductivityError(
+            contextBag.ConductiveThermalConductivity,
+            context.SkeletonLayerParamsByUnits,
+            context.PocketDiffusionFlameParamsByUnits);
+        contextBag.EffectiveThermalConductivity = contextBag.RadiativeThermalConductivity + contextBag.ConductiveThermalConductivity;
+        contextBag.MetalBurningHeatFlux = GetMetalBurningHeatFlux(
+            surfaceTemperature, contextBag.SkeletonLayerThickness, contextBag.EffectiveThermalConductivity, context.PocketMetalCombustionParamsByUnits);
 
         contextBag.DiffusionFlameHeight = GetDiffusionFlameHeight(contextBag.DecomposeRate,
                                                                   solverParamsByUnits,
@@ -507,46 +526,146 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private Temperature GetAverageMetalBurningTemperature(
-        in CombustionSolverParamsByUnits solverParams,
+        in Temperature surfaceTemperature,
         in MetalCombustionParamsByUnits metalCombustionParamsByUnits)
     {
         var metalMeltingTemperatureDouble = metalCombustionParamsByUnits.MetalMeltingTemperature.Kelvins;
-        var metalBoilingTemperatureDouble = metalCombustionParamsByUnits.MetalBoilingTemperature.Kelvins;
 
-        var k = solverParams.KMetalTemperature.DecimalFractions;
         var averageMetalBurningTemperature = Temperature.FromKelvins(
-            k * metalMeltingTemperatureDouble + (1.0 - k) * metalBoilingTemperatureDouble);
+            metalMeltingTemperatureDouble - surfaceTemperature.Kelvins);
 
         return averageMetalBurningTemperature;
     }
 
-    /// <summary>
-    /// Computes the heat flux due to metal burning in the Skeleton layer.
-    /// </summary>
-    /// <param name="averageMetalBurningTemperature">
-    /// The average temperature at which the metal burns, provided as a <see cref="Temperature"/> object.
-    /// </param>
-    /// <param name="solverParamsByUnits">
-    /// The parameters related to the burn process, including the enthalpy change and specific heat capacity.
-    /// </param>
-    /// <returns>
-    /// The heat flux due to metal burning as a <see cref="HeatFlux"/> object.
-    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    private Length GetSkeletonLayerThickness(
+        Speed burnRate,
+        CombustionSolverParamsByUnits solverParamsByUnits)
+    {
+        var aMetalBurningConstant = solverParamsByUnits.AMetalBurningConstant;
+
+        return aMetalBurningConstant / burnRate;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    private Length GetPoreDiameter(
+        Speed burnRate,
+        CombustionSolverParamsByUnits solverParamsByUnits)
+    {
+        var bMetalBurningConstant = solverParamsByUnits.BMetalBurningConstant;
+
+        return bMetalBurningConstant / burnRate / burnRate;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    private ThermalConductivity GetRadiativeThermalConductivity(
+        in Temperature averageMetalBurningTemperature,
+        in Length poreDiameter,
+        in SkeletonLayerParamsByUnits skeletonLayerParamsByUnits)
+    {
+        const double stefanBoltzmannConstant = PhysicalConstants.StefanBoltzmannConstant;
+
+        var beta = 3.0 * (1.0 - skeletonLayerParamsByUnits.Porosity.DecimalFractions) / poreDiameter.Meters;
+        var radiativeThermalConductivityDouble = 16 * stefanBoltzmannConstant
+                                                 * Math.Pow(averageMetalBurningTemperature.Kelvins, 3)
+                                                 / beta;
+                                                 
+        return ThermalConductivity.FromWattsPerMeterKelvin(radiativeThermalConductivityDouble);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    private ThermalConductivity GetConductiveThermalConductivityByBinarySearch(
+        in SkeletonLayerParamsByUnits skeletonLayerParamsByUnits,
+        in DiffusionFlameParamsByUnits diffusionFlameParamsByUnits,
+        ref ThermalConductivity leftThermalConductivity,
+        ref ThermalConductivity rightThermalConductivity,
+        in ThermalConductivity tolerance)
+    {
+        if (leftThermalConductivity > rightThermalConductivity)
+            (leftThermalConductivity, rightThermalConductivity) =
+                (rightThermalConductivity, leftThermalConductivity);
+        
+        var leftValue = GetConductiveThermalConductivityError(
+            leftThermalConductivity,
+            skeletonLayerParamsByUnits,
+            diffusionFlameParamsByUnits);
+        var rightValue = GetConductiveThermalConductivityError(
+            rightThermalConductivity,
+            skeletonLayerParamsByUnits,
+            diffusionFlameParamsByUnits);
+        
+        const double greaterThisNotExistSolution = 0.0;
+        const double unavailableConductiveThermalConductivity = 0.0;
+        if (leftValue * rightValue > greaterThisNotExistSolution)
+            return ThermalConductivity.FromWattsPerMeterKelvin(unavailableConductiveThermalConductivity);
+        
+        var meanConductiveThermalConductivityDouble =
+            (leftThermalConductivity.WattsPerMeterKelvin + rightThermalConductivity.WattsPerMeterKelvin) / 2.0;
+        var meanConductiveThermalConductivity = ThermalConductivity.FromWattsPerMeterKelvin(meanConductiveThermalConductivityDouble);
+        while (rightThermalConductivity - leftThermalConductivity > tolerance)
+        {
+            var middleValue = GetConductiveThermalConductivityError(
+                meanConductiveThermalConductivity,
+                skeletonLayerParamsByUnits,
+                diffusionFlameParamsByUnits);
+            
+            if (middleValue * leftValue < 0.0)
+            {
+                rightThermalConductivity = meanConductiveThermalConductivity;
+                // rightValue = middleValue;
+            }
+            else
+            {
+                leftThermalConductivity = meanConductiveThermalConductivity;
+                leftValue = middleValue;
+            }
+
+            meanConductiveThermalConductivityDouble =
+                (leftThermalConductivity.WattsPerMeterKelvin + rightThermalConductivity.WattsPerMeterKelvin) / 2.0;
+            meanConductiveThermalConductivity = ThermalConductivity.FromWattsPerMeterKelvin(meanConductiveThermalConductivityDouble);
+        }
+        
+        return meanConductiveThermalConductivity;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    private double GetConductiveThermalConductivityError(
+        in ThermalConductivity conductiveThermalConductivity,
+        in SkeletonLayerParamsByUnits skeletonLayerParamsByUnits,
+        in DiffusionFlameParamsByUnits diffusionFlameParamsByUnits)
+    {
+        var porosity = skeletonLayerParamsByUnits.Porosity;
+        var lambdaGas = diffusionFlameParamsByUnits.ThermalConductivity;
+        var lambdaCondensed = skeletonLayerParamsByUnits.CondensedThermalConductivity;
+        var fullRatio = Ratio.FromDecimalFractions(1.0);
+
+        var error = porosity * (
+            (lambdaGas - conductiveThermalConductivity)
+            / (lambdaGas + 2 * lambdaCondensed)
+            )
+            + (fullRatio - porosity) * (
+                (lambdaCondensed - conductiveThermalConductivity)
+                / (lambdaCondensed + 2 * lambdaGas)
+            );
+        
+        return error.DecimalFractions;
+    }
+    
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static HeatFlux GetMetalBurningHeatFlux(
-        in Temperature averageMetalBurningTemperature,
-        in CombustionSolverParamsByUnits solverParamsByUnits)
+        in Temperature surfaceTemperature,
+        in Length skeletonLayerThickness,
+        in ThermalConductivity effectiveThermalConductivity,
+        in MetalCombustionParamsByUnits metalCombustionParamsByUnits)
     {
-        var hMetalBurning = solverParamsByUnits.HMetalBurning;
-        var eMetalBurning = solverParamsByUnits.EMetalBurning;
-        const double gasConstant = PhysicalConstants.UniversalGasConstant;
+        var metalMeltingTemperatureDouble = metalCombustionParamsByUnits.MetalMeltingTemperature.Kelvins;
 
-        var molarEnergy = MolarEnergy.FromJoulesPerMole(
-            gasConstant * averageMetalBurningTemperature.Kelvins);
+        var heatFluxDouble = (metalMeltingTemperatureDouble - surfaceTemperature.Kelvins)
+                             / skeletonLayerThickness.Meters
+                             / effectiveThermalConductivity.WattsPerMeterKelvin;
+        var heatFlux = HeatFlux.FromWattsPerSquareMeter(heatFluxDouble);
 
-        return hMetalBurning
-               * Math.Exp(-eMetalBurning / molarEnergy)
-               * averageMetalBurningTemperature;
+        return heatFlux;
     }
 
     /// <summary>
@@ -698,11 +817,30 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
                                                        context.PocketOutSkeletonKineticFlameParams,
                                                        ref outSkeletonKineticFlameParams);
 
+        contextBag.BurnRate = GetBurnRate(contextBag.DecomposeRate, context.PropellantParams);
         contextBag.AverageMetalBurningTemperature =
-            GetAverageMetalBurningTemperature(solverParams, context.PocketMetalCombustionParams);
-        contextBag.MetalBurningHeatFlux =
-            GetMetalBurningHeatFlux(contextBag.AverageMetalBurningTemperature,
-                                    solverParams);
+            GetAverageMetalBurningTemperature(surfaceTemperature, context.PocketMetalCombustionParams);
+        contextBag.SkeletonLayerThickness = GetSkeletonLayerThickness(contextBag.BurnRate, solverParams);
+        contextBag.PoreDiameter = GetPoreDiameter(contextBag.BurnRate, solverParams);
+        contextBag.RadiativeThermalConductivity = GetRadiativeThermalConductivity(
+            contextBag.AverageMetalBurningTemperature,
+            contextBag.PoreDiameter,
+            context.SkeletonLayerParams);
+        var minConductiveThermalConductivity = 0.0;
+        var maxConductiveThermalConductivity = 100_000.0;
+        contextBag.ConductiveThermalConductivity = GetConductiveThermalConductivityByBinarySearch(
+            context.SkeletonLayerParams,
+            context.PocketDiffusionFlameParams,
+            minConductiveThermalConductivity,
+            maxConductiveThermalConductivity,
+            1e-6);
+        contextBag.ConductiveThermalConductivityBalanceError = GetConductiveThermalConductivityError(
+            contextBag.ConductiveThermalConductivity,
+            context.SkeletonLayerParams,
+            context.PocketDiffusionFlameParams);
+        contextBag.EffectiveThermalConductivity = contextBag.RadiativeThermalConductivity + contextBag.ConductiveThermalConductivity;
+        contextBag.MetalBurningHeatFlux = GetMetalBurningHeatFlux(
+            surfaceTemperature, contextBag.SkeletonLayerThickness, contextBag.EffectiveThermalConductivity, context.PocketMetalCombustionParams);
 
         contextBag.DiffusionFlameHeight = GetDiffusionFlameHeight(contextBag.DecomposeRate,
                                                                   solverParams,
@@ -737,57 +875,143 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
 
 #region Computation Methods with Double Parameters
 
-    /// <summary>
-    /// Calculates the average metal burning temperature based on the melting and boiling temperatures of the metal.
-    /// </summary>
-    /// <param name="metalCombustionParams">
-    /// The parameters related to metal combustion, including melting and boiling temperatures.
-    /// </param>
-    /// <returns>
-    /// The average metal burning temperature in Kelvin as a <see cref="double"/> value.
-    /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private double GetAverageMetalBurningTemperature(
-        in CombustionSolverParamsByDoubles solverParams,
+        double surfaceTemperature,
         in MetalCombustionParamsByDoubles metalCombustionParams)
     {
         var metalMeltingTemperatureDouble = metalCombustionParams.MetalMeltingTemperature;
-        var metalBoilingTemperatureDouble = metalCombustionParams.MetalBoilingTemperature;
 
-        var k = solverParams.KMetalTemperature;
-        var averageMetalBurningTemperature =
-            k * metalMeltingTemperatureDouble + (1.0 - k) * metalBoilingTemperatureDouble;
+        var averageMetalBurningTemperature = metalMeltingTemperatureDouble - surfaceTemperature;
 
         return averageMetalBurningTemperature;
     }
 
-    /// <summary>
-    /// Computes the heat flux due to metal burning based on the average metal burning temperature
-    /// and the provided combustion solver parameters.
-    /// </summary>
-    /// <param name="averageMetalBurningTemperature">
-    /// The average temperature at which the metal burns, provided as a <see cref="double"/> value in Kelvin.
-    /// </param>
-    /// <param name="solverParams">
-    /// The parameters related to the burn process, including the metal burning enthalpy and activation energy.
-    /// </param>
-    /// <returns>
-    /// The heat flux due to metal burning as a <see cref="double"/> value in Watts per square meter (W/m²).
-    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    private double GetSkeletonLayerThickness(
+        double burnRate,
+        CombustionSolverParamsByDoubles solverParamsByDoubles)
+    {
+        var aMetalBurningConstant = solverParamsByDoubles.AMetalBurningConstant;
+
+        return aMetalBurningConstant / burnRate;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    private double GetPoreDiameter(
+        double burnRate,
+        CombustionSolverParamsByDoubles solverParamsByDoubles)
+    {
+        var bMetalBurningConstant = solverParamsByDoubles.BMetalBurningConstant;
+
+        return bMetalBurningConstant / burnRate / burnRate;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    private double GetRadiativeThermalConductivity(
+        double averageMetalBurningTemperature,
+        double poreDiameter,
+        in SkeletonLayerParamsByDoubles skeletonLayerParamsByDoubles)
+    {
+        const double stefanBoltzmannConstant = PhysicalConstants.StefanBoltzmannConstant;
+
+        var beta = 3.0 * (1.0 - skeletonLayerParamsByDoubles.Porosity) / poreDiameter;
+        var radiativeThermalConductivity = 16 * stefanBoltzmannConstant
+                                                 * Math.Pow(averageMetalBurningTemperature, 3)
+                                                 / beta;
+                                                 
+        return radiativeThermalConductivity;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    private double GetConductiveThermalConductivityByBinarySearch(
+        in SkeletonLayerParamsByDoubles skeletonLayerParamsByDoubles,
+        in DiffusionFlameParamsByDoubles diffusionFlameParamsByDoubles,
+        double leftThermalConductivity,
+        double rightThermalConductivity,
+        double tolerance)
+    {
+        if (leftThermalConductivity > rightThermalConductivity)
+            (leftThermalConductivity, rightThermalConductivity) =
+                (rightThermalConductivity, leftThermalConductivity);
+        
+        var leftValue = GetConductiveThermalConductivityError(
+            leftThermalConductivity,
+            skeletonLayerParamsByDoubles,
+            diffusionFlameParamsByDoubles);
+        var rightValue = GetConductiveThermalConductivityError(
+            rightThermalConductivity,
+            skeletonLayerParamsByDoubles,
+            diffusionFlameParamsByDoubles);
+        
+        const double greaterThisNotExistSolution = 0.0;
+        const double unavailableConductiveThermalConductivity = 0.0;
+        if (leftValue * rightValue > greaterThisNotExistSolution)
+            return unavailableConductiveThermalConductivity;
+        
+        var meanConductiveThermalConductivityDouble =
+            (leftThermalConductivity + rightThermalConductivity) / 2.0;
+        while (rightThermalConductivity - leftThermalConductivity > tolerance)
+        {
+            var middleValue = GetConductiveThermalConductivityError(
+                meanConductiveThermalConductivityDouble,
+                skeletonLayerParamsByDoubles,
+                diffusionFlameParamsByDoubles);
+            
+            if (middleValue * leftValue < 0.0)
+            {
+                rightThermalConductivity = meanConductiveThermalConductivityDouble;
+                // rightValue = middleValue;
+            }
+            else
+            {
+                leftThermalConductivity = meanConductiveThermalConductivityDouble;
+                leftValue = middleValue;
+            }
+
+            meanConductiveThermalConductivityDouble =
+                (leftThermalConductivity + rightThermalConductivity) / 2.0;
+        }
+        
+        return meanConductiveThermalConductivityDouble;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    private double GetConductiveThermalConductivityError(
+        double conductiveThermalConductivity,
+        in SkeletonLayerParamsByDoubles skeletonLayerParamsByDoubles,
+        in DiffusionFlameParamsByDoubles diffusionFlameParamsByDoubles)
+    {
+        var porosity = skeletonLayerParamsByDoubles.Porosity;
+        var lambdaGas = diffusionFlameParamsByDoubles.ThermalConductivity;
+        var lambdaCondensed = skeletonLayerParamsByDoubles.CondensedThermalConductivity;
+
+        var error = porosity * (
+            (lambdaGas - conductiveThermalConductivity)
+            / (lambdaGas + 2 * lambdaCondensed)
+            )
+            + (1.0 - porosity) * (
+                (lambdaCondensed - conductiveThermalConductivity)
+                / (lambdaCondensed + 2 * lambdaGas)
+            );
+        
+        return error;
+    }
+    
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static double GetMetalBurningHeatFlux(
-        double averageMetalBurningTemperature,
-        in CombustionSolverParamsByDoubles solverParams)
+        double surfaceTemperature,
+        double skeletonLayerThickness,
+        double effectiveThermalConductivity,
+        in MetalCombustionParamsByDoubles metalCombustionParamsByDoubles)
     {
-        var hMetalBurning = solverParams.HMetalBurning;
-        var eMetalBurning = solverParams.EMetalBurning;
-        const double gasConstant = PhysicalConstants.UniversalGasConstant;
+        var metalMeltingTemperatureDouble = metalCombustionParamsByDoubles.MetalMeltingTemperature;
 
-        var molarEnergy = gasConstant * averageMetalBurningTemperature;
+        var heatFluxDouble = (metalMeltingTemperatureDouble - surfaceTemperature)
+                             / skeletonLayerThickness
+                             / effectiveThermalConductivity;
 
-        return hMetalBurning
-               * Math.Exp(-eMetalBurning / molarEnergy)
-               * averageMetalBurningTemperature;
+        return heatFluxDouble;
     }
 
     /// <summary>

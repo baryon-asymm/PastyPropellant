@@ -51,6 +51,18 @@ public struct PocketCombustionParamsByDoubles
     /// </summary>
     public double AverageMetalBurningTemperature;
 
+    public double EffectiveThermalConductivity;
+
+    public double ConductiveThermalConductivity;
+
+    public double ConductiveThermalConductivityBalanceError;
+
+    public double RadiativeThermalConductivity;
+
+    public double SkeletonLayerThickness;
+
+    public double PoreDiameter;
+
     /// <summary>
     /// Gets or sets the heat flux associated with metal burning.
     /// Measured in watts per square meter (W/m²).
@@ -156,6 +168,18 @@ public struct PocketCombustionParams
     /// Measured using <see cref="UnitsNet.Temperature"/> in Kelvin (K).
     /// </summary>
     public Temperature AverageMetalBurningTemperature;
+
+    public ThermalConductivity EffectiveThermalConductivity;
+
+    public ThermalConductivity ConductiveThermalConductivity;
+
+    public double ConductiveThermalConductivityBalanceError;
+
+    public ThermalConductivity RadiativeThermalConductivity;
+
+    public Length SkeletonLayerThickness;
+
+    public Length PoreDiameter;
 
     /// <summary>
     /// Gets or sets the heat flux associated with metal burning.

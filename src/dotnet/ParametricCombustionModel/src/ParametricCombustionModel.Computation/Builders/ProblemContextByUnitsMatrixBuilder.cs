@@ -92,6 +92,7 @@ public class ProblemContextByUnitsMatrixBuilder
                     PocketOutSkeletonKineticFlameParamsByUnits = GetPocketOutSkeletonKineticFlameParams(pressure, propellant),
                     PocketDiffusionFlameParamsByUnits = GetPocketDiffusionFlameParams(pressure, propellant),
                     PocketMetalCombustionParamsByUnits = GetPocketMetalCombustionParams(pressure, propellant),
+                    SkeletonLayerParamsByUnits = GetSkeletonLayerParams(pressure, propellant),
                     InterPocketVolumeFraction =
                         Ratio.FromDecimalFractions(propellant.GetInterPocketAreaVolumeFraction()),
                     PocketVolumeFraction =
@@ -252,6 +253,18 @@ public class ProblemContextByUnitsMatrixBuilder
         {
             MetalBoilingTemperature = Temperature.FromKelvins(propellant.GetMetalBoilingTemperature(pressure.Pascals)),
             MetalMeltingTemperature = Temperature.FromKelvins(propellant.GetMetalMeltingTemperature())
+        };
+    }
+
+    private SkeletonLayerParamsByUnits GetSkeletonLayerParams(
+        Pressure pressure,
+        Propellant propellant)
+    {
+        var pressureFrame = propellant.PressureFrames!.First(pf => pf.Pressure == pressure.Pascals);
+        return new SkeletonLayerParamsByUnits
+        {
+            Porosity = Ratio.FromDecimalFractions(pressureFrame.Porosity),
+            CondensedThermalConductivity = ThermalConductivity.FromWattsPerMeterKelvin(230.0)
         };
     }
 

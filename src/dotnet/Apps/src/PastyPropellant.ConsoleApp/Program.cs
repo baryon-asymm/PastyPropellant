@@ -12,12 +12,12 @@ using UnitsNet;
 
 async Task RunDEScenarioAsync()
 {
-    double[] lowerBound = [1, 1, 1, 5e4, 1, 5e4, 1, 5e4, 0.1, 0.1, 0.1, 1, 1, -1e12, 1e-6, 0.0];
-    double[] upperBound = [double.MaxValue, 1e9, 1e12, 2e5, 1e12, 2e5, 1e12, 2e5, 10.0, 10.0, 10.0, 1e12, 1e9, 1e12, 3, 1.0];
+    double[] lowerBound = [1, 1, 1, 5e4, 1, 5e4, 1, 5e4, 1.0, 1.0, 1.0, 0, 0, double.MinValue, 1e-6];
+    double[] upperBound = [double.MaxValue, 1e12, double.MaxValue, 2e5, double.MaxValue, 2e5, double.MaxValue, 2e5, 10.0, 10.0, 10.0, double.MaxValue, double.MaxValue, double.MaxValue, 3];
 
     var scenario = new DifferentialEvolutionRuntime(
-        populationSize: lowerBound.Length * 8,
-        maxStagnationStreak: 100_000,
+        populationSize: lowerBound.Length * 1000000,
+        maxStagnationStreak: 50000,
         "propellants.json",
         lowerBound: lowerBound,
         upperBound: upperBound
@@ -105,4 +105,4 @@ EventBus<InfoLogEvent>.Subscribe(logEvent => {
     Console.WriteLine($"[{DateTime.Now.ToLongTimeString()}] ({logEvent.Sender ?? "none"}) | {logEvent.Message}");
 });
 
-await RunPreparingScenarioAsync();
+await RunDEScenarioAsync();

@@ -42,9 +42,9 @@ public class CombustionSolverParamsReport : BaseReport, ITransformable<string>
         stringBuilder.AppendLine();
         //stringBuilder.AppendFormat(CombustionSolverParamsReportResources.Nu, solverParams.Nu);
         stringBuilder.AppendLine();
-        stringBuilder.AppendFormat(CombustionSolverParamsReportResources.HMetalBurning, solverParams.HMetalBurning);
+        stringBuilder.AppendFormat(CombustionSolverParamsReportResources.AMetalBurningConstant, solverParams.AMetalBurningConstant);
         stringBuilder.AppendLine();
-        stringBuilder.AppendFormat(CombustionSolverParamsReportResources.EMetalBurning, solverParams.EMetalBurning);
+        stringBuilder.AppendFormat(CombustionSolverParamsReportResources.BMetalBurningConstant, solverParams.BMetalBurningConstant);
         stringBuilder.AppendLine();
         stringBuilder.AppendFormat(CombustionSolverParamsReportResources.DeltaH, solverParams.DeltaH);
         stringBuilder.AppendLine();

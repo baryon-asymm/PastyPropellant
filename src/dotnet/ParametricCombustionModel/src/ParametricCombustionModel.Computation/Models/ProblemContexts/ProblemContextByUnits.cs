@@ -57,6 +57,8 @@ public record ProblemContextByUnits : IComputationVisitable
     /// </summary>
     public required MetalCombustionParamsByUnits PocketMetalCombustionParamsByUnits;
 
+    public required SkeletonLayerParamsByUnits SkeletonLayerParamsByUnits;
+
     /// <summary>
     /// Gets or sets the volume fraction of inter-pocket combustion.
     /// Represents the ratio of volume occupied by the inter-pocket combustion zone.

@@ -67,18 +67,10 @@ public readonly ref struct CombustionSolverParamsByDoubles
     public required double NuPocketOutSkeleton { get; init; }
     
     public required double NuPocketSkeleton { get; init; }
+    
+    public required double AMetalBurningConstant { get; init; }
 
-    /// <summary>
-    /// Metal burning coefficient.
-    /// Measured in W/(K*m^2).
-    /// </summary>
-    public required double HMetalBurning { get; init; }
-
-    /// <summary>
-    /// Activation energy for metal burning.
-    /// Measured in J/mol.
-    /// </summary>
-    public required double EMetalBurning { get; init; }
+    public required double BMetalBurningConstant { get; init; }
 
     /// <summary>
     /// Specific energy change of the binder.
@@ -90,11 +82,6 @@ public readonly ref struct CombustionSolverParamsByDoubles
     /// Diffusion height coefficient.
     /// </summary>
     public required double KDiffusionHeight { get; init; }
-
-    /// <summary>
-    /// Coefficient computing the average temperature of the metal.
-    /// </summary>
-    public required double KMetalTemperature { get; init; }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static CombustionSolverParamsByDoubles FromVector(
@@ -113,11 +100,10 @@ public readonly ref struct CombustionSolverParamsByDoubles
             NuInterPocket = vector[8],
             NuPocketOutSkeleton = vector[9],
             NuPocketSkeleton = vector[10],
-            HMetalBurning = vector[11],
-            EMetalBurning = vector[12],
+            AMetalBurningConstant = vector[11],
+            BMetalBurningConstant = vector[12],
             DeltaH = vector[13],
-            KDiffusionHeight = vector[14],
-            KMetalTemperature = vector[15]
+            KDiffusionHeight = vector[14]
         };
     }
 }
@@ -188,17 +174,9 @@ public readonly ref struct CombustionSolverParamsByUnits
     
     public required double NuPocketSkeleton { get; init; }
 
-    /// <summary>
-    /// Gets the metal burning coefficient (complex coefficient in the metal burning law within the skeleton layer).
-    /// Measured in W/(K*m^2).
-    /// </summary>
-    public required HMetalBurningCoefficient HMetalBurning { get; init; }
+    public required AMetalBurningConstant AMetalBurningConstant { get; init; }
 
-    /// <summary>
-    /// Gets the activation energy for metal burning (activation energy in the metal burning law within the skeleton layer).
-    /// Measured in J/mol.
-    /// </summary>
-    public required MolarEnergy EMetalBurning { get; init; }
+    public required BMetalBurningConstant BMetalBurningConstant { get; init; }
 
     /// <summary>
     /// Gets the specific energy change of the binder (difference between the heat of sublimation and the heat of binder decomposition).
@@ -210,12 +188,6 @@ public readonly ref struct CombustionSolverParamsByUnits
     /// Gets the diffusion height coefficient.
     /// </summary>
     public required double KDiffusionHeight { get; init; }
-
-    /// <summary>
-    /// Coefficient computing the average temperature of the metal.
-    /// Measured from 0.0 to 1.0.
-    /// </summary>
-    public required Ratio KMetalTemperature { get; init; }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static CombustionSolverParamsByUnits FromVector(
@@ -234,11 +206,10 @@ public readonly ref struct CombustionSolverParamsByUnits
             NuInterPocket = vector[8],
             NuPocketOutSkeleton = vector[9],
             NuPocketSkeleton = vector[10],
-            HMetalBurning = HMetalBurningCoefficient.FromWattsPerKelvinPerSquareMeter(vector[11]),
-            EMetalBurning = MolarEnergy.FromJoulesPerMole(vector[12]),
+            AMetalBurningConstant = AMetalBurningConstant.FromSquareMetersPerSecond(vector[11]),
+            BMetalBurningConstant = BMetalBurningConstant.FromCubicMetersPerSquareSecond(vector[12]),
             DeltaH = SpecificEnergy.FromJoulesPerKilogram(vector[13]),
-            KDiffusionHeight = vector[14],
-            KMetalTemperature = Ratio.FromDecimalFractions(vector[15])
+            KDiffusionHeight = vector[14]
         };
     }
 }

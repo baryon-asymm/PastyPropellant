@@ -56,6 +56,8 @@ public class ProblemContextByDoubles : IComputationVisitable
     /// </summary>
     public required MetalCombustionParamsByDoubles PocketMetalCombustionParams;
 
+    public required SkeletonLayerParamsByDoubles SkeletonLayerParams;
+
     /// <summary>
     /// Gets or sets the volume fraction of inter-pocket combustion.
     /// Represents the ratio of volume occupied by the inter-pocket combustion zone.

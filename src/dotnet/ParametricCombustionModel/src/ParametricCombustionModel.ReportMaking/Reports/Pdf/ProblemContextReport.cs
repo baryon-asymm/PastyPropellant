@@ -260,6 +260,36 @@ public class ProblemContextReport : BaseReport, ITransformable<Queue<IPdfOperati
                                              problemContext.PocketCombustionParams.AverageMetalBurningTemperature),
                                TextStyle.None));
         operations.Enqueue(new LineBreakOperation());
+        AddTab(operations, 2);
+        operations.Enqueue(new PrintTextOperation(
+                               $"Effective thermal conductivity {problemContext.PocketCombustionParams.EffectiveThermalConductivity}",
+                               TextStyle.None));
+        operations.Enqueue(new LineBreakOperation());
+        AddTab(operations, 2);
+        operations.Enqueue(new PrintTextOperation(
+                               $"Conductive thermal conductivity {problemContext.PocketCombustionParams.ConductiveThermalConductivity}",
+                               TextStyle.None));
+        operations.Enqueue(new LineBreakOperation());
+        AddTab(operations, 2);
+        operations.Enqueue(new PrintTextOperation(
+                               $"Radiative thermal conductivity {problemContext.PocketCombustionParams.RadiativeThermalConductivity}",
+                               TextStyle.None));
+        operations.Enqueue(new LineBreakOperation());
+        AddTab(operations, 2);
+        operations.Enqueue(new PrintTextOperation(
+                               $"Conductive thermal conductivity balance error {problemContext.PocketCombustionParams.ConductiveThermalConductivityBalanceError}",
+                               TextStyle.None));
+        operations.Enqueue(new LineBreakOperation());
+        AddTab(operations, 2);
+        operations.Enqueue(new PrintTextOperation(
+                               $"Skeleton layer thickness {problemContext.PocketCombustionParams.SkeletonLayerThickness}",
+                               TextStyle.None));
+        operations.Enqueue(new LineBreakOperation());
+        AddTab(operations, 2);
+        operations.Enqueue(new PrintTextOperation(
+                               $"Pore diameter {problemContext.PocketCombustionParams.PoreDiameter}",
+                               TextStyle.None));
+        operations.Enqueue(new LineBreakOperation());
         // Append diffusion flame parameters
         AddTab(operations);
         operations.Enqueue(new PrintTextOperation(

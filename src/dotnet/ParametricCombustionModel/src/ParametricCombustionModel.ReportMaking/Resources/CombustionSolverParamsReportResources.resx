@@ -49,14 +49,20 @@
     <data name="EKineticFlamePocketSkeleton" xml:space="preserve">
         <value>Энергия активации реакций в газовой фазе в пределах КС {0}</value>
     </data>
-    <data name="Nu" xml:space="preserve">
-        <value>Порядок химических реакций в газовой фазе {0}</value>
+    <data name="NuInterPocket" xml:space="preserve">
+        <value>Порядок химических реакций в газовой фазе (МКМ) {0}</value>
     </data>
-    <data name="HMetalBurning" xml:space="preserve">
-        <value>Постоянный коэффициент в выражении для плотности теплового потока, обусловленного сгоранием металла в КС, {0}</value>
+    <data name="NuPocketSkeleton" xml:space="preserve">
+        <value>Порядок химических реакций в газовой фазе (КС) {0}</value>
     </data>
-    <data name="EMetalBurning" xml:space="preserve">
-        <value>Энергия активации реакций, обусловленных сгоранием металла в КС, {0}</value>
+    <data name="NuPocketOutSkeleton" xml:space="preserve">
+        <value>Порядок химических реакций в газовой фазе (вне КС) {0}</value>
+    </data>
+    <data name="AMetalBurningConstant" xml:space="preserve">
+        <value>Константа A в выражении для плотности теплового потока, обусловленного сгоранием металла в КС, {0}</value>
+    </data>
+    <data name="BMetalBurningConstant" xml:space="preserve">
+        <value>Константа B в выражении для плотности теплового потока, обусловленного сгоранием металла в КС, {0}</value>
     </data>
     <data name="DeltaH" xml:space="preserve">
         <value>Разность удельной теплоты испарения и разложения связующего {0}</value>

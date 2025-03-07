@@ -177,7 +177,7 @@ public class DifferentialEvolutionOptimizer : IParametricCombustionModelOptimize
                                               mutationForce: 0.5, crossoverProbability: 0.9)
                                           .WithDefaultSelectionStrategy()
                                           .WithTerminationCondition(terminationStrategy)
-                                          .UseProcessors(processorsCount: 8)
+                                          .UseProcessors(processorsCount: 12)
                                           .WithPopulationUpdateHandler(new PopulationUpdateHandler())
                                           .Build();
 
