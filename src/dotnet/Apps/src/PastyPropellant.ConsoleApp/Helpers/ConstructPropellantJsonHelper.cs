@@ -68,27 +68,27 @@ public class ConstructPropellantJsonHelper
 
                 var interPocketGasPhase = new HomogeneousGasPhase(
                     KineticFlameTemperature: interPocketThermodynamicsJson.Temperature,
-                    AverageMolarMass: 32.7e-3,
+                    AverageMolarMass: interPocketThermodynamicsJson.AverageMolarMass,
                     Lambda_Gas: 0.1,
-                    SpecificHeatCapacity_Volume: 635.6
+                    SpecificHeatCapacity_Volume: interPocketThermodynamicsJson.SpecificHeatCapacity_Volume
                 );
 
                 var pocketGasPhase = new HeterogeneousGasPhase(
                     DiffusionFlameTemperature: diffusionThermodynamicsJson.Temperature,
-                    AverageMolarMass: 32.7e-3,
+                    AverageMolarMass: diffusionThermodynamicsJson.AverageMolarMass,
                     Lambda_Gas: 0.1,
-                    SpecificHeatCapacity_Volume: 635.6,
+                    SpecificHeatCapacity_Volume: diffusionThermodynamicsJson.SpecificHeatCapacity_Volume,
                     SkeletonGasPhase: new HomogeneousGasPhase(
                         KineticFlameTemperature: pocketWithSkeletonThermodynamicsJson.Temperature,
-                        AverageMolarMass: 32.7e-3,
+                        AverageMolarMass: pocketWithSkeletonThermodynamicsJson.AverageMolarMass,
                         Lambda_Gas: 0.1,
-                        SpecificHeatCapacity_Volume: 635.6
+                        SpecificHeatCapacity_Volume: pocketWithSkeletonThermodynamicsJson.SpecificHeatCapacity_Volume
                     ),
                     OutSkeletonGasPhase: new HomogeneousGasPhase(
                         KineticFlameTemperature: pocketWithoutSkeletonThermodynamicsJson.Temperature,
-                        AverageMolarMass: 32.7e-3,
+                        AverageMolarMass: pocketWithoutSkeletonThermodynamicsJson.AverageMolarMass,
                         Lambda_Gas: 0.1,
-                        SpecificHeatCapacity_Volume: 635.6
+                        SpecificHeatCapacity_Volume: pocketWithoutSkeletonThermodynamicsJson.SpecificHeatCapacity_Volume
                     )
                 );
 
@@ -114,7 +114,11 @@ public class ConstructPropellantJsonHelper
 
     private record ThermodynamicsJson(
         [property: JsonPropertyName("temperature")]
-        double Temperature
+        double Temperature,
+        [property: JsonPropertyName("specific_heat_capacity_volumetric")]
+        double SpecificHeatCapacity_Volume,
+        [property: JsonPropertyName("gas_average_molar_mass")]
+        double AverageMolarMass
     );
 
     private record PorosityJson(

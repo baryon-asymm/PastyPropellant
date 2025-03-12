@@ -123,7 +123,7 @@ public class PreparePropellantDataHelper
             for (int i = 0; i < propellant.PressureFrames.Count; i++)
                 dictPressureFrames.Add(propellant.PressureFrames[i].Pressure.Pascals.ToString(), i);
             
-            var parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = 4 };
+            var parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = 3 };
 
             Parallel.ForEach(propellant.PressureFrames, parallelOptions, pressureFrame =>
             {
