@@ -9,6 +9,8 @@ namespace PastyPropellant.ConsoleApp.Helpers;
 
 public class ConstructPropellantJsonHelper
 {
+    private Dictionary<string, double[]> _lambdaValues = new();
+
     private readonly string _originPropellantsFilePath;
     private readonly ReadOnlyCollection<PreparedPropellantData> _preparedPropellantData;
     
@@ -19,6 +21,11 @@ public class ConstructPropellantJsonHelper
 
         _originPropellantsFilePath = originPropellantsFilePath;
         _preparedPropellantData = preparedPropellantData.ToArray().AsReadOnly();
+
+        _lambdaValues.Add("Bas_1", [0.3571, 0.3791, 0.3555, 0.4656]);
+        _lambdaValues.Add("Bas_2", [0.3419, 0.3791, 0.3555, 0.4656]);
+        _lambdaValues.Add("Bas_3", [0.3583, 0.3791, 0.2775, 0.4670]);
+        _lambdaValues.Add("Bas_4", [0.3316, 0.3791, 0.3606, 0.7008]);
     }
 
     public async Task<OperationResult> ConstructAsync(string outputFilePath)
@@ -69,25 +76,25 @@ public class ConstructPropellantJsonHelper
                 var interPocketGasPhase = new HomogeneousGasPhase(
                     KineticFlameTemperature: interPocketThermodynamicsJson.Temperature,
                     AverageMolarMass: interPocketThermodynamicsJson.AverageMolarMass,
-                    Lambda_Gas: 0.1,
+                    Lambda_Gas: _lambdaValues[propellant.Name][1],
                     SpecificHeatCapacity_Volume: interPocketThermodynamicsJson.SpecificHeatCapacity_Volume
                 );
 
                 var pocketGasPhase = new HeterogeneousGasPhase(
                     DiffusionFlameTemperature: diffusionThermodynamicsJson.Temperature,
                     AverageMolarMass: diffusionThermodynamicsJson.AverageMolarMass,
-                    Lambda_Gas: 0.1,
+                    Lambda_Gas: _lambdaValues[propellant.Name][0],
                     SpecificHeatCapacity_Volume: diffusionThermodynamicsJson.SpecificHeatCapacity_Volume,
                     SkeletonGasPhase: new HomogeneousGasPhase(
                         KineticFlameTemperature: pocketWithSkeletonThermodynamicsJson.Temperature,
                         AverageMolarMass: pocketWithSkeletonThermodynamicsJson.AverageMolarMass,
-                        Lambda_Gas: 0.1,
+                        Lambda_Gas: _lambdaValues[propellant.Name][2],
                         SpecificHeatCapacity_Volume: pocketWithSkeletonThermodynamicsJson.SpecificHeatCapacity_Volume
                     ),
                     OutSkeletonGasPhase: new HomogeneousGasPhase(
                         KineticFlameTemperature: pocketWithoutSkeletonThermodynamicsJson.Temperature,
                         AverageMolarMass: pocketWithoutSkeletonThermodynamicsJson.AverageMolarMass,
-                        Lambda_Gas: 0.1,
+                        Lambda_Gas: _lambdaValues[propellant.Name][3],
                         SpecificHeatCapacity_Volume: pocketWithoutSkeletonThermodynamicsJson.SpecificHeatCapacity_Volume
                     )
                 );

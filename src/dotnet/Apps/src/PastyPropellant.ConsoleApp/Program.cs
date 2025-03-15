@@ -104,4 +104,4 @@ EventBus<InfoLogEvent>.Subscribe(logEvent => {
     Console.WriteLine($"[{DateTime.Now.ToLongTimeString()}] ({logEvent.Sender ?? "none"}) | {logEvent.Message}");
 });
 
-await RunDEScenarioAsync();
+await RunPreparingScenarioAsync();
