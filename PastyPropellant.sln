@@ -99,6 +99,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{58F1CFF6
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PastyPropellant.PorosityCalculation.Tests", "src\dotnet\PastyPropellant.PorosityCalculation\tests\PastyPropellant.PorosityCalculation.Tests\PastyPropellant.PorosityCalculation.Tests.csproj", "{2DE735DB-4EAD-4586-8170-BD6AAFB942AA}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PastyPropellant.PropellantsPlotRendering", "PastyPropellant.PropellantsPlotRendering", "{97A8D5A8-553F-49BA-B72B-A7290D0E5C5A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{1F648FF5-0C44-4BCE-ADEA-D1422F2D770B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PastyPropellant.PropellantsPlotRendering", "src\dotnet\PastyPropellant.PropellantsPlotRendering\src\PastyPropellant.PropellantsPlotRendering\PastyPropellant.PropellantsPlotRendering.csproj", "{9C287F23-3995-463F-AFE1-0FB99A047E4B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -185,6 +191,10 @@ Global
 		{2DE735DB-4EAD-4586-8170-BD6AAFB942AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2DE735DB-4EAD-4586-8170-BD6AAFB942AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2DE735DB-4EAD-4586-8170-BD6AAFB942AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C287F23-3995-463F-AFE1-0FB99A047E4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C287F23-3995-463F-AFE1-0FB99A047E4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C287F23-3995-463F-AFE1-0FB99A047E4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C287F23-3995-463F-AFE1-0FB99A047E4B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -232,6 +242,9 @@ Global
 		{9E4FFA22-2FFD-41D4-B10D-2B13AA03BF90} = {9A842175-5BBA-4705-A996-F49BA8FF1A51}
 		{58F1CFF6-2D14-42F7-A4C0-27ED3697527D} = {2BFFFDA9-A193-4B70-B6DB-D7D1C45B56B9}
 		{2DE735DB-4EAD-4586-8170-BD6AAFB942AA} = {58F1CFF6-2D14-42F7-A4C0-27ED3697527D}
+		{97A8D5A8-553F-49BA-B72B-A7290D0E5C5A} = {5F32DD9C-718A-4489-86DC-F53B34A90F2E}
+		{1F648FF5-0C44-4BCE-ADEA-D1422F2D770B} = {97A8D5A8-553F-49BA-B72B-A7290D0E5C5A}
+		{9C287F23-3995-463F-AFE1-0FB99A047E4B} = {1F648FF5-0C44-4BCE-ADEA-D1422F2D770B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {63BC0756-BFC7-436A-8E63-EE23CC9C8FEC}

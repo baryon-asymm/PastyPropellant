@@ -30,6 +30,7 @@ public class PdfReportMaker : IReportMaker, IPdfOperationVisitor
         var pressurePointCount = _optimizationResult.OptimizedContext.ProblemContextMatrix.GetLength(1);
         var problemContextReport =
             new ProblemContextReport([0, pressurePointCount / 2, pressurePointCount - 1], _optimizationResult);
+        var pressureTablesReport = new PressureTablesReport([0, pressurePointCount / 2, pressurePointCount - 1], _optimizationResult);
         var propellantReport = new PropellantReport(_optimizationResult);
 
         _pdfGeneratorAdapter.AddParagraph(TextAlignment.Left);
@@ -53,12 +54,23 @@ public class PdfReportMaker : IReportMaker, IPdfOperationVisitor
             operation.Accept(this);
         _pdfGeneratorAdapter.AddLineBreak();
 
+        foreach (var table in pressureTablesReport.Transform())
+            _pdfGeneratorAdapter.AddTable(table);
+
         _pdfGeneratorAdapter.AddImage("burning_rate_plot.jpg");
         _pdfGeneratorAdapter.AddParagraph(TextAlignment.Left);
 
         foreach (var operation in propellantReport.Transform())
             operation.Accept(this);
         // _pdfGeneratorAdapter.AddLineBreak();
+        
+        _pdfGeneratorAdapter.AddImage("lambda_gas_plot.png", isPortrait: false);
+        _pdfGeneratorAdapter.AddImage("average_molar_mass_plot.png", isPortrait: false);
+        _pdfGeneratorAdapter.AddImage("c_volume_plot.png", isPortrait: false);
+        _pdfGeneratorAdapter.AddImage("temperatures_plot.png", isPortrait: false);
+        _pdfGeneratorAdapter.AddImage("agglomeration_fraction_plot.png", isPortrait: false);
+        _pdfGeneratorAdapter.AddImage("skeleton_surface_fraction_plot.png", isPortrait: false);
+        _pdfGeneratorAdapter.AddParagraph(TextAlignment.Left);
 
         _pdfGeneratorAdapter.AddFooterForLastPage(
             GetLastPageFooter());

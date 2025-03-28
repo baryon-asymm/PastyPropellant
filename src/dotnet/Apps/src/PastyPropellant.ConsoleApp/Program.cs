@@ -15,7 +15,7 @@ async Task RunDEScenarioAsync()
     double[] upperBound = [double.MaxValue, 1e9, 1e12, 2e5, 1e12, 2e5, 1e12, 2e5, 10.0, 10.0, 10.0, 1, 1, 1e12, 3];
 
     var scenario = new DifferentialEvolutionRuntime(
-        populationSize: lowerBound.Length * 8,
+        populationSize: lowerBound.Length * 12,
         maxStagnationStreak: 100_000,
         "propellants.json",
         lowerBound: lowerBound,
@@ -45,6 +45,9 @@ async Task RunDEScenarioAsync()
     {
         plotRenderer.Render(operationResult.Value, settings);
     }
+
+    var propellantPlotsRenderingHelper = new PropellantPlotsRenderingHelper("../../../../../src/python/PropellantsPlotRendering/src/main.py");
+    var plotsResult = await propellantPlotsRenderingHelper.RenderPlotsAsync("propellants.json");
 
     var pdfGeneratorAdapter = new PdfSharpAdapter("report.pdf");
     if (operationResult.Value is not null)
@@ -104,4 +107,4 @@ EventBus<InfoLogEvent>.Subscribe(logEvent => {
     Console.WriteLine($"[{DateTime.Now.ToLongTimeString()}] ({logEvent.Sender ?? "none"}) | {logEvent.Message}");
 });
 
-await RunPreparingScenarioAsync();
+await RunDEScenarioAsync();
