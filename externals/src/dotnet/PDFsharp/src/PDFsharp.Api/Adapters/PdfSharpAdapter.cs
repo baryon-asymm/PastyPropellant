@@ -124,11 +124,11 @@ public class PdfSharpAdapter : IPdfGeneratorAdapter
         }
     }
 
-    public void AddImage(string filePath)
+    public void AddImage(string filePath, bool isPortrait = true)
     {
         var section = _document.AddSection();
         section.PageSetup.PageFormat = PageFormat.A4;
-        section.PageSetup.Orientation = Orientation.Portrait;
+        section.PageSetup.Orientation = isPortrait ? Orientation.Portrait : Orientation.Landscape;
         section.PageSetup.TopMargin = "1cm";
         section.PageSetup.BottomMargin = "2cm";
         section.PageSetup.LeftMargin = "2cm";
@@ -136,7 +136,7 @@ public class PdfSharpAdapter : IPdfGeneratorAdapter
 
         var image = section.AddImage(filePath);
         image.LockAspectRatio = true;
-        image.Width = Unit.FromCentimeter(17.0);
+        image.Width = isPortrait ? Unit.FromCentimeter(17.0) : Unit.FromCentimeter(25.0);
     }
 
     public OperationResult Generate()
@@ -163,8 +163,8 @@ public class PdfSharpAdapter : IPdfGeneratorAdapter
         var textFrame = _document.LastSection.AddTextFrame();
         textFrame.Height = "2cm";
         textFrame.RelativeVertical = RelativeVertical.Page;
-        textFrame.Top = "28cm";
-        textFrame.Width = "17cm";
+        textFrame.Top = "19cm";
+        textFrame.Width = "25cm";
 
         var paragraph = textFrame.AddParagraph();
         paragraph.Format.Alignment = ParagraphAlignment.Right;

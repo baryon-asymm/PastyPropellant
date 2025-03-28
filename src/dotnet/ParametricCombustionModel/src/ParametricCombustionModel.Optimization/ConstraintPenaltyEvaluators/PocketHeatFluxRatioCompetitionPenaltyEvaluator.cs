@@ -28,8 +28,8 @@ public sealed class PocketHeatFluxRatioCompetitionPenaltyEvaluator : BaseConstra
         ref var skeletonParams = ref pocketParams.SkeletonKineticFlameCombustionParams;
         ref var outSkeletonParams = ref pocketParams.OutSkeletonKineticFlameCombustionParams;
 
-        // ExtractMaxMinHeatFluxes(pocketParams.MetalBurningHeatFlux.WattsPerSquareMeter, ref maxHeatFlow,
-        //                         ref minHeatFlow);
+        ExtractMaxMinHeatFluxes(pocketParams.MetalBurningHeatFlux.WattsPerSquareMeter, ref maxHeatFlow,
+                                ref minHeatFlow);
         ExtractMaxMinHeatFluxes(skeletonParams.KineticFlameHeatFlux.WattsPerSquareMeter, ref maxHeatFlow,
                                 ref minHeatFlow);
         ExtractMaxMinHeatFluxes(outSkeletonParams.KineticFlameHeatFlux.WattsPerSquareMeter, ref maxHeatFlow,
@@ -52,8 +52,8 @@ public sealed class PocketHeatFluxRatioCompetitionPenaltyEvaluator : BaseConstra
         ref var skeletonParams = ref pocketParams.SkeletonKineticFlameCombustionParams;
         ref var outSkeletonParams = ref pocketParams.OutSkeletonKineticFlameCombustionParams;
 
-        // ExtractMaxMinHeatFluxes(pocketParams.MetalBurningHeatFlux, ref maxHeatFlow,
-        //                         ref minHeatFlow);
+        ExtractMaxMinHeatFluxes(pocketParams.MetalBurningHeatFlux, ref maxHeatFlow,
+                                ref minHeatFlow);
         ExtractMaxMinHeatFluxes(skeletonParams.KineticFlameHeatFlux, ref maxHeatFlow,
                                 ref minHeatFlow);
         ExtractMaxMinHeatFluxes(outSkeletonParams.KineticFlameHeatFlux, ref maxHeatFlow,

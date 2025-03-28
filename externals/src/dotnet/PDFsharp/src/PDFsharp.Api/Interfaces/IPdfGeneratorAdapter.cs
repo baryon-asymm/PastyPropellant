@@ -29,7 +29,7 @@ public interface IPdfGeneratorAdapter
 
     public void AddTable(PressureTable table);
 
-    public void AddImage(string filePath);
+    public void AddImage(string filePath, bool isPortrait = true);
 
     public OperationResult Generate();
 }

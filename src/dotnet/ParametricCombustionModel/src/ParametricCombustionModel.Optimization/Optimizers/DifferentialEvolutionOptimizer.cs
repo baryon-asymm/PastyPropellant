@@ -168,7 +168,7 @@ public class DifferentialEvolutionOptimizer : IParametricCombustionModelOptimize
     private async Task<OptimizationResult> TryGetOptimizationResultAsync()
     {
         var terminationStrategy =
-            new StagnationStreakTerminationStrategy(maxStagnationStreak: 100_000, stagnationThreshold: 1e-6);
+            new StagnationStreakTerminationStrategy(maxStagnationStreak: MaxStagnationStreak, stagnationThreshold: 1e-6);
         using var de = DifferentialEvolutionBuilder.ForFunction(this)
                                           .WithBounds(LowerBound.ToArray(), UpperBound.ToArray())
                                           .WithPopulationSize(PopulationSize)

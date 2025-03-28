@@ -61,15 +61,15 @@ public class CombustionSolverParamsReport : BaseReport, ITransformable<Queue<IPd
                                TextStyle.None));
         operations.Enqueue(new LineBreakOperation());
         operations.Enqueue(new PrintTextOperation(
-                               "Order of the chemical reactions at the inter pocket region" + solverParams.NuInterPocket,
+                               "Order of the chemical reactions at the inter pocket region " + solverParams.NuInterPocket,
                                TextStyle.None));
         operations.Enqueue(new LineBreakOperation());
         operations.Enqueue(new PrintTextOperation(
-                               "Order of the chemical reactions at the pocket skeleton region" + solverParams.NuPocketSkeleton,
+                               "Order of the chemical reactions at the pocket skeleton region " + solverParams.NuPocketSkeleton,
                                TextStyle.None));
         operations.Enqueue(new LineBreakOperation());
         operations.Enqueue(new PrintTextOperation(
-                               "Order of the chemical reactions at the pocket out skeleton region" + solverParams.NuPocketOutSkeleton,
+                               "Order of the chemical reactions at the pocket out skeleton region " + solverParams.NuPocketOutSkeleton,
                                TextStyle.None));
         operations.Enqueue(new LineBreakOperation());
         operations.Enqueue(new PrintTextOperation(
@@ -92,7 +92,7 @@ public class CombustionSolverParamsReport : BaseReport, ITransformable<Queue<IPd
                                TextStyle.None));
         operations.Enqueue(new LineBreakOperation());
         operations.Enqueue(new PrintTextOperation(
-                               "Coefficient of the metal burning temperature: " + solverParams.KMetalTemperature,
+                               "Coefficient of the metal burning temperature " + solverParams.KMetalTemperature,
                                TextStyle.None));
         operations.Enqueue(new LineBreakOperation());
 
