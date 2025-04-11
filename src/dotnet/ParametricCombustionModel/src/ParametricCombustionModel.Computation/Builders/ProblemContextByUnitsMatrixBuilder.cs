@@ -264,7 +264,7 @@ public class ProblemContextByUnitsMatrixBuilder
         return new SkeletonLayerParamsByUnits
         {
             Porosity = Ratio.FromDecimalFractions(pressureFrame.Porosity),
-            CondensedThermalConductivity = ThermalConductivity.FromWattsPerMeterKelvin(230.0)
+            CondensedThermalConductivity = ThermalConductivity.FromWattsPerMeterKelvin(150.0)
         };
     }
 

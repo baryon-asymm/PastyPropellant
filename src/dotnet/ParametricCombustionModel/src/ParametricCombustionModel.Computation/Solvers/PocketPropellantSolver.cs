@@ -532,7 +532,7 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
         var metalMeltingTemperatureDouble = metalCombustionParamsByUnits.MetalMeltingTemperature.Kelvins;
 
         var averageMetalBurningTemperature = Temperature.FromKelvins(
-            metalMeltingTemperatureDouble - surfaceTemperature.Kelvins);
+            0.5 * (metalMeltingTemperatureDouble - surfaceTemperature.Kelvins));
 
         return averageMetalBurningTemperature;
     }
@@ -882,7 +882,7 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
     {
         var metalMeltingTemperatureDouble = metalCombustionParams.MetalMeltingTemperature;
 
-        var averageMetalBurningTemperature = metalMeltingTemperatureDouble - surfaceTemperature;
+        var averageMetalBurningTemperature = 0.5 * (metalMeltingTemperatureDouble - surfaceTemperature);
 
         return averageMetalBurningTemperature;
     }

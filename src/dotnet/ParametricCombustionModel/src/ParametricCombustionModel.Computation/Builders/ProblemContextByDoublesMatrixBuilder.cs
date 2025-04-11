@@ -258,7 +258,7 @@ public class ProblemContextByDoublesMatrixBuilder
         return new SkeletonLayerParamsByDoubles
         {
             Porosity = pressureFrame.Porosity,
-            CondensedThermalConductivity = 230.0
+            CondensedThermalConductivity = 150.0
         };
     }
 

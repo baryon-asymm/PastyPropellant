@@ -15,7 +15,7 @@ async Task RunDEScenarioAsync()
     double[] upperBound = [double.MaxValue, 1e9, 1e12, 2e5, 1e12, 2e5, 1e12, 2e5, 10.0, 10.0, 10.0, 1, 1, 1e12, 3];
 
     var scenario = new DifferentialEvolutionRuntime(
-        populationSize: lowerBound.Length * 12,
+        populationSize: lowerBound.Length * 8,
         maxStagnationStreak: 100_000,
         "propellants.json",
         lowerBound: lowerBound,
