@@ -458,12 +458,14 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
                                                        ref outSkeletonKineticFlameParams);
 
         contextBag.BurnRate = GetBurnRate(contextBag.DecomposeRate, context.PropellantParamsByUnits);
-        contextBag.AverageMetalBurningTemperature =
-            GetAverageMetalBurningTemperature(surfaceTemperature, context.PocketMetalCombustionParamsByUnits);
+        contextBag.AverageMetalBurningTemperature = Temperature.Zero;
+        //    GetAverageMetalBurningTemperature(surfaceTemperature, context.PocketMetalCombustionParamsByUnits);
         contextBag.SkeletonLayerThickness = GetSkeletonLayerThickness(contextBag.BurnRate, solverParamsByUnits);
         contextBag.PoreDiameter = GetPoreDiameter(contextBag.BurnRate, solverParamsByUnits);
+        var averageRadiativeTemperatureDouble = solverParamsByUnits.KCoefficientRadiationTemperature * surfaceTemperature.Kelvins +
+            (1.0 - solverParamsByUnits.KCoefficientRadiationTemperature) * context.PocketSkeletonKineticFlameParamsByUnits.FinalTemperature.Kelvins;
         contextBag.RadiativeThermalConductivity = GetRadiativeThermalConductivity(
-            contextBag.AverageMetalBurningTemperature,
+            Temperature.FromKelvins(averageRadiativeTemperatureDouble),
             contextBag.PoreDiameter,
             context.SkeletonLayerParamsByUnits);
         var minConductiveThermalConductivity = ThermalConductivity.FromWattsPerMeterKelvin(0.0);
@@ -544,7 +546,8 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
     {
         var aMetalBurningConstant = solverParamsByUnits.AMetalBurningConstant;
 
-        return aMetalBurningConstant / burnRate;
+        return aMetalBurningConstant / Speed.FromMetersPerSecond(
+        Math.Pow(burnRate.MetersPerSecond, solverParamsByUnits.APowOrder));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
@@ -554,7 +557,10 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
     {
         var bMetalBurningConstant = solverParamsByUnits.BMetalBurningConstant;
 
-        return bMetalBurningConstant / burnRate / burnRate;
+        var poreDiameter = Length.FromMeters(bMetalBurningConstant.CubicMetersPerSquareSecond
+            / Math.Pow(burnRate.MetersPerSecond, solverParamsByUnits.BPowOrder));
+
+        return poreDiameter;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
@@ -818,12 +824,14 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
                                                        ref outSkeletonKineticFlameParams);
 
         contextBag.BurnRate = GetBurnRate(contextBag.DecomposeRate, context.PropellantParams);
-        contextBag.AverageMetalBurningTemperature =
-            GetAverageMetalBurningTemperature(surfaceTemperature, context.PocketMetalCombustionParams);
+        contextBag.AverageMetalBurningTemperature = Temperature.Zero.Kelvins;
+        //    GetAverageMetalBurningTemperature(surfaceTemperature, context.PocketMetalCombustionParams);
         contextBag.SkeletonLayerThickness = GetSkeletonLayerThickness(contextBag.BurnRate, solverParams);
         contextBag.PoreDiameter = GetPoreDiameter(contextBag.BurnRate, solverParams);
+        var averageRadiativeTemperatureDouble = solverParams.KCoefficientRadiationTemperature * surfaceTemperature +
+            (1.0 - solverParams.KCoefficientRadiationTemperature) * context.PocketSkeletonKineticFlameParams.FinalTemperature;
         contextBag.RadiativeThermalConductivity = GetRadiativeThermalConductivity(
-            contextBag.AverageMetalBurningTemperature,
+            averageRadiativeTemperatureDouble,
             contextBag.PoreDiameter,
             context.SkeletonLayerParams);
         var minConductiveThermalConductivity = 0.0;
@@ -894,7 +902,7 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
     {
         var aMetalBurningConstant = solverParamsByDoubles.AMetalBurningConstant;
 
-        return aMetalBurningConstant / burnRate;
+        return aMetalBurningConstant / Math.Pow(burnRate, solverParamsByDoubles.APowOrder);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
@@ -904,7 +912,7 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
     {
         var bMetalBurningConstant = solverParamsByDoubles.BMetalBurningConstant;
 
-        return bMetalBurningConstant / burnRate / burnRate;
+        return bMetalBurningConstant / Math.Pow(burnRate, solverParamsByDoubles.BPowOrder);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]

@@ -83,6 +83,12 @@ public readonly ref struct CombustionSolverParamsByDoubles
     /// </summary>
     public required double KDiffusionHeight { get; init; }
 
+    public required double APowOrder { get; init; }
+
+    public required double BPowOrder { get; init; }
+
+    public required double KCoefficientRadiationTemperature { get; init; }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static CombustionSolverParamsByDoubles FromVector(
         ReadOnlySpan<double> vector)
@@ -103,7 +109,10 @@ public readonly ref struct CombustionSolverParamsByDoubles
             AMetalBurningConstant = vector[11],
             BMetalBurningConstant = vector[12],
             DeltaH = vector[13],
-            KDiffusionHeight = vector[14]
+            KDiffusionHeight = vector[14],
+            APowOrder = vector[15],
+            BPowOrder = vector[16],
+            KCoefficientRadiationTemperature = vector[17]
         };
     }
 }
@@ -189,6 +198,12 @@ public readonly ref struct CombustionSolverParamsByUnits
     /// </summary>
     public required double KDiffusionHeight { get; init; }
 
+    public required double APowOrder { get; init; }
+
+    public required double BPowOrder { get; init; }
+
+    public required double KCoefficientRadiationTemperature { get; init; }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static CombustionSolverParamsByUnits FromVector(
         ReadOnlySpan<double> vector)
@@ -209,7 +224,10 @@ public readonly ref struct CombustionSolverParamsByUnits
             AMetalBurningConstant = AMetalBurningConstant.FromSquareMetersPerSecond(vector[11]),
             BMetalBurningConstant = BMetalBurningConstant.FromCubicMetersPerSquareSecond(vector[12]),
             DeltaH = SpecificEnergy.FromJoulesPerKilogram(vector[13]),
-            KDiffusionHeight = vector[14]
+            KDiffusionHeight = vector[14],
+            APowOrder = vector[15],
+            BPowOrder = vector[16],
+            KCoefficientRadiationTemperature = vector[17]
         };
     }
 }

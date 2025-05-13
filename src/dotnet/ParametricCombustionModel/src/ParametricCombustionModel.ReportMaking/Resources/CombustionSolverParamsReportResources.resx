@@ -70,4 +70,13 @@
     <data name="KDiffusionHeight" xml:space="preserve">
         <value>Постоянный коэффициент высоты диффузионного пламени {0:0.0000}</value>
     </data>
+    <data name="KCoefficientRadiationTemperature" xml:space="preserve">
+        <value>Постоянный коэффициент радиационной температуры (ср. темп. слоя) {0:0.0000}</value>
+    </data>
+    <data name="APowOrder" xml:space="preserve">
+        <value>Показатель степени скорости горения у константы A (толщина КС) {0:0.0000}</value>
+    </data>
+    <data name="BPowOrder" xml:space="preserve">
+        <value>Показатель степени скорости горения у константы B (диаметр пор) {0:0.0000}</value>
+    </data>
 </root>

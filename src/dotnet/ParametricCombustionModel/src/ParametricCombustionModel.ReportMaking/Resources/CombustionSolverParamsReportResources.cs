@@ -107,11 +107,29 @@ namespace ParametricCombustionModel.ReportMaking.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Показатель степени скорости горения у константы A (толщина КС) {0:0.0000}.
+        /// </summary>
+        internal static string APowOrder {
+            get {
+                return ResourceManager.GetString("APowOrder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Константа B в выражении для плотности теплового потока, обусловленного сгоранием металла в КС, {0}.
         /// </summary>
         internal static string BMetalBurningConstant {
             get {
                 return ResourceManager.GetString("BMetalBurningConstant", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Показатель степени скорости горения у константы B (диаметр пор) {0:0.0000}.
+        /// </summary>
+        internal static string BPowOrder {
+            get {
+                return ResourceManager.GetString("BPowOrder", resourceCulture);
             }
         }
         
@@ -166,6 +184,15 @@ namespace ParametricCombustionModel.ReportMaking.Resources {
         internal static string HeaderOfCombustionSolverParams {
             get {
                 return ResourceManager.GetString("HeaderOfCombustionSolverParams", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Постоянный коэффициент радиационной температуры (ср. темп. слоя) {0:0.0000}.
+        /// </summary>
+        internal static string KCoefficientRadiationTemperature {
+            get {
+                return ResourceManager.GetString("KCoefficientRadiationTemperature", resourceCulture);
             }
         }
         

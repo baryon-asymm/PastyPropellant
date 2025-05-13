@@ -95,6 +95,22 @@ public class CombustionSolverParamsReport : BaseReport, ITransformable<Queue<IPd
                                TextStyle.None));
         operations.Enqueue(new LineBreakOperation());
 
+        operations.Enqueue(new PrintTextOperation(
+                               string.Format(CombustionSolverParamsReportResources.KCoefficientRadiationTemperature,
+                                             solverParams.KCoefficientRadiationTemperature),
+                                TextStyle.None));
+        operations.Enqueue(new LineBreakOperation());
+        operations.Enqueue(new PrintTextOperation(
+                               string.Format(CombustionSolverParamsReportResources.APowOrder,
+                                             solverParams.APowOrder),
+                                TextStyle.None));
+        operations.Enqueue(new LineBreakOperation());
+        operations.Enqueue(new PrintTextOperation(
+                               string.Format(CombustionSolverParamsReportResources.BPowOrder,
+                                             solverParams.BPowOrder),
+                                TextStyle.None));
+        operations.Enqueue(new LineBreakOperation());
+
         return operations;
     }
 }

@@ -11,13 +11,18 @@ using UnitsNet;
 
 async Task RunDEScenarioAsync()
 {
-    double[] lowerBound = [1, 1, 1, 5e4, 1, 5e4, 1, 5e4, 1.0, 1.0, 1.0, 0, 0, -1e12, 1e-6];
-    double[] upperBound = [double.MaxValue, 1e9, 1e12, 2e5, 1e12, 2e5, 1e12, 2e5, 10.0, 10.0, 10.0, 1, 1, 1e12, 3];
+    double[] lowerBound = [1, 1, 1, 5e4, 1, 5e4, 1, 5e4, 1.0, 1.0, 1.0, 0, 0, -1e12, 1e-6, 0.0, 0.0, 0.0];
+    double[] upperBound = [double.MaxValue, 1e9, 1e12, 2e5, 1e12, 2e5, 1e12, 2e5, 10.0, 10.0, 10.0, 1, 1, 1e12, 10, 2.0, 2.0, 1.0];
 
+    // Skeleton checking
+    //lowerBound = [2.32e+08, 87508.8, 4.88e+09, 199999.99, 3.25e+06, 50000, 1, 1.0, 2.4321891826017246, 1.0, 1.0000000000263074, 9.27e-08, 4.55e-07, -348655.79, 1.4265, 0.0, 1.0, 2.0];
+    //upperBound = [2.32e+08, 87508.8, 4.88e+09, 199999.99, 3.25e+06, 50000, 1e12, 2e5, 2.4321891826017246, 10.0, 1.0000000000263074, 9.27e-08, 4.55e-07, -348655.79, 1.4265, 0.0, 1.0, 2.0];
+
+    /*var inputFileName = "propellants.prev.json"; // 1234
     var scenario = new DifferentialEvolutionRuntime(
         populationSize: lowerBound.Length * 8,
         maxStagnationStreak: 100_000,
-        "propellants.json",
+        inputFileName,
         lowerBound: lowerBound,
         upperBound: upperBound
     );
@@ -47,14 +52,111 @@ async Task RunDEScenarioAsync()
     }
 
     var propellantPlotsRenderingHelper = new PropellantPlotsRenderingHelper("../../../../../src/python/PropellantsPlotRendering/src/main.py");
-    var plotsResult = await propellantPlotsRenderingHelper.RenderPlotsAsync("propellants.json");
+    var plotsResult = await propellantPlotsRenderingHelper.RenderPlotsAsync(inputFileName);
 
-    var pdfGeneratorAdapter = new PdfSharpAdapter("report.pdf");
+    var pdfGeneratorAdapter = new PdfSharpAdapter($"{inputFileName}.report.pdf");
+    if (operationResult.Value is not null)
+    {
+        var pdfReportMaker = PdfReportMaker.FromOptimizationResult(operationResult.Value, pdfGeneratorAdapter);
+        pdfReportMaker.MakeReport();
+    }*/
+
+    // 234
+    var inputFileName = "propellants.234.json"; // 234
+    var scenario = new DifferentialEvolutionRuntime(
+        populationSize: lowerBound.Length * 8,
+        maxStagnationStreak: 100_000,
+        inputFileName, // 234
+        lowerBound: lowerBound,
+        upperBound: upperBound
+    );
+    var operationResult = await scenario.RunAsync();
+    if (operationResult.IsSuccess == false)
+    {
+        Console.WriteLine(operationResult.Exception);
+        return;
+    }
+
+    var settings = new PlotSettings
+    {
+        Title = "Burning Rates",
+        TitleFontSize = 22,
+        XAxisMinimum = 0.9,
+        XAxisMaximum = 6.6,
+        XAxisTitle = "Pressure, MPa",
+        YAxisTitle = "mm/s",
+        Width = 800,
+        Height = 800,
+        Dpi = 96
+    };
+    var plotRenderer = new BurningRatePlotRenderer();
+    if (operationResult.Value is not null)
+    {
+        plotRenderer.Render(operationResult.Value, settings);
+    }
+
+    var propellantPlotsRenderingHelper = new PropellantPlotsRenderingHelper("../../../../../src/python/PropellantsPlotRendering/src/main.py");
+    var plotsResult = await propellantPlotsRenderingHelper.RenderPlotsAsync(inputFileName);
+
+    var pdfGeneratorAdapter = new PdfSharpAdapter($"{inputFileName}.report.pdf");
     if (operationResult.Value is not null)
     {
         var pdfReportMaker = PdfReportMaker.FromOptimizationResult(operationResult.Value, pdfGeneratorAdapter);
         pdfReportMaker.MakeReport();
     }
+
+    // 1 from result for 234
+    /*var lastOptimizationResult = operationResult.Value!;
+    lowerBound = lastOptimizationResult.BestSolverParamsBySpan.ToArray();
+    lowerBound[6] = 1.0;
+    lowerBound[7] = 1.0;
+    lowerBound[9] = 1.0;
+    upperBound = lastOptimizationResult.BestSolverParamsBySpan.ToArray();
+    upperBound[6] = 1e12;
+    upperBound[7] = 2e5;
+    upperBound[9] = 10.0;
+    inputFileName = "propellants.json"; // 1
+    scenario = new DifferentialEvolutionRuntime(
+        populationSize: lowerBound.Length * 8,
+        maxStagnationStreak: 100_000,
+        inputFileName, // 1
+        lowerBound: lowerBound,
+        upperBound: upperBound
+    );
+    operationResult = await scenario.RunAsync();
+    if (operationResult.IsSuccess == false)
+    {
+        Console.WriteLine(operationResult.Exception);
+        return;
+    }
+
+    settings = new PlotSettings
+    {
+        Title = "Burning Rates",
+        TitleFontSize = 22,
+        XAxisMinimum = 0.9,
+        XAxisMaximum = 6.6,
+        XAxisTitle = "Pressure, MPa",
+        YAxisTitle = "mm/s",
+        Width = 800,
+        Height = 800,
+        Dpi = 96
+    };
+    plotRenderer = new BurningRatePlotRenderer();
+    if (operationResult.Value is not null)
+    {
+        plotRenderer.Render(operationResult.Value, settings);
+    }
+
+    propellantPlotsRenderingHelper = new PropellantPlotsRenderingHelper("../../../../../src/python/PropellantsPlotRendering/src/main.py");
+    plotsResult = await propellantPlotsRenderingHelper.RenderPlotsAsync(inputFileName);
+
+    pdfGeneratorAdapter = new PdfSharpAdapter($"{inputFileName}.report.pdf");
+    if (operationResult.Value is not null)
+    {
+        var pdfReportMaker = PdfReportMaker.FromOptimizationResult(operationResult.Value, pdfGeneratorAdapter);
+        pdfReportMaker.MakeReport();
+    }*/
 }
 
 async Task RunPreparingScenarioAsync()

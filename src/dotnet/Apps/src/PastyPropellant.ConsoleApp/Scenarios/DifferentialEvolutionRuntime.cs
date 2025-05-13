@@ -94,6 +94,8 @@ public class DifferentialEvolutionRuntime
         var maxSkeletonKineticFlameHeatFlux = HeatFlux.FromWattsPerSquareMeter(1e8);
         var maxOutSkeletonKineticFlameHeatFlux = HeatFlux.FromWattsPerSquareMeter(1e8);
 
+        var poreDiameterThreshold = 1e-1;
+
         var penaltyEvaluators = new List<IPenaltyEvaluator>
         {
             new PocketHeatFluxRatioCompetitionPenaltyEvaluator(penaltyRate, heatFluxRatioThreshold),
@@ -101,7 +103,9 @@ public class DifferentialEvolutionRuntime
             new KineticFlameHeatFluxPenaltyEvaluator(penaltyRate,
                                                      maxInterPocketKineticFlameHeatFlux,
                                                      maxSkeletonKineticFlameHeatFlux,
-                                                     maxOutSkeletonKineticFlameHeatFlux)
+                                                     maxOutSkeletonKineticFlameHeatFlux),
+            new PoreDiameterPenaltyEvaluator(penaltyRate, poreDiameterThreshold),
+            new RadiativeThermalConductivityPenaltyEvaluator(penaltyRate)
         };
 
         return penaltyEvaluators;
