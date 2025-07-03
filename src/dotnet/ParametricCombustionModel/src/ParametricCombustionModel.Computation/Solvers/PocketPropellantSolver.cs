@@ -647,11 +647,11 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
 
         var error = porosity * (
             (lambdaGas - conductiveThermalConductivity)
-            / (lambdaGas + 2 * lambdaCondensed)
+            / (lambdaGas + 2 * conductiveThermalConductivity)
             )
             + (fullRatio - porosity) * (
                 (lambdaCondensed - conductiveThermalConductivity)
-                / (lambdaCondensed + 2 * lambdaGas)
+                / (lambdaCondensed + 2 * conductiveThermalConductivity)
             );
         
         return error.DecimalFractions;
@@ -996,11 +996,11 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
 
         var error = porosity * (
             (lambdaGas - conductiveThermalConductivity)
-            / (lambdaGas + 2 * lambdaCondensed)
+            / (lambdaGas + 2 * conductiveThermalConductivity)
             )
             + (1.0 - porosity) * (
                 (lambdaCondensed - conductiveThermalConductivity)
-                / (lambdaCondensed + 2 * lambdaGas)
+                / (lambdaCondensed + 2 * conductiveThermalConductivity)
             );
         
         return error;

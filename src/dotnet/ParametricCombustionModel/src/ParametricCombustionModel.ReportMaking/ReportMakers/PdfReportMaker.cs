@@ -75,7 +75,10 @@ public class PdfReportMaker : IReportMaker, IPdfOperationVisitor
         _pdfGeneratorAdapter.AddFooterForLastPage(
             GetLastPageFooter());
 
-        _pdfGeneratorAdapter.Generate();
+        var generationResult = _pdfGeneratorAdapter.Generate();
+        Console.WriteLine(generationResult.IsSuccess);
+        if (generationResult.IsSuccess == false)
+            throw new InvalidOperationException("PDF generation failed: " + generationResult.Exception!.ToString());
 
         return string.Empty;
     }

@@ -11,8 +11,50 @@ using UnitsNet;
 
 async Task RunDEScenarioAsync()
 {
-    double[] lowerBound = [1, 1, 1, 5e4, 1, 5e4, 1, 5e4, 1.0, 1.0, 1.0, 0, 0, -1e12, 1e-6, 0.0, 0.0, 0.0];
-    double[] upperBound = [double.MaxValue, 1e9, 1e12, 2e5, 1e12, 2e5, 1e12, 2e5, 10.0, 10.0, 10.0, 1, 1, 1e12, 10, 2.0, 2.0, 1.0];
+    double[] lowerBound = [1, 1, 1, 5e4, 1, 5e4, 1, 5e4, 1.0, 1.0, 1.0, 0, 0, -1e12, 1e-6, 1.0, 2.0, 0.0];
+    double[] upperBound = [double.MaxValue, 1e9, 1e12, 2e5, 1e12, 2e5, 1e12, 2e5, 10.0, 10.0, 10.0, 1, 1, 1e12, 10, 1.0, 2.0, 1.0];
+
+    lowerBound = [
+        1,      // ADecompose (from calculation)
+        1,      // EDecompose (from calculation)
+        3.26e+09,      // AKineticFlameInterPocket (from calculation)
+        199999.99,     // EKineticFlameInterPocket (from calculation)
+        2.62e+06,      // AKineticFlamePocketOutSkeleton (from calculation)
+        50000,         // EKineticFlamePocketOutSkeleton (from calculation)
+        1,             // AKineticFlamePocketSkeleton (UNCHANGED skeleton param)
+        1.0,           // EKineticFlamePocketSkeleton (UNCHANGED skeleton param)
+        1.0,  // NuInterPocket (fixed from calculation)
+        1.0000000000060636,   // NuPocketOutSkeleton (fixed from calculation)
+        2.149641911533772,  // NuPocketSkeleton (RESTORED original value)
+        0.0,      // AMetalBurningConstant (from calculation)
+        0.0,      // BMetalBurningConstant (from calculation)
+        -360438.99,    // DeltaH (from calculation)
+        0.9961,        // KDiffusionHeight (from calculation)
+        1.0,           // APowOrder (from calculation)
+        2.0,           // BPowOrder (from calculation)
+        0.0            // KCoefficientRadiationTemperature (from calculation)
+        ];
+
+    upperBound = [
+        double.MaxValue,      // ADecompose (fixed from calculation)
+        1e9,      // EDecompose (fixed from calculation)
+        3.26e+09,      // AKineticFlameInterPocket (fixed from calculation)
+        199999.99,     // EKineticFlameInterPocket (fixed from calculation)
+        2.62e+06,      // AKineticFlamePocketOutSkeleton (fixed from calculation)
+        50000,         // EKineticFlamePocketOutSkeleton (fixed from calculation)
+        1e12,          // AKineticFlamePocketSkeleton (UNCHANGED skeleton param)
+        2e5,           // EKineticFlamePocketSkeleton (UNCHANGED skeleton param)
+        10.0,  // NuInterPocket (fixed from calculation)
+        1.0000000000060636,   // NuPocketOutSkeleton (fixed from calculation)
+        2.149641911533772,  // NuPocketSkeleton (RESTORED original value)
+        1.0,      // AMetalBurningConstant (fixed from calculation)
+        1.0,      // BMetalBurningConstant (fixed from calculation)
+        -360438.99,    // DeltaH (fixed from calculation)
+        0.9961,        // KDiffusionHeight (fixed from calculation)
+        1.0,           // APowOrder (fixed from calculation)
+        2.0,           // BPowOrder (fixed from calculation)
+        0.0            // KCoefficientRadiationTemperature (fixed from calculation)
+        ];
 
     // Skeleton checking
     //lowerBound = [2.32e+08, 87508.8, 4.88e+09, 199999.99, 3.25e+06, 50000, 1, 1.0, 2.4321891826017246, 1.0, 1.0000000000263074, 9.27e-08, 4.55e-07, -348655.79, 1.4265, 0.0, 1.0, 2.0];
@@ -62,7 +104,7 @@ async Task RunDEScenarioAsync()
     }*/
 
     // 234
-    var inputFileName = "propellants.234.json"; // 234
+    var inputFileName = "propellants.json"; // 234
     var scenario = new DifferentialEvolutionRuntime(
         populationSize: lowerBound.Length * 8,
         maxStagnationStreak: 100_000,
@@ -209,4 +251,11 @@ EventBus<InfoLogEvent>.Subscribe(logEvent => {
     Console.WriteLine($"[{DateTime.Now.ToLongTimeString()}] ({logEvent.Sender ?? "none"}) | {logEvent.Message}");
 });
 
-await RunDEScenarioAsync();
+try
+{
+    await RunDEScenarioAsync();
+}
+catch (Exception ex)
+{
+    Console.WriteLine(ex);
+}

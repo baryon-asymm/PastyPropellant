@@ -105,7 +105,7 @@ public class DifferentialEvolutionRuntime
                                                      maxSkeletonKineticFlameHeatFlux,
                                                      maxOutSkeletonKineticFlameHeatFlux),
             new PoreDiameterPenaltyEvaluator(penaltyRate, poreDiameterThreshold),
-            new RadiativeThermalConductivityPenaltyEvaluator(penaltyRate)
+            // new RadiativeThermalConductivityPenaltyEvaluator(penaltyRate)
         };
 
         return penaltyEvaluators;
