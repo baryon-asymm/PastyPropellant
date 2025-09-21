@@ -7,9 +7,9 @@ public interface IFitnessFunctionVisitor
 {
     public void Visit(
         in CombustionSolverParamsByUnits solverParamsByUnits,
-        OptimizationProblemContextByUnits context);
+        OptimizationProblemByUnits context);
 
     public void Visit(
         in CombustionSolverParamsByDoubles solverParams,
-        OptimizationProblemContextByDoubles context);
+        OptimizationProblemByDoubles context);
 }

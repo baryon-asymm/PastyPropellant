@@ -9,7 +9,7 @@ public class PenaltyFitnessFunctionEvaluator : FitnessFunctionEvaluator
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public override void Visit(
         in CombustionSolverParamsByUnits solverParamsByUnits,
-        OptimizationProblemContextByUnits context)
+        OptimizationProblemByUnits context)
     {
         FlushPenalties(context);
         base.Visit(in solverParamsByUnits, context);
@@ -39,7 +39,7 @@ public class PenaltyFitnessFunctionEvaluator : FitnessFunctionEvaluator
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static void FlushPenalties(
-        OptimizationProblemContextByUnits context)
+        OptimizationProblemByUnits context)
     {
         var penaltyEvaluators = context.PenaltyEvaluators.Span;
         var evaluatedPenalties = context.EvaluatedPenalties.Span;
@@ -52,7 +52,7 @@ public class PenaltyFitnessFunctionEvaluator : FitnessFunctionEvaluator
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public override void Visit(
         in CombustionSolverParamsByDoubles solverParams,
-        OptimizationProblemContextByDoubles context)
+        OptimizationProblemByDoubles context)
     {
         FlushPenalties(context);
         base.Visit(in solverParams, context);
@@ -82,7 +82,7 @@ public class PenaltyFitnessFunctionEvaluator : FitnessFunctionEvaluator
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static void FlushPenalties(
-        OptimizationProblemContextByDoubles context)
+        OptimizationProblemByDoubles context)
     {
         var penaltyEvaluators = context.PenaltyEvaluators.Span;
         var evaluatedPenalties = context.EvaluatedPenalties.Span;

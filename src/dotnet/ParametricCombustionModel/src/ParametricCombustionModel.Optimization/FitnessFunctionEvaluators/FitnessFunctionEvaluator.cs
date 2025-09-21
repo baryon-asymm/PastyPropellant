@@ -10,7 +10,7 @@ public class FitnessFunctionEvaluator : IFitnessFunctionVisitor
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public virtual void Visit(
         in CombustionSolverParamsByUnits solverParamsByUnits,
-        OptimizationProblemContextByUnits context)
+        OptimizationProblemByUnits context)
     {
         context.FitnessFunctionValue = EvaluateByUnits(solverParamsByUnits, context);
     }
@@ -18,7 +18,7 @@ public class FitnessFunctionEvaluator : IFitnessFunctionVisitor
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public virtual void Visit(
         in CombustionSolverParamsByDoubles solverParams,
-        OptimizationProblemContextByDoubles context)
+        OptimizationProblemByDoubles context)
     {
         context.FitnessFunctionValue = EvaluateByDoubles(solverParams, context);
     }
@@ -26,7 +26,7 @@ public class FitnessFunctionEvaluator : IFitnessFunctionVisitor
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static double EvaluateByDoubles(
         in CombustionSolverParamsByDoubles solverParams,
-        OptimizationProblemContextByDoubles context)
+        OptimizationProblemByDoubles context)
     {
         var fitnessFunctionValue = 0.0;
         var solver = context.Solver;
@@ -59,7 +59,7 @@ public class FitnessFunctionEvaluator : IFitnessFunctionVisitor
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static double EvaluateByUnits(
         in CombustionSolverParamsByUnits solverParamsByUnits,
-        OptimizationProblemContextByUnits context)
+        OptimizationProblemByUnits context)
     {
         var fitnessFunctionValue = 0.0;
         var solver = context.Solver;

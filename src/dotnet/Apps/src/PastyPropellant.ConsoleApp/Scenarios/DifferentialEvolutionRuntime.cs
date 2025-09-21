@@ -27,7 +27,8 @@ public class DifferentialEvolutionRuntime
         int maxStagnationStreak,
         string propellantsFilePath,
         IEnumerable<double> lowerBound,
-        IEnumerable<double> upperBound)
+        IEnumerable<double> upperBound,
+        double poreDiameterThreshold = 3.0)
     {
         _lowerBound = lowerBound.ToList().AsReadOnly();
         _upperBound = upperBound.ToList().AsReadOnly();
@@ -36,7 +37,7 @@ public class DifferentialEvolutionRuntime
             throw new ArgumentException("Lower and upper bounds must have the same length");
 
         var propellants = GetPropellants(propellantsFilePath);
-        var penaltyEvaluators = GetPenaltyEvaluators();
+        var penaltyEvaluators = GetPenaltyEvaluators(poreDiameterThreshold: poreDiameterThreshold);
         var optimizationProblemContext = GetOptimizationProblemContextByDoubles(
             propellants,
             penaltyEvaluators);
@@ -85,7 +86,7 @@ public class DifferentialEvolutionRuntime
         return contextMatrix;
     }
 
-    private IEnumerable<IPenaltyEvaluator> GetPenaltyEvaluators()
+    private IEnumerable<IPenaltyEvaluator> GetPenaltyEvaluators(double poreDiameterThreshold = 3.0)
     {
         var penaltyRate = 1.0;
         var heatFluxRatioThreshold = 100.0;
@@ -93,8 +94,6 @@ public class DifferentialEvolutionRuntime
         var maxInterPocketKineticFlameHeatFlux = HeatFlux.FromWattsPerSquareMeter(1e9);
         var maxSkeletonKineticFlameHeatFlux = HeatFlux.FromWattsPerSquareMeter(1e8);
         var maxOutSkeletonKineticFlameHeatFlux = HeatFlux.FromWattsPerSquareMeter(1e8);
-
-        var poreDiameterThreshold = 1e-1;
 
         var penaltyEvaluators = new List<IPenaltyEvaluator>
         {
@@ -111,27 +110,27 @@ public class DifferentialEvolutionRuntime
         return penaltyEvaluators;
     }
 
-    private OptimizationProblemContextByDoubles[] GetOptimizationProblemContextByDoubles(
+    private OptimizationProblemByDoubles[] GetOptimizationProblemContextByDoubles(
         IEnumerable<Propellant> propellants,
         IEnumerable<IPenaltyEvaluator> penaltyEvaluators)
     {
         var solver = new MixedPropellantSolver();
-        var contexts = new List<OptimizationProblemContextByDoubles>();
+        var contexts = new List<OptimizationProblemByDoubles>();
         for (var i = 0; i < Environment.ProcessorCount; i++)
         {
             var contextMatrix = GetProblemContextMatrixByDoubles(propellants);
-            contexts.Add(new OptimizationProblemContextByDoubles(contextMatrix, solver, penaltyEvaluators));
+            contexts.Add(new OptimizationProblemByDoubles(contextMatrix, solver, penaltyEvaluators));
         }
 
         return contexts.ToArray();
     }
 
-    private OptimizationProblemContextByUnits GetOptimizationProblemContextByUnits(
+    private OptimizationProblemByUnits GetOptimizationProblemContextByUnits(
         ProblemContextByUnits[,] contextMatrix,
         IEnumerable<IPenaltyEvaluator> penaltyEvaluators)
     {
         var solver = new MixedPropellantSolver();
-        var context = new OptimizationProblemContextByUnits(contextMatrix, solver, penaltyEvaluators);
+        var context = new OptimizationProblemByUnits(contextMatrix, solver, penaltyEvaluators);
         return context;
     }
 

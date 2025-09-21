@@ -231,5 +231,14 @@ namespace ParametricCombustionModel.ReportMaking.Resources {
                 return ResourceManager.GetString("NuPocketSkeleton", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Границы варьирования {0:0.0000}.
+        /// </summary>
+        internal static string ParameterBounds {
+            get {
+                return ResourceManager.GetString("ParameterBounds", resourceCulture);
+            }
+        }
     }
 }

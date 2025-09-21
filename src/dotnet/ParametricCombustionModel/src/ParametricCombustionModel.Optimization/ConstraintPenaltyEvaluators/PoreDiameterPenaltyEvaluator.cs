@@ -24,7 +24,8 @@ public sealed class PoreDiameterPenaltyEvaluator : BaseConstraintPenaltyEvaluato
     {
         var poreDiameter = updatedProblemContext.PocketCombustionParams.PoreDiameter.Millimeters;
         var skeletonLayerThickness = updatedProblemContext.PocketCombustionParams.SkeletonLayerThickness.Millimeters;
-        if (skeletonLayerThickness < poreDiameter * 3)
+        poreDiameter *= PoreDiameterThreshold;
+        if (skeletonLayerThickness < poreDiameter)
             return PenaltyRate * (poreDiameter / skeletonLayerThickness);
 
         return ZeroPenaltyValue;
@@ -36,7 +37,8 @@ public sealed class PoreDiameterPenaltyEvaluator : BaseConstraintPenaltyEvaluato
     {
         var poreDiameter = updatedProblemContext.PocketCombustionParams.PoreDiameter;
         var skeletonLayerThickness = updatedProblemContext.PocketCombustionParams.SkeletonLayerThickness;
-        if (skeletonLayerThickness < poreDiameter * 3)
+        poreDiameter *= PoreDiameterThreshold;
+        if (skeletonLayerThickness < poreDiameter)
             return PenaltyRate * (poreDiameter / skeletonLayerThickness);
 
         return ZeroPenaltyValue;

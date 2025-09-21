@@ -256,12 +256,6 @@ public class ProblemContextReport : BaseReport, ITransformable<Queue<IPdfOperati
         operations.Enqueue(new LineBreakOperation());
         AddTab(operations, 2);
         operations.Enqueue(new PrintTextOperation(
-                               string.Format(ProblemContextReportResources.AverageMetalBurningTemperature,
-                                             problemContext.PocketCombustionParams.AverageMetalBurningTemperature),
-                               TextStyle.None));
-        operations.Enqueue(new LineBreakOperation());
-        AddTab(operations, 2);
-        operations.Enqueue(new PrintTextOperation(
                                $"Effective thermal conductivity {problemContext.PocketCombustionParams.EffectiveThermalConductivity}",
                                TextStyle.None));
         operations.Enqueue(new LineBreakOperation());

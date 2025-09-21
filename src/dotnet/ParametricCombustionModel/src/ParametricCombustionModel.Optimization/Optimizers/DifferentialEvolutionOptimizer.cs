@@ -20,8 +20,8 @@ public class DifferentialEvolutionOptimizerBuilder
     private ReadOnlyCollection<double> _upperBound;
     private IEnumerable<Propellant> _propellants;
     private IFitnessFunctionVisitor? _fitnessFunctionEvaluator;
-    private OptimizationProblemContextByDoubles[] _contextByDoubles;
-    private OptimizationProblemContextByUnits? _contextByUnits;
+    private OptimizationProblemByDoubles[] _contextByDoubles;
+    private OptimizationProblemByUnits? _contextByUnits;
 
     public DifferentialEvolutionOptimizerBuilder(
         IEnumerable<Propellant> propellants)
@@ -69,8 +69,8 @@ public class DifferentialEvolutionOptimizerBuilder
     }
 
     public DifferentialEvolutionOptimizerBuilder WithOptimizationContexts(
-        OptimizationProblemContextByDoubles[] contextByDoubles,
-        OptimizationProblemContextByUnits contextByUnits)
+        OptimizationProblemByDoubles[] contextByDoubles,
+        OptimizationProblemByUnits contextByUnits)
     {
         _contextByDoubles = contextByDoubles;
         _contextByUnits = contextByUnits;
@@ -106,8 +106,8 @@ public class DifferentialEvolutionOptimizer : IParametricCombustionModelOptimize
 {
 #region Fields
 
-    private OptimizationProblemContextByDoubles[] _optimizationContexts;
-    private OptimizationProblemContextByUnits _optimizationContextByUnits;
+    private OptimizationProblemByDoubles[] _optimizationContexts;
+    private OptimizationProblemByUnits _optimizationContextByUnits;
 
 #endregion
 
@@ -126,8 +126,8 @@ public class DifferentialEvolutionOptimizer : IParametricCombustionModelOptimize
 #region Constructors
 
     public DifferentialEvolutionOptimizer(
-        OptimizationProblemContextByDoubles[] optimizationContexts,
-        OptimizationProblemContextByUnits optimizationContextByUnits,
+        OptimizationProblemByDoubles[] optimizationContexts,
+        OptimizationProblemByUnits optimizationContextByUnits,
         int maxStagnationStreak,
         int populationSize,
         ReadOnlyCollection<double> lowerBound,
@@ -187,7 +187,11 @@ public class DifferentialEvolutionOptimizer : IParametricCombustionModelOptimize
             CombustionSolverParamsByUnits.FromVector(population.IndividualCursor.Genes.ToArray()),
             FitnessFunctionSolver);
 
-        var result = new OptimizationResult(population.IndividualCursor.Genes.ToArray(), _optimizationContextByUnits);
+        var result = new OptimizationResult(
+            lowerBound: LowerBound.ToArray(),
+            upperBound: UpperBound.ToArray(),
+            bestParams: population.IndividualCursor.Genes.ToArray(),
+            _optimizationContextByUnits);
 
         return result;
     }

@@ -40,6 +40,10 @@ public class ConstraintPenaltyEvaluatorReport : BaseReport, ITransformable<Queue
                     AppendKineticFlameHeatFluxPenaltyEvaluator(operations,
                                                                evaluator);
                     break;
+                case PoreDiameterPenaltyEvaluator evaluator:
+                    AppendPoreDiameterPenaltyEvaluator(operations,
+                                                       evaluator);
+                    break;
             }
         }
 
@@ -122,6 +126,28 @@ public class ConstraintPenaltyEvaluatorReport : BaseReport, ITransformable<Queue
                                string.Format(
                                    ConstraintPenaltyEvaluatorReportResources.MaxOutSkeletonKineticFlameHeatFlux,
                                    penaltyEvaluator.MaxOutSkeletonKineticFlameHeatFlux),
+                               TextStyle.None));
+        operations.Enqueue(new LineBreakOperation());
+    }
+
+    private static void AppendPoreDiameterPenaltyEvaluator(
+        Queue<IPdfOperation> operations,
+        PoreDiameterPenaltyEvaluator penaltyEvaluator)
+    {
+        operations.Enqueue(new PrintTextOperation(
+                               ConstraintPenaltyEvaluatorReportResources.PoreDiameterPenaltyEvaluator,
+                               TextStyle.Italic));
+        operations.Enqueue(new LineBreakOperation());
+        operations.Enqueue(new AddTabOperation());
+        operations.Enqueue(new PrintTextOperation(
+                               string.Format(ConstraintPenaltyEvaluatorReportResources.PenaltyRate,
+                                             penaltyEvaluator.PenaltyRate),
+                               TextStyle.None));
+        operations.Enqueue(new LineBreakOperation());
+        operations.Enqueue(new AddTabOperation());
+        operations.Enqueue(new PrintTextOperation(
+                               string.Format(ConstraintPenaltyEvaluatorReportResources.PoreDiameterThreshold,
+                                             penaltyEvaluator.PoreDiameterThreshold),
                                TextStyle.None));
         operations.Enqueue(new LineBreakOperation());
     }

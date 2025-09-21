@@ -22,6 +22,7 @@ public class ConstructPropellantJsonHelper
         _originPropellantsFilePath = originPropellantsFilePath;
         _preparedPropellantData = preparedPropellantData.ToArray().AsReadOnly();
 
+        _lambdaValues.Add("Bas_0", [0.1, 0.1, 0.1, 0.1]);
         _lambdaValues.Add("Bas_1", [0.3571, 0.3791, 0.3555, 0.4656]);
         _lambdaValues.Add("Bas_2", [0.3419, 0.3791, 0.3555, 0.4656]);
         _lambdaValues.Add("Bas_3", [0.3583, 0.3791, 0.2775, 0.4670]);

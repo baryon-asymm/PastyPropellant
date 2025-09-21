@@ -5,16 +5,15 @@ using ParametricCombustionModel.Computation.Models.ProblemContexts;
 using ParametricCombustionModel.Optimization.ConstraintPenaltyEvaluators.Interfaces;
 using ParametricCombustionModel.Optimization.Extensions;
 using ParametricCombustionModel.Optimization.Interfaces;
-using UnitsNet;
 
 namespace ParametricCombustionModel.Optimization.Models;
 
-public class OptimizationProblemContextByUnits : IOptimizationVisitable
+public class OptimizationProblemByDoubles : IOptimizationVisitable
 {
 #region Fields
 
-    public ProblemContextByUnits[,] ProblemContextMatrix;
-    public Speed[,] ExperimentalBurnRates;
+    public ProblemContextByDoubles[,] ProblemContextMatrix;
+    public double[,] ExperimentalBurnRates;
 
     public double FitnessFunctionValue;
     public double TotalEvaluatedPenalty;
@@ -29,8 +28,8 @@ public class OptimizationProblemContextByUnits : IOptimizationVisitable
     public int PropellantCount { get; init; }
     public int PressureCount { get; init; }
 
-    public OptimizationProblemContextByUnits(
-        ProblemContextByUnits[,] problemContextMatrix,
+    public OptimizationProblemByDoubles(
+        ProblemContextByDoubles[,] problemContextMatrix,
         ISolverVisitor solver,
         IEnumerable<IPenaltyEvaluator> penaltyEvaluators)
     {
@@ -43,7 +42,7 @@ public class OptimizationProblemContextByUnits : IOptimizationVisitable
         PenaltyEvaluators = penaltyEvaluators.ToArray();
         EvaluatedPenalties = new double[PenaltyEvaluators.Length];
 
-        ExperimentalBurnRates = new Speed[PropellantCount, PressureCount];
+        ExperimentalBurnRates = new double[PropellantCount, PressureCount];
         for (var i = 0; i < PropellantCount; i++)
         {
             for (var j = 0; j < PressureCount; j++)
@@ -59,11 +58,11 @@ public class OptimizationProblemContextByUnits : IOptimizationVisitable
     public void Accept(
         in CombustionSolverParamsByUnits solverParamsByUnits,
         IFitnessFunctionVisitor fitnessFunction) =>
-        fitnessFunction.Visit(solverParamsByUnits, this);
+        throw new NotSupportedException("This method is not supported.");
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public void Accept(
         in CombustionSolverParamsByDoubles solverParams,
         IFitnessFunctionVisitor fitnessFunction) =>
-        throw new NotSupportedException("This method is not supported.");
+        fitnessFunction.Visit(solverParams, this);
 }

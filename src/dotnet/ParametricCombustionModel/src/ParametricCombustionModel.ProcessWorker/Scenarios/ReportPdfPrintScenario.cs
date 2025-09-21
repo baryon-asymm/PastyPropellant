@@ -19,11 +19,15 @@ public class ReportPdfPrintScenario
 {
     public IFitnessFunctionVisitor FitnessFunctionEvaluator { get; init; }
 
-    public OptimizationProblemContextByUnits OptimizationProblemContext { get; init; }
+    public OptimizationProblemByUnits OptimizationProblemContext { get; init; }
+
+    private readonly ReadOnlyMemory<double> _lowerBound;
+    private readonly ReadOnlyMemory<double> _upperBound;
 
     public ReportPdfPrintScenario(
         string propellantsFilePath,
-        IEnumerable<Pressure> pressures)
+        ReadOnlyMemory<double> lowerBound,
+        ReadOnlyMemory<double> upperBound)
     {
         var propellants = GetPropellants(propellantsFilePath);
         var penaltyEvaluators = GetPenaltyEvaluators();
@@ -33,6 +37,9 @@ public class ReportPdfPrintScenario
             contextMatrixByUnits,
             penaltyEvaluators);
         FitnessFunctionEvaluator = GetTargetFunctionSolver();
+
+        _lowerBound = lowerBound;
+        _upperBound = upperBound;
     }
 
     private ReadOnlyCollection<Propellant> GetPropellants(
@@ -75,12 +82,12 @@ public class ReportPdfPrintScenario
         return contextMatrix;
     }
 
-    private OptimizationProblemContextByUnits GetOptimizationProblemContextByUnits(
+    private OptimizationProblemByUnits GetOptimizationProblemContextByUnits(
         ProblemContextByUnits[,] contextMatrix,
         IEnumerable<IPenaltyEvaluator> penaltyEvaluators)
     {
         var solver = new MixedPropellantSolver();
-        var context = new OptimizationProblemContextByUnits(contextMatrix, solver, penaltyEvaluators);
+        var context = new OptimizationProblemByUnits(contextMatrix, solver, penaltyEvaluators);
         return context;
     }
 
@@ -98,6 +105,9 @@ public class ReportPdfPrintScenario
         OptimizationProblemContext.Accept(solverParams, FitnessFunctionEvaluator);
 
         return Task.FromResult(new OperationResult<OptimizationResult>(
-                                   new OptimizationResult(point.ToArray(), OptimizationProblemContext)));
+                                   new OptimizationResult(
+                                    lowerBound: _lowerBound.ToArray(),
+                                    upperBound: _upperBound.ToArray(),
+                                    bestParams: point.ToArray(), OptimizationProblemContext)));
     }
 }

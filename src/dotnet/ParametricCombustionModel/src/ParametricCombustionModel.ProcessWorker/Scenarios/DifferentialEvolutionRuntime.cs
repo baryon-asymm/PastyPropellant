@@ -107,27 +107,27 @@ public class DifferentialEvolutionRuntime
         return penaltyEvaluators;
     }
 
-    private OptimizationProblemContextByDoubles[] GetOptimizationProblemContextByDoubles(
+    private OptimizationProblemByDoubles[] GetOptimizationProblemContextByDoubles(
         IEnumerable<Propellant> propellants,
         IEnumerable<IPenaltyEvaluator> penaltyEvaluators)
     {
         var solver = new MixedPropellantSolver();
-        var contexts = new List<OptimizationProblemContextByDoubles>();
+        var contexts = new List<OptimizationProblemByDoubles>();
         for (var i = 0; i < Environment.ProcessorCount; i++)
         {
             var contextMatrix = GetProblemContextMatrixByDoubles(propellants);
-            contexts.Add(new OptimizationProblemContextByDoubles(contextMatrix, solver, penaltyEvaluators));
+            contexts.Add(new OptimizationProblemByDoubles(contextMatrix, solver, penaltyEvaluators));
         }
 
         return contexts.ToArray();
     }
 
-    private OptimizationProblemContextByUnits GetOptimizationProblemContextByUnits(
+    private OptimizationProblemByUnits GetOptimizationProblemContextByUnits(
         ProblemContextByUnits[,] contextMatrix,
         IEnumerable<IPenaltyEvaluator> penaltyEvaluators)
     {
         var solver = new MixedPropellantSolver();
-        var context = new OptimizationProblemContextByUnits(contextMatrix, solver, penaltyEvaluators);
+        var context = new OptimizationProblemByUnits(contextMatrix, solver, penaltyEvaluators);
         return context;
     }
 

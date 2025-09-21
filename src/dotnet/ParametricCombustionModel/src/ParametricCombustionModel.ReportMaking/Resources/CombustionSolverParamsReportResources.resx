@@ -79,4 +79,7 @@
     <data name="BPowOrder" xml:space="preserve">
         <value>Показатель степени скорости горения у константы B (диаметр пор) {0:0.0000}</value>
     </data>
+    <data name="ParameterBounds" xml:space="preserve">
+        <value>Границы варьирования {0:0.0000}</value>
+    </data>
 </root>

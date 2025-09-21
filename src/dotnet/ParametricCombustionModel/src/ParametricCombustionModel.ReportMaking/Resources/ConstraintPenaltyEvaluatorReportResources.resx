@@ -53,4 +53,11 @@
     <data name="PenaltyRate" xml:space="preserve">
         <value>Постоянный коэффициент «штрафа» {0:0.0000}</value>
     </data>
+
+    <data name="PoreDiameterPenaltyEvaluator" xml:space="preserve">
+        <value>Ограничение на толщину КС относительно диаметра пор.</value>
+    </data>
+    <data name="PoreDiameterThreshold" xml:space="preserve">
+        <value>Пороговое значение толщины КС относительно диаметра пор {0:0.00}</value>
+    </data>
 </root>
