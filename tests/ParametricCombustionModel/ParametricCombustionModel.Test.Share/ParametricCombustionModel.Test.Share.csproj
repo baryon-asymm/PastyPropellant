@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\src\ParametricCombustionModel\ParametricCombustionModel.Computation\ParametricCombustionModel.Computation.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Resources\propellants.json" />
+      <Content Include="Resources\propellants.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
+</Project>

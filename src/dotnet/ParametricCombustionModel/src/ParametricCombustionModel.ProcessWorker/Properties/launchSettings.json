@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ParametricCombustionModel.ProcessWorker": {
+      "commandName": "Project",
+      "commandLineArgs": "2000 100 ../data/propellant_bas_1234.json"
+    }
+  }
+}

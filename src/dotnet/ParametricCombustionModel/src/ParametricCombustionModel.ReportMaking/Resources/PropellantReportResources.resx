@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral,
+            PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral,
+            PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <data name="HeaderOfPropellants" xml:space="preserve">
+        <value>Параметры топливных составов</value>
+    </data>
+    <data name="NameOfPropellant" xml:space="preserve">
+        <value>Состав «{0}»</value>
+    </data>
+    <data name="PropellantShortInfoPlaceholder" xml:space="preserve">
+        <value>Плотность {0}, удельная теплоемкость {1}, начальная температура {2}, массовая доля «карманов» в композиции «связующее-металл» {3}.</value>
+    </data>
+    <data name="VieillesLaw" xml:space="preserve">
+        <value>Степенной закон Вьеля: U = A · p^v, A = {0}; v = {1}.</value>
+    </data>
+
+    <data name="HeaderOfInterPocketGasPhase" xml:space="preserve">
+        <value>Параметры газовой фазы в МКМ</value>
+    </data>
+    <data name="HeaderOfPocketGasPhase" xml:space="preserve">
+        <value>Параметры газовой фазы в «кармане»</value>
+    </data>
+    <data name="HeaderOfSkeletonGasPhase" xml:space="preserve">
+        <value>Параметры газовой фазы в КС</value>
+    </data>
+    <data name="HeaderOfOutSkeletonGasPhase" xml:space="preserve">
+        <value>Параметры газовой фазы вне КС</value>
+    </data>
+
+    <data name="LamdaGas" xml:space="preserve">
+        <value>Коэффициент теплопроводности {0}</value>
+    </data>
+    <data name="AverageMolarMass" xml:space="preserve">
+        <value>Средняя молярная масса {0}</value>
+    </data>
+    <data name="SpecificHeatCapacity_Volume" xml:space="preserve">
+        <value>Удельная теплоемкость при постоянном объеме {0}</value>
+    </data>
+    <data name="KineticFlameTemperature" xml:space="preserve">
+        <value>Температура кинетического пламени {0}</value>
+    </data>
+
+    <data name="DiffusionFlameTemperature" xml:space="preserve">
+        <value>Температура диффузионного пламени {0}</value>
+    </data>
+</root>

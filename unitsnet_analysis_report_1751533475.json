@@ -1,0 +1,654 @@
+{
+  "timestamp": "2025-07-03 12:04:35",
+  "model_used": "gemma3:12b",
+  "files_analyzed": 23,
+  "files_with_problems": 16,
+  "results": [
+    {
+      "file": ".\\src\\dotnet\\ParametricCombustionModel\\src\\ParametricCombustionModel.Computation\\Builders\\ProblemContextByDoublesMatrixBuilder.cs",
+      "problems": [
+        {
+          "method": "ProblemContextByDoublesMatrixBuilder",
+          "issue": "Constructor takes IEnumerable<Propellant> and initializes Propellants and Pressures. Pressures are derived from Propellants. No equivalent double version exists.",
+          "unitsnet_version": "ProblemContextByDoublesMatrixBuilder(IEnumerable<Propellant> propellants)",
+          "double_version": null
+        },
+        {
+          "method": "BuildMatrix",
+          "issue": "The method constructs a 2D array of ProblemContextByDoubles. No equivalent double version exists.",
+          "unitsnet_version": "ProblemContextByDoubles[,] BuildMatrix()",
+          "double_version": null
+        },
+        {
+          "method": "GetPropellantParams",
+          "issue": "Creates a PropellantParamsByDoubles object. No equivalent double version exists.",
+          "unitsnet_version": "private PropellantParamsByDoubles GetPropellantParams(Pressure pressure, Propellant propellant)",
+          "double_version": null
+        },
+        {
+          "method": "GetInterPocketKineticFlameParams",
+          "issue": "Creates a KineticFlameParamsByDoubles object. No equivalent double version exists.",
+          "unitsnet_version": "private KineticFlameParamsByDoubles GetInterPocketKineticFlameParams(Pressure pressure, Propellant propellant)",
+          "double_version": null
+        },
+        {
+          "method": "GetPocketSkeletonKineticFlameParams",
+          "issue": "Creates a KineticFlameParamsByDoubles object. No equivalent double version exists.",
+          "unitsnet_version": "private KineticFlameParamsByDoubles GetPocketSkeletonKineticFlameParams(Pressure pressure, Propellant propellant)",
+          "double_version": null
+        },
+        {
+          "method": "GetPocketOutSkeletonKineticFlameParams",
+          "issue": "Creates a KineticFlameParamsByDoubles object. No equivalent double version exists.",
+          "unitsnet_version": "private KineticFlameParamsByDoubles GetPocketOutSkeletonKineticFlameParams(Pressure pressure, Propellant propellant)",
+          "double_version": null
+        },
+        {
+          "method": "GetPocketDiffusionFlameParams",
+          "issue": "Creates a DiffusionFlameParamsByDoubles object. No equivalent double version exists.",
+          "unitsnet_version": "private DiffusionFlameParamsByDoubles GetPocketDiffusionFlameParams(Pressure pressure, Propellant propellant)",
+          "double_version": null
+        },
+        {
+          "method": "GetPocketMetalCombustionParams",
+          "issue": "Creates a MetalCombustionParamsByDoubles object. No equivalent double version exists.",
+          "unitsnet_version": "private MetalCombustionParamsByDoubles GetPocketMetalCombustionParams(Pressure pressure, Propellant propellant)",
+          "double_version": null
+        },
+        {
+          "method": "GetSkeletonLayerParams",
+          "issue": "Creates a SkeletonLayerParamsByDoubles object. No equivalent double version exists.",
+          "unitsnet_version": "private SkeletonLayerParamsByDoubles GetSkeletonLayerParams(Pressure pressure, Propellant propellant)",
+          "double_version": null
+        },
+        {
+          "method": "FromPropellants",
+          "issue": "Static constructor that takes IEnumerable<Propellant>. No equivalent double version exists.",
+          "unitsnet_version": "public static ProblemContextByDoublesMatrixBuilder FromPropellants(IEnumerable<Propellant> propellants)",
+          "double_version": null
+        }
+      ],
+      "status": "ok",
+      "analysis_time": 33.02
+    },
+    {
+      "file": ".\\src\\dotnet\\ParametricCombustionModel\\src\\ParametricCombustionModel.Computation\\Builders\\ProblemContextByUnitsMatrixBuilder.cs",
+      "problems": [
+        {
+          "method": "GetPropellantParams",
+          "issue": "UnitsNet Length.FromMeters(propellant.GetAverageParticlesDiameter()) is used.  No equivalent double version exists.",
+          "unitsnet_version": "private PropellantParamsByUnits GetPropellantParams(Pressure pressure, Propellant propellant)",
+          "double_version": "N/A"
+        },
+        {
+          "method": "GetPropellantParams",
+          "issue": "UnitsNet Density.FromKilogramsPerCubicMeter(propellant.Density) is used. No equivalent double version exists.",
+          "unitsnet_version": "private PropellantParamsByUnits GetPropellantParams(Pressure pressure, Propellant propellant)",
+          "double_version": "N/A"
+        },
+        {
+          "method": "GetPropellantParams",
+          "issue": "UnitsNet Temperature.FromKelvins(propellant.InitialTemperature) is used. No equivalent double version exists.",
+          "unitsnet_version": "private PropellantParamsByUnits GetPropellantParams(Pressure pressure, Propellant propellant)",
+          "double_version": "N/A"
+        },
+        {
+          "method": "GetPropellantParams",
+          "issue": "UnitsNet Ratio.FromDecimalFractions(propellant.GetPocketSurfaceFraction(pressure.Pascals)) is used. No equivalent double version exists.",
+          "unitsnet_version": "private PropellantParamsByUnits GetPropellantParams(Pressure pressure, Propellant propellant)",
+          "double_version": "N/A"
+        },
+        {
+          "method": "GetPropellantParams",
+          "issue": "UnitsNet SpecificEntropy.FromJoulesPerKilogramKelvin(propellant.SpecificHeatCapacity) is used. No equivalent double version exists.",
+          "unitsnet_version": "private PropellantParamsByUnits GetPropellantParams(Pressure pressure, Propellant propellant)",
+          "double_version": "N/A"
+        },
+        {
+          "method": "GetInterPocketKineticFlameParams",
+          "issue": "UnitsNet MolarMass.FromKilogramsPerMole(interPocketGasPhase.AverageMolarMass) is used. No equivalent double version exists.",
+          "unitsnet_version": "private KineticFlameParamsByUnits GetInterPocketKineticFlameParams(Pressure pressure, Propellant propellant)",
+          "double_version": "N/A"
+        },
+        {
+          "method": "GetInterPocketKineticFlameParams",
+          "issue": "UnitsNet ThermalConductivity.FromWattsPerMeterKelvin(interPocketGasPhase.Lambda_Gas) is used. No equivalent double version exists.",
+          "unitsnet_version": "private KineticFlameParamsByUnits GetInterPocketKineticFlameParams(Pressure pressure, Propellant propellant)",
+          "double_version": "N/A"
+        },
+        {
+          "method": "GetInterPocketKineticFlameParams",
+          "issue": "UnitsNet SpecificEntropy.FromJoulesPerKilogramKelvin(interPocketGasPhase.SpecificHeatCapacity_Volume) is used. No equivalent double version exists.",
+          "unitsnet_version": "private KineticFlameParamsByUnits GetInterPocketKineticFlameParams(Pressure pressure, Propellant propellant)",
+          "double_version": "N/A"
+        },
+        {
+          "method": "GetPocketSkeletonKineticFlameParams",
+          "issue": "UnitsNet MolarMass.FromKilogramsPerMole(pocketSkeletonGasPhase.AverageMolarMass) is used. No equivalent double version exists.",
+          "unitsnet_version": "private KineticFlameParamsByUnits GetPocketOutSkeletonKineticFlameParams(Pressure pressure, Propellant propellant)",
+          "double_version": "N/A"
+        },
+        {
+          "method": "GetPocketSkeletonKineticFlameParams",
+          "issue": "UnitsNet ThermalConductivity.FromWattsPerMeterKelvin(pocketSkeletonGasPhase.Lambda_Gas) is used. No equivalent double version exists.",
+          "unitsnet_version": "private KineticFlameParamsByUnits GetPocketOutSkeletonKineticFlameParams(Pressure pressure, Propellant propellant)",
+          "double_version": "N/A"
+        },
+        {
+          "method": "GetPocketSkeletonKineticFlameParams",
+          "issue": "UnitsNet SpecificEntropy.FromJoulesPerKilogramKelvin(pocketSkeletonGasPhase.SpecificHeatCapacity_Volume) is used. No equivalent double version exists.",
+          "unitsnet_version": "private KineticFlameParamsByUnits GetPocketOutSkeletonKineticFlameParams(Pressure pressure, Propellant propellant)",
+          "double_version": "N/A"
+        },
+        {
+          "method": "GetPocketDiffusionFlameParams",
+          "issue": "UnitsNet MolarMass.FromKilogramsPerMole(pocketGasPhase.AverageMolarMass) is used. No equivalent double version exists.",
+          "unitsnet_version": "private DiffusionFlameParamsByUnits GetPocketDiffusionFlameParams(Pressure pressure, Propellant propellant)",
+          "double_version": "N/A"
+        },
+        {
+          "method": "GetPocketDiffusionFlameParams",
+          "issue": "UnitsNet ThermalConductivity.FromWattsPerMeterKelvin(pocketGasPhase.Lambda_Gas) is used. No equivalent double version exists.",
+          "unitsnet_version": "private DiffusionFlameParamsByUnits GetPocketDiffusionFlameParams(Pressure pressure, Propellant propellant)",
+          "double_version": "N/A"
+        },
+        {
+          "method": "GetPocketDiffusionFlameParams",
+          "issue": "UnitsNet SpecificEntropy.FromJoulesPerKilogramKelvin(pocketGasPhase.SpecificHeatCapacity_Volume) is used. No equivalent double version exists.",
+          "unitsnet_version": "private DiffusionFlameParamsByUnits GetPocketDiffusionFlameParams(Pressure pressure, Propellant propellant)",
+          "double_version": "N/A"
+        },
+        {
+          "method": "GetPocketMetalCombustionParams",
+          "issue": "UnitsNet Temperature.FromKelvins(propellant.GetMetalBoilingTemperature(pressure.Pascals)) is used. No equivalent double version exists.",
+          "unitsnet_version": "private MetalCombustionParamsByUnits GetPocketMetalCombustionParams(Pressure pressure, Propellant propellant)",
+          "double_version": "N/A"
+        },
+        {
+          "method": "GetPocketMetalCombustionParams",
+          "issue": "UnitsNet Temperature.FromKelvins(propellant.GetMetalMeltingTemperature()) is used. No equivalent double version exists.",
+          "unitsnet_version": "private MetalCombustionParamsByUnits GetPocketMetalCombustionParams(Pressure pressure, Propellant propellant)",
+          "double_version": "N/A"
+        },
+        {
+          "method": "GetSkeletonLayerParams",
+          "issue": "UnitsNet Ratio.FromDecimalFractions(pressureFrame.Porosity) is used. No equivalent double version exists.",
+          "unitsnet_version": "private SkeletonLayerParamsByUnits GetSkeletonLayerParams(Pressure pressure, Propellant propellant)",
+          "double_version": "N/A"
+        },
+        {
+          "method": "GetSkeletonLayerParams",
+          "issue": "UnitsNet ThermalConductivity.FromWattsPerMeterKelvin(150.0) is used. No equivalent double version exists.",
+          "unitsnet_version": "private SkeletonLayerParamsByUnits GetSkeletonLayerParams(Pressure pressure, Propellant propellant)",
+          "double_version": "N/A"
+        }
+      ],
+      "status": "Incomplete - Requires double equivalents for UnitsNet methods.",
+      "analysis_time": 60.96
+    },
+    {
+      "file": ".\\src\\dotnet\\ParametricCombustionModel\\src\\ParametricCombustionModel.Computation\\Common\\PhysicalConstants.cs",
+      "problems": [],
+      "status": "ok",
+      "analysis_time": 3.78
+    },
+    {
+      "file": ".\\src\\dotnet\\ParametricCombustionModel\\src\\ParametricCombustionModel.Computation\\Extensions\\PropellantExtensions.cs",
+      "problems": [
+        {
+          "method": "GetInterPocketAreaVolumeFraction",
+          "issue": "No equivalent double version found.  The method uses UnitsNet types implicitly through component properties (e.g., Aluminum.Density).  A direct double equivalent would require explicit conversion to double and potentially loss of precision or information.",
+          "unitsnet_version": "public static double GetInterPocketAreaVolumeFraction(this Propellant propellant)",
+          "double_version": null
+        },
+        {
+          "method": "GetPocketAreaVolumeFraction",
+          "issue": "No equivalent double version found.  The method uses UnitsNet types implicitly through component properties (e.g., Aluminum.Density).  A direct double equivalent would require explicit conversion to double and potentially loss of precision or information.",
+          "unitsnet_version": "public static double GetPocketAreaVolumeFraction(this Propellant propellant)",
+          "double_version": null
+        },
+        {
+          "method": "GetAverageParticlesDiameter",
+          "issue": "No equivalent double version found. The method uses UnitsNet types implicitly through component properties (e.g., AmmoniumPerchlorate.AverageParticlesDiameter). A direct double equivalent would require explicit conversion to double and potentially loss of precision or information.",
+          "unitsnet_version": "public static double GetAverageParticlesDiameter(this Propellant propellant)",
+          "double_version": null
+        },
+        {
+          "method": "GetPocketSurfaceFraction",
+          "issue": "No equivalent double version found. The method uses UnitsNet types implicitly through propellant properties (e.g., Propellant.PocketMassFraction). A direct double equivalent would require explicit conversion to double and potentially loss of precision or information.",
+          "unitsnet_version": "public static double GetPocketSurfaceFraction(this Propellant propellant, double pressure)",
+          "double_version": null
+        },
+        {
+          "method": "GetMetalMeltingTemperature",
+          "issue": "No equivalent double version found.  The method returns a constant value.  While technically a double could be used, the original code likely uses a UnitsNet type for consistency with other calculations.",
+          "unitsnet_version": "public static double GetMetalMeltingTemperature(this Propellant propellant)",
+          "double_version": null
+        },
+        {
+          "method": "GetMetalBoilingTemperature",
+          "issue": "No equivalent double version found. The method uses UnitsNet types implicitly through propellant properties (e.g., Propellant.Density). A direct double equivalent would require explicit conversion to double and potentially loss of precision or information.",
+          "unitsnet_version": "public static double GetMetalBoilingTemperature(this Propellant propellant, double pressure)",
+          "double_version": null
+        },
+        {
+          "method": "GetComponentVolumeFraction",
+          "issue": "No equivalent double version found. The method uses UnitsNet types implicitly through propellant properties (e.g., Propellant.Density). A direct double equivalent would require explicit conversion to double and potentially loss of precision or information.",
+          "unitsnet_version": "private static double GetComponentVolumeFraction(Propellant propellant, double componentMassFraction, double componentDensity)",
+          "double_version": null
+        },
+        {
+          "method": "GetCompoundMassFraction",
+          "issue": "No equivalent double version found. The method uses UnitsNet types implicitly through component properties (e.g., Aluminum.MassFraction). A direct double equivalent would require explicit conversion to double and potentially loss of precision or information.",
+          "unitsnet_version": "private static double GetCompoundMassFraction(Propellant propellant)",
+          "double_version": null
+        }
+      ],
+      "status": "error",
+      "analysis_time": 30.55
+    },
+    {
+      "file": ".\\src\\dotnet\\ParametricCombustionModel\\src\\ParametricCombustionModel.Computation\\Interfaces\\IComputationVisitable.cs",
+      "problems": [],
+      "status": "ok",
+      "analysis_time": 6.6
+    },
+    {
+      "file": ".\\src\\dotnet\\ParametricCombustionModel\\src\\ParametricCombustionModel.Computation\\Interfaces\\ISolverVisitor.cs",
+      "problems": [],
+      "status": "ok",
+      "analysis_time": 4.21
+    },
+    {
+      "file": ".\\src\\dotnet\\ParametricCombustionModel\\src\\ParametricCombustionModel.Computation\\Models\\ComputedParams\\InterPocketCombustionParams.cs",
+      "problems": [],
+      "status": "ok",
+      "analysis_time": 3.73
+    },
+    {
+      "file": ".\\src\\dotnet\\ParametricCombustionModel\\src\\ParametricCombustionModel.Computation\\Models\\ComputedParams\\KineticFlameCombustionParams.cs",
+      "problems": [],
+      "status": "ok",
+      "analysis_time": 3.7
+    },
+    {
+      "file": ".\\src\\dotnet\\ParametricCombustionModel\\src\\ParametricCombustionModel.Computation\\Models\\ComputedParams\\MixedCombustionParams.cs",
+      "problems": [
+        {
+          "method": "MixedCombustionParams.BurnRate",
+          "issue": "The UnitsNet version uses `Speed`, which is a unit-aware type. The double version uses `double`, which is a raw number. While the double version represents the magnitude, it lacks the unit information.  This means calculations involving `BurnRate` in the `MixedCombustionParams` struct will not automatically account for units, potentially leading to incorrect results if unit conversions are not explicitly handled.",
+          "unitsnet_version": "public Speed BurnRate;",
+          "double_version": "public double BurnRate;"
+        }
+      ],
+      "status": "ok",
+      "analysis_time": 8.4
+    },
+    {
+      "file": ".\\src\\dotnet\\ParametricCombustionModel\\src\\ParametricCombustionModel.Computation\\Models\\ComputedParams\\PocketCombustionParams.cs",
+      "problems": [
+        {
+          "method": "AverageMetalBurningTemperature",
+          "issue": "Property of type Temperature is used, but there is no equivalent double version.  This requires explicit conversion.",
+          "unitsnet_version": "public Temperature AverageMetalBurningTemperature;",
+          "double_version": "N/A"
+        },
+        {
+          "method": "EffectiveThermalConductivity",
+          "issue": "Property of type ThermalConductivity is used, but there is no equivalent double version.  This requires explicit conversion.",
+          "unitsnet_version": "public ThermalConductivity EffectiveThermalConductivity;",
+          "double_version": "N/A"
+        },
+        {
+          "method": "ConductiveThermalConductivity",
+          "issue": "Property of type ThermalConductivity is used, but there is no equivalent double version.  This requires explicit conversion.",
+          "unitsnet_version": "public ThermalConductivity ConductiveThermalConductivity;",
+          "double_version": "N/A"
+        },
+        {
+          "method": "RadiativeThermalConductivity",
+          "issue": "Property of type ThermalConductivity is used, but there is no equivalent double version.  This requires explicit conversion.",
+          "unitsnet_version": "public ThermalConductivity RadiativeThermalConductivity;",
+          "double_version": "N/A"
+        },
+        {
+          "method": "SkeletonLayerThickness",
+          "issue": "Property of type Length is used, but there is no equivalent double version.  This requires explicit conversion.",
+          "unitsnet_version": "public Length SkeletonLayerThickness;",
+          "double_version": "N/A"
+        },
+        {
+          "method": "PoreDiameter",
+          "issue": "Property of type Length is used, but there is no equivalent double version.  This requires explicit conversion.",
+          "unitsnet_version": "public Length PoreDiameter;",
+          "double_version": "N/A"
+        }
+      ],
+      "status": "error",
+      "analysis_time": 18.79
+    },
+    {
+      "file": ".\\src\\dotnet\\ParametricCombustionModel\\src\\ParametricCombustionModel.Computation\\Models\\KnownParams\\CombustionSolverParamsByUnits.cs",
+      "problems": [
+        {
+          "method": "ADecompose",
+          "issue": "UnitsNet property 'ADecompose' is of type MassFlux, while the double version is a double. Conversion is performed in FromVector.",
+          "unitsnet_version": "public required MassFlux ADecompose { get; init; }",
+          "double_version": "public required double ADecompose { get; init; }"
+        },
+        {
+          "method": "EDecompose",
+          "issue": "UnitsNet property 'EDecompose' is of type MolarEnergy, while the double version is a double. Conversion is performed in FromVector.",
+          "unitsnet_version": "public required MolarEnergy EDecompose { get; init; }",
+          "double_version": "public required double EDecompose { get; init; }"
+        },
+        {
+          "method": "AKineticFlameInterPocket",
+          "issue": "UnitsNet property 'AKineticFlameInterPocket' is of type Frequency, while the double version is a double. Conversion is performed in FromVector.",
+          "unitsnet_version": "public required Frequency AKineticFlameInterPocket { get; init; }",
+          "double_version": "public required double AKineticFlameInterPocket { get; init; }"
+        },
+        {
+          "method": "EKineticFlameInterPocket",
+          "issue": "UnitsNet property 'EKineticFlameInterPocket' is of type MolarEnergy, while the double version is a double. Conversion is performed in FromVector.",
+          "unitsnet_version": "public required MolarEnergy EKineticFlameInterPocket { get; init; }",
+          "double_version": "public required double EKineticFlameInterPocket { get; init; }"
+        },
+        {
+          "method": "AKineticFlamePocketOutSkeleton",
+          "issue": "UnitsNet property 'AKineticFlamePocketOutSkeleton' is of type Frequency, while the double version is a double. Conversion is performed in FromVector.",
+          "unitsnet_version": "public required Frequency AKineticFlamePocketOutSkeleton { get; init; }",
+          "double_version": "public required double AKineticFlamePocketOutSkeleton { get; init; }"
+        },
+        {
+          "method": "EKineticFlamePocketOutSkeleton",
+          "issue": "UnitsNet property 'EKineticFlamePocketOutSkeleton' is of type MolarEnergy, while the double version is a double. Conversion is performed in FromVector.",
+          "unitsnet_version": "public required MolarEnergy EKineticFlamePocketOutSkeleton { get; init; }",
+          "double_version": "public required double EKineticFlamePocketOutSkeleton { get; init; }"
+        },
+        {
+          "method": "AKineticFlamePocketSkeleton",
+          "issue": "UnitsNet property 'AKineticFlamePocketSkeleton' is of type Frequency, while the double version is a double. Conversion is performed in FromVector.",
+          "unitsnet_version": "public required Frequency AKineticFlamePocketSkeleton { get; init; }",
+          "double_version": "public required double AKineticFlamePocketSkeleton { get; init; }"
+        },
+        {
+          "method": "EKineticFlamePocketSkeleton",
+          "issue": "UnitsNet property 'EKineticFlamePocketSkeleton' is of type MolarEnergy, while the double version is a double. Conversion is performed in FromVector.",
+          "unitsnet_version": "public required MolarEnergy EKineticFlamePocketSkeleton { get; init; }",
+          "double_version": "public required double EKineticFlamePocketSkeleton { get; init; }"
+        },
+        {
+          "method": "AMetalBurningConstant",
+          "issue": "UnitsNet property 'AMetalBurningConstant' is of type AMetalBurningConstant, while the double version is a double. Conversion is performed in FromVector.",
+          "unitsnet_version": "public required AMetalBurningConstant AMetalBurningConstant { get; init; }",
+          "double_version": "public required double AMetalBurningConstant { get; init; }"
+        },
+        {
+          "method": "BMetalBurningConstant",
+          "issue": "UnitsNet property 'BMetalBurningConstant' is of type BMetalBurningConstant, while the double version is a double. Conversion is performed in FromVector.",
+          "unitsnet_version": "public required BMetalBurningConstant BMetalBurningConstant { get; init; }",
+          "double_version": "public required double BMetalBurningConstant { get; init; }"
+        },
+        {
+          "method": "DeltaH",
+          "issue": "UnitsNet property 'DeltaH' is of type SpecificEnergy, while the double version is a double. Conversion is performed in FromVector.",
+          "unitsnet_version": "public required SpecificEnergy DeltaH { get; init; }",
+          "double_version": "public required double DeltaH { get; init; }"
+        }
+      ],
+      "status": "ok",
+      "analysis_time": 40.77
+    },
+    {
+      "file": ".\\src\\dotnet\\ParametricCombustionModel\\src\\ParametricCombustionModel.Computation\\Models\\KnownParams\\DiffusionFlameParamsByUnits.cs",
+      "problems": [
+        {
+          "method": "FinalTemperature",
+          "issue": "UnitsNet property 'FinalTemperature' (Temperature) has no direct double equivalent.  The documentation indicates it's measured in Kelvin, which is represented by double.",
+          "unitsnet_version": "public required Temperature FinalTemperature { get; set; }",
+          "double_version": "public required double FinalTemperature { get; init; }"
+        },
+        {
+          "method": "AverageMolarMass",
+          "issue": "UnitsNet property 'AverageMolarMass' (MolarMass) has no direct double equivalent. The documentation indicates it's measured in kg/mol, which is represented by double.",
+          "unitsnet_version": "public required MolarMass AverageMolarMass { get; init; }",
+          "double_version": "public required double AverageMolarMass { get; init; }"
+        },
+        {
+          "method": "ThermalConductivity",
+          "issue": "UnitsNet property 'ThermalConductivity' (ThermalConductivity) has no direct double equivalent. The documentation indicates it's measured in W/(m*K), which is represented by double.",
+          "unitsnet_version": "public required ThermalConductivity ThermalConductivity { get; init; }",
+          "double_version": "public required double ThermalConductivity { get; init; }"
+        },
+        {
+          "method": "VolumetricSpecificHeatCapacity",
+          "issue": "UnitsNet property 'VolumetricSpecificHeatCapacity' (SpecificEntropy) has no direct double equivalent. The documentation indicates it's measured in J/(m^3*K), which is represented by double.",
+          "unitsnet_version": "public required SpecificEntropy VolumetricSpecificHeatCapacity { get; init; }",
+          "double_version": "public required double VolumetricSpecificHeatCapacity { get; init; }"
+        }
+      ],
+      "status": "ok",
+      "analysis_time": 17.49
+    },
+    {
+      "file": ".\\src\\dotnet\\ParametricCombustionModel\\src\\ParametricCombustionModel.Computation\\Models\\KnownParams\\KineticFlameParamsByUnits.cs",
+      "problems": [
+        {
+          "method": "FinalTemperature",
+          "issue": "UnitsNet property `FinalTemperature` (Temperature) has a double equivalent (double).",
+          "unitsnet_version": "public required Temperature FinalTemperature { get; init; }",
+          "double_version": "public required double FinalTemperature { get; init; }"
+        },
+        {
+          "method": "AverageMolarMass",
+          "issue": "UnitsNet property `AverageMolarMass` (MolarMass) has a double equivalent (double).",
+          "unitsnet_version": "public required MolarMass AverageMolarMass { get; init; }",
+          "double_version": "public required double AverageMolarMass { get; init; }"
+        },
+        {
+          "method": "ThermalConductivity",
+          "issue": "UnitsNet property `ThermalConductivity` (ThermalConductivity) has a double equivalent (double).",
+          "unitsnet_version": "public required ThermalConductivity ThermalConductivity { get; init; }",
+          "double_version": "public required double ThermalConductivity { get; init; }"
+        },
+        {
+          "method": "VolumetricSpecificHeatCapacity",
+          "issue": "UnitsNet property `VolumetricSpecificHeatCapacity` (SpecificEntropy) has a double equivalent (double).  SpecificEntropy represents volumetric specific heat capacity in UnitsNet.",
+          "unitsnet_version": "public required SpecificEntropy VolumetricSpecificHeatCapacity { get; init; }",
+          "double_version": "public required double VolumetricSpecificHeatCapacity { get; init; }"
+        }
+      ],
+      "status": "ok",
+      "analysis_time": 15.75
+    },
+    {
+      "file": ".\\src\\dotnet\\ParametricCombustionModel\\src\\ParametricCombustionModel.Computation\\Models\\KnownParams\\MetalCombustionParamsByUnits.cs",
+      "problems": [
+        {
+          "method": "MetalCombustionParamsByUnits.MetalMeltingTemperature",
+          "issue": "The UnitsNet property `MetalMeltingTemperature` has a type of `Temperature`.  A corresponding `double` version would require extracting the value using `.Value` (e.g., `double value = MetalMeltingTemperature.Value;`).  The code does not explicitly show how this conversion would be handled.",
+          "unitsnet_version": "public required Temperature MetalMeltingTemperature { get; set; }",
+          "double_version": "double value = MetalMeltingTemperature.Value;"
+        },
+        {
+          "method": "MetalCombustionParamsByUnits.MetalBoilingTemperature",
+          "issue": "The UnitsNet property `MetalBoilingTemperature` has a type of `Temperature`. A corresponding `double` version would require extracting the value using `.Value` (e.g., `double value = MetalBoilingTemperature.Value;`). The code does not explicitly show how this conversion would be handled.",
+          "unitsnet_version": "public required Temperature MetalBoilingTemperature { get; init; }",
+          "double_version": "double value = MetalBoilingTemperature.Value;"
+        }
+      ],
+      "status": "ok",
+      "analysis_time": 16.3
+    },
+    {
+      "file": ".\\src\\dotnet\\ParametricCombustionModel\\src\\ParametricCombustionModel.Computation\\Models\\KnownParams\\PropellantParamsByUnits.cs",
+      "problems": [
+        {
+          "method": "SpecificHeatCapacity",
+          "issue": "UnitsNet property SpecificEntropy is equivalent to double representing Specific Heat Capacity.  No direct double equivalent exists, but the value represents the same physical quantity.",
+          "unitsnet_version": "public required SpecificEntropy SpecificHeatCapacity { get; init; }",
+          "double_version": "public required double SpecificHeatCapacity { get; init; }"
+        },
+        {
+          "method": "Density",
+          "issue": "UnitsNet property Density is equivalent to double representing Density. No direct double equivalent exists, but the value represents the same physical quantity.",
+          "unitsnet_version": "public required Density Density { get; init; }",
+          "double_version": "public required double Density { get; init; }"
+        },
+        {
+          "method": "InitialTemperature",
+          "issue": "UnitsNet property Temperature is equivalent to double representing Initial Temperature. No direct double equivalent exists, but the value represents the same physical quantity.",
+          "unitsnet_version": "public required Temperature InitialTemperature { get; init; }",
+          "double_version": "public required double InitialTemperature { get; init; }"
+        },
+        {
+          "method": "AverageOxidizerDiameter",
+          "issue": "UnitsNet property Length is equivalent to double representing Average Oxidizer Diameter. No direct double equivalent exists, but the value represents the same physical quantity.",
+          "unitsnet_version": "public required Length AverageOxidizerDiameter { get; init; }",
+          "double_version": "public required double AverageOxidizerDiameter { get; init; }"
+        },
+        {
+          "method": "SkeletonSurfaceFraction",
+          "issue": "UnitsNet property Ratio is equivalent to double representing Skeleton Surface Fraction. No direct double equivalent exists, but the value represents the same physical quantity.",
+          "unitsnet_version": "public required Ratio SkeletonSurfaceFraction { get; set; }",
+          "double_version": "public required double SkeletonSurfaceFraction { get; init; }"
+        }
+      ],
+      "status": "ok",
+      "analysis_time": 18.92
+    },
+    {
+      "file": ".\\src\\dotnet\\ParametricCombustionModel\\src\\ParametricCombustionModel.Computation\\Models\\KnownParams\\SkeletonLayerParamsByUnits.cs",
+      "problems": [
+        {
+          "method": "Porosity",
+          "issue": "UnitsNet property 'Porosity' is of type Ratio, while a double equivalent would be a double.  The semantic meaning is the same, but the type is different.",
+          "unitsnet_version": "public required Ratio Porosity { get; init; }",
+          "double_version": "public required double Porosity { get; init; }"
+        },
+        {
+          "method": "CondensedThermalConductivity",
+          "issue": "UnitsNet property 'CondensedThermalConductivity' is of type ThermalConductivity, while a double equivalent would be a double. The semantic meaning is the same, but the type is different.",
+          "unitsnet_version": "public required ThermalConductivity CondensedThermalConductivity { get; init; }",
+          "double_version": "public required double CondensedThermalConductivity { get; init; }"
+        }
+      ],
+      "status": "ok",
+      "analysis_time": 10.05
+    },
+    {
+      "file": ".\\src\\dotnet\\ParametricCombustionModel\\src\\ParametricCombustionModel.Computation\\Models\\ProblemContexts\\ProblemContextByDoubles.cs",
+      "problems": [
+        {
+          "method": "Accept(in CombustionSolverParamsByUnits, ISolverVisitor)",
+          "issue": "This method throws a NotSupportedException. There is no equivalent method using double types. This indicates a missing implementation for double-based parameters.",
+          "unitsnet_version": "void Accept(in CombustionSolverParamsByUnits solverParamsByUnits, ISolverVisitor solver)",
+          "double_version": "N/A"
+        }
+      ],
+      "status": "error",
+      "analysis_time": 7.44
+    },
+    {
+      "file": ".\\src\\dotnet\\ParametricCombustionModel\\src\\ParametricCombustionModel.Computation\\Models\\ProblemContexts\\ProblemContextByUnits.cs",
+      "problems": [
+        {
+          "method": "Accept(in CombustionSolverParamsByUnits, ISolverVisitor)",
+          "issue": "This method accepts `CombustionSolverParamsByUnits` which uses UnitsNet types. There is no equivalent method accepting `CombustionSolverParamsByDoubles` (double).",
+          "unitsnet_version": "public void Accept(in CombustionSolverParamsByUnits solverParamsByUnits, ISolverVisitor solver)",
+          "double_version": null
+        },
+        {
+          "method": "Accept(in CombustionSolverParamsByDoubles, ISolverVisitor)",
+          "issue": "This method throws a `NotSupportedException` when called with `CombustionSolverParamsByDoubles`.  There is no equivalent method accepting `CombustionSolverParamsByDoubles` that performs the intended operation.",
+          "unitsnet_version": "public void Accept(in CombustionSolverParamsByDoubles solverParams, ISolverVisitor solver) => throw new NotSupportedException(\"This method is not supported.\")",
+          "double_version": null
+        }
+      ],
+      "status": "error",
+      "analysis_time": 11.89
+    },
+    {
+      "file": ".\\src\\dotnet\\ParametricCombustionModel\\src\\ParametricCombustionModel.Computation\\Solvers\\InterPocketPropellantSolver.cs",
+      "problems": [
+        {
+          "method": "Visit (CombustionSolverParamsByUnits, ProblemContextByUnits)",
+          "issue": "The first overload uses UnitsNet types. The second overload uses double types. The logic is identical, but the types are different.  This is a potential source of subtle bugs if the conversion between UnitsNet types and doubles is not handled correctly.",
+          "unitsnet_version": "public override void Visit(in CombustionSolverParamsByUnits solverParamsByUnits, ProblemContextByUnits context)",
+          "double_version": "public override void Visit(in CombustionSolverParamsByDoubles solverParams, ProblemContextByDoubles context)"
+        },
+        {
+          "method": "GetSurfaceHeatFluxesError (Temperature, CombustionSolverParamsByUnits, ProblemContextByUnits)",
+          "issue": "The first overload uses UnitsNet types. The second overload uses double types. The logic is identical, but the types are different.  This is a potential source of subtle bugs if the conversion between UnitsNet types and doubles is not handled correctly.",
+          "unitsnet_version": "protected override HeatFlux GetSurfaceHeatFluxesError(in Temperature surfaceTemperature, in CombustionSolverParamsByUnits solverParamsByUnits, ProblemContextByUnits context)",
+          "double_version": "protected override double GetSurfaceHeatFluxesError(double surfaceTemperature, in CombustionSolverParamsByDoubles solverParams, ProblemContextByDoubles context)"
+        },
+        {
+          "method": "ExtractKineticBurnParams (CombustionSolverParamsByUnits, Frequency, MolarEnergy, double)",
+          "issue": "The first overload uses UnitsNet types. The second overload uses double types. The logic is identical, but the types are different.  This is a potential source of subtle bugs if the conversion between UnitsNet types and doubles is not handled correctly.",
+          "unitsnet_version": "protected override void ExtractKineticBurnParams(in CombustionSolverParamsByUnits solverParamsByUnits, out Frequency aKineticFlame, out MolarEnergy eKineticFlame, out double nu)",
+          "double_version": "protected override void ExtractKineticBurnParams(in CombustionSolverParamsByDoubles solverParams, out double aKineticFlame, out double eKineticFlame, out double nu)"
+        }
+      ],
+      "status": "ok",
+      "analysis_time": 20.4
+    },
+    {
+      "file": ".\\src\\dotnet\\ParametricCombustionModel\\src\\ParametricCombustionModel.Computation\\Solvers\\MixedPropellantSolver.cs",
+      "problems": [
+        {
+          "method": "Visit(in CombustionSolverParamsByUnits, ProblemContextByUnits)",
+          "issue": "The method accepts `CombustionSolverParamsByUnits` and `ProblemContextByUnits` which use UnitsNet types.  There is a corresponding method `Visit(in CombustionSolverParamsByDoubles, ProblemContextByDoubles)` that uses `double` types.  The semantic equivalence is maintained as the calculations are identical, but the types are different.",
+          "unitsnet_version": "public void Visit(in CombustionSolverParamsByUnits solverParamsByUnits, ProblemContextByUnits context)",
+          "double_version": "public void Visit(in CombustionSolverParamsByDoubles solverParams, ProblemContextByDoubles context)"
+        },
+        {
+          "method": "GetBurnRate(ProblemContextByUnits)",
+          "issue": "The method accepts `ProblemContextByUnits` which uses UnitsNet types.  There is a corresponding method `GetBurnRate(ProblemContextByDoubles)` that uses `double` types.  The semantic equivalence is maintained as the calculations are identical, but the types are different.  Specifically, `Speed.FromMetersPerSecond` is used in the UnitsNet version, while a `double` is used in the double version.",
+          "unitsnet_version": "private Speed GetBurnRate(ProblemContextByUnits context)",
+          "double_version": "private double GetBurnRate(ProblemContextByDoubles context)"
+        }
+      ],
+      "status": "ok",
+      "analysis_time": 14.62
+    },
+    {
+      "file": ".\\src\\dotnet\\ParametricCombustionModel\\src\\ParametricCombustionModel.Computation\\Units\\AMetalBurningConstant.cs",
+      "problems": [],
+      "status": "ok",
+      "analysis_time": 3.47
+    },
+    {
+      "file": ".\\src\\dotnet\\ParametricCombustionModel\\src\\ParametricCombustionModel.Computation\\Units\\BMetalBurningConstant.cs",
+      "problems": [],
+      "status": "ok",
+      "analysis_time": 3.43
+    },
+    {
+      "file": ".\\src\\dotnet\\ParametricCombustionModel\\src\\ParametricCombustionModel.Computation\\Units\\HMetalBurningCoefficient.cs",
+      "problems": [
+        {
+          "method": "operator *(HMetalBurningCoefficient left, Temperature right)",
+          "issue": "UnitsNet Temperature type is not directly equivalent to double.  The conversion from Temperature to double (Kelvins) is implicit and relies on UnitsNet's conversion capabilities.  A direct double version would require explicit Kelvin conversion.",
+          "unitsnet_version": "public static HeatFlux operator *(HMetalBurningCoefficient left, Temperature right)",
+          "double_version": "Not directly equivalent. Requires explicit Kelvin conversion."
+        },
+        {
+          "method": "operator *(HMetalBurningCoefficient left, double right)",
+          "issue": "This operator is equivalent to a double version, as it multiplies the `WattsPerKelvinPerSquareMeter` property (which is a double) by a double.",
+          "unitsnet_version": "public static HMetalBurningCoefficient operator *(HMetalBurningCoefficient left, double right)",
+          "double_version": "Equivalent:  `public static HMetalBurningCoefficient operator *(double right, HMetalBurningCoefficient left)`"
+        },
+        {
+          "method": "FromWattsPerKelvinPerSquareMeter(double value)",
+          "issue": "This method is equivalent to a double version, as it creates a new HMetalBurningCoefficient with a double value and a fixed unit.",
+          "unitsnet_version": "public static HMetalBurningCoefficient FromWattsPerKelvinPerSquareMeter(double value)",
+          "double_version": "Equivalent: `public static HMetalBurningCoefficient FromDouble(double value)`"
+        }
+      ],
+      "status": "ok",
+      "analysis_time": 14.7
+    }
+  ]
+}

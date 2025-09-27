@@ -1,0 +1,8 @@
+{
+  "lambda_gas": 0.1,
+  "average_molar_mass": 32.7e-3,
+  "R_gas_constant": 8.31,
+  "T_kinetic_flame": 2350,
+  "T_diffusion_flame": 3400,
+  "c_volume": 635.6
+}
