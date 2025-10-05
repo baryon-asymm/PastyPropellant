@@ -254,7 +254,7 @@ async Task RunPointCalculationAsync()
         1.0,           // APowOrder (from calculation)
         2.0,           // BPowOrder (from calculation)
         0.0            // KCoefficientRadiationTemperature (from calculation)
-    ];*/
+    ]; */
 
     const string inputFileName = "propellant_bas_0.json";
     const double poreDiameterThreshold = 3.0; // Значение по умолчанию
