@@ -55,13 +55,13 @@ public class OptimizationProblemByDoubles : IOptimizationVisitable
     }
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public void Accept(
+    public virtual void Accept(
         in CombustionSolverParamsByUnits solverParamsByUnits,
         IFitnessFunctionVisitor fitnessFunction) =>
         throw new NotSupportedException("This method is not supported.");
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public void Accept(
+    public virtual void Accept(
         in CombustionSolverParamsByDoubles solverParams,
         IFitnessFunctionVisitor fitnessFunction) =>
         fitnessFunction.Visit(solverParams, this);

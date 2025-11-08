@@ -15,13 +15,13 @@ public class OptimizationResult
 
 #region Properties
 
-    public CombustionSolverParamsByUnits BestSolverParamsByUnits => CombustionSolverParamsByUnits.FromVector(_bestParams.Span);
-
     public ReadOnlySpan<double> LowerBound => _lowerBound.Span;
 
     public ReadOnlySpan<double> UpperBound => _upperBound.Span;
 
-    public Span<double> BestSolverParamsBySpan => _bestParams.Span;
+    public ReadOnlySpan<double> BestSolverParams => _bestParams.Span;
+
+    public CombustionSolverParamsByUnits BestSolverParamsByUnits => CombustionSolverParamsByUnits.FromVector(_bestParams.Span);
 
     public OptimizationProblemByUnits OptimizedContext { get; init; }
 

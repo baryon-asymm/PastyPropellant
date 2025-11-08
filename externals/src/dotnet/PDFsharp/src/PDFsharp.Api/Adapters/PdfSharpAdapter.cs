@@ -6,9 +6,9 @@ using PastyPropellant.Core.Utils;
 using PDFsharp.Api.FontResolvers;
 using PDFsharp.Api.Interfaces;
 using PDFsharp.Api.Models;
-using PdfSharp.Drawing;
 using PdfSharp.Fonts;
 using PdfSharp.Pdf;
+using PdfSharp;
 
 namespace PDFsharp.Api.Adapters;
 
@@ -50,6 +50,23 @@ public class PdfSharpAdapter : IPdfGeneratorAdapter
             TextAlignment.Right => ParagraphAlignment.Right,
             TextAlignment.Justify => ParagraphAlignment.Justify,
             _ => paragraph.Format.Alignment
+        };
+    }
+
+    public void SetOrientation(PageOrientation orientation)
+    {
+        var section = _document.AddSection();
+        section.PageSetup.PageFormat = PageFormat.A4;
+        section.PageSetup.TopMargin = "1cm";
+        section.PageSetup.BottomMargin = "2cm";
+        section.PageSetup.LeftMargin = "2cm";
+        section.PageSetup.RightMargin = "2cm";
+        
+        section.PageSetup.Orientation = orientation switch
+        {
+            PageOrientation.Portrait => Orientation.Portrait,
+            PageOrientation.Landscape => Orientation.Landscape,
+            _ => section.PageSetup.Orientation
         };
     }
 
@@ -157,14 +174,14 @@ public class PdfSharpAdapter : IPdfGeneratorAdapter
                                      bool useUnderline = false,
                                      bool useItalic = false)
     {
-        var emptyPar = _document.LastSection.AddParagraph();
-        emptyPar.Format.SpaceBefore = "2cm";
+        // var emptyPar = _document.LastSection.AddParagraph();
+        // emptyPar.Format.SpaceBefore = "2cm";
 
         var textFrame = _document.LastSection.AddTextFrame();
         textFrame.Height = "2cm";
         textFrame.RelativeVertical = RelativeVertical.Page;
-        textFrame.Top = "19cm";
-        textFrame.Width = "25cm";
+        textFrame.Top = "28cm";
+        textFrame.Width = "17cm";
 
         var paragraph = textFrame.AddParagraph();
         paragraph.Format.Alignment = ParagraphAlignment.Right;

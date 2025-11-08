@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  
+  <data name="Characteristics" xml:space="preserve">
+    <value>Paramètre</value>
+    <comment>En-tête de colonne pour les caractéristiques dans le tableau</comment>
+  </data>
+  
+  <data name="ExperimentalBurningRate" xml:space="preserve">
+    <value>Vitesse de Combustion Expérimentale</value>
+    <comment>Ligne du tableau pour la vitesse de combustion expérimentale</comment>
+  </data>
+  
+  <data name="CalculatedBurningRate" xml:space="preserve">
+    <value>Vitesse de Combustion Calculée</value>
+    <comment>Ligne du tableau pour la vitesse de combustion calculée</comment>
+  </data>
+  
+  <data name="Difference" xml:space="preserve">
+    <value>Différence</value>
+    <comment>Ligne du tableau pour la différence entre vitesse expérimentale et calculée</comment>
+  </data>
+  
+  <data name="Separator" xml:space="preserve">
+    <value>-</value>
+    <comment>Séparateur dans le tableau</comment>
+  </data>
+  
+  <data name="InterPocketColumn" xml:space="preserve">
+    <value>I</value>
+    <comment>En-tête de colonne espace inter-poche</comment>
+  </data>
+  
+  <data name="PocketColumn" xml:space="preserve">
+    <value>II</value>
+    <comment>En-tête de colonne espace poche</comment>
+  </data>
+  
+  <data name="LinearBurningRate" xml:space="preserve">
+    <value>Vitesse de Combustion Linéaire</value>
+    <comment>Ligne du tableau pour la vitesse de combustion linéaire</comment>
+  </data>
+  
+  <data name="SurfaceTemperature" xml:space="preserve">
+    <value>Température de Surface</value>
+    <comment>Ligne du tableau pour la température de surface</comment>
+  </data>
+  
+  <data name="InterPocketKineticFlameHeatFlux" xml:space="preserve">
+    <value>Densité de Flux de Chaleur de Flamme Cinétique (Inter-Poche)</value>
+    <comment>Ligne du tableau pour la densité de flux de chaleur de flamme cinétique inter-poche</comment>
+  </data>
+  
+  <data name="InterPocketKineticFlameHeight" xml:space="preserve">
+    <value>Hauteur de Flamme Cinétique (Inter-Poche)</value>
+    <comment>Ligne du tableau pour la hauteur de flamme cinétique inter-poche</comment>
+  </data>
+  
+  <data name="SkeletonKineticFlameHeatFlux" xml:space="preserve">
+    <value>Densité de Flux de Chaleur de Flamme Cinétique (Squelette)</value>
+    <comment>Ligne du tableau pour la densité de flux de chaleur de flamme cinétique squelette</comment>
+  </data>
+  
+  <data name="SkeletonKineticFlameHeight" xml:space="preserve">
+    <value>Hauteur de Flamme Cinétique (Squelette)</value>
+    <comment>Ligne du tableau pour la hauteur de flamme cinétique squelette</comment>
+  </data>
+  
+  <data name="OutSkeletonKineticFlameHeatFlux" xml:space="preserve">
+    <value>Densité de Flux de Chaleur de Flamme Cinétique (Hors-Squelette)</value>
+    <comment>Ligne du tableau pour la densité de flux de chaleur de flamme cinétique hors squelette</comment>
+  </data>
+  
+  <data name="OutSkeletonKineticFlameHeight" xml:space="preserve">
+    <value>Hauteur de Flamme Cinétique (Hors-Squelette)</value>
+    <comment>Ligne du tableau pour la hauteur de flamme cinétique hors squelette</comment>
+  </data>
+  
+  <data name="DiffusionFlameHeatFlux" xml:space="preserve">
+    <value>Densité de Flux de Chaleur de Flamme de Diffusion</value>
+    <comment>Ligne du tableau pour la densité de flux de chaleur de flamme de diffusion</comment>
+  </data>
+  
+  <data name="DiffusionFlameHeight" xml:space="preserve">
+    <value>Hauteur de Flamme de Diffusion</value>
+    <comment>Ligne du tableau pour la hauteur de flamme de diffusion</comment>
+  </data>
+  
+  <data name="MetalHeatFlux" xml:space="preserve">
+    <value>Densité de Flux de Chaleur de Combustion Métallique</value>
+    <comment>Ligne du tableau pour la densité de flux de chaleur métallique</comment>
+  </data>
+  
+</root>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <data name="HeaderOfPropellants" xml:space="preserve">
+    <value>Paramètres des compositions de propergols</value>
+  </data>
+  <data name="NameOfPropellant" xml:space="preserve">
+    <value>Composition «{0}»</value>
+  </data>
+  <data name="PropellantShortInfoPlaceholder" xml:space="preserve">
+    <value>Densité {0}, capacité calorifique spécifique {1}, température initiale {2}, fraction massique des «poches» dans la composition «liant-métal» {3}.</value>
+  </data>
+  <data name="VieillesLaw" xml:space="preserve">
+    <value>Loi de puissance de Vieille: U = A · p^v, A = {0}; v = {1}.</value>
+  </data>
+
+  <data name="HeaderOfInterPocketGasPhase" xml:space="preserve">
+    <value>Paramètres de phase gazeuse dans le milieu inter-poche</value>
+  </data>
+  <data name="HeaderOfPocketGasPhase" xml:space="preserve">
+    <value>Paramètres de phase gazeuse dans la région poche</value>
+  </data>
+  <data name="HeaderOfSkeletonGasPhase" xml:space="preserve">
+    <value>Paramètres de phase gazeuse dans la structure squelette</value>
+  </data>
+  <data name="HeaderOfOutSkeletonGasPhase" xml:space="preserve">
+    <value>Paramètres de phase gazeuse hors structure squelette</value>
+  </data>
+
+  <data name="LamdaGas" xml:space="preserve">
+    <value>Conductivité thermique {0}</value>
+  </data>
+  <data name="AverageMolarMass" xml:space="preserve">
+    <value>Masse molaire moyenne {0}</value>
+  </data>
+  <data name="SpecificHeatCapacity_Volume" xml:space="preserve">
+    <value>Capacité calorifique spécifique (volume constant) {0}</value>
+  </data>
+  <data name="KineticFlameTemperature" xml:space="preserve">
+    <value>Température de flamme cinétique {0}</value>
+  </data>
+  <data name="DiffusionFlameTemperature" xml:space="preserve">
+    <value>Température de flamme de diffusion {0}</value>
+  </data>
+  <data name="AgglomerationFraction" xml:space="preserve">
+    <value>Fraction d'agglomération {0}</value>
+  </data>
+  <data name="SkeletonSurfaceFraction" xml:space="preserve">
+    <value>Fraction de surface squelette {0}</value>
+  </data>
+  <data name="MetalBurningTemperature" xml:space="preserve">
+    <value>Température de combustion métallique {0}</value>
+  </data>
+</root>

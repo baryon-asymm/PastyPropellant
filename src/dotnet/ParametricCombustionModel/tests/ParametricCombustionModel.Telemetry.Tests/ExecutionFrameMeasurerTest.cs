@@ -1,14 +1,16 @@
-using ParametricCombustionModel.Telemetry.ExecutionFrameMeasurers;
+using ParametricCombustionModel.Telemetry.Instruments;
 
 namespace ParametricCombustionModel.Telemetry.Tests
 {
     public class ExecutionFrameMeasurerTest
     {
+        private const string MeasurerPath = "Test/ExecutionFrameMeasurer";
+
         [Fact]
         public void StartFrame_ShouldRestartStopwatch()
         {
             // Arrange
-            var measurer = new ExecutionFrameMeasurer();
+            var measurer = new EnhancedExecutionFrameMeasurer("Test", "Test description", "ms", MeasurerPath);
 
             // Act
             measurer.StartFrame();
@@ -23,7 +25,7 @@ namespace ParametricCombustionModel.Telemetry.Tests
         public void EndFrame_ShouldUpdateMeanExecutionTime()
         {
             // Arrange
-            var measurer = new ExecutionFrameMeasurer();
+            var measurer = new EnhancedExecutionFrameMeasurer("Test", "Test description", "ms", MeasurerPath);
             measurer.StartFrame();
             Thread.Sleep(100); // Simulate some execution time
             measurer.EndFrame();
@@ -42,7 +44,7 @@ namespace ParametricCombustionModel.Telemetry.Tests
         public void EndFrame_ShouldUpdateCallsCount()
         {
             // Arrange
-            var measurer = new ExecutionFrameMeasurer();
+            var measurer = new EnhancedExecutionFrameMeasurer("Test", "Test description", "ms", MeasurerPath);
 
             // Act
             measurer.StartFrame();
@@ -57,7 +59,7 @@ namespace ParametricCombustionModel.Telemetry.Tests
         public void EndFrame_ShouldUpdateStdDevExecutionTime()
         {
             // Arrange
-            var measurer = new ExecutionFrameMeasurer();
+            var measurer = new EnhancedExecutionFrameMeasurer("Test", "Test description", "ms", MeasurerPath);
             measurer.StartFrame();
             Thread.Sleep(100); // Simulate some execution time
             measurer.EndFrame();

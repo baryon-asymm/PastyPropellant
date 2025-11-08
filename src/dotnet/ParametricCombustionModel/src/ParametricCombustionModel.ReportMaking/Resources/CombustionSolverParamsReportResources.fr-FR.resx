@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <data name="HeaderOfCombustionSolverParams" xml:space="preserve">
+    <value>Paramètres du solveur de combustion</value>
+  </data>
+  <data name="ADecompose" xml:space="preserve">
+    <value>Facteur pré-exponentiel pour les réactions en phase condensée {0}</value>
+  </data>
+  <data name="EDecompose" xml:space="preserve">
+    <value>Énergie d'activation des réactions en phase condensée {0}</value>
+  </data>
+  <data name="AKineticFlameInterPocket" xml:space="preserve">
+    <value>Facteur pré-exponentiel pour les réactions en phase gazeuse dans le milieu inter-poche {0}</value>
+  </data>
+  <data name="EKineticFlameInterPocket" xml:space="preserve">
+    <value>Énergie d'activation des réactions en phase gazeuse dans le milieu inter-poche {0}</value>
+  </data>
+  <data name="AKineticFlamePocketOutSkeleton" xml:space="preserve">
+    <value>Facteur pré-exponentiel pour les réactions en phase gazeuse dans la région poche hors squelette {0}</value>
+  </data>
+  <data name="EKineticFlamePocketOutSkeleton" xml:space="preserve">
+    <value>Énergie d'activation des réactions en phase gazeuse dans la région poche hors squelette {0}</value>
+  </data>
+  <data name="AKineticFlamePocketSkeleton" xml:space="preserve">
+    <value>Facteur pré-exponentiel pour les réactions en phase gazeuse dans la structure squelette {0}</value>
+  </data>
+  <data name="EKineticFlamePocketSkeleton" xml:space="preserve">
+    <value>Énergie d'activation des réactions en phase gazeuse dans la structure squelette {0}</value>
+  </data>
+  <data name="NuInterPocket" xml:space="preserve">
+    <value>Ordre de réaction pour la chimie en phase gazeuse dans le milieu inter-poche {0}</value>
+  </data>
+  <data name="NuPocketSkeleton" xml:space="preserve">
+    <value>Ordre de réaction pour la chimie en phase gazeuse dans la structure squelette {0}</value>
+  </data>
+  <data name="NuPocketOutSkeleton" xml:space="preserve">
+    <value>Ordre de réaction pour la chimie en phase gazeuse hors structure squelette {0}</value>
+  </data>
+  <data name="AMetalBurningConstant" xml:space="preserve">
+    <value>Coefficient A pour la densité de flux de chaleur de combustion métallique dans la structure squelette, {0}</value>
+  </data>
+  <data name="BMetalBurningConstant" xml:space="preserve">
+    <value>Coefficient B pour la densité de flux de chaleur de combustion métallique dans la structure squelette, {0}</value>
+  </data>
+  <data name="DeltaH" xml:space="preserve">
+    <value>Différence d'enthalpie entre vaporisation et décomposition du liant {0}</value>
+  </data>
+  <data name="KDiffusionHeight" xml:space="preserve">
+    <value>Coefficient de corrélation de hauteur de flamme de diffusion {0:0.0000}</value>
+  </data>
+  <data name="KCoefficientRadiationTemperature" xml:space="preserve">
+    <value>Coefficient de corrélation de température de radiation (température moyenne de couche) {0:0.0000}</value>
+  </data>
+  <data name="APowOrder" xml:space="preserve">
+    <value>Exposant de loi de puissance pour la dépendance du taux de combustion sur A (épaisseur de squelette) {0:0.0000}</value>
+  </data>
+  <data name="BPowOrder" xml:space="preserve">
+    <value>Exposant de loi de puissance pour la dépendance du taux de combustion sur B (diamètre de pore) {0:0.0000}</value>
+  </data>
+  <data name="ParameterBounds" xml:space="preserve">
+    <value>Limites de variation {0:0.0000}</value>
+  </data>
+</root>

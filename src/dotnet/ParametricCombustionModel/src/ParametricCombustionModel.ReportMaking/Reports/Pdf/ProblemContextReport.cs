@@ -256,32 +256,38 @@ public class ProblemContextReport : BaseReport, ITransformable<Queue<IPdfOperati
         operations.Enqueue(new LineBreakOperation());
         AddTab(operations, 2);
         operations.Enqueue(new PrintTextOperation(
-                               $"Effective thermal conductivity {problemContext.PocketCombustionParams.EffectiveThermalConductivity}",
+                               string.Format(ProblemContextReportResources.EffectiveThermalConductivity,
+                                   problemContext.PocketCombustionParams.EffectiveThermalConductivity),
                                TextStyle.None));
         operations.Enqueue(new LineBreakOperation());
         AddTab(operations, 2);
         operations.Enqueue(new PrintTextOperation(
-                               $"Conductive thermal conductivity {problemContext.PocketCombustionParams.ConductiveThermalConductivity}",
+                               string.Format(ProblemContextReportResources.ConductiveThermalConductivity,
+                                   problemContext.PocketCombustionParams.ConductiveThermalConductivity),
                                TextStyle.None));
         operations.Enqueue(new LineBreakOperation());
         AddTab(operations, 2);
         operations.Enqueue(new PrintTextOperation(
-                               $"Radiative thermal conductivity {problemContext.PocketCombustionParams.RadiativeThermalConductivity}",
+                               string.Format(ProblemContextReportResources.RadiativeThermalConductivity,
+                                   problemContext.PocketCombustionParams.RadiativeThermalConductivity),
                                TextStyle.None));
         operations.Enqueue(new LineBreakOperation());
         AddTab(operations, 2);
         operations.Enqueue(new PrintTextOperation(
-                               $"Conductive thermal conductivity balance error {problemContext.PocketCombustionParams.ConductiveThermalConductivityBalanceError}",
+                               string.Format(ProblemContextReportResources.ConductiveThermalConductivityBalanceError,
+                                   problemContext.PocketCombustionParams.ConductiveThermalConductivityBalanceError),
                                TextStyle.None));
         operations.Enqueue(new LineBreakOperation());
         AddTab(operations, 2);
         operations.Enqueue(new PrintTextOperation(
-                               $"Skeleton layer thickness {problemContext.PocketCombustionParams.SkeletonLayerThickness}",
+                               string.Format(ProblemContextReportResources.SkeletonLayerThickness,
+                                   problemContext.PocketCombustionParams.SkeletonLayerThickness),
                                TextStyle.None));
         operations.Enqueue(new LineBreakOperation());
         AddTab(operations, 2);
         operations.Enqueue(new PrintTextOperation(
-                               $"Pore diameter {problemContext.PocketCombustionParams.PoreDiameter}",
+                               string.Format(ProblemContextReportResources.PoreDiameter,
+                                   problemContext.PocketCombustionParams.PoreDiameter),
                                TextStyle.None));
         operations.Enqueue(new LineBreakOperation());
         // Append diffusion flame parameters

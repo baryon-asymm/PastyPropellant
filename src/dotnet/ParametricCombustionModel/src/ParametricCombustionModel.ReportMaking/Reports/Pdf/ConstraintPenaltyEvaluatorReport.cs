@@ -5,6 +5,8 @@ using ParametricCombustionModel.ReportMaking.Enums;
 using ParametricCombustionModel.ReportMaking.Interfaces;
 using ParametricCombustionModel.ReportMaking.PdfOperations;
 using ParametricCombustionModel.ReportMaking.Resources;
+using PastyPropellant.Core.Models.Events.Logs;
+using PastyPropellant.Core.Utils;
 
 namespace ParametricCombustionModel.ReportMaking.Reports.Pdf;
 
@@ -43,6 +45,11 @@ public class ConstraintPenaltyEvaluatorReport : BaseReport, ITransformable<Queue
                 case PoreDiameterPenaltyEvaluator evaluator:
                     AppendPoreDiameterPenaltyEvaluator(operations,
                                                        evaluator);
+                    break;
+                default:
+                    EventBus<InfoLogEvent>.Publish(
+                        new InfoLogEvent(
+                            $"Unsupported penalty evaluator type: {penaltyEvaluator.GetType().Name}."));
                     break;
             }
         }

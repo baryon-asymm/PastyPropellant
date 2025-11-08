@@ -9,6 +9,7 @@
     <ItemGroup>
         <ProjectReference Include="../../../../../externals/src/dotnet/PDFsharp/src/PDFsharp.Api/PDFsharp.Api.csproj" />
         <ProjectReference Include="..\ParametricCombustionModel.Optimization\ParametricCombustionModel.Optimization.csproj" />
+        <ProjectReference Include="..\ParametricCombustionModel.Telemetry\ParametricCombustionModel.Telemetry.csproj" />
     </ItemGroup>
 
     <ItemGroup>

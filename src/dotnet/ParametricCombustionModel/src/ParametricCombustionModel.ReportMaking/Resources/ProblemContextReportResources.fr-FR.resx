@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <data name="HeaderOfProblemContext" xml:space="preserve">
+    <value>Composition de propergol «{0}»</value>
+  </data>
+  <data name="HeaderOfPressurePoint" xml:space="preserve">
+    <value>À la pression {0}</value>
+  </data>
+  <data name="ExperimentalBurnRate" xml:space="preserve">
+    <value>Vitesse de combustion expérimentale</value>
+  </data>
+  <data name="ComputedBurnRate" xml:space="preserve">
+    <value>Vitesse de combustion calculée</value>
+  </data>
+  <data name="HeaderOfInterPocketArea" xml:space="preserve">
+    <value>Premier combustible conditionnel</value>
+  </data>
+  <data name="HeaderOfPocketArea" xml:space="preserve">
+    <value>Deuxième combustible conditionnel</value>
+  </data>
+  <data name="SurfaceTemperature" xml:space="preserve">
+    <value>Température de surface {0}</value>
+  </data>
+  <data name="LinearBurnRate" xml:space="preserve">
+    <value>Vitesse de combustion linéaire {0}</value>
+  </data>
+  <data name="DecomposeRate" xml:space="preserve">
+    <value>Taux de décomposition massique {0}</value>
+  </data>
+  <data name="KineticFlameHeight" xml:space="preserve">
+    <value>Hauteur de flamme cinétique {0}</value>
+  </data>
+  <data name="AverageKineticFlameDensity" xml:space="preserve">
+    <value>Densité moyenne de flamme cinétique {0}</value>
+  </data>
+  <data name="AverageKineticFlameTemperature" xml:space="preserve">
+    <value>Température moyenne de flamme cinétique {0}</value>
+  </data>
+  <data name="KineticFlameHeatFlux" xml:space="preserve">
+    <value>Densité de flux de chaleur de flamme cinétique vers la surface {0}</value>
+  </data>
+  <data name="SublimationHeatFlux" xml:space="preserve">
+    <value>Densité de flux de chaleur de sublimation du liant {0}</value>
+  </data>
+  <data name="SurfaceHeatFluxesError" xml:space="preserve">
+    <value>Erreur d'équilibre thermique de surface {0}</value>
+  </data>
+
+  <data name="HeaderOfOutSkeletonArea" xml:space="preserve">
+    <value>Région hors structure squelette</value>
+  </data>
+  <data name="HeaderOfSkeletonArea" xml:space="preserve">
+    <value>Région structure squelette</value>
+  </data>
+
+  <data name="AverageMetalBurningTemperature" xml:space="preserve">
+    <value>Température moyenne de combustion métallique {0}</value>
+  </data>
+  <data name="MetalBurningHeatFlux" xml:space="preserve">
+    <value>Densité de flux de chaleur de combustion métallique {0}</value>
+  </data>
+
+  <data name="DiffusionFlameHeight" xml:space="preserve">
+    <value>Hauteur de flamme de diffusion {0}</value>
+  </data>
+  <data name="DiffusionFlameHeatFlux" xml:space="preserve">
+    <value>Densité de flux de chaleur de flamme de diffusion {0}</value>
+  </data>
+
+  <data name="OutSkeletonHeatFlux" xml:space="preserve">
+    <value>Densité de flux de chaleur vers surface hors structure squelette {0}</value>
+  </data>
+  <data name="SkeletonHeatFlux" xml:space="preserve">
+    <value>Densité de flux de chaleur vers surface dans structure squelette {0}</value>
+  </data>
+  <data name="ToSurfaceTotalHeatFlux" xml:space="preserve">
+    <value>Densité totale de flux de chaleur vers surface {0}</value>
+  </data>
+  
+  <data name="EffectiveThermalConductivity" xml:space="preserve">
+    <value>Conductivité thermique effective {0}</value>
+  </data>
+  <data name="ConductiveThermalConductivity" xml:space="preserve">
+    <value>Conductivité thermique conductive {0}</value>
+  </data>
+  <data name="RadiativeThermalConductivity" xml:space="preserve">
+    <value>Conductivité thermique radiative {0}</value>
+  </data>
+  <data name="ConductiveThermalConductivityBalanceError" xml:space="preserve">
+    <value>Erreur d'équilibre de conductivité thermique conductive {0}</value>
+  </data>
+  <data name="SkeletonLayerThickness" xml:space="preserve">
+    <value>Épaisseur de la couche squelettique {0}</value>
+  </data>
+  <data name="PoreDiameter" xml:space="preserve">
+    <value>Diamètre de pore {0}</value>
+  </data>
+  <data name="PressurePointReportCountMustBeGreaterThanZero" xml:space="preserve">
+    <value>Le nombre de points de rapport de pression doit être supérieur à zéro</value>
+  </data>
+  <data name="PressurePointReportCountMustBeLessOrEqual" xml:space="preserve">
+    <value>Le nombre de points de rapport de pression doit être inférieur ou égal au nombre total de pressions</value>
+  </data>
+</root>

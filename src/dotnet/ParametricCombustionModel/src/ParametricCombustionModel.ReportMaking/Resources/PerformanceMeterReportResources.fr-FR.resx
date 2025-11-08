@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <data name="Header" xml:space="preserve">
+    <value>Rapport de performance</value>
+  </data>
+  <data name="ExecutionFrameHeader" xml:space="preserve">
+    <value>Méthode : {0}</value>
+  </data>
+  <data name="CallsCount" xml:space="preserve">
+    <value>Nombre d'appels : {0}</value>
+  </data>
+  <data name="MaxExecutionTime" xml:space="preserve">
+    <value>Temps d'exécution maximal : {0} ms</value>
+  </data>
+  <data name="MinExecutionTime" xml:space="preserve">
+    <value>Temps d'exécution minimal : {0} ms</value>
+  </data>
+  <data name="MeanExecutionTime" xml:space="preserve">
+    <value>Temps d'exécution moyen : {0} ms</value>
+  </data>
+  <data name="StdDevExecutionTime" xml:space="preserve">
+    <value>Écart-type du temps d'exécution : {0} ms</value>
+  </data>
+  <data name="SystemInfo" xml:space="preserve">
+    <value>Informations système</value>
+  </data>
+  <data name="OperatingSystem" xml:space="preserve">
+    <value>Système d'exploitation : {0}</value>
+  </data>
+  <data name="ProcessorCount" xml:space="preserve">
+    <value>Nombre de processeurs : {0}</value>
+  </data>
+  <data name="MachineName" xml:space="preserve">
+    <value>Nom de la machine : {0}</value>
+  </data>
+  <data name="RuntimeVersion" xml:space="preserve">
+    <value>Version du runtime : {0}</value>
+  </data>
+  <data name="TotalExecutionTime" xml:space="preserve">
+    <value>Temps d'exécution total</value>
+  </data>
+  <data name="ExecutionTime" xml:space="preserve">
+    <value>Temps d'exécution : {0} ms</value>
+  </data>
+  <data name="GarbageCollectionInfo" xml:space="preserve">
+    <value>Informations sur la collecte des déchets</value>
+  </data>
+  <data name="TotalMemory" xml:space="preserve">
+    <value>Mémoire totale : {0} octets</value>
+  </data>
+  <data name="PauseTimePercentage" xml:space="preserve">
+    <value>Pourcentage de temps de pause GC : {0:0.00}%</value>
+  </data>
+  <data name="Generation0Collections" xml:space="preserve">
+    <value>Collections génération 0 : {0}</value>
+  </data>
+  <data name="Generation1Collections" xml:space="preserve">
+    <value>Collections génération 1 : {0}</value>
+  </data>
+  <data name="Generation2Collections" xml:space="preserve">
+    <value>Collections génération 2 : {0}</value>
+  </data>
+  <data name="DetailedPerformanceMetrics" xml:space="preserve">
+    <value>Métriques de performance détaillées</value>
+  </data>
+  <data name="ProcessorName" xml:space="preserve">
+    <value>Processeur : {0}</value>
+  </data>
+  <data name="MemoryInfo" xml:space="preserve">
+    <value>Mémoire : {0} Go ({1})</value>
+  </data>
+  <data name="RuntimeDescription" xml:space="preserve">
+    <value>Environnement d'exécution : {0}</value>
+  </data>
+  <data name="RuntimeArchitecture" xml:space="preserve">
+    <value>Architecture : {0}</value>
+  </data>
+  <data name="TotalExecutionTimeFormatted" xml:space="preserve">
+    <value>Temps d'exécution total : {0}</value>
+  </data>
+  <data name="TimeFormatDays" xml:space="preserve">
+    <value>{0} j.</value>
+  </data>
+  <data name="TimeFormatHours" xml:space="preserve">
+    <value>{0} h.</value>
+  </data>
+  <data name="TimeFormatMinutes" xml:space="preserve">
+    <value>{0} min.</value>
+  </data>
+  <data name="TimeFormatSeconds" xml:space="preserve">
+    <value>{0} sec.</value>
+  </data>
+  <data name="TimeFormatMilliseconds" xml:space="preserve">
+    <value>{0} ms</value>
+  </data>
+  <data name="ProcessorFrequency" xml:space="preserve">
+    <value>Fréquence du processeur : {0}</value>
+  </data>
+  <data name="MemoryFrequency" xml:space="preserve">
+    <value>Fréquence de la mémoire : {0}</value>
+  </data>
+  <data name="MemoryDetailedInfo" xml:space="preserve">
+    <value>Mémoire : {0} Go ({1}), {2}</value>
+  </data>
+</root>

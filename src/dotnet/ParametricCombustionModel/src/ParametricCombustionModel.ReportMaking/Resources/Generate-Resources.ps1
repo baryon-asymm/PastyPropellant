@@ -46,10 +46,13 @@ $outputDir = ".\Generated"
 $resourceFiles = @(
     "CombustionSolverParamsReportResources",
     "ConstraintPenaltyEvaluatorReportResources",
+    "DifferentialEvolutionSettingsReportResources",
     "FitnessFunctionEvaluatorReportResources",
     "ParametricConstraintReportResources",
     "ProblemContextReportResources",
-    "PropellantReportResources"
+    "PropellantReportResources",
+    "PerformanceMeterReportResources",
+    "PressureTablesReportResources"
 )
 
 # Create output directory if it doesn't exist
@@ -57,7 +60,7 @@ if (-not (Test-Path -Path $outputDir)) {
     New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
 }
 
-# Process each resource file
+# Process each resource file - only generate C# classes for default culture
 foreach ($resourceBaseName in $resourceFiles) {
     $resxFile = "$resourceBaseName.resx"
     $outputFile = "$outputDir\$resourceBaseName.cs"
@@ -66,7 +69,7 @@ foreach ($resourceBaseName in $resourceFiles) {
     
     # Verify .resx file exists
     if (-not (Test-Path $resxFile -PathType Leaf)) {
-        Write-Warning "Resource file not found: $resxFile"
+        Write-Warning "Base resource file not found: $resxFile"
         continue
     }
     
@@ -82,7 +85,7 @@ foreach ($resourceBaseName in $resourceFiles) {
         $process = Start-Process -FilePath $resgenPath -ArgumentList $arguments -NoNewWindow -Wait -PassThru
         
         if ($process.ExitCode -ne 0) {
-            Write-Error "Failed to generate resources (Exit Code: $($process.ExitCode))"
+            Write-Error "Failed to generate resources for $resxFile (Exit Code: $($process.ExitCode))"
         } else {
             Write-Host "Successfully generated" -ForegroundColor Green
             if (Test-Path $outputFile) {
@@ -90,8 +93,22 @@ foreach ($resourceBaseName in $resourceFiles) {
             }
         }
     } catch {
-        Write-Error "Error executing ResGen: $_"
+        Write-Error "Error executing ResGen for ${resxFile}: $_"
     }
 }
 
-Write-Host "`nResource generation complete!" -ForegroundColor Cyan
+# Validate that satellite resource files exist for other cultures
+$supportedCultures = @("en-US", "fr-FR")
+foreach ($culture in $supportedCultures) {
+    Write-Host "`nValidating satellite resources for culture: $culture" -ForegroundColor Yellow
+    foreach ($resourceBaseName in $resourceFiles) {
+        $cultureResxFile = "$resourceBaseName.$culture.resx"
+        if (Test-Path $cultureResxFile -PathType Leaf) {
+            Write-Host "✓ Found: $cultureResxFile" -ForegroundColor Green
+        } else {
+            Write-Warning "✗ Missing: $cultureResxFile"
+        }
+    }
+}
+
+Write-Host "`nResource generation complete for all cultures!" -ForegroundColor Cyan

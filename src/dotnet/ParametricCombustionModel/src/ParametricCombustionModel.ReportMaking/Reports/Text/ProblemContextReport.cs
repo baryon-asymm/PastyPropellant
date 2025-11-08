@@ -15,10 +15,10 @@ public class ProblemContextReport : BaseReport, ITransformable<string>
         OptimizationResult optimizationResult) : base(optimizationResult)
     {
         if (pressurePointReportCount <= 0)
-            throw new ArgumentException("Pressure point report count must be greater than zero");
+            throw new ArgumentException(ProblemContextReportResources.PressurePointReportCountMustBeGreaterThanZero);
 
         if (optimizationResult.OptimizedContext.PressureCount < pressurePointReportCount)
-            throw new ArgumentException("Pressure point report count must be less than or equal to the pressure count");
+            throw new ArgumentException(ProblemContextReportResources.PressurePointReportCountMustBeLessOrEqual);
 
         _pressurePointReportCount = pressurePointReportCount;
     }

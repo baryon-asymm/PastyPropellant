@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <data name="HeaderOfConstraintPenaltyEvaluators" xml:space="preserve">
+    <value>Contraintes fonctionnelles</value>
+  </data>
+
+  <data name="InterPocketFasterBurnPenaltyEvaluator" xml:space="preserve">
+    <value>Contrainte sur la vitesse de combustion inter-poche plus rapide.</value>
+  </data>
+
+  <data name="KineticFlameHeatFluxPenaltyEvaluator" xml:space="preserve">
+    <value>Contrainte sur les limites de densité de flux de chaleur de flamme cinétique.</value>
+  </data>
+  <data name="MaxInterPocketKineticFlameHeatFlux" xml:space="preserve">
+    <value>Densité de flux de chaleur de flamme cinétique maximale dans le milieu inter-poche {0:0.00e+00}</value>
+  </data>
+  <data name="MaxSkeletonKineticFlameHeatFlux" xml:space="preserve">
+    <value>Densité de flux de chaleur de flamme cinétique maximale dans la structure squelette {0:0.00e+00}</value>
+  </data>
+  <data name="MaxOutSkeletonKineticFlameHeatFlux" xml:space="preserve">
+    <value>Densité de flux de chaleur de flamme cinétique maximale dans la région poche hors squelette {0:0.00e+00}</value>
+  </data>
+
+  <data name="PocketHeatFluxRatioCompetitionPenaltyEvaluator" xml:space="preserve">
+    <value>Contrainte de compétition de flamme dans les régions poche.</value>
+  </data>
+  <data name="HeatFluxRatioThreshold" xml:space="preserve">
+    <value>Ratio maximal autorisé de densité de flux de chaleur (max/min) {0:0.00}</value>
+  </data>
+
+  <data name="PenaltyRate" xml:space="preserve">
+    <value>Coefficient de pénalité {0:0.0000}</value>
+  </data>
+
+  <data name="PoreDiameterPenaltyEvaluator" xml:space="preserve">
+    <value>Contrainte sur le ratio épaisseur de squelette sur diamètre de pore.</value>
+  </data>
+  <data name="PoreDiameterThreshold" xml:space="preserve">
+    <value>Seuil pour le ratio épaisseur de squelette sur diamètre de pore {0:0.00}</value>
+  </data>
+</root>

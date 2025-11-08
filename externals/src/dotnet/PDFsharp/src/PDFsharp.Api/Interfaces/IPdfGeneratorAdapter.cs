@@ -1,4 +1,5 @@
 ﻿using PastyPropellant.Core.Utils;
+using PdfSharp;
 using PDFsharp.Api.Models;
 
 namespace PDFsharp.Api.Interfaces;
@@ -14,6 +15,7 @@ public enum TextAlignment : byte
 public interface IPdfGeneratorAdapter
 {
     public void AddParagraph(TextAlignment textAlignment);
+    public void SetOrientation(PageOrientation orientation);
     public void AddLineBreak();
     public void AddTab();
 

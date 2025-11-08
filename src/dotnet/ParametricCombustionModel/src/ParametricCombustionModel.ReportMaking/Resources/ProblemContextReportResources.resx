@@ -99,4 +99,29 @@
     <data name="ToSurfaceTotalHeatFlux" xml:space="preserve">
         <value>Суммарная плотность теплового потока к поверхности {0}</value>
     </data>
+    
+    <data name="EffectiveThermalConductivity" xml:space="preserve">
+        <value>Эффективная теплопроводность {0}</value>
+    </data>
+    <data name="ConductiveThermalConductivity" xml:space="preserve">
+        <value>Кондуктивная теплопроводность {0}</value>
+    </data>
+    <data name="RadiativeThermalConductivity" xml:space="preserve">
+        <value>Радиационная теплопроводность {0}</value>
+    </data>
+    <data name="ConductiveThermalConductivityBalanceError" xml:space="preserve">
+        <value>Ошибка баланса теплопроводности {0}</value>
+    </data>
+    <data name="SkeletonLayerThickness" xml:space="preserve">
+        <value>Толщина КС {0}</value>
+    </data>
+    <data name="PoreDiameter" xml:space="preserve">
+        <value>Диаметр пор {0}</value>
+    </data>
+    <data name="PressurePointReportCountMustBeGreaterThanZero" xml:space="preserve">
+        <value>Количество точек отчета по давлению должно быть больше нуля</value>
+    </data>
+    <data name="PressurePointReportCountMustBeLessOrEqual" xml:space="preserve">
+        <value>Количество точек отчета по давлению должно быть меньше или равно общему количеству давлений</value>
+    </data>
 </root>

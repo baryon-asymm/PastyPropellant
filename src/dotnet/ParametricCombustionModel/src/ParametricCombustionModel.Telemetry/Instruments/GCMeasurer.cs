@@ -1,4 +1,4 @@
-﻿namespace ParametricCombustionModel.Telemetry.GCMeasurers;
+﻿namespace ParametricCombustionModel.Telemetry.Instruments;
 
 public static class GCMeasurer
 {

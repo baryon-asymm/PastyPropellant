@@ -97,6 +97,24 @@ namespace ParametricCombustionModel.ReportMaking.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Кондуктивная теплопроводность {0}.
+        /// </summary>
+        internal static string ConductiveThermalConductivity {
+            get {
+                return ResourceManager.GetString("ConductiveThermalConductivity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ошибка баланса кондуктивной теплопроводности {0}.
+        /// </summary>
+        internal static string ConductiveThermalConductivityBalanceError {
+            get {
+                return ResourceManager.GetString("ConductiveThermalConductivityBalanceError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Массовая скорость разложения {0}.
         /// </summary>
         internal static string DecomposeRate {
@@ -120,6 +138,15 @@ namespace ParametricCombustionModel.ReportMaking.Resources {
         internal static string DiffusionFlameHeight {
             get {
                 return ResourceManager.GetString("DiffusionFlameHeight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Эффективная теплопроводность {0}.
+        /// </summary>
+        internal static string EffectiveThermalConductivity {
+            get {
+                return ResourceManager.GetString("EffectiveThermalConductivity", resourceCulture);
             }
         }
         
@@ -232,11 +259,56 @@ namespace ParametricCombustionModel.ReportMaking.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Диаметр поры {0}.
+        /// </summary>
+        internal static string PoreDiameter {
+            get {
+                return ResourceManager.GetString("PoreDiameter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Количество точек отчета по давлению должно быть больше нуля.
+        /// </summary>
+        internal static string PressurePointReportCountMustBeGreaterThanZero {
+            get {
+                return ResourceManager.GetString("PressurePointReportCountMustBeGreaterThanZero", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Количество точек отчета по давлению должно быть меньше или равно общему количеству давлений.
+        /// </summary>
+        internal static string PressurePointReportCountMustBeLessOrEqual {
+            get {
+                return ResourceManager.GetString("PressurePointReportCountMustBeLessOrEqual", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Радиационная теплопроводность {0}.
+        /// </summary>
+        internal static string RadiativeThermalConductivity {
+            get {
+                return ResourceManager.GetString("RadiativeThermalConductivity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Плотность теплового потока к поверхности в КС {0}.
         /// </summary>
         internal static string SkeletonHeatFlux {
             get {
                 return ResourceManager.GetString("SkeletonHeatFlux", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Толщина скелетного слоя {0}.
+        /// </summary>
+        internal static string SkeletonLayerThickness {
+            get {
+                return ResourceManager.GetString("SkeletonLayerThickness", resourceCulture);
             }
         }
         

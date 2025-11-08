@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral,
+            PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral,
+            PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <data name="HeaderOfCombustionSolverParams" xml:space="preserve">
+        <value>Optimization Parameters</value>
+    </data>
+    <data name="ADecompose" xml:space="preserve">
+        <value>Pre-exponential coefficient for condensed phase reactions {0}</value>
+    </data>
+    <data name="EDecompose" xml:space="preserve">
+        <value>Activation energy for condensed phase reactions {0}</value>
+    </data>
+    <data name="AKineticFlameInterPocket" xml:space="preserve">
+        <value>Pre-exponential coefficient for gas phase reactions in inter-pocket medium {0}</value>
+    </data>
+    <data name="EKineticFlameInterPocket" xml:space="preserve">
+        <value>Activation energy for gas phase reactions in inter-pocket medium {0}</value>
+    </data>
+    <data name="AKineticFlamePocketOutSkeleton" xml:space="preserve">
+        <value>Pre-exponential factor for gas-phase reactions in pocket region outside skeleton {0}</value>
+    </data>
+    <data name="EKineticFlamePocketOutSkeleton" xml:space="preserve">
+        <value>Activation energy for gas-phase reactions in pocket region outside skeleton {0}</value>
+    </data>
+    <data name="AKineticFlamePocketSkeleton" xml:space="preserve">
+        <value>Pre-exponential factor for gas-phase reactions within skeleton structure {0}</value>
+    </data>
+    <data name="EKineticFlamePocketSkeleton" xml:space="preserve">
+        <value>Activation energy for gas-phase reactions within skeleton structure {0}</value>
+    </data>
+    <data name="NuInterPocket" xml:space="preserve">
+        <value>Reaction order for gas-phase chemistry in inter-pocket medium {0}</value>
+    </data>
+    <data name="NuPocketSkeleton" xml:space="preserve">
+        <value>Reaction order for gas-phase chemistry in skeleton structure {0}</value>
+    </data>
+    <data name="NuPocketOutSkeleton" xml:space="preserve">
+        <value>Reaction order for gas-phase chemistry outside skeleton structure {0}</value>
+    </data>
+    <data name="AMetalBurningConstant" xml:space="preserve">
+        <value>Coefficient A for metal combustion heat flux density in skeleton structure, {0}</value>
+    </data>
+    <data name="BMetalBurningConstant" xml:space="preserve">
+        <value>Coefficient B for metal combustion heat flux density in skeleton structure, {0}</value>
+    </data>
+    <data name="DeltaH" xml:space="preserve">
+        <value>Enthalpy difference between vaporization and binder decomposition {0}</value>
+    </data>
+    <data name="KDiffusionHeight" xml:space="preserve">
+        <value>Diffusion flame height correlation coefficient {0:0.0000}</value>
+    </data>
+    <data name="KCoefficientRadiationTemperature" xml:space="preserve">
+        <value>Radiation temperature correlation coefficient (average layer temperature) {0:0.0000}</value>
+    </data>
+    <data name="APowOrder" xml:space="preserve">
+        <value>Power law exponent for burning rate dependency on A (skeleton thickness) {0:0.0000}</value>
+    </data>
+    <data name="BPowOrder" xml:space="preserve">
+        <value>Power law exponent for burning rate dependency on B (pore diameter) {0:0.0000}</value>
+    </data>
+    <data name="ParameterBounds" xml:space="preserve">
+        <value>Parameter bounds {0:0.0000}</value>
+    </data>
+</root>

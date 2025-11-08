@@ -1,9 +1,13 @@
-﻿using System.Text;
+﻿using System.Collections.ObjectModel;
+using System.Text;
+using ParametricCombustionModel.Core.Models;
 using ParametricCombustionModel.Optimization.Models;
 using ParametricCombustionModel.ReportMaking.Enums;
 using ParametricCombustionModel.ReportMaking.Interfaces;
+using ParametricCombustionModel.ReportMaking.Models;
 using ParametricCombustionModel.ReportMaking.PdfOperations;
 using ParametricCombustionModel.ReportMaking.Reports.Pdf;
+using PdfSharp;
 using PDFsharp.Api.Interfaces;
 
 namespace ParametricCombustionModel.ReportMaking.ReportMakers;
@@ -11,27 +15,30 @@ namespace ParametricCombustionModel.ReportMaking.ReportMakers;
 public class PdfReportMaker : IReportMaker, IPdfOperationVisitor
 {
     private readonly IPdfGeneratorAdapter _pdfGeneratorAdapter;
-    private readonly OptimizationResult _optimizationResult;
+    private readonly ReportContextDto _reportContext;
 
-    private PdfReportMaker(
-        OptimizationResult optimizationResult,
+    public PdfReportMaker(
+        ReportContextDto reportContext,
         IPdfGeneratorAdapter pdfGeneratorAdapter)
     {
-        _optimizationResult = optimizationResult ?? throw new ArgumentNullException(nameof(optimizationResult));
+        _reportContext = reportContext ?? throw new ArgumentNullException(nameof(reportContext));
         _pdfGeneratorAdapter = pdfGeneratorAdapter ?? throw new ArgumentNullException(nameof(pdfGeneratorAdapter));
     }
 
     public string MakeReport()
     {
-        var penaltyEvaluatorsReport = new ConstraintPenaltyEvaluatorReport(_optimizationResult);
-        var parametricConstraintReport = new ParametricConstraintReport(_optimizationResult);
-        var combustionSolverParamsReport = new CombustionSolverParamsReport(_optimizationResult);
-        var fitnessFunctionEvaluatorReport = new FitnessFunctionEvaluatorReport(_optimizationResult);
-        var pressurePointCount = _optimizationResult.OptimizedContext.ProblemContextMatrix.GetLength(1);
+        var optimizationResult = _reportContext.OptimizationResult;
+        var penaltyEvaluatorsReport = new ConstraintPenaltyEvaluatorReport(optimizationResult);
+        var parametricConstraintReport = new ParametricConstraintReport(optimizationResult);
+        var differentialEvolutionSettingsReport = new DifferentialEvolutionSettingsReport(_reportContext);
+        var combustionSolverParamsReport = new CombustionSolverParamsReport(optimizationResult);
+        var fitnessFunctionEvaluatorReport = new FitnessFunctionEvaluatorReport(optimizationResult);
+        var pressurePointCount = optimizationResult.OptimizedContext.ProblemContextMatrix.GetLength(1);
         var problemContextReport =
-            new ProblemContextReport([0, pressurePointCount / 2, pressurePointCount - 1], _optimizationResult);
-        var pressureTablesReport = new PressureTablesReport([0, pressurePointCount / 2, pressurePointCount - 1], _optimizationResult);
-        var propellantReport = new PropellantReport(_optimizationResult);
+            new ProblemContextReport([0, pressurePointCount / 2, pressurePointCount - 1], optimizationResult);
+        var pressureTablesReport = new PressureTablesReport([0, pressurePointCount / 2, pressurePointCount - 1], optimizationResult);
+        var propellantReport = new PropellantReport(optimizationResult);
+        var performanceReport = new PerformanceMeterReport(_reportContext);
 
         _pdfGeneratorAdapter.AddParagraph(TextAlignment.Left);
         foreach (var operation in penaltyEvaluatorsReport.Transform())
@@ -39,6 +46,10 @@ public class PdfReportMaker : IReportMaker, IPdfOperationVisitor
         _pdfGeneratorAdapter.AddLineBreak();
 
         foreach (var operation in parametricConstraintReport.Transform())
+            operation.Accept(this);
+        _pdfGeneratorAdapter.AddLineBreak();
+
+        foreach (var operation in differentialEvolutionSettingsReport.Transform())
             operation.Accept(this);
         _pdfGeneratorAdapter.AddLineBreak();
 
@@ -70,13 +81,17 @@ public class PdfReportMaker : IReportMaker, IPdfOperationVisitor
         _pdfGeneratorAdapter.AddImage("temperatures_plot.png", isPortrait: false);
         _pdfGeneratorAdapter.AddImage("agglomeration_fraction_plot.png", isPortrait: false);
         _pdfGeneratorAdapter.AddImage("skeleton_surface_fraction_plot.png", isPortrait: false);
+
+        _pdfGeneratorAdapter.SetOrientation(PageOrientation.Portrait);
         _pdfGeneratorAdapter.AddParagraph(TextAlignment.Left);
+
+        foreach (var operation in performanceReport.Transform())
+            operation.Accept(this);
 
         _pdfGeneratorAdapter.AddFooterForLastPage(
             GetLastPageFooter());
 
         var generationResult = _pdfGeneratorAdapter.Generate();
-        Console.WriteLine(generationResult.IsSuccess);
         if (generationResult.IsSuccess == false)
             throw new InvalidOperationException("PDF generation failed: " + generationResult.Exception!.ToString());
 
@@ -114,21 +129,14 @@ public class PdfReportMaker : IReportMaker, IPdfOperationVisitor
 
         stringBuilder.AppendLine("Generated at " + DateTime.Now);
 
-        var base64String = Convert.ToBase64String(_optimizationResult.BestSolverParamsBySpan.ToArray()
-                                                                     .SelectMany(BitConverter.GetBytes).ToArray());
-        var indexOfSlice = base64String.Length / 2;
-        stringBuilder.AppendLine(base64String[..indexOfSlice]);
-        stringBuilder.AppendLine(base64String[indexOfSlice..]);
+        // var base64String = Convert.ToBase64String(_optimizationResult.BestSolverParams.ToArray()
+        //                                                              .SelectMany(BitConverter.GetBytes).ToArray());
+        // var indexOfSlice = base64String.Length / 2;
+        // stringBuilder.AppendLine(base64String[..indexOfSlice]);
+        // stringBuilder.AppendLine(base64String[indexOfSlice..]);
 
         stringBuilder.AppendLine("Generated by ParametricCombustionModel");
 
         return stringBuilder.ToString();
-    }
-
-    public static PdfReportMaker FromOptimizationResult(
-        OptimizationResult optimizationResult,
-        IPdfGeneratorAdapter pdfGeneratorAdapter)
-    {
-        return new PdfReportMaker(optimizationResult, pdfGeneratorAdapter);
     }
 }
