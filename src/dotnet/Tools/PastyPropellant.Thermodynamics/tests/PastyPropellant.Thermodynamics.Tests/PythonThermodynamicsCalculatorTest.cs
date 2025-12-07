@@ -16,6 +16,7 @@ public class PythonThermodynamicsCalculatorTest
     }
 
     // Long running test
+    [Trait("Category", "LongRunning")]
     [Fact]
     public async Task CalculateThermodynamicPropertiesAsync_ShouldSuccessReturnPropellantThermodynamics()
     {

@@ -23,7 +23,7 @@
         </value>
     </resheader>
     <data name="Header" xml:space="preserve">
-        <value>Настройки алгоритма оптимизации</value>
+        <value>Алгоритм оптимизации</value>
     </data>
     <data name="PopulationSize" xml:space="preserve">
         <value>Размер популяции: {0}</value>

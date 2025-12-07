@@ -71,7 +71,7 @@ namespace ParametricCombustionModel.ReportMaking.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Настройки алгоритма оптимизации.
+        ///   Looks up a localized string similar to Алгоритм оптимизации.
         /// </summary>
         internal static string Header {
             get {

@@ -106,7 +106,7 @@ namespace ParametricCombustionModel.ReportMaking.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Ошибка баланса кондуктивной теплопроводности {0}.
+        ///   Looks up a localized string similar to Ошибка баланса теплопроводности {0}.
         /// </summary>
         internal static string ConductiveThermalConductivityBalanceError {
             get {
@@ -259,7 +259,7 @@ namespace ParametricCombustionModel.ReportMaking.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Диаметр поры {0}.
+        ///   Looks up a localized string similar to Диаметр пор {0}.
         /// </summary>
         internal static string PoreDiameter {
             get {
@@ -304,7 +304,7 @@ namespace ParametricCombustionModel.ReportMaking.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Толщина скелетного слоя {0}.
+        ///   Looks up a localized string similar to Толщина КС {0}.
         /// </summary>
         internal static string SkeletonLayerThickness {
             get {

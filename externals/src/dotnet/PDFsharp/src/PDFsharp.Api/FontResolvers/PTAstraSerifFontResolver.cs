@@ -1,9 +1,10 @@
 ﻿using System.Reflection;
+using MigraDoc;
 using PdfSharp.Fonts;
 
 namespace PDFsharp.Api.FontResolvers;
 
-internal class PTAstraSerifFontResolver : IFontResolver
+public class PTAstraSerifFontResolver : IFontResolver
 {
     internal static PTAstraSerifFontResolver? OurGlobalFontResolver;
 
@@ -56,7 +57,7 @@ internal class PTAstraSerifFontResolver : IFontResolver
     /// <summary>
     ///     Ensure the font resolver is only applied once (or an exception is thrown)
     /// </summary>
-    internal static void Apply()
+    public static void Apply()
     {
         if (OurGlobalFontResolver == null || GlobalFontSettings.FontResolver == null)
         {
@@ -64,6 +65,7 @@ internal class PTAstraSerifFontResolver : IFontResolver
                 OurGlobalFontResolver = new PTAstraSerifFontResolver();
 
             GlobalFontSettings.FontResolver = OurGlobalFontResolver;
+            PredefinedFontsAndChars.ErrorFontName = "PTAstraSerif";
         }
     }
 }

@@ -14,6 +14,7 @@ public class ConstructPropellantJsonHelperTest
     public const string PyPorosityScriptPath = "../../../../../src/python/PorosityCalculation/src/main.py";
 
     // Very long running test
+    [Trait("Category", "LongRunning")]
     [Fact]
     public async Task ConstructAsync_ShouldSuccessReturnOperationResult()
     {

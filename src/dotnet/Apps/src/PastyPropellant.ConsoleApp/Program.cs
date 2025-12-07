@@ -10,6 +10,7 @@ using ParametricCombustionModel.PlotRenderer.Renderers;
 using ParametricCombustionModel.ReportMaking.Models;
 using ParametricCombustionModel.ReportMaking.ReportMakers;
 using ParametricCombustionModel.Telemetry;
+using PastyPropellant.ConsoleApp;
 using PastyPropellant.ConsoleApp.Helpers;
 using PastyPropellant.ConsoleApp.Scenarios;
 using PastyPropellant.ConsoleApp.Scenarios.Settings;
@@ -50,7 +51,7 @@ void GenerateReport(
 async Task RunPointCalculationAsync()
 {
     double[] lowerBound = [1, 1, 1, 5e4, 1, 5e4, 1, 5e4, 1.0, 1.0, 1.0, 1e-6, 1e-6, -1e12, 1e-6, 1.0, 2.0, 0.0];
-    double[] upperBound = [double.MaxValue, 1e9, 1e12, 2e5, 1e12, 2e5, 1e12, 2e5, 10.0, 10.0, 10.0, 1.0, 1.0, 1e12, 1e1, 1.0, 2.0, 0.0];
+    double[] upperBound = [1e12, 1e9, 1e12, 2e5, 1e12, 2e5, 1e12, 2e5, 10.0, 10.0, 10.0, 1.0, 1.0, 1e12, 1e1, 1.0, 2.0, 0.0];
 
     // Base parameter bounds
     /* double[] lowerBound = [
@@ -120,20 +121,26 @@ async Task RunPointCalculationAsync()
         new PoreDiameterPenaltyEvaluator(penaltyRate, poreDiameterThreshold)
     ];
 
+    var populationSize = lowerBound.Length * 64;
+    var maxAvailableProcessors = Environment.ProcessorCount - 1;
+    int processorsCount = maxAvailableProcessors;
+    for (; processorsCount >= 14; processorsCount--)
+        if (populationSize % processorsCount == 0)
+            break;
+
     var settings = DifferentialEvolutionScenarioSettings
                     .CreateBuilder()
                     .WithMeter(meter)
                     .WithPropellantsFromFile(inputFileName)
-                    .WithPopulationSize(lowerBound.Length * 8)
+                    .WithPopulationSize(populationSize)
                     .WithLowerBound(lowerBound)
                     .WithUpperBound(upperBound)
                     .WithMutationForce(0.7)
                     .WithCrossoverProbability(0.9)
                     .WithTerminationStrategy(
-                        new StagnationStreakTerminationStrategy(
-                            maxStagnationStreak: 100_000, stagnationThreshold: 1e-6))
+                        new TimeoutTerminationStrategy(TimeSpan.FromHours(20)))
                     .AddPenaltyEvaluators(penaltyEvaluators)
-                    .WithProcessorsCount(processorsCount: 10)
+                    .WithProcessorsCount(processorsCount)
                     .Build();
 
     var scenario = new DifferentialEvolutionScenario(settings);
@@ -141,7 +148,7 @@ async Task RunPointCalculationAsync()
     Console.WriteLine("Starting point calculation with custom bounds:");
     Console.WriteLine($"- Input file: {inputFileName}");
     Console.WriteLine($"- Pore diameter threshold: {poreDiameterThreshold}");
-    Console.WriteLine($"- Population size: {lowerBound.Length * 8}");
+    Console.WriteLine($"- Population size: {populationSize}");
 
     OptimizationResult result;
 

@@ -46,8 +46,8 @@ public class FitnessFunctionEvaluatorTester
     {
         var penaltyRate = 1.0;
 
-        var minSurfaceTemperature = Temperature.FromKelvins(600);
-        var maxSurfaceTemperature = Temperature.FromKelvins(750);
+        var minSurfaceTemperature = Temperature.FromKelvins(599);
+        var maxSurfaceTemperature = Temperature.FromKelvins(751);
         var interPocketSurfaceTemperatureRange =
             new SurfaceTemperatureRange(minSurfaceTemperature, maxSurfaceTemperature);
         var pocketSurfaceTemperatureRange =

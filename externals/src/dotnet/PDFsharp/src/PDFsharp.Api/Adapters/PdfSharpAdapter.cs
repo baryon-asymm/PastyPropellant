@@ -21,7 +21,7 @@ public class PdfSharpAdapter : IPdfGeneratorAdapter
     public PdfSharpAdapter(string filePath)
     {
         if (GlobalFontSettings.FontResolver is not PTAstraSerifFontResolver)
-            GlobalFontSettings.FontResolver = new PTAstraSerifFontResolver();
+            PTAstraSerifFontResolver.Apply();
 
         _document = new Document();
         var style = _document.Styles[StyleNames.Normal]!;
@@ -51,6 +51,7 @@ public class PdfSharpAdapter : IPdfGeneratorAdapter
             TextAlignment.Justify => ParagraphAlignment.Justify,
             _ => paragraph.Format.Alignment
         };
+        paragraph.Format.Font.Name = "PTAstraSerif";
     }
 
     public void SetOrientation(PageOrientation orientation)

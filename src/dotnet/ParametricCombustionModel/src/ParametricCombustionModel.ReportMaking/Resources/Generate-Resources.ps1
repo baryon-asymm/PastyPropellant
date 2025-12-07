@@ -104,9 +104,9 @@ foreach ($culture in $supportedCultures) {
     foreach ($resourceBaseName in $resourceFiles) {
         $cultureResxFile = "$resourceBaseName.$culture.resx"
         if (Test-Path $cultureResxFile -PathType Leaf) {
-            Write-Host "✓ Found: $cultureResxFile" -ForegroundColor Green
+            Write-Host "[OK] Found: $cultureResxFile" -ForegroundColor Green
         } else {
-            Write-Warning "✗ Missing: $cultureResxFile"
+            Write-Warning "[MISSING] $cultureResxFile"
         }
     }
 }

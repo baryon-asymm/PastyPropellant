@@ -18,7 +18,7 @@ public class SpecificSolverTest
                                                                   .ForPressures(context.Pressures)
                                                                   .Build();
         var experimentalBurningRates = context.Propellants.GetExperimentalBurningRates(context.Pressures);
-        var solver = new TargetFunctionNonlconSolver(experimentalBurningRates, mixedPropellantSolvers, (600, 750));
+        var solver = new TargetFunctionNonlconSolver(experimentalBurningRates, mixedPropellantSolvers, (599, 751));
 
         var fi = new double[3];
         solver.RunTargetFunction(context.InitialPoint.ToArray(), fi);
