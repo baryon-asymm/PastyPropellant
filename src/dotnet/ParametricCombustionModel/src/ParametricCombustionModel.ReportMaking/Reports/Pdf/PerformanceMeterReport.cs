@@ -85,7 +85,6 @@ public class PerformanceMeterReport : BaseReport, ITransformable<Queue<IPdfOpera
             var memoryType = Environment.Is64BitOperatingSystem ? "64-bit" : "32-bit";
             var memoryFrequency = GetMemoryFrequency();
             
-            // Пытаемся получить общее количество физической памяти
             var totalPhysicalMemoryBytes = GetTotalPhysicalMemory();
             
             if (totalPhysicalMemoryBytes > 0)
@@ -94,7 +93,6 @@ public class PerformanceMeterReport : BaseReport, ITransformable<Queue<IPdfOpera
                 return $"{memoryGB}|{memoryType}|{memoryFrequency}";
             }
             
-            // Fallback: используем GC информацию (приблизительно)
             var gcMemory = GC.GetTotalMemory(false);
             var gcMemoryGB = Math.Round(gcMemory / (1024.0 * 1024.0 * 1024.0), 2);
             return $"{gcMemoryGB} (GC)|{memoryType}|{memoryFrequency}";
@@ -343,7 +341,6 @@ public class PerformanceMeterReport : BaseReport, ITransformable<Queue<IPdfOpera
     {
         try
         {
-            // В Linux информация о частоте памяти может быть в разных местах
             var dmidecodeInfo = new System.Diagnostics.ProcessStartInfo
             {
                 FileName = "dmidecode",
@@ -383,23 +380,20 @@ public class PerformanceMeterReport : BaseReport, ITransformable<Queue<IPdfOpera
                                TextStyle.Bold));
         operations.Enqueue(new LineBreakOperation());
 
-        // Детальная информация об ОС
         operations.Enqueue(new PrintTextOperation(
                                string.Format(PerformanceMeterReportResources.OperatingSystem,
                                            $"{Environment.OSVersion} ({RuntimeInformation.OSDescription})"),
                                TextStyle.None));
         operations.Enqueue(new LineBreakOperation());
 
-        // Информация о процессоре
         var processorName = GetProcessorName().Replace("-Core", $"-Core, {Environment.ProcessorCount}-Thread");
-        processorName += $" (Clock Frequency {GetProcessorFrequency()})";
+        processorName += $" (Base Clock Frequency {GetProcessorFrequency()})";
         operations.Enqueue(new PrintTextOperation(
                                string.Format(PerformanceMeterReportResources.ProcessorName,
                                            processorName),
                                TextStyle.None));
         operations.Enqueue(new LineBreakOperation());
 
-        // Информация о памяти с частотой
         var memoryInfo = GetMemoryInfo().Split('|');
         if (memoryInfo.Length >= 3)
         {
@@ -410,7 +404,6 @@ public class PerformanceMeterReport : BaseReport, ITransformable<Queue<IPdfOpera
         }
         else
         {
-            // Fallback к старому формату
             operations.Enqueue(new PrintTextOperation(
                                    string.Format(PerformanceMeterReportResources.MemoryInfo,
                                                memoryInfo[0], memoryInfo.Length > 1 ? memoryInfo[1] : "Unknown"),
@@ -424,7 +417,6 @@ public class PerformanceMeterReport : BaseReport, ITransformable<Queue<IPdfOpera
                                TextStyle.None));
         operations.Enqueue(new LineBreakOperation());
 
-        // Детальная информация о среде выполнения .NET
         operations.Enqueue(new PrintTextOperation(
                                string.Format(PerformanceMeterReportResources.RuntimeDescription,
                                            $".NET {Environment.Version} ({RuntimeInformation.FrameworkDescription})"),

@@ -50,8 +50,8 @@ void GenerateReport(
 
 async Task RunPointCalculationAsync()
 {
-    double[] lowerBound = [1, 1, 1, 5e4, 1, 5e4, 1, 5e4, 1.0, 1.0, 1.0, 1e-6, 1e-6, -1e12, 1e-6, 1.0, 2.0, 0.0];
-    double[] upperBound = [1e12, 1e9, 1e12, 2e5, 1e12, 2e5, 1e12, 2e5, 10.0, 10.0, 10.0, 1.0, 1.0, 1e12, 1e1, 1.0, 2.0, 0.0];
+    double[] lowerBound = [0, 0, 0, 5e4, 0, 5e4, 0, 5e4, -3.0, -3.0, -3.0, 1e-15, 1e-15, -1e12, 1e-15, 1.0, 2.0, 0.0];
+    double[] upperBound = [double.MaxValue, 5e6, 1e15, 2e5, 1e15, 2e5, 1e15, 2e5, 3.0, 3.0, 3.0, 1.0, 1.0, 1e12, 1e1, 1.0, 2.0, 0.0];
 
     // Base parameter bounds
     /* double[] lowerBound = [
@@ -121,7 +121,7 @@ async Task RunPointCalculationAsync()
         new PoreDiameterPenaltyEvaluator(penaltyRate, poreDiameterThreshold)
     ];
 
-    var populationSize = lowerBound.Length * 64;
+    var populationSize = lowerBound.Length * 8;
     var maxAvailableProcessors = Environment.ProcessorCount - 1;
     int processorsCount = maxAvailableProcessors;
     for (; processorsCount >= 14; processorsCount--)
@@ -138,7 +138,7 @@ async Task RunPointCalculationAsync()
                     .WithMutationForce(0.7)
                     .WithCrossoverProbability(0.9)
                     .WithTerminationStrategy(
-                        new TimeoutTerminationStrategy(TimeSpan.FromHours(20)))
+                        new TimeoutTerminationStrategy(TimeSpan.FromHours(6)))
                     .AddPenaltyEvaluators(penaltyEvaluators)
                     .WithProcessorsCount(processorsCount)
                     .Build();

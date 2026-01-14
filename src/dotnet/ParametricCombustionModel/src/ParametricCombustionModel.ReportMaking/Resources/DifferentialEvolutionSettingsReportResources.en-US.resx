@@ -46,4 +46,7 @@
     <data name="ParameterBounds" xml:space="preserve">
         <value>Parameter {0}: [{1:F6}; {2:F6}]</value>
     </data>
+    <data name="ThreadsCount" xml:space="preserve">
+        <value name="en">Number of threads: {0}</value>
+    </data>
 </root>
