@@ -51,7 +51,7 @@ void GenerateReport(
 async Task RunPointCalculationAsync()
 {
     double[] lowerBound = [0, 0, 0, 5e4, 0, 5e4, 0, 5e4, -3.0, -3.0, -3.0, 1e-15, 1e-15, -1e12, 1e-15, 1.0, 2.0, 0.0];
-    double[] upperBound = [double.MaxValue, 5e6, 1e15, 2e5, 1e15, 2e5, 1e15, 2e5, 3.0, 3.0, 3.0, 1.0, 1.0, 1e12, 1e1, 1.0, 2.0, 0.0];
+    double[] upperBound = [double.MaxValue, 4422718, 1e15, 2e5, 1e15, 2e5, 1e15, 2e5, 3.0, 3.0, 3.0, 1.0, 1.0, 1e12, 1e1, 1.0, 2.0, 0.0];
 
     // Base parameter bounds
     /* double[] lowerBound = [
@@ -138,7 +138,8 @@ async Task RunPointCalculationAsync()
                     .WithMutationForce(0.7)
                     .WithCrossoverProbability(0.9)
                     .WithTerminationStrategy(
-                        new TimeoutTerminationStrategy(TimeSpan.FromHours(6)))
+                        new CustomStagnationStreakTerminationStrategy(299_999, 1e-8)
+                    )
                     .AddPenaltyEvaluators(penaltyEvaluators)
                     .WithProcessorsCount(processorsCount)
                     .Build();
