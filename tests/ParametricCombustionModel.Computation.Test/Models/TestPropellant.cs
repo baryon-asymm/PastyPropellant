@@ -94,8 +94,8 @@ public static class TestPropellant
                                        100,
                                        lowerBounds,
                                        upperBounds,
-                                       599,
-                                       751,
+                                       600,
+                                       750,
                                        propellants);
     }
 
