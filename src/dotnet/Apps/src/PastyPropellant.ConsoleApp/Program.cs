@@ -1,8 +1,10 @@
 ﻿using System.Globalization;
 using DotNetDifferentialEvolution.TerminationStrategies;
+using ParametricCombustionModel.Core.Models;
 using ParametricCombustionModel.Optimization.ConstraintPenaltyEvaluators;
 using ParametricCombustionModel.Optimization.ConstraintPenaltyEvaluators.Interfaces;
 using ParametricCombustionModel.Optimization.Results;
+using ParametricCombustionModel.Optimization.Settings;
 using ParametricCombustionModel.PlotRenderer.Models;
 using ParametricCombustionModel.PlotRenderer.Renderers;
 using ParametricCombustionModel.ReportMaking.Models;
@@ -16,6 +18,37 @@ using PastyPropellant.Core.Models.Events.Logs;
 using PastyPropellant.Core.Utils;
 using PDFsharp.Api.Adapters;
 using UnitsNet;
+
+void GenerateGroupReport(
+    GroupOptimizationResult groupOptimizationResult,
+    string inputFileName,
+    string cultureName,
+    string reportSuffix,
+    System.Collections.ObjectModel.ReadOnlyCollection<Propellant> propellants,
+    DifferentialEvolutionSettings? settings = null,
+    PerformanceMeter? meter = null)
+{
+    // Set culture for localization
+    var culture = new CultureInfo(cultureName);
+    CultureInfo.DefaultThreadCurrentCulture = culture;
+    CultureInfo.DefaultThreadCurrentUICulture = culture;
+    
+    // Generate report filename with culture suffix
+    string pdfOutputFileName = $"propellants.group_optimization.report.{reportSuffix}.pdf";
+    
+    var pdfGeneratorAdapter = new PdfSharpAdapter(pdfOutputFileName);
+    var reportContextDto = new GroupReportContextDto(
+        groupOptimizationResult,
+        inputFileName,
+        propellants,
+        settings,
+        meter);
+    
+    var pdfReportMaker = new GroupPdfReportMaker(reportContextDto, pdfGeneratorAdapter);
+    pdfReportMaker.MakeReport();
+    
+    Console.WriteLine($"Group report generated in {cultureName} culture: {pdfOutputFileName}");
+}
 
 double[] GetLowerBound()
 {
@@ -73,7 +106,7 @@ double[] GetGroupUpperBound()
     return groupBounds;
 }
 
-async Task<OperationResult<GroupOptimizationResult>?> RunGroupOptimizationAsync(string inputFileName)
+async Task<(OperationResult<GroupOptimizationResult>? result, PerformanceMeter meter, DifferentialEvolutionSettings? deSettings, System.Collections.ObjectModel.ReadOnlyCollection<Propellant> propellants)> RunGroupOptimizationAsync(string inputFileName)
 {
     const double penaltyRate = 1.0;
     const double heatFluxRatioThreshold = 100.0;
@@ -116,8 +149,8 @@ async Task<OperationResult<GroupOptimizationResult>?> RunGroupOptimizationAsync(
                     .WithMutationForce(0.7)
                     .WithCrossoverProbability(0.9)
                     .WithTerminationStrategy(
-                        new TimeoutTerminationStrategy(TimeSpan.FromMinutes(3))
-                        // new CustomStagnationStreakTerminationStrategy(299_999, 1e-8)
+                        // new TimeoutTerminationStrategy(TimeSpan.FromMinutes(3))
+                        new CustomStagnationStreakTerminationStrategy(299_999, 1e-8)
                     )
                     .AddPenaltyEvaluators(penaltyEvaluators)
                     .WithProcessorsCount(processorsCount)
@@ -138,7 +171,7 @@ async Task<OperationResult<GroupOptimizationResult>?> RunGroupOptimizationAsync(
         operationResult = await scenario.RunAsync();
     }
 
-    return operationResult;
+    return (operationResult, meter, settings.DifferentialEvolutionSettings, settings.Propellants);
 }
 
 EventBus<InfoLogEvent>.Subscribe(logEvent => {
@@ -151,12 +184,13 @@ try
     Console.WriteLine("GROUP OPTIMIZATION: BAS_0, BAS_1, BAS_2+BAS_3+BAS_4 (SIMULTANEOUS)");
     Console.WriteLine(new string('=', 90) + "\n");
 
-    var operationResult = await RunGroupOptimizationAsync("propellants.01234.json");
+    var (operationResult, meter, deSettings, propellants) = await RunGroupOptimizationAsync("propellants.01234.json");
 
-    if (!operationResult.IsSuccess)
+    if (operationResult == null || !operationResult.IsSuccess)
     {
         Console.WriteLine("\n❌ Group optimization failed:");
-        Console.WriteLine(operationResult.Exception);
+        if (operationResult != null)
+            Console.WriteLine(operationResult.Exception);
         return;
     }
 
@@ -186,7 +220,7 @@ try
         XAxisMaximum = 6.6,
         XAxisTitle = "Pressure, MPa",
         YAxisTitle = "mm/s",
-        Width = 1200,
+        Width = 800,
         Height = 800,
         Dpi = 96
     };
@@ -202,6 +236,11 @@ try
     await propellantPlotsRenderingHelper.RenderPlotsAsync("propellants.01234.json");
     Console.WriteLine("✓ Python plots rendered\n");
 
+    // Generate PDF report
+    Console.WriteLine("Generating PDF report...");
+    GenerateGroupReport(groupResult!, "propellants.01234.json", "en-US", "en", propellants, deSettings, meter);
+    Console.WriteLine("✓ PDF report generated\n");
+
     Console.WriteLine(new string('=', 90));
     Console.WriteLine("GROUP OPTIMIZATION COMPLETED SUCCESSFULLY");
     Console.WriteLine(new string('=', 90));
@@ -213,6 +252,7 @@ try
     Console.WriteLine("  ✓ Bas_2 group includes Bas_3 and Bas_4 (same specific parameters)");
     Console.WriteLine("  ✓ Burning rate plots rendered for each composition");
     Console.WriteLine("  ✓ Python visualization plots generated");
+    Console.WriteLine("  ✓ PDF report generated with group parameters");
     Console.WriteLine(new string('=', 90) + "\n");
 }
 catch (Exception ex)
