@@ -1,10 +1,8 @@
-﻿using System.Collections.ObjectModel;
-using System.Diagnostics.Metrics;
-using System.Globalization;
+﻿using System.Globalization;
 using DotNetDifferentialEvolution.TerminationStrategies;
 using ParametricCombustionModel.Optimization.ConstraintPenaltyEvaluators;
 using ParametricCombustionModel.Optimization.ConstraintPenaltyEvaluators.Interfaces;
-using ParametricCombustionModel.Optimization.Models;
+using ParametricCombustionModel.Optimization.Results;
 using ParametricCombustionModel.PlotRenderer.Models;
 using ParametricCombustionModel.PlotRenderer.Renderers;
 using ParametricCombustionModel.ReportMaking.Models;
@@ -19,90 +17,67 @@ using PastyPropellant.Core.Utils;
 using PDFsharp.Api.Adapters;
 using UnitsNet;
 
-void GenerateReport(
-    OptimizationResult optimizationResult, 
-    string inputFileName, 
-    DifferentialEvolutionScenarioSettings settings, 
-    string cultureName, 
-    string reportSuffix)
+double[] GetLowerBound()
 {
-    // Set culture for localization
-    var culture = new CultureInfo(cultureName);
-    CultureInfo.DefaultThreadCurrentCulture = culture;
-    CultureInfo.DefaultThreadCurrentUICulture = culture;
-    
-    // Generate report filename with culture suffix
-    string pdfOutputFileName = $"propellants.point_calculation.report.{reportSuffix}.pdf";
-    
-    var pdfGeneratorAdapter = new PdfSharpAdapter(pdfOutputFileName);
-    var reportContextDto = new ReportContextDto(
-        optimizationResult, 
-        inputFileName, 
-        settings.Propellants, 
-        settings.DifferentialEvolutionSettings, 
-        settings.Meter);
-    
-    var pdfReportMaker = new PdfReportMaker(reportContextDto, pdfGeneratorAdapter);
-    pdfReportMaker.MakeReport();
-    
-    Console.WriteLine($"Report generated in {cultureName} culture: {pdfOutputFileName}");
+    return [0, 0, 0, 5e4, 0, 5e4, 0, 5e4, -3.0, -3.0, -3.0, 1e-15, 1e-15, -1e12, 1e-15, 1.0, 2.0, 0.0];
 }
 
-async Task RunPointCalculationAsync()
+double[] GetUpperBound()
 {
-    double[] lowerBound = [0, 0, 0, 5e4, 0, 5e4, 0, 5e4, -3.0, -3.0, -3.0, 1e-15, 1e-15, -1e12, 1e-15, 1.0, 2.0, 0.0];
-    double[] upperBound = [double.MaxValue, 4422718, 1e15, 2e5, 1e15, 2e5, 1e15, 2e5, 3.0, 3.0, 3.0, 1.0, 1.0, 1e12, 1e1, 1.0, 2.0, 0.0];
+    return [double.MaxValue, 4422718, 1e15, 2e5, 1e15, 2e5, 1e15, 2e5, 3.0, 3.0, 3.0, 1.0, 1.0, 1e12, 1e1, 1.0, 2.0, 0.0];
+}
 
-    // Base parameter bounds
-    /* double[] lowerBound = [
-        1,      // ADecompose (from calculation)
-        1,      // EDecompose (from calculation)
-        3.26e+09,      // AKineticFlameInterPocket (from calculation)
-        199999.99,     // EKineticFlameInterPocket (from calculation)
-        2.62e+06,      // AKineticFlamePocketOutSkeleton (from calculation)
-        50000,         // EKineticFlamePocketOutSkeleton (from calculation)
-        6.21e+11,             // AKineticFlamePocketSkeleton (UNCHANGED skeleton param)
-        187465.54,           // EKineticFlamePocketSkeleton (UNCHANGED skeleton param)
-        2.2658901079487093,  // NuInterPocket (fixed from calculation)
-        1.0000000000060636,   // NuPocketOutSkeleton (fixed from calculation)
-        2.5395927015915345,  // NuPocketSkeleton (will be adjusted per scenario)
-        9.73e-06,      // AMetalBurningConstant (from calculation)
-        2.35e-08,      // BMetalBurningConstant (from calculation)
-        -360438.99,    // DeltaH (from calculation)
-        0.9961,        // KDiffusionHeight (from calculation)
-        1.0,           // APowOrder (from calculation)
-        2.0,           // BPowOrder (from calculation)
-        0.0            // KCoefficientRadiationTemperature (from calculation)
-    ];
+// ========== GROUP OPTIMIZATION BOUNDS (32-ELEMENT VECTOR) ==========
+// Structure: [0-10] shared, [11-17] Bas_2, [18-24] Bas_1, [25-31] Bas_0
+double[] GetGroupLowerBound()
+{
+    var originalLower = GetLowerBound();
+    var groupBounds = new double[32];
+    
+    // Map shared parameters [0-10] from original indices [2, 3, 4, 5, 8, 9, 13, 14, 15, 16, 17]
+    int[] commonIndices = [2, 3, 4, 5, 8, 9, 13, 14, 15, 16, 17];
+    for (int i = 0; i < commonIndices.Length; i++)
+        groupBounds[i] = originalLower[commonIndices[i]];
+    
+    // Map specific parameters for each composition [11-31] from original indices [0, 1, 6, 7, 10, 11, 12]
+    int[] specificIndices = [0, 1, 6, 7, 10, 11, 12];
+    for (int composition = 0; composition < 3; composition++)
+    {
+        int blockStart = 11 + composition * 7;
+        for (int i = 0; i < specificIndices.Length; i++)
+            groupBounds[blockStart + i] = originalLower[specificIndices[i]];
+    }
+    
+    return groupBounds;
+}
 
-    double[] upperBound = [
-        double.MaxValue,      // ADecompose (fixed from calculation)
-        1e9,      // EDecompose (fixed from calculation)
-        3.26e+09,      // AKineticFlameInterPocket (from calculation)
-        199999.99,     // EKineticFlameInterPocket (from calculation)
-        2.62e+06,      // AKineticFlamePocketOutSkeleton (from calculation)
-        50000,         // EKineticFlamePocketOutSkeleton (from calculation)
-        6.21e+11,             // AKineticFlamePocketSkeleton (UNCHANGED skeleton param)
-        187465.54,           // EKineticFlamePocketSkeleton (UNCHANGED skeleton param)
-        2.2658901079487093,  // NuInterPocket (fixed from calculation)
-        1.0000000000060636,   // NuPocketOutSkeleton (fixed from calculation)
-        2.5395927015915345,  // NuPocketSkeleton (will be adjusted per scenario)
-        9.73e-06,      // AMetalBurningConstant (from calculation)
-        2.35e-08,      // BMetalBurningConstant (from calculation)
-        -360438.99,    // DeltaH (from calculation)
-        0.9961,        // KDiffusionHeight (from calculation)
-        1.0,           // APowOrder (from calculation)
-        2.0,           // BPowOrder (from calculation)
-        0.0            // KCoefficientRadiationTemperature (from calculation)
-    ]; */
+double[] GetGroupUpperBound()
+{
+    var originalUpper = GetUpperBound();
+    var groupBounds = new double[32];
+    
+    // Map shared parameters [0-10] from original indices [2, 3, 4, 5, 8, 9, 13, 14, 15, 16, 17]
+    int[] commonIndices = [2, 3, 4, 5, 8, 9, 13, 14, 15, 16, 17];
+    for (int i = 0; i < commonIndices.Length; i++)
+        groupBounds[i] = originalUpper[commonIndices[i]];
+    
+    // Map specific parameters for each composition [11-31] from original indices [0, 1, 6, 7, 10, 11, 12]
+    int[] specificIndices = [0, 1, 6, 7, 10, 11, 12];
+    for (int composition = 0; composition < 3; composition++)
+    {
+        int blockStart = 11 + composition * 7;
+        for (int i = 0; i < specificIndices.Length; i++)
+            groupBounds[blockStart + i] = originalUpper[specificIndices[i]];
+    }
+    
+    return groupBounds;
+}
 
-    const string inputFileName = "propellants.234.json";
-
+async Task<OperationResult<GroupOptimizationResult>?> RunGroupOptimizationAsync(string inputFileName)
+{
     const double penaltyRate = 1.0;
     const double heatFluxRatioThreshold = 100.0;
     const double poreDiameterThreshold = 3.0;
-
-    var startTime = DateTime.Now;
 
     var meter = new PerformanceMeter();
 
@@ -121,7 +96,10 @@ async Task RunPointCalculationAsync()
         new PoreDiameterPenaltyEvaluator(penaltyRate, poreDiameterThreshold)
     ];
 
-    var populationSize = lowerBound.Length * 8;
+    var groupLowerBound = GetGroupLowerBound();
+    var groupUpperBound = GetGroupUpperBound();
+
+    var populationSize = groupLowerBound.Length * 8;  // 32 * 8 = 256
     var maxAvailableProcessors = Environment.ProcessorCount - 1;
     int processorsCount = maxAvailableProcessors;
     for (; processorsCount >= 14; processorsCount--)
@@ -133,88 +111,34 @@ async Task RunPointCalculationAsync()
                     .WithMeter(meter)
                     .WithPropellantsFromFile(inputFileName)
                     .WithPopulationSize(populationSize)
-                    .WithLowerBound(lowerBound)
-                    .WithUpperBound(upperBound)
+                    .WithLowerBound(groupLowerBound)
+                    .WithUpperBound(groupUpperBound)
                     .WithMutationForce(0.7)
                     .WithCrossoverProbability(0.9)
                     .WithTerminationStrategy(
-                        new CustomStagnationStreakTerminationStrategy(299_999, 1e-8)
+                        new TimeoutTerminationStrategy(TimeSpan.FromMinutes(3))
+                        // new CustomStagnationStreakTerminationStrategy(299_999, 1e-8)
                     )
                     .AddPenaltyEvaluators(penaltyEvaluators)
                     .WithProcessorsCount(processorsCount)
                     .Build();
 
-    var scenario = new DifferentialEvolutionScenario(settings);
+    var scenario = new GroupDifferentialEvolutionScenario(settings);
 
-    Console.WriteLine("Starting point calculation with custom bounds:");
+    Console.WriteLine("Starting group optimization (Bas_0, Bas_1, Bas_2+Bas_3+Bas_4):");
     Console.WriteLine($"- Input file: {inputFileName}");
-    Console.WriteLine($"- Pore diameter threshold: {poreDiameterThreshold}");
     Console.WriteLine($"- Population size: {populationSize}");
+    Console.WriteLine($"- Parameter vector size: 32 (11 shared + 7×3 specific)");
+    Console.WriteLine($"- Processors: {processorsCount}\n");
 
-    OptimizationResult result;
+    OperationResult<GroupOptimizationResult> operationResult;
 
     using (meter.GetTotalExecutionTimeMeasurer().StartFrame())
     {
-        var operationResult = await scenario.RunAsync();
-        if (operationResult.IsSuccess == false)
-        {
-            Console.WriteLine("Point calculation failed:");
-            Console.WriteLine(operationResult.Exception);
-            return;
-        }
-
-        result = operationResult.Value!;
+        operationResult = await scenario.RunAsync();
     }
 
-    var plotSettings = new PlotSettings
-    {
-        Title = "Burning Rates - Point Calculation",
-        TitleFontSize = 22,
-        XAxisMinimum = 0.9,
-        XAxisMaximum = 6.6,
-        XAxisTitle = "Pressure, MPa",
-        YAxisTitle = "mm/s",
-        Width = 800,
-        Height = 800,
-        Dpi = 96
-    };
-
-    var plotRenderer = new BurningRatePlotRenderer();
-    if (result is not null)
-    {
-        plotRenderer.Render(result, plotSettings);
-    }
-
-    var propellantPlotsRenderingHelper = new PropellantPlotsRenderingHelper(
-        "../../../../../src/python/PropellantsPlotRendering/src/main.py");
-
-    var plotsResult = await propellantPlotsRenderingHelper.RenderPlotsAsync(inputFileName);
-
-    if (result is not null)
-    {
-        // Generate Russian report
-        GenerateReport(result, inputFileName, settings, "ru-RU", "ru");
-
-        // Generate English report
-        GenerateReport(result, inputFileName, settings, "en-US", "en");
-
-        // Generate French report
-        GenerateReport(result, inputFileName, settings, "fr-FR", "fr");
-    }
-
-    Console.WriteLine("Point calculation completed successfully");
-    Console.WriteLine("Reports generated in Russian, English, and French");
-}
-
-// [Keep all your existing helper methods unchanged]
-ReadOnlyCollection<Pressure> GetPressures()
-{
-    var maxPressure = Pressure.FromMegapascals(6.5);
-    var minPressure = Pressure.FromMegapascals(1);
-    const int pressurePoints = 10;
-    return new ReadOnlyCollection<Pressure>(Enumerable.Range(0, pressurePoints)
-        .Select(x => minPressure + (maxPressure - minPressure) / (pressurePoints - 1) * x)
-        .ToArray());
+    return operationResult;
 }
 
 EventBus<InfoLogEvent>.Subscribe(logEvent => {
@@ -223,23 +147,75 @@ EventBus<InfoLogEvent>.Subscribe(logEvent => {
 
 try
 {
-    // await RunAllScenariosAsync();
+    Console.WriteLine(new string('=', 90));
+    Console.WriteLine("GROUP OPTIMIZATION: BAS_0, BAS_1, BAS_2+BAS_3+BAS_4 (SIMULTANEOUS)");
+    Console.WriteLine(new string('=', 90) + "\n");
 
-    Console.WriteLine("\n" + new string('=', 50));
-    Console.WriteLine("Running Thermodynamics Scenario");
-    Console.WriteLine(new string('=', 50) + "\n");
+    var operationResult = await RunGroupOptimizationAsync("propellants.01234.json");
 
-    // await RunThermodynamicsScenarioAsync();
+    if (!operationResult.IsSuccess)
+    {
+        Console.WriteLine("\n❌ Group optimization failed:");
+        Console.WriteLine(operationResult.Exception);
+        return;
+    }
 
-    Console.WriteLine("\n" + new string('=', 50));
-    Console.WriteLine("Running Point Calculation");
-    Console.WriteLine(new string('=', 50) + "\n");
+    var groupResult = operationResult.Value;
 
-    await RunPointCalculationAsync();
-    
-    // await RunAllScenariosAsy// );
+    Console.WriteLine("\n✓ Group optimization completed successfully");
+    Console.WriteLine($"  Aggregated fitness: {groupResult!.AggregatedFitness:E4}");
+    Console.WriteLine($"  Total aggregated penalty: {groupResult.TotalAggregatedPenalty:E4}\n");
+
+    // Display results for each composition
+    var compositionNames = new[] { "Bas_0", "Bas_1", "Bas_2+Bas_3+Bas_4" };
+    Console.WriteLine("Individual Results:");
+    for (int i = 0; i < 3; i++)
+    {
+        Console.WriteLine($"  {compositionNames[i]}:");
+        Console.WriteLine($"    - Fitness: {groupResult.IndividualFitnesses[i]:E4}");
+        Console.WriteLine($"    - Penalty: {groupResult.IndividualPenalties[i]:E4}");
+    }
+
+    // Render burning rate plots for each group
+    Console.WriteLine("\nRendering burning rate plots...");
+    var plotSettings = new PlotSettings
+    {
+        Title = "Burning Rates - Group Optimization (All Propellants)",
+        TitleFontSize = 22,
+        XAxisMinimum = 0.9,
+        XAxisMaximum = 6.6,
+        XAxisTitle = "Pressure, MPa",
+        YAxisTitle = "mm/s",
+        Width = 1200,
+        Height = 800,
+        Dpi = 96
+    };
+
+    var groupPlotRenderer = new GroupBurningRatePlotRenderer();
+    groupPlotRenderer.Render(groupResult, plotSettings);
+    Console.WriteLine("✓ Group burning rate plot rendered\n");
+
+    // Render Python plots
+    Console.WriteLine("Rendering Python plots...");
+    var propellantPlotsRenderingHelper = new PropellantPlotsRenderingHelper(
+        "../../../../../src/python/PropellantsPlotRendering/src/main.py");
+    await propellantPlotsRenderingHelper.RenderPlotsAsync("propellants.01234.json");
+    Console.WriteLine("✓ Python plots rendered\n");
+
+    Console.WriteLine(new string('=', 90));
+    Console.WriteLine("GROUP OPTIMIZATION COMPLETED SUCCESSFULLY");
+    Console.WriteLine(new string('=', 90));
+    Console.WriteLine("Summary:");
+    Console.WriteLine("  ✓ Simultaneous optimization of 3 composition groups");
+    Console.WriteLine("  ✓ 32-parameter unified vector");
+    Console.WriteLine("  ✓ 11 shared parameters optimized once");
+    Console.WriteLine("  ✓ 7 specific parameters for each composition");
+    Console.WriteLine("  ✓ Bas_2 group includes Bas_3 and Bas_4 (same specific parameters)");
+    Console.WriteLine("  ✓ Burning rate plots rendered for each composition");
+    Console.WriteLine("  ✓ Python visualization plots generated");
+    Console.WriteLine(new string('=', 90) + "\n");
 }
 catch (Exception ex)
 {
-    Console.WriteLine(ex);
+    Console.WriteLine($"\n❌ Error: {ex}");
 }
