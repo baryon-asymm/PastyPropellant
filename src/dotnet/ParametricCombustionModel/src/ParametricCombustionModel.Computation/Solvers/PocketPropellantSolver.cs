@@ -668,7 +668,7 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
 
         var heatFluxDouble = (metalMeltingTemperatureDouble - surfaceTemperature.Kelvins)
                              / skeletonLayerThickness.Meters
-                             / effectiveThermalConductivity.WattsPerMeterKelvin;
+                             * effectiveThermalConductivity.WattsPerMeterKelvin;
         var heatFlux = HeatFlux.FromWattsPerSquareMeter(heatFluxDouble);
 
         return heatFlux;
@@ -1017,7 +1017,7 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
 
         var heatFluxDouble = (metalMeltingTemperatureDouble - surfaceTemperature)
                              / skeletonLayerThickness
-                             / effectiveThermalConductivity;
+                             * effectiveThermalConductivity;
 
         return heatFluxDouble;
     }
