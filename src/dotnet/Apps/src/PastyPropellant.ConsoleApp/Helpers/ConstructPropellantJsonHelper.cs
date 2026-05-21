@@ -27,6 +27,8 @@ public class ConstructPropellantJsonHelper
         _lambdaValues.Add("Bas_2", [0.3419, 0.3791, 0.3555, 0.4656]);
         _lambdaValues.Add("Bas_3", [0.3583, 0.3791, 0.2775, 0.4670]);
         _lambdaValues.Add("Bas_4", [0.3316, 0.3791, 0.3606, 0.7008]);
+        // Lambda values represent thermal conductivity coefficients [λ₁, λ₂, λ₃, λ₄] for each propellant composition.
+        // These values are derived from experimental data and are used in burning rate calculations.
     }
 
     public async Task<OperationResult> ConstructAsync(string outputFilePath)

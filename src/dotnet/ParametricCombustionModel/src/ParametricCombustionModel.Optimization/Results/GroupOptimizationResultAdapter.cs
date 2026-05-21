@@ -42,11 +42,11 @@ public static class GroupOptimizationResultAdapter
 
     /// <summary>
     /// Merges three composition context matrices into a single matrix.
-    /// Composition structure:
+    /// Composition structure (example with Bas_2+Bas_3+Bas_4 combined):
     /// - Bas_0: 1 fuel
     /// - Bas_1: 1 fuel
     /// - Bas_2 group (includes Bas_3, Bas_4): 3 fuels
-    /// Total: 5 fuels × pressureCount
+    /// Total: 5 fuels × pressureCount (actual count depends on propellant configuration)
     /// </summary>
     private static ProblemContextByUnits[,] MergeContextMatrices(OptimizationProblemByUnits[] compositionContexts)
     {

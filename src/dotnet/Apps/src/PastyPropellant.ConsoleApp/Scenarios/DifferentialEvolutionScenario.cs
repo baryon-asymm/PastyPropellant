@@ -55,8 +55,9 @@ public class DifferentialEvolutionScenario
     /// <item>Builds optimization problem contexts for both double and unit-based computations</item>
     /// <item>Configures the differential evolution optimizer with the specified parameters</item>
     /// </list>
-    /// 
-    /// The penalty evaluators include:
+    ///
+    /// The penalty evaluators are configurable via <see cref="DifferentialEvolutionScenarioSettings"/>
+    /// and typically include:
     /// <list type="bullet">
     /// <item>Pocket heat flux ratio competition penalty</item>
     /// <item>Inter-pocket faster burn penalty</item>
@@ -185,13 +186,13 @@ public class DifferentialEvolutionScenario
     /// <item>Initialize a population of candidate solutions within the specified bounds</item>
     /// <item>Evolve the population over multiple generations using differential evolution operators</item>
     /// <item>Apply constraint penalties to guide the search toward feasible solutions</item>
-    /// <item>Monitor for convergence or maximum stagnation streak</item>
+    /// <item>Monitor for convergence or termination criteria (e.g., timeout, stagnation)</item>
     /// <item>Return the best solution found along with optimization statistics</item>
     /// </list>
-    /// 
+    ///
     /// The optimization process runs asynchronously and can be cancelled or monitored for progress.
-    /// The algorithm will continue until convergence criteria are met or the maximum stagnation
-    /// streak is reached, as specified in the <see cref="DifferentialEvolutionSettings"/>.
+    /// The algorithm will continue until convergence criteria are met or the termination strategy
+    /// is satisfied, as configured in the <see cref="DifferentialEvolutionSettings"/>.
     /// </remarks>
     public Task<OperationResult<OptimizationResult>> RunAsync()
     {

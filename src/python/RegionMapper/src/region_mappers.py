@@ -148,7 +148,7 @@ class PocketRegionWithoutSkeletonMapper(BaseMapper):
         ap_mass = ap.mass_fraction * (1 - ap.large_particles_fraction) * propellant_mass
         al_mass = al.mass_fraction * propellant_mass
 
-        # Calculate homogeneous mixture mass (exclude large particles AP and HMX)
+        # Calculate homogeneous mixture mass (exclude large particles AP)
         homogeneous_mixture_mass = (
             binder_mass +
             ap_mass +
@@ -221,7 +221,8 @@ class PocketRegionWithSkeletonMapper(BaseMapper):
 
 class DiffusionRegionMapper(BaseMapper):
     """
-    Maps mass fractions for the diffusion region (includes all components except agglomerated Aluminum).
+    Maps mass fractions for the diffusion region (includes all components plus the
+    non-agglomerated portion of Aluminum).
 
     Methods:
         calculate(propellant: Propellant, pressure: float) -> RegionData:
@@ -293,12 +294,14 @@ class DiffusionRegionMapper(BaseMapper):
             float: Mass of non-agglomerated Aluminum.
         """
         agglomeration_fraction = self._calculate_agglomeration_fraction(al.agglomeration_coefficients, pressure)
-        # print("Agglomeration fraction", agglomeration_fraction)
         return al.mass_fraction * (1 - agglomeration_fraction)
 
     def _calculate_agglomeration_fraction(self, coefficients: List[float], pressure: float) -> float:
         """
         Calculate agglomeration fraction using polynomial coefficients.
+        
+        Note: This implementation returns raw values without clamping.
+        This differs from PropellantsPlotRendering which clamps to [0, 100].
 
         Args:
             coefficients (List[float]): Polynomial coefficients.

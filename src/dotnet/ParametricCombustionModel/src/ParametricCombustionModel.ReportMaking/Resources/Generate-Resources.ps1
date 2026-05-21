@@ -9,12 +9,10 @@
 #>
 
 function Find-ResGenPath {
-    # Try common ResGen.exe locations
+    # Try common ResGen.exe locations for modern .NET SDKs
     $paths = @(
-        "${env:ProgramFiles(x86)}\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools\ResGen.exe",
-        "${env:ProgramFiles(x86)}\Microsoft SDKs\Windows\v8.1A\bin\NETFX 4.5.1 Tools\ResGen.exe",
-        "${env:ProgramFiles(x86)}\Microsoft SDKs\Windows\v8.0A\bin\NETFX 4.0 Tools\ResGen.exe",
-        "${env:ProgramFiles}\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools\ResGen.exe"
+        "${env:ProgramFiles}\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools\ResGen.exe",
+        "${env:ProgramFiles(x86)}\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools\ResGen.exe"
     )
     
     foreach ($path in $paths) {

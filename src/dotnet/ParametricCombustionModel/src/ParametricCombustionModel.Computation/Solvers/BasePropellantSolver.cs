@@ -86,8 +86,8 @@ public abstract class BasePropellantSolver : ISolverVisitor
     /// Attempts to find the surface temperature of the propellant using a binary search algorithm
     /// within the predefined temperature range from <see cref="MinSurfaceTemperature"/> to <see cref="MaxSurfaceTemperature"/>.
     /// </summary>
-    /// <param name="pressure">The pressure in the rocket engine combustion chamber, which influences the equilibrium temperature.</param>
     /// <param name="solverParamsByUnits">A reference to the parameters related to the burn process, including factors like reaction kinetics and activation energy, provided as <see cref="CombustionSolverParamsByUnits"/>.</param>
+    /// <param name="context">The problem context, providing temperature bounds and other computational parameters as <see cref="ProblemContextByUnits"/>.</param>
     /// <param name="surfaceTemperature">
     /// When this method returns, contains the surface temperature of the propellant, if a valid temperature
     /// is found within the defined range and tolerance; otherwise, it contains a temperature value less than or equal to zero.
@@ -169,8 +169,8 @@ public abstract class BasePropellantSolver : ISolverVisitor
     /// within the specified temperature bounds. The method attempts to solve for the temperature
     /// where the heat flux error function crosses zero, indicating thermal equilibrium.
     /// </summary>
-    /// <param name="pressure">The pressure in the rocket engine combustion chamber, influencing the equilibrium temperature.</param>
     /// <param name="solverParamsByUnits">A reference to the parameters related to the burn process, including reaction kinetics and activation energy, provided as <see cref="CombustionSolverParamsByUnits"/>.</param>
+    /// <param name="context">The problem context, providing temperature bounds and other computational parameters as <see cref="ProblemContextByUnits"/>.</param>
     /// <param name="leftTemperature">
     /// A reference to the lower bound of the temperature range for the binary search. 
     /// This value is updated during the search process to reflect the current search interval.
@@ -241,7 +241,7 @@ public abstract class BasePropellantSolver : ISolverVisitor
     /// within the predefined temperature range from <see cref="MinSurfaceTemperature"/> to <see cref="MaxSurfaceTemperature"/>.
     /// </summary>
     /// <param name="solverParams">A reference to the parameters related to the burn process, including factors like reaction kinetics and activation energy, provided as <see cref="CombustionSolverParamsByDoubles"/>.</param>
-    /// <param name="context">The problem context, provided as <see cref="ProblemContextByDoubles"/>.</param>
+    /// <param name="context">The problem context, providing temperature bounds and other computational parameters as <see cref="ProblemContextByDoubles"/>.</param>
     /// <param name="surfaceTemperature">
     /// When this method returns, contains the surface temperature of the propellant as a double, if a valid temperature
     /// is found within the defined range and tolerance; otherwise, it contains a value less than or equal to zero.
@@ -324,7 +324,7 @@ public abstract class BasePropellantSolver : ISolverVisitor
     /// where the heat flux error function crosses zero, indicating thermal equilibrium.
     /// </summary>
     /// <param name="solverParams">A reference to the parameters related to the burn process, including reaction kinetics and activation energy, provided as <see cref="CombustionSolverParamsByDoubles"/>.</param>
-    /// <param name="context">The problem context, provided as <see cref="ProblemContextByDoubles"/>.</param>
+    /// <param name="context">The problem context, providing temperature bounds and other computational parameters as <see cref="ProblemContextByDoubles"/>.</param>
     /// <param name="leftTemperature">
     /// A reference to the lower bound of the temperature range for the binary search. 
     /// This value is updated during the search process to reflect the current search interval.

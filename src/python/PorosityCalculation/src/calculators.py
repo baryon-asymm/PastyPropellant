@@ -5,7 +5,7 @@ from models import RegionCalculationResult, Propellant
 
 CARBON_DENSITY = 2267 # kg/m^3
 CARBON_RETENTION = 0.1 # 10% of carbon is retained in the region
-ALUMINUM_TEMPERATURE_FACTOR = 0.6 # 40% density reduction at 2300 K
+# ALUMINUM_TEMPERATURE_FACTOR = 0.6 # Unused: Previously considered 40% density reduction at 2300 K
 
 @dataclass(frozen=True)
 class PorosityCalculationResult:

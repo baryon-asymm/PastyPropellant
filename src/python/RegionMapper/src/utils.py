@@ -55,9 +55,9 @@ def normalize_elemental_composition(elements: Dict[str, float], propellant_molar
     Normalize the elemental composition by multiplying by the molar mass of the propellant.
 
     Args:
-        elements (Dict[str, float]): A dictionary where keys are element symbols (e.g., "H", "C") and values 
+        elements (Dict[str, float]): A dictionary where keys are element symbols (e.g., "H", "C") and values
             are their relative contributions to the composition.
-        fuel_molar_mass (float): The molar mass of the propellant in kg/mol. Defaults to 1.0.
+        propellant_molar_mass (float): The molar mass of the propellant in kg/mol. Defaults to 1.0.
 
     Returns:
         Dict[str, float]: A dictionary where keys are element symbols and values are their normalized contributions.

@@ -21,10 +21,10 @@ namespace PastyPropellant.ConsoleApp.Scenarios;
 /// </summary>
 /// <remarks>
 /// The group differential evolution scenario optimizes three propellant composition groups:
-/// - bas_0: First composition
-/// - bas_1: Second composition  
-/// - bas_2+bas_3+bas_4: Third group (with shared specific parameters)
-/// 
+/// - Bas_0: First composition
+/// - Bas_1: Second composition
+/// - Bas_2+Bas_3+Bas_4: Third group (with shared specific parameters)
+///
 /// Each evaluation converts the 32-parameter group vector into three 18-parameter vectors,
 /// evaluates each composition independently, and aggregates the fitness results.
 /// The optimization process considers multiple constraint penalty evaluators to ensure
@@ -54,7 +54,7 @@ public class GroupDifferentialEvolutionScenario
     /// <remarks>
     /// This constructor performs the following initialization steps:
     /// <list type="number">
-    /// <item>Groups propellants into three composition groups (bas_0, bas_1, bas_2)</item>
+    /// <item>Groups propellants into three composition groups (Bas_0, Bas_1, Bas_2+Bas_3+Bas_4)</item>
     /// <item>Creates problem context matrices for each group</item>
     /// <item>Creates a matrix of optimization problem contexts for parallel processing</item>
     /// <item>Configures the group differential evolution optimizer with the specified parameters</item>

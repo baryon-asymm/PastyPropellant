@@ -9,7 +9,7 @@ from typing import List
 PARAMETER_LABELS = {
     'lambda_gas': 'Thermal Conductivity (λ), W/(m·K)',
     'average_molar_mass': 'Average Molar Mass, kg/mol',
-    'c_volume': 'Constant Volume Heat Capacity (cₚ), J/(kg·K)',
+    'c_volume': 'Constant Volume Heat Capacity (cᵥ), J/(kg·K)',
     'temperatures': 'Temperature of the Flames, K',
     'agglomeration_fraction': 'Aluminum Agglomeration Fraction',
     'skeleton_surface_fraction': 'Skeleton Surface Fraction (Agglomeration/Pocket Mass)'
@@ -20,6 +20,12 @@ def read_json(file_path):
         return json.load(file)
 
 def _calculate_agglomeration_fraction(coefficients: List[float], pressure: float) -> float:
+    """
+    Calculate agglomeration fraction using polynomial coefficients.
+    
+    Note: This implementation clamps the result to [0, 100] (percentage range).
+    This differs from RegionMapper's implementation which returns raw values.
+    """
     normalized_pressure = pressure / 1e6
     fraction = sum(coeff * (normalized_pressure)**i for i, coeff in enumerate(coefficients))
     return max(0, min(100, fraction))

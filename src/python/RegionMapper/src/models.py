@@ -75,8 +75,8 @@ class Propellant:
         ...             agglomeration_coefficients=[0.05, 0.02, 0.01]
         ...         )
         ...     }
-        ... )
-        Propellant(name='SolidRocketFuel', components={'CombustibleBinder': PropellantComponent(...), ...})
+        ... )  # doctest: +SKIP
+        # Returns a Propellant instance with the specified components
     """
     name: str
     components: Dict[str, PropellantComponent]

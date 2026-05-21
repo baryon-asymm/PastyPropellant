@@ -179,6 +179,7 @@ public class GroupCombustionSolverParamsReport : ITransformable<Queue<IPdfOperat
         operations.Enqueue(new LineBreakOperation());
 
         // Composition-specific parameters (Condensed phase)
+        // Note: Order is inverted compared to optimizer internals (0=Bas_2, 1=Bas_1, 2=Bas_0)
         string[] compositionNames = ["Bas_2 (includes Bas_3, Bas_4)", "Bas_1", "Bas_0"];
         int[] blockStarts = [11, 18, 25];
 

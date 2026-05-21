@@ -93,7 +93,7 @@ public class BurningRatePlotRenderer : BasePlotRenderer
 
         for (int i = 0; i < result.OptimizedContext.PropellantCount; i++)
         {
-            // skip if the propellant name is Bas_21 or bas_22
+            // Skip legacy propellants Bas_21 and Bas_22 (not used in current datasets)
             if (result.OptimizedContext.ProblemContextMatrix[i, 0].Propellant.Name.Equals("Bas_21")
                 || result.OptimizedContext.ProblemContextMatrix[i, 0].Propellant.Name.Equals("Bas_22"))
             {

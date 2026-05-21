@@ -118,7 +118,7 @@ public readonly ref struct GroupCombustionSolverParamsByDoubles
 
     /// <summary>
     /// Converts group vector (32 parameters) to standard composition vector (18 parameters) for the specified composition.
-    /// Composition index: 0 = bas_0, 1 = bas_1, 2 = bas_2
+    /// Composition index: 0 = Bas_0, 1 = Bas_1, 2 = Bas_2+Bas_3+Bas_4 (combined group)
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public double[] ToCompositionVector(int compositionIndex)

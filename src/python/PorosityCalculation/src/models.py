@@ -21,7 +21,7 @@ class PropellantComponent:
         ...     large_particles_fraction=0.1,
         ...     agglomeration_coefficients=[0.05, 0.02, 0.01]
         ... )
-        PropellantComponent(mass_fraction=0.3, large_particles_fraction=0.1, agglomeration_coefficients=[0.05, 0.02, 0.01])
+        PropellantComponent(mass_fraction=0.3, density=1000, large_particles_fraction=0.1, agglomeration_coefficients=[0.05, 0.02, 0.01])
     """
     mass_fraction: float
     density: float
