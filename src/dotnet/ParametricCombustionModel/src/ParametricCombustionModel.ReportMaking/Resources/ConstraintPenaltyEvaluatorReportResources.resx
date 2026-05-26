@@ -60,4 +60,11 @@
     <data name="PoreDiameterThreshold" xml:space="preserve">
         <value>Пороговое значение толщины КС относительно диаметра пор {0:0.00}</value>
     </data>
+
+    <data name="LargeOxidizerParticleSizePenaltyEvaluator" xml:space="preserve">
+        <value>Ограничение на толщину КС относительно диаметра крупной частицы ПХА.</value>
+    </data>
+    <data name="LargeOxidizerParticleSizeThreshold" xml:space="preserve">
+        <value>Пороговое значение толщины КС относительно диаметра крупной частицы ПХА {0:0.00}</value>
+    </data>
 </root>

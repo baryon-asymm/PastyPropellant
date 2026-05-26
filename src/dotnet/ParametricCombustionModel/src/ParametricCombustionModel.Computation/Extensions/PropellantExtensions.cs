@@ -51,7 +51,6 @@ public static class PropellantExtensions
         var ip_apvf = GetComponentVolumeFraction(propellant, ip_apsf, ap.Density);
 
         if (propellant.Name == "Bas_2"){
-            Console.WriteLine(propellant.Name);
             return (ip_alvf + ip_cbvf + ip_apvf) * 1.5;
         }
 

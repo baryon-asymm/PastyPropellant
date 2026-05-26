@@ -111,6 +111,7 @@ async Task<(OperationResult<GroupOptimizationResult>? result, PerformanceMeter m
     const double penaltyRate = 1.0;
     const double heatFluxRatioThreshold = 100.0;
     const double poreDiameterThreshold = 3.0;
+    const double largeOxidizerParticleSizeThreshold = 1.0;
 
     var meter = new PerformanceMeter();
 
@@ -126,7 +127,8 @@ async Task<(OperationResult<GroupOptimizationResult>? result, PerformanceMeter m
             maxInterPocketKineticFlameHeatFlux: maxInterPocketKineticFlameHeatFlux,
             maxSkeletonKineticFlameHeatFlux: maxSkeletonKineticFlameHeatFlux,
             maxOutSkeletonKineticFlameHeatFlux: maxOutSkeletonKineticFlameHeatFlux),
-        new PoreDiameterPenaltyEvaluator(penaltyRate, poreDiameterThreshold)
+        new PoreDiameterPenaltyEvaluator(penaltyRate, poreDiameterThreshold),
+        //new LargeOxidizerParticleSizePenaltyEvaluator(penaltyRate, largeOxidizerParticleSizeThreshold)
     ];
 
     var groupLowerBound = GetGroupLowerBound();
@@ -200,8 +202,8 @@ try
     Console.WriteLine($"  Aggregated fitness: {groupResult!.AggregatedFitness:E4}");
     Console.WriteLine($"  Total aggregated penalty: {groupResult.TotalAggregatedPenalty:E4}\n");
 
-    // Display results for each composition
-    var compositionNames = new[] { "Bas_0", "Bas_1", "Bas_2+Bas_3+Bas_4" };
+    // Display results for each composition (order matches the raw 32-vector layout)
+    var compositionNames = new[] { "Bas_2+Bas_3+Bas_4", "Bas_1", "Bas_0" };
     Console.WriteLine("Individual Results:");
     for (int i = 0; i < 3; i++)
     {

@@ -23,13 +23,13 @@ public class GroupDifferentialEvolutionOptimizer : IFitnessFunctionEvaluator
     
     /// <summary>
     /// Matrix of optimization problems: [workerIndex, groupIndex]
-    /// groupIndex: 0=bas_0, 1=bas_1, 2=bas_2+bas_3+bas_4
+    /// groupIndex follows the raw 32-vector layout: 0=Bas_2+Bas_3+Bas_4, 1=Bas_1, 2=Bas_0
     /// </summary>
     private readonly OptimizationProblemByDoubles[,] _compositionProblems;
-    
+
     /// <summary>
-    /// Array of contexts for final result evaluation with UnitsNet types
-    /// Index: 0=bas_0, 1=bas_1, 2=bas_2+bas_3+bas_4
+    /// Array of contexts for final result evaluation with UnitsNet types.
+    /// Index follows the raw 32-vector layout: 0=Bas_2+Bas_3+Bas_4, 1=Bas_1, 2=Bas_0
     /// </summary>
     private readonly OptimizationProblemByUnits[] _finalContextsByUnits;
     
@@ -52,7 +52,7 @@ public class GroupDifferentialEvolutionOptimizer : IFitnessFunctionEvaluator
     /// Initializes GroupDifferentialEvolutionOptimizer for simultaneous optimization of three propellant compositions.
     /// </summary>
     /// <param name="settings">Optimization settings including bounds, population size, etc.</param>
-    /// <param name="compositionProblems">Matrix of problems [workerIndex, groupIndex] where groupIndex: 0=Bas_0, 1=Bas_1, 2=Bas_2+Bas_3+Bas_4</param>
+    /// <param name="compositionProblems">Matrix of problems [workerIndex, groupIndex] where groupIndex follows the raw 32-vector layout: 0=Bas_2+Bas_3+Bas_4, 1=Bas_1, 2=Bas_0</param>
     /// <param name="finalContextsByUnits">Array of contexts for result evaluation, one per composition group</param>
     public GroupDifferentialEvolutionOptimizer(
         DifferentialEvolutionSettings settings,

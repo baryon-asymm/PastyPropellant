@@ -10,7 +10,7 @@ public class GroupOptimizationResult
 {
     /// <summary>
     /// Optimization problems for each composition group with UnitsNet types.
-    /// Index: 0=bas_0, 1=bas_1, 2=bas_2+bas_3+bas_4
+    /// Index follows the raw 32-vector layout: 0=Bas_2+Bas_3+Bas_4 (combined), 1=Bas_1, 2=Bas_0
     /// </summary>
     public OptimizationProblemByUnits[] CompositionContexts { get; init; }
 

@@ -46,6 +46,10 @@ public class ConstraintPenaltyEvaluatorReport : BaseReport, ITransformable<Queue
                     AppendPoreDiameterPenaltyEvaluator(operations,
                                                        evaluator);
                     break;
+                case LargeOxidizerParticleSizePenaltyEvaluator evaluator:
+                    AppendLargeOxidizerParticleSizePenaltyEvaluator(operations,
+                                                                    evaluator);
+                    break;
                 default:
                     EventBus<InfoLogEvent>.Publish(
                         new InfoLogEvent(
@@ -155,6 +159,28 @@ public class ConstraintPenaltyEvaluatorReport : BaseReport, ITransformable<Queue
         operations.Enqueue(new PrintTextOperation(
                                string.Format(ConstraintPenaltyEvaluatorReportResources.PoreDiameterThreshold,
                                              penaltyEvaluator.PoreDiameterThreshold),
+                               TextStyle.None));
+        operations.Enqueue(new LineBreakOperation());
+    }
+
+    private static void AppendLargeOxidizerParticleSizePenaltyEvaluator(
+        Queue<IPdfOperation> operations,
+        LargeOxidizerParticleSizePenaltyEvaluator penaltyEvaluator)
+    {
+        operations.Enqueue(new PrintTextOperation(
+                               ConstraintPenaltyEvaluatorReportResources.LargeOxidizerParticleSizePenaltyEvaluator,
+                               TextStyle.Italic));
+        operations.Enqueue(new LineBreakOperation());
+        operations.Enqueue(new AddTabOperation());
+        operations.Enqueue(new PrintTextOperation(
+                               string.Format(ConstraintPenaltyEvaluatorReportResources.PenaltyRate,
+                                             penaltyEvaluator.PenaltyRate),
+                               TextStyle.None));
+        operations.Enqueue(new LineBreakOperation());
+        operations.Enqueue(new AddTabOperation());
+        operations.Enqueue(new PrintTextOperation(
+                               string.Format(ConstraintPenaltyEvaluatorReportResources.LargeOxidizerParticleSizeThreshold,
+                                             penaltyEvaluator.LargeParticleDiameterThreshold),
                                TextStyle.None));
         operations.Enqueue(new LineBreakOperation());
     }

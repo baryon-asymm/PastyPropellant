@@ -60,4 +60,11 @@
     <data name="PoreDiameterThreshold" xml:space="preserve">
         <value>Threshold for skeleton thickness to pore diameter ratio {0:0.00}</value>
     </data>
+
+    <data name="LargeOxidizerParticleSizePenaltyEvaluator" xml:space="preserve">
+        <value>Constraint on skeleton thickness to large oxidizer particle diameter ratio.</value>
+    </data>
+    <data name="LargeOxidizerParticleSizeThreshold" xml:space="preserve">
+        <value>Threshold for skeleton thickness to large oxidizer particle diameter ratio {0:0.00}</value>
+    </data>
 </root>

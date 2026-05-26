@@ -20,10 +20,11 @@ namespace PastyPropellant.ConsoleApp.Scenarios;
 /// using a unified 32-parameter vector (11 shared + 7 specific parameters per group).
 /// </summary>
 /// <remarks>
-/// The group differential evolution scenario optimizes three propellant composition groups:
-/// - Bas_0: First composition
-/// - Bas_1: Second composition
-/// - Bas_2+Bas_3+Bas_4: Third group (with shared specific parameters)
+/// The group differential evolution scenario optimizes three propellant composition groups
+/// (indexed in the same order as the raw 32-parameter vector layout):
+/// - groupIndex 0: Bas_2+Bas_3+Bas_4 (combined, must be optimized together with shared specific parameters)
+/// - groupIndex 1: Bas_1
+/// - groupIndex 2: Bas_0
 ///
 /// Each evaluation converts the 32-parameter group vector into three 18-parameter vectors,
 /// evaluates each composition independently, and aggregates the fitness results.
@@ -54,7 +55,7 @@ public class GroupDifferentialEvolutionScenario
     /// <remarks>
     /// This constructor performs the following initialization steps:
     /// <list type="number">
-    /// <item>Groups propellants into three composition groups (Bas_0, Bas_1, Bas_2+Bas_3+Bas_4)</item>
+    /// <item>Groups propellants into three composition groups (Bas_2+Bas_3+Bas_4, Bas_1, Bas_0)</item>
     /// <item>Creates problem context matrices for each group</item>
     /// <item>Creates a matrix of optimization problem contexts for parallel processing</item>
     /// <item>Configures the group differential evolution optimizer with the specified parameters</item>
@@ -94,11 +95,12 @@ public class GroupDifferentialEvolutionScenario
             var workerBas1Matrix = GetProblemContextMatrixByDoubles(new[] { bas1Propellant });
             var workerBas2Matrix = GetProblemContextMatrixByDoubles(bas2Propellants);
             
+            // Order matches the raw 32-vector layout: [11-17]=Bas_2+3+4, [18-24]=Bas_1, [25-31]=Bas_0
             contextMatricesByDoublesList[i] = new List<ProblemContextByDoubles[,]>
             {
-                workerBas0Matrix,
+                workerBas2Matrix,
                 workerBas1Matrix,
-                workerBas2Matrix
+                workerBas0Matrix
             };
         }
         
@@ -108,11 +110,12 @@ public class GroupDifferentialEvolutionScenario
 
         // Create final contexts array for result evaluation [3]
         // Use fresh matrices (same contexts for result evaluation)
+        // Order matches the raw 32-vector layout: [11-17]=Bas_2+3+4, [18-24]=Bas_1, [25-31]=Bas_0
         var contextMatricesByUnitsList = new List<ProblemContextByUnits[,]>
         {
-            contextMatrixBas0ByUnits,
+            contextMatrixBas2ByUnits,
             contextMatrixBas1ByUnits,
-            contextMatrixBas2ByUnits
+            contextMatrixBas0ByUnits
         };
         
         var finalContextsByUnits = GetGroupOptimizationProblemContextByUnits(
@@ -191,7 +194,7 @@ public class GroupDifferentialEvolutionScenario
     /// <summary>
     /// Creates an array of optimization problem contexts for final result evaluation using unit-aware values.
     /// Array dimensions: [groupIndex]
-    /// groupIndex: 0=Bas_0, 1=Bas_1, 2=Bas_2+Bas_3+Bas_4
+    /// groupIndex: 0=Bas_2+Bas_3+Bas_4, 1=Bas_1, 2=Bas_0 (matches the raw vector layout)
     /// </summary>
     /// <param name="contextMatricesByUnitsList">List of 3 context matrices (one per group) with all pressure points.</param>
     /// <param name="penaltyEvaluators">The penalty evaluators to apply during optimization.</param>

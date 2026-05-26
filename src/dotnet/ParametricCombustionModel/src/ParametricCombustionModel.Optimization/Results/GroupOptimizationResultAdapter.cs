@@ -42,11 +42,11 @@ public static class GroupOptimizationResultAdapter
 
     /// <summary>
     /// Merges three composition context matrices into a single matrix.
-    /// Composition structure (example with Bas_2+Bas_3+Bas_4 combined):
-    /// - Bas_0: 1 fuel
-    /// - Bas_1: 1 fuel
-    /// - Bas_2 group (includes Bas_3, Bas_4): 3 fuels
-    /// Total: 5 fuels × pressureCount (actual count depends on propellant configuration)
+    /// Composition contexts are indexed in the raw 32-vector order:
+    /// - [0] Bas_2 group (includes Bas_3, Bas_4): 3 fuels
+    /// - [1] Bas_1: 1 fuel
+    /// - [2] Bas_0: 1 fuel
+    /// Total: 5 fuels × pressureCount (actual count depends on propellant configuration).
     /// </summary>
     private static ProblemContextByUnits[,] MergeContextMatrices(OptimizationProblemByUnits[] compositionContexts)
     {
@@ -55,7 +55,7 @@ public static class GroupOptimizationResultAdapter
 
         // All contexts should have the same number of pressure points
         var pressureCount = compositionContexts[0].PressureCount;
-        
+
         // Verify all contexts have the same pressure count
         for (int i = 1; i < 3; i++)
         {
@@ -64,9 +64,9 @@ public static class GroupOptimizationResultAdapter
         }
 
         // Calculate total propellant count
-        // Bas_0: 1, Bas_1: 1, Bas_2+3+4: 3
-        var totalPropellantCount = compositionContexts[0].PropellantCount + 
-                                   compositionContexts[1].PropellantCount + 
+        // Bas_2+3+4: 3, Bas_1: 1, Bas_0: 1
+        var totalPropellantCount = compositionContexts[0].PropellantCount +
+                                   compositionContexts[1].PropellantCount +
                                    compositionContexts[2].PropellantCount;
 
         // Create merged matrix: totalPropellantCount × pressureCount
@@ -74,34 +74,18 @@ public static class GroupOptimizationResultAdapter
 
         int propellantIndex = 0;
 
-        // Copy Bas_0 contexts (1 fuel)
-        for (int fuel = 0; fuel < compositionContexts[0].PropellantCount; fuel++)
+        // Copy contexts in the same order as the raw vector layout: Bas_2+3+4, then Bas_1, then Bas_0
+        for (int groupIdx = 0; groupIdx < 3; groupIdx++)
         {
-            for (int pressure = 0; pressure < pressureCount; pressure++)
+            var group = compositionContexts[groupIdx];
+            for (int fuel = 0; fuel < group.PropellantCount; fuel++)
             {
-                mergedMatrix[propellantIndex, pressure] = compositionContexts[0].ProblemContextMatrix[fuel, pressure];
+                for (int pressure = 0; pressure < pressureCount; pressure++)
+                {
+                    mergedMatrix[propellantIndex, pressure] = group.ProblemContextMatrix[fuel, pressure];
+                }
+                propellantIndex++;
             }
-            propellantIndex++;
-        }
-
-        // Copy Bas_1 contexts (1 fuel)
-        for (int fuel = 0; fuel < compositionContexts[1].PropellantCount; fuel++)
-        {
-            for (int pressure = 0; pressure < pressureCount; pressure++)
-            {
-                mergedMatrix[propellantIndex, pressure] = compositionContexts[1].ProblemContextMatrix[fuel, pressure];
-            }
-            propellantIndex++;
-        }
-
-        // Copy Bas_2+Bas_3+Bas_4 contexts (3 fuels)
-        for (int fuel = 0; fuel < compositionContexts[2].PropellantCount; fuel++)
-        {
-            for (int pressure = 0; pressure < pressureCount; pressure++)
-            {
-                mergedMatrix[propellantIndex, pressure] = compositionContexts[2].ProblemContextMatrix[fuel, pressure];
-            }
-            propellantIndex++;
         }
 
         return mergedMatrix;

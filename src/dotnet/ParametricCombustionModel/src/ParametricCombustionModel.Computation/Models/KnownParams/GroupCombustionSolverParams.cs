@@ -118,7 +118,7 @@ public readonly ref struct GroupCombustionSolverParamsByDoubles
 
     /// <summary>
     /// Converts group vector (32 parameters) to standard composition vector (18 parameters) for the specified composition.
-    /// Composition index: 0 = Bas_0, 1 = Bas_1, 2 = Bas_2+Bas_3+Bas_4 (combined group)
+    /// Composition index follows the raw vector layout: 0 = Bas_2+Bas_3+Bas_4 (combined group), 1 = Bas_1, 2 = Bas_0
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public double[] ToCompositionVector(int compositionIndex)
@@ -128,15 +128,15 @@ public readonly ref struct GroupCombustionSolverParamsByDoubles
 
         var result = new double[18];
 
-        // Map composition-specific parameters
+        // Map composition-specific parameters (order matches the raw vector layout)
         var (aDecompose, eDecompose, aFlame, eFlame, nuPocket, aMetal, bMetal) = compositionIndex switch
         {
-            0 => (ADecomposeBas0, EDecomposeBas0, AKineticFlamePocketSkeletonBas0, 
-                  EKineticFlamePocketSkeletonBas0, NuPocketSkeletonBas0, AMetalBurningConstantBas0, BMetalBurningConstantBas0),
-            1 => (ADecomposeBas1, EDecomposeBas1, AKineticFlamePocketSkeletonBas1, 
-                  EKineticFlamePocketSkeletonBas1, NuPocketSkeletonBas1, AMetalBurningConstantBas1, BMetalBurningConstantBas1),
-            2 => (ADecomposeBas2, EDecomposeBas2, AKineticFlamePocketSkeletonBas2, 
+            0 => (ADecomposeBas2, EDecomposeBas2, AKineticFlamePocketSkeletonBas2,
                   EKineticFlamePocketSkeletonBas2, NuPocketSkeletonBas2, AMetalBurningConstantBas2, BMetalBurningConstantBas2),
+            1 => (ADecomposeBas1, EDecomposeBas1, AKineticFlamePocketSkeletonBas1,
+                  EKineticFlamePocketSkeletonBas1, NuPocketSkeletonBas1, AMetalBurningConstantBas1, BMetalBurningConstantBas1),
+            2 => (ADecomposeBas0, EDecomposeBas0, AKineticFlamePocketSkeletonBas0,
+                  EKineticFlamePocketSkeletonBas0, NuPocketSkeletonBas0, AMetalBurningConstantBas0, BMetalBurningConstantBas0),
             _ => throw new ArgumentOutOfRangeException()
         };
 
@@ -269,6 +269,7 @@ public readonly ref struct GroupCombustionSolverParamsByUnits
 
     /// <summary>
     /// Converts group vector (32 parameters) to standard composition vector (18 parameters) for the specified composition.
+    /// Composition index follows the raw vector layout: 0 = Bas_2+Bas_3+Bas_4 (combined group), 1 = Bas_1, 2 = Bas_0
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public double[] ToCompositionVector(int compositionIndex)
@@ -278,18 +279,18 @@ public readonly ref struct GroupCombustionSolverParamsByUnits
 
         var result = new double[18];
 
-        // Map composition-specific parameters
+        // Map composition-specific parameters (order matches the raw vector layout)
         var (aDecompose, eDecompose, aFlame, eFlame, nuPocket, aMetal, bMetal) = compositionIndex switch
         {
-            0 => (ADecomposeBas0.KilogramsPerSecondPerSquareMeter, EDecomposeBas0.JoulesPerMole, 
-                  AKineticFlamePocketSkeletonBas0.PerSecond, EKineticFlamePocketSkeletonBas0.JoulesPerMole, 
-                  NuPocketSkeletonBas0, AMetalBurningConstantBas0.SquareMetersPerSecond, BMetalBurningConstantBas0.CubicMetersPerSquareSecond),
-            1 => (ADecomposeBas1.KilogramsPerSecondPerSquareMeter, EDecomposeBas1.JoulesPerMole, 
-                  AKineticFlamePocketSkeletonBas1.PerSecond, EKineticFlamePocketSkeletonBas1.JoulesPerMole, 
-                  NuPocketSkeletonBas1, AMetalBurningConstantBas1.SquareMetersPerSecond, BMetalBurningConstantBas1.CubicMetersPerSquareSecond),
-            2 => (ADecomposeBas2.KilogramsPerSecondPerSquareMeter, EDecomposeBas2.JoulesPerMole, 
-                  AKineticFlamePocketSkeletonBas2.PerSecond, EKineticFlamePocketSkeletonBas2.JoulesPerMole, 
+            0 => (ADecomposeBas2.KilogramsPerSecondPerSquareMeter, EDecomposeBas2.JoulesPerMole,
+                  AKineticFlamePocketSkeletonBas2.PerSecond, EKineticFlamePocketSkeletonBas2.JoulesPerMole,
                   NuPocketSkeletonBas2, AMetalBurningConstantBas2.SquareMetersPerSecond, BMetalBurningConstantBas2.CubicMetersPerSquareSecond),
+            1 => (ADecomposeBas1.KilogramsPerSecondPerSquareMeter, EDecomposeBas1.JoulesPerMole,
+                  AKineticFlamePocketSkeletonBas1.PerSecond, EKineticFlamePocketSkeletonBas1.JoulesPerMole,
+                  NuPocketSkeletonBas1, AMetalBurningConstantBas1.SquareMetersPerSecond, BMetalBurningConstantBas1.CubicMetersPerSquareSecond),
+            2 => (ADecomposeBas0.KilogramsPerSecondPerSquareMeter, EDecomposeBas0.JoulesPerMole,
+                  AKineticFlamePocketSkeletonBas0.PerSecond, EKineticFlamePocketSkeletonBas0.JoulesPerMole,
+                  NuPocketSkeletonBas0, AMetalBurningConstantBas0.SquareMetersPerSecond, BMetalBurningConstantBas0.CubicMetersPerSquareSecond),
             _ => throw new ArgumentOutOfRangeException()
         };
 

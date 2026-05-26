@@ -96,7 +96,25 @@ namespace ParametricCombustionModel.ReportMaking.Resources {
                 return ResourceManager.GetString("KineticFlameHeatFluxPenaltyEvaluator", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Ограничение на толщину КС относительно диаметра крупной частицы ПХА..
+        /// </summary>
+        internal static string LargeOxidizerParticleSizePenaltyEvaluator {
+            get {
+                return ResourceManager.GetString("LargeOxidizerParticleSizePenaltyEvaluator", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Пороговое значение толщины КС относительно диаметра крупной частицы ПХА {0:0.00}.
+        /// </summary>
+        internal static string LargeOxidizerParticleSizeThreshold {
+            get {
+                return ResourceManager.GetString("LargeOxidizerParticleSizeThreshold", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Максимальная плотность теплового потока кинетического пламени в МКМ {0:0.00e+00}.
         /// </summary>
