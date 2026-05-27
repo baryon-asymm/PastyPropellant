@@ -148,7 +148,7 @@ async Task<(OperationResult<GroupOptimizationResult>? result, PerformanceMeter m
                     .WithPopulationSize(populationSize)
                     .WithLowerBound(groupLowerBound)
                     .WithUpperBound(groupUpperBound)
-                    .WithMutationForce(0.7)
+                    .WithMutationForce(0.5)
                     .WithCrossoverProbability(0.9)
                     .WithTerminationStrategy(
                         new TimeoutTerminationStrategy(TimeSpan.FromHours(9))
