@@ -8,16 +8,16 @@ public class CustomStagnationStreakTerminationStrategy : ITerminationStrategy
 {
     public int MaxStagnationStreak { get; init; }
 
-    public double StagnationThreshold { get; init; }
+    public double RelativeStagnationThreshold { get; init; }
 
     public int CurrentStagnationStreak { get; private set; }
 
     public double LastBestFitnessFunctionValue { get; private set; } = double.MinValue;
 
-    public CustomStagnationStreakTerminationStrategy(int maxStagnationStreak, double stagnationThreshold)
+    public CustomStagnationStreakTerminationStrategy(int maxStagnationStreak, double relativeStagnationThreshold)
     {
         MaxStagnationStreak = maxStagnationStreak;
-        StagnationThreshold = stagnationThreshold;
+        RelativeStagnationThreshold = relativeStagnationThreshold;
     }
 
     public bool ShouldTerminate(Population population)
@@ -28,7 +28,8 @@ public class CustomStagnationStreakTerminationStrategy : ITerminationStrategy
             return false;
         }
 
-        if (Math.Abs(population.IndividualCursor.FitnessFunctionValue - LastBestFitnessFunctionValue) > StagnationThreshold)
+        double absoluteThreshold = RelativeStagnationThreshold * Math.Abs(LastBestFitnessFunctionValue);
+        if (Math.Abs(population.IndividualCursor.FitnessFunctionValue - LastBestFitnessFunctionValue) > absoluteThreshold)
         {
             LastBestFitnessFunctionValue = population.IndividualCursor.FitnessFunctionValue;
             CurrentStagnationStreak = 0;

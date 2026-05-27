@@ -151,8 +151,12 @@ async Task<(OperationResult<GroupOptimizationResult>? result, PerformanceMeter m
                     .WithMutationForce(0.5)
                     .WithCrossoverProbability(0.9)
                     .WithTerminationStrategy(
-                        new TimeoutTerminationStrategy(TimeSpan.FromHours(9))
-                        // new CustomStagnationStreakTerminationStrategy(299_999, 1e-8)
+                        new OrTerminationStrategy(
+                            new CustomStagnationStreakTerminationStrategy(
+                                maxStagnationStreak: 5_000,
+                                relativeStagnationThreshold: 1e-6),
+                            new TimeoutTerminationStrategy(TimeSpan.FromHours(9))
+                        )
                     )
                     .AddPenaltyEvaluators(penaltyEvaluators)
                     .WithProcessorsCount(processorsCount)
