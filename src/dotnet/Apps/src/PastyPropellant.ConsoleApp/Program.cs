@@ -134,7 +134,7 @@ async Task<(OperationResult<GroupOptimizationResult>? result, PerformanceMeter m
     var groupLowerBound = GetGroupLowerBound();
     var groupUpperBound = GetGroupUpperBound();
 
-    var populationSize = groupLowerBound.Length * 8;  // 32 * 8 = 256
+    var populationSize = groupLowerBound.Length * 12; // 32 * 12 = 384
     var maxAvailableProcessors = Environment.ProcessorCount - 1;
     int processorsCount = maxAvailableProcessors;
     for (; processorsCount >= 14; processorsCount--)
