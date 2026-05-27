@@ -108,7 +108,7 @@ double[] GetGroupUpperBound()
 
 async Task<(OperationResult<GroupOptimizationResult>? result, PerformanceMeter meter, DifferentialEvolutionSettings? deSettings, System.Collections.ObjectModel.ReadOnlyCollection<Propellant> propellants)> RunGroupOptimizationAsync(string inputFileName)
 {
-    const double penaltyRate = 1.0;
+    const double penaltyRate = 0.01;
     const double heatFluxRatioThreshold = 100.0;
     const double poreDiameterThreshold = 3.0;
     const double largeOxidizerParticleSizeThreshold = 1.0;
