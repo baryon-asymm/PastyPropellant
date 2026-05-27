@@ -571,11 +571,17 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
     {
         const double stefanBoltzmannConstant = PhysicalConstants.StefanBoltzmannConstant;
 
+        // Rosseland diffusion approximation for radiative thermal conductivity in an
+        // optically thick porous medium: λ_r = 16·σ·T³ / (3·β).
+        // β is the Rosseland mean extinction coefficient. For a packed bed of opaque
+        // particles (Goldsmith–Larkin; Modest, "Radiative Heat Transfer"; Kuo,
+        // "Principles of Combustion") it is β = 3·(1 - φ) / d_p,
+        // where φ is porosity and d_p is the pore/particle diameter.
         var beta = 3.0 * (1.0 - skeletonLayerParamsByUnits.Porosity.DecimalFractions) / poreDiameter.Meters;
-        var radiativeThermalConductivityDouble = 16 * stefanBoltzmannConstant
+        var radiativeThermalConductivityDouble = 16.0 * stefanBoltzmannConstant
                                                  * Math.Pow(averageMetalBurningTemperature.Kelvins, 3)
-                                                 / beta;
-                                                 
+                                                 / (3.0 * beta);
+
         return ThermalConductivity.FromWattsPerMeterKelvin(radiativeThermalConductivityDouble);
     }
 
@@ -923,11 +929,17 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
     {
         const double stefanBoltzmannConstant = PhysicalConstants.StefanBoltzmannConstant;
 
+        // Rosseland diffusion approximation for radiative thermal conductivity in an
+        // optically thick porous medium: λ_r = 16·σ·T³ / (3·β).
+        // β is the Rosseland mean extinction coefficient. For a packed bed of opaque
+        // particles (Goldsmith–Larkin; Modest, "Radiative Heat Transfer"; Kuo,
+        // "Principles of Combustion") it is β = 3·(1 - φ) / d_p,
+        // where φ is porosity and d_p is the pore/particle diameter.
         var beta = 3.0 * (1.0 - skeletonLayerParamsByDoubles.Porosity) / poreDiameter;
-        var radiativeThermalConductivity = 16 * stefanBoltzmannConstant
+        var radiativeThermalConductivity = 16.0 * stefanBoltzmannConstant
                                                  * Math.Pow(averageMetalBurningTemperature, 3)
-                                                 / beta;
-                                                 
+                                                 / (3.0 * beta);
+
         return radiativeThermalConductivity;
     }
 
