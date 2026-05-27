@@ -83,7 +83,7 @@ public abstract class BasePlotRenderer : IPlotRenderer
         PlotSettings settings)
     {
         using var stream = File.Create(filePath);
-        JpegExporter.Export(plotModel, stream, settings.Width, settings.Height, settings.Quality, settings.Dpi);
+        ExportJpeg(plotModel, stream, settings);
     }
 
     public byte[] GetPlotAsByteArray(
@@ -91,7 +91,7 @@ public abstract class BasePlotRenderer : IPlotRenderer
         PlotSettings settings)
     {
         using var stream = new MemoryStream();
-        JpegExporter.Export(plotModel, stream, settings.Width, settings.Height, settings.Quality, settings.Dpi);
+        ExportJpeg(plotModel, stream, settings);
         return stream.ToArray();
     }
 
@@ -100,8 +100,43 @@ public abstract class BasePlotRenderer : IPlotRenderer
         PlotSettings settings)
     {
         var stream = new MemoryStream();
-        JpegExporter.Export(plotModel, stream, settings.Width, settings.Height, settings.Quality, settings.Dpi);
+        ExportJpeg(plotModel, stream, settings);
         stream.ResetToStart();
         return stream;
+    }
+
+    // OxyPlot swallows exceptions thrown by series/axes during rendering, draws a textual
+    // error panel, and stores the original exception in PlotModel.GetLastPlotException().
+    // The panel itself uses Regex via StringHelper.SplitLines, which on .NET 10 has been
+    // observed to fail with FileNotFoundException for System.Text.RegularExpressions v8 —
+    // masking the real cause. Always surface the primary plot exception when present.
+    private static void ExportJpeg(
+        PlotModel plotModel,
+        Stream stream,
+        PlotSettings settings)
+    {
+        try
+        {
+            JpegExporter.Export(plotModel, stream, settings.Width, settings.Height, settings.Quality, settings.Dpi);
+        }
+        catch (Exception exportEx)
+        {
+            var inner = plotModel.GetLastPlotException();
+            if (inner != null && !ReferenceEquals(inner, exportEx))
+            {
+                throw new InvalidOperationException(
+                    $"Plot rendering failed; underlying cause: {inner.GetType().Name}: {inner.Message}",
+                    inner);
+            }
+            throw;
+        }
+
+        var renderException = plotModel.GetLastPlotException();
+        if (renderException != null)
+        {
+            throw new InvalidOperationException(
+                $"Plot rendering failed; underlying cause: {renderException.GetType().Name}: {renderException.Message}",
+                renderException);
+        }
     }
 }
