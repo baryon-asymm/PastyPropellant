@@ -52,12 +52,50 @@ void GenerateGroupReport(
 
 double[] GetLowerBound()
 {
-    return [0, 0, 0, 5e4, 0, 5e4, 0, 5e4, -3.0, -3.0, -3.0, 1e-15, 1e-15, -1e12, 1e-15, 1.0, 2.0, 0.0];
+    return [
+        1.0,    // [0]  ADecompose                       kg/(m²·s)
+        5e4,    // [1]  EDecompose                       J/mol
+        1e5,    // [2]  AKineticFlameInterPocket         1/s
+        5e4,    // [3]  EKineticFlameInterPocket         J/mol
+        1e5,    // [4]  AKineticFlamePocketOutSkeleton   1/s
+        5e4,    // [5]  EKineticFlamePocketOutSkeleton   J/mol
+        1e5,    // [6]  AKineticFlamePocketSkeleton      1/s
+        5e4,    // [7]  EKineticFlamePocketSkeleton      J/mol
+        0.0,    // [8]  NuInterPocket
+        0.0,    // [9]  NuPocketOutSkeleton
+        0.0,    // [10] NuPocketSkeleton
+        1e-10,  // [11] AMetalBurningConstant            m²/s
+        1e-12,  // [12] BMetalBurningConstant            m³/s²
+        -1e7,   // [13] DeltaH                           J/kg
+        1e-3,   // [14] KDiffusionHeight
+        1.0,    // [15] APowOrder                        (degenerate dimensional const = 1)
+        2.0,    // [16] BPowOrder                        (degenerate dimensional const = 2)
+        0.0     // [17] KCoefficientRadiationTemperature opened to [0,1] so DE can explore the radiative-temperature closure
+    ];
 }
 
 double[] GetUpperBound()
 {
-    return [double.MaxValue, 4422718, 1e15, 2e5, 1e15, 2e5, 1e15, 2e5, 3.0, 3.0, 3.0, 1.0, 1.0, 1e12, 1e1, 1.0, 2.0, 0.0];
+    return [
+        1e9,    // [0]  ADecompose
+        3e5,    // [1]  EDecompose
+        1e13,   // [2]  AKineticFlameInterPocket
+        2.5e5,  // [3]  EKineticFlameInterPocket
+        1e13,   // [4]  AKineticFlamePocketOutSkeleton
+        2.5e5,  // [5]  EKineticFlamePocketOutSkeleton
+        1e13,   // [6]  AKineticFlamePocketSkeleton
+        2.5e5,  // [7]  EKineticFlamePocketSkeleton
+        2.5,    // [8]  NuInterPocket
+        2.5,    // [9]  NuPocketOutSkeleton
+        2.5,    // [10] NuPocketSkeleton
+        1e-3,   // [11] AMetalBurningConstant
+        1e-5,   // [12] BMetalBurningConstant
+        1e7,    // [13] DeltaH
+        1e1,    // [14] KDiffusionHeight
+        1.0,    // [15] APowOrder
+        2.0,    // [16] BPowOrder
+        1.0     // [17] KCoefficientRadiationTemperature (was [0,0], now [0,1])
+    ];
 }
 
 // ========== GROUP OPTIMIZATION BOUNDS (32-ELEMENT VECTOR) ==========
