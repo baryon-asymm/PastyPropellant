@@ -108,10 +108,8 @@ These quantities are precomputed once per propellant/pressure pair by `ProblemCo
 | Average oxidizer (large AP) diameter | $d_{ox}$ | `components.AmmoniumPerchlorate.average_particles_diameter` | [PropellantExtensions.cs:114-121](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L114-L121) |
 | Metal melting temperature | $T_{melt}$ | hard-coded **2300 K** | [PropellantExtensions.cs:155-159](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L155-L159) |
 | Metal boiling temperature | $T_{boil}(p)$ | 6th-order polynomial in $p\,[\text{MPa}]$ | [PropellantExtensions.cs:173-193](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L173-L193) |
-| Inter-pocket volume fraction | $f_{V,inter}$ | mass-fraction sum / density mix | [PropellantExtensions.cs:26-58](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L26-L58) |
+| Inter-pocket volume fraction | $f_{V,inter}$ | mass-fraction sum / density mix | [PropellantExtensions.cs:26-54](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L26-L54) |
 | Pocket volume fraction | $f_{V,pocket}$ | same | [PropellantExtensions.cs:72-100](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L72-L100) |
-
-> **Bas_2 anomaly.** `GetInterPocketAreaVolumeFraction` multiplies the result by `1.5` when `propellant.Name == "Bas_2"`. This is an empirical correction baked into the code. See [§17](#17-known-limitations--open-questions).
 
 ### 3.3 Experimental burn rate (Vieille's law)
 
@@ -591,7 +589,7 @@ The optimization layer (`GroupDifferentialEvolutionOptimizer`) wraps the externa
 
 This section is the audit log for the model. New issues should be appended here as they surface, so future model improvements have a single check-list to work against.
 
-1. **Empirical Bas_2 correction.** `GetInterPocketAreaVolumeFraction` multiplies the inter-pocket volume fraction by `1.5` when `propellant.Name == "Bas_2"` ([PropellantExtensions.cs:53-55](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L53-L55)). The reason is not documented. Any plan to expand the model beyond the current Bas_0..4 family needs to revisit this factor.
+1. **Empirical Bas_2 correction** — removed (2026-05-28). `GetInterPocketAreaVolumeFraction` previously multiplied the inter-pocket volume fraction by `1.5` when `propellant.Name == "Bas_2"`. The factor was an undocumented parameter-sensitivity experiment and has been dropped; the function now returns the unscaled mix for every propellant. Optimization results for the Bas_2 group obtained before this change are not comparable.
 
 2. **`SkeletonSurfaceFraction` actually stores the *pocket* surface fraction** ([ProblemContextBy…MatrixBuilder.cs:135](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Builders/ProblemContextByUnitsMatrixBuilder.cs#L135)). The field name and the `pocket_surface_fraction_coefficients` JSON name reflect the original intent; the rename never reached `PropellantParamsByUnits`. Renaming to `PocketSurfaceFraction` is a cosmetic fix worth doing.
 
