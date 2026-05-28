@@ -128,7 +128,7 @@ async Task<(OperationResult<GroupOptimizationResult>? result, PerformanceMeter m
             maxSkeletonKineticFlameHeatFlux: maxSkeletonKineticFlameHeatFlux,
             maxOutSkeletonKineticFlameHeatFlux: maxOutSkeletonKineticFlameHeatFlux),
         new PoreDiameterPenaltyEvaluator(penaltyRate, poreDiameterThreshold),
-        //new LargeOxidizerParticleSizePenaltyEvaluator(penaltyRate, largeOxidizerParticleSizeThreshold)
+        new LargeOxidizerParticleSizePenaltyEvaluator(penaltyRate, largeOxidizerParticleSizeThreshold)
     ];
 
     var groupLowerBound = GetGroupLowerBound();
