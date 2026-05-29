@@ -106,7 +106,7 @@ These quantities are precomputed once per propellant/pressure pair by `ProblemCo
 |---|---|---|---|
 | Pocket / skeleton surface fraction | $f_s$ | polynomial in $p$ (see §12.1) | [PropellantExtensions.cs:135-144](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L135-L144) |
 | Average oxidizer (large AP) diameter | $d_{ox}$ | `components.AmmoniumPerchlorate.average_particles_diameter` | [PropellantExtensions.cs:114-121](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L114-L121) |
-| Metal melting temperature | $T_{melt}$ | hard-coded **2300 K** | [PropellantExtensions.cs:155-159](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L155-L159) |
+| Metal melting temperature | $T_{melt}$ | hard-coded **1300 K** | [PropellantExtensions.cs:155-159](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L155-L159) |
 | Metal boiling temperature | $T_{boil}(p)$ | 6th-order polynomial in $p\,[\text{MPa}]$ | [PropellantExtensions.cs:173-193](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L173-L193) |
 | Inter-pocket volume fraction | $f_{V,inter}$ | mass-fraction sum / density mix | [PropellantExtensions.cs:26-54](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L26-L54) |
 | Pocket volume fraction | $f_{V,pocket}$ | same | [PropellantExtensions.cs:72-100](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L72-L100) |
@@ -398,7 +398,7 @@ Fourier conduction through the skeleton layer between the melting front $T_{melt
 $$q_{\text{metal}} \;=\; \lambda_{\text{eff}}\,\frac{T_{melt} - T_s}{\delta_s}$$
 
 **Code:** [PocketPropellantSolver.cs:666-681](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L666-L681), [PocketPropellantSolver.cs:1021-1035](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L1021-L1035).
-**Inputs:** $T_{melt}$ from `MetalCombustionParamsByUnits.MetalMeltingTemperature` (hard-coded 2300 K), $\delta_s$ (§6.1), $\lambda_{\text{eff}}$ (§7.4).
+**Inputs:** $T_{melt}$ from `MetalCombustionParamsByUnits.MetalMeltingTemperature` (hard-coded 1300 K), $\delta_s$ (§6.1), $\lambda_{\text{eff}}$ (§7.4).
 **In PDF:** `PressureTablesReport` row `MetalHeatFlux`.
 
 > **History.** The original implementation had `/ effectiveThermalConductivity` rather than `* effectiveThermalConductivity` — fixed in commit `9ca96ff`.
@@ -581,7 +581,7 @@ The optimization layer (`GroupDifferentialEvolutionOptimizer`) wraps the externa
 | $h_{\text{diff}}$ | `PocketCombustionParams.DiffusionFlameHeight` | `DiffusionFlameHeight` | computed (§9.1) |
 | $q_{\text{sub}}$ | `*CombustionParams.SublimationHeatFlux` | `SublimationHeatFlux` | computed (§11.3) |
 | $f_s$ | `PropellantParamsByUnits.SkeletonSurfaceFraction` | (derived) | `pocket_surface_fraction_coefficients` / `pocket_mass_fraction` |
-| $T_{melt}$ | `MetalCombustionParamsByUnits.MetalMeltingTemperature` | (derived, in `ProblemContextReport`) | hard-coded 2300 K |
+| $T_{melt}$ | `MetalCombustionParamsByUnits.MetalMeltingTemperature` | (derived, in `ProblemContextReport`) | hard-coded 1300 K |
 
 ---
 
@@ -609,7 +609,7 @@ This section is the audit log for the model. New issues should be appended here 
 
 10. **Metal heat flux sign flip** — also fixed in `9ca96ff`: the previous code divided by $\lambda_{\text{eff}}$ instead of multiplying. Same caveat as point 9.
 
-11. **`MetalMeltingTemperature` is hard-coded to 2300 K** in [PropellantExtensions.cs:155-159](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L155-L159), ignoring any pressure dependence and any composition difference. Plausible for aluminum-skeleton propellants, but should be made explicit if the metal binder changes.
+11. **`MetalMeltingTemperature` is hard-coded to 1300 K** in [PropellantExtensions.cs:155-159](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L155-L159), ignoring any pressure dependence and any composition difference. Plausible for aluminum-skeleton propellants, but should be made explicit if the metal binder changes.
 
 12. **`MetalBoilingTemperature(p)` polynomial coefficients in [PropellantExtensions.cs:177-186](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L177-L186) are hard-coded without provenance.** They should be documented (source publication, fit window) or replaced by JSON-driven coefficients.
 
