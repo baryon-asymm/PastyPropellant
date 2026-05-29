@@ -102,7 +102,7 @@ public record ProblemContextByUnits : IComputationVisitable
     /// This property is used as the upper bound in binary search algorithms for solving the transcendental equation
     /// to find the surface temperature of the propellant (condensed phase).
     /// </summary>
-    public Temperature MaxSurfaceTemperature = Temperature.FromKelvins(750);
+    public Temperature MaxSurfaceTemperature = Temperature.FromKelvins(900);
 
 #endregion
 
