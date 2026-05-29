@@ -222,7 +222,7 @@ where $q_{\text{total}}$ collects every incoming heat flux contribution (kinetic
 | Parameter | Value | Source |
 |---|---|---|
 | $T_s^{\min}$ | 600 K (default) | [ProblemContextByUnits.cs:98](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Models/ProblemContexts/ProblemContextByUnits.cs#L98) |
-| $T_s^{\max}$ | 750 K (default) | [ProblemContextByUnits.cs:105](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Models/ProblemContexts/ProblemContextByUnits.cs#L105) |
+| $T_s^{\max}$ | 900 K (default) | [ProblemContextByUnits.cs:105](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Models/ProblemContexts/ProblemContextByUnits.cs#L105) |
 | tolerance | $10^{-8}$ K | [BasePropellantSolver.cs:113](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/BasePropellantSolver.cs#L113), [BasePropellantSolver.cs:267](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/BasePropellantSolver.cs#L267) |
 | failure sentinel | $T_s = -1$ K | [BasePropellantSolver.cs:207-209](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/BasePropellantSolver.cs#L207-L209) |
 
@@ -613,7 +613,7 @@ This section is the audit log for the model. New issues should be appended here 
 
 12. **`MetalBoilingTemperature(p)` polynomial coefficients in [PropellantExtensions.cs:177-186](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L177-L186) are hard-coded without provenance.** They should be documented (source publication, fit window) or replaced by JSON-driven coefficients.
 
-13. **Surface-temperature bounds [600, 750] K are hard-coded** as default field values in `ProblemContextByUnits` and `ProblemContextByDoubles`. For high-pressure / high-flame-temperature points these bounds may be too narrow, producing the `−1 K` failure sentinel; the failure then collapses the genome's fitness to `MaxValue` and the DE silently rejects it. Worth widening or making JSON-configurable.
+13. **Surface-temperature bounds [600, 900] K are hard-coded** as default field values in `ProblemContextByUnits` and `ProblemContextByDoubles`. For high-pressure / high-flame-temperature points these bounds may be too narrow, producing the `−1 K` failure sentinel; the failure then collapses the genome's fitness to `MaxValue` and the DE silently rejects it. Worth widening or making JSON-configurable.
 
 14. **`PressureTablesReport`'s `.en-US.resx` file has duplicate / placeholder entries** at the top of the file (`Name1`, `Color1`, `Bitmap1`, etc., visible in `grep` output) — these are Visual-Studio resource-editor scaffolding leftovers and do not appear in the rendered PDF. Cosmetic.
 
