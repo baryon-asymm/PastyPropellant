@@ -151,7 +151,7 @@ public static class PropellantExtensions
     public static double GetMetalMeltingTemperature(
         this Propellant propellant)
     {
-        return 2300;
+        return 1300;
     }
 
     /// <summary>
