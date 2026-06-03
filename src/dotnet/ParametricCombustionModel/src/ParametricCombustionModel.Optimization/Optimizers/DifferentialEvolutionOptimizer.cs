@@ -1,5 +1,5 @@
 ﻿using DotNetDifferentialEvolution;
-using DotNetDifferentialEvolution.Interfaces;
+using DotNetOptimization.Abstractions;
 using ParametricCombustionModel.Computation.Models.KnownParams;
 using ParametricCombustionModel.Optimization.Interfaces;
 using ParametricCombustionModel.Optimization.Models;
@@ -68,10 +68,7 @@ public class DifferentialEvolutionOptimizer : IParametricCombustionModelOptimize
                                           .WithBounds(lowerBound, upperBound)
                                           .WithPopulationSize(_settings.PopulationSize)
                                           .WithUniformPopulationSampling()
-                                          .WithDefaultMutationStrategy(
-                                              mutationForce: _settings.MutationForce,
-                                              crossoverProbability: _settings.CrossoverProbability)
-                                          .WithDefaultSelectionStrategy()
+                                          .ApplyStrategy(_settings)
                                           .WithTerminationCondition(_settings.TerminationStrategy)
                                           .UseProcessors(processorsCount: _settings.ProcessorsCount);
 
@@ -81,6 +78,7 @@ public class DifferentialEvolutionOptimizer : IParametricCombustionModelOptimize
         using var de = builder.Build();
 
         var population = await de.RunAsync();
+        population.MoveCursorToBestIndividual();
 
         _optimizationContextByUnits.Accept(
             CombustionSolverParamsByUnits.FromVector(population.IndividualCursor.Genes.ToArray()),

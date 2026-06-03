@@ -1,11 +1,14 @@
 using DotNetDifferentialEvolution;
-using DotNetDifferentialEvolution.Interfaces;
+using DotNetNelderMead;
+using DotNetNelderMead.DifferentialEvolution;
+using DotNetOptimization.Abstractions;
 using ParametricCombustionModel.Computation.Models.KnownParams;
 using ParametricCombustionModel.Optimization.FitnessFunctionEvaluators;
 using ParametricCombustionModel.Optimization.Interfaces;
 using ParametricCombustionModel.Optimization.Models;
 using ParametricCombustionModel.Optimization.Results;
 using ParametricCombustionModel.Optimization.Settings;
+using PastyPropellant.Core.Models.Events.Logs;
 using PastyPropellant.Core.Utils;
 
 namespace ParametricCombustionModel.Optimization.Optimizers;
@@ -97,28 +100,46 @@ public class GroupDifferentialEvolutionOptimizer : IFitnessFunctionEvaluator
     {
         var lowerBound = _settings.LowerBound.ToArray();
         var upperBound = _settings.UpperBound.ToArray();
+        var nelderMead = _settings.NelderMead;
 
         var builder = DifferentialEvolutionBuilder.ForFunction(this)
                                           .WithBounds(lowerBound, upperBound)
                                           .WithPopulationSize(_settings.PopulationSize)
                                           .WithUniformPopulationSampling()
-                                          .WithDefaultMutationStrategy(
-                                              mutationForce: _settings.MutationForce,
-                                              crossoverProbability: _settings.CrossoverProbability)
-                                          .WithDefaultSelectionStrategy()
+                                          .ApplyStrategy(_settings)
                                           .WithTerminationCondition(_settings.TerminationStrategy)
                                           .UseProcessors(processorsCount: _settings.ProcessorsCount);
 
         if (_settings.PopulationUpdatedHandler != null)
             builder = builder.WithPopulationUpdateHandler(_settings.PopulationUpdatedHandler);
 
+        // Memetic stage: an in-loop Nelder–Mead refiner polishes the best individual every N generations.
+        // Bounds and the start point are injected by the refiner from the DE problem context; we only
+        // tune simplex coefficients/convergence/restarts. Evaluations route through the same worker-indexed
+        // Evaluate(...) overload, so they reuse the per-worker composition contexts.
+        if (nelderMead is { Enabled: true, MemeticInLoop: true })
+            builder = builder.WithNelderMeadLocalSearch(
+                this,
+                nelderMead.EveryNGenerations,
+                nelderMead.MemeticMaxEvaluationsPerCall,
+                ApplyNelderMeadTuning);
+
         using var de = builder.Build();
 
         var population = await de.RunAsync();
+        population.MoveCursorToBestIndividual();
+
+        var bestGenes = population.IndividualCursor.Genes.ToArray();
+        var bestFitness = population.IndividualCursor.FitnessFunctionValue;
+
+        // Final stage: a sequential DE→Nelder–Mead handoff polishes the converged best once, seeded from
+        // the DE solution. Single simplex (worker 0), so it reuses the [0, *] composition contexts.
+        if (nelderMead is { Enabled: true, FinalPolish: true })
+            (bestGenes, bestFitness) = ApplyFinalPolish(bestGenes, bestFitness, lowerBound, upperBound);
 
         // Evaluate final best solution using UnitsNet types for each composition group
-        var bestGroupParams = GroupCombustionSolverParamsByUnits.FromVector(population.IndividualCursor.Genes.ToArray());
-        
+        var bestGroupParams = GroupCombustionSolverParamsByUnits.FromVector(bestGenes);
+
         for (var groupIdx = 0; groupIdx < 3; groupIdx++)
         {
             var compositionParams = bestGroupParams.ToCompositionVector(groupIdx);
@@ -130,9 +151,62 @@ public class GroupDifferentialEvolutionOptimizer : IFitnessFunctionEvaluator
             compositionContexts: _finalContextsByUnits,
             lowerBound: lowerBound,
             upperBound: upperBound,
-            bestParams: population.IndividualCursor.Genes.ToArray());
+            bestParams: bestGenes);
 
         return result;
+    }
+
+    /// <summary>
+    /// Runs the final sequential Nelder–Mead polish from the DE best and returns the better of the two
+    /// solutions. The simplex can drift across penalty cliffs, so the DE solution is kept unless the
+    /// refined fitness is at least as good (best-of-both guard).
+    /// </summary>
+    private (double[] genes, double fitness) ApplyFinalPolish(
+        double[] deBestGenes,
+        double deBestFitness,
+        double[] lowerBound,
+        double[] upperBound)
+    {
+        var refined = ApplyNelderMeadTuning(
+                NelderMeadBuilder.ForFunction(this)
+                    .StartingFrom(deBestGenes)
+                    .WithBounds(lowerBound, upperBound))
+            .WithMaxEvaluations(_settings.NelderMead.FinalPolishMaxEvaluations)
+            .Build()
+            .Run();
+
+        if (refined.Best.FitnessFunctionValue <= deBestFitness)
+        {
+            EventBus<InfoLogEvent>.Publish(new InfoLogEvent(
+                $"Final Nelder–Mead polish improved best: {deBestFitness:G6} -> {refined.Best.FitnessFunctionValue:G6} " +
+                $"({refined.EvaluationCount} evals, {refined.TerminationReason}).",
+                nameof(GroupDifferentialEvolutionOptimizer)));
+
+            return (refined.Best.Genes.ToArray(), refined.Best.FitnessFunctionValue);
+        }
+
+        EventBus<InfoLogEvent>.Publish(new InfoLogEvent(
+            $"Final Nelder–Mead polish did not improve DE best ({deBestFitness:G6}); keeping DE solution.",
+            nameof(GroupDifferentialEvolutionOptimizer)));
+
+        return (deBestGenes, deBestFitness);
+    }
+
+    /// <summary>Applies the shared Nelder–Mead tuning (coefficients, convergence, restarts) from settings.</summary>
+    private NelderMeadBuilder ApplyNelderMeadTuning(NelderMeadBuilder builder)
+    {
+        var nelderMead = _settings.NelderMead;
+
+        builder = nelderMead.AdaptiveCoefficients
+            ? builder.WithAdaptiveCoefficients()
+            : builder.WithStandardCoefficients();
+
+        builder = builder.WithConvergence(nelderMead.DomainTolerance, nelderMead.FunctionTolerance);
+
+        if (nelderMead.Restarts > 0)
+            builder = builder.WithRestarts(nelderMead.Restarts);
+
+        return builder;
     }
 
     /// <summary>

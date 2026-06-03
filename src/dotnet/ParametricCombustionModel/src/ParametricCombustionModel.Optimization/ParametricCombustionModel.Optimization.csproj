@@ -13,7 +13,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="DotNetDifferentialEvolution" Version="1.1.1" />
+      <PackageReference Include="DotNetDifferentialEvolution" Version="4.0.0" />
+      <PackageReference Include="DotNetNelderMead" Version="1.0.0" />
+      <PackageReference Include="DotNetNelderMead.DifferentialEvolution" Version="1.0.0" />
     </ItemGroup>
 
 </Project>

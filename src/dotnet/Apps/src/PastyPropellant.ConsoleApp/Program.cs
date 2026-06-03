@@ -68,8 +68,8 @@ double[] GetLowerBound()
         1e-12,  // [12] BMetalBurningConstant            m³/s²
         -1e7,   // [13] DeltaH                           J/kg
         1e-3,   // [14] KDiffusionHeight
-        1.0,    // [15] APowOrder                        (degenerate dimensional const = 1)
-        2.0,    // [16] BPowOrder                        (degenerate dimensional const = 2)
+        0.0,    // [15] APowOrder                        (degenerate dimensional const = 1)
+        0.0,    // [16] BPowOrder                        (degenerate dimensional const = 2)
         0.0     // [17] KCoefficientRadiationTemperature opened to [0,1] so DE can explore the radiative-temperature closure
     ];
 }
@@ -77,7 +77,7 @@ double[] GetLowerBound()
 double[] GetUpperBound()
 {
     return [
-        1e9,    // [0]  ADecompose
+        1e35,    // [0]  ADecompose
         3e5,    // [1]  EDecompose
         1e13,   // [2]  AKineticFlameInterPocket
         2.5e5,  // [3]  EKineticFlameInterPocket
@@ -92,8 +92,8 @@ double[] GetUpperBound()
         1e-5,   // [12] BMetalBurningConstant
         1e7,    // [13] DeltaH
         1e1,    // [14] KDiffusionHeight
-        1.0,    // [15] APowOrder
-        2.0,    // [16] BPowOrder
+        3.0,    // [15] APowOrder
+        3.0,    // [16] BPowOrder
         1.0     // [17] KCoefficientRadiationTemperature (was [0,0], now [0,1])
     ];
 }
@@ -171,42 +171,125 @@ async Task<(OperationResult<GroupOptimizationResult>? result, PerformanceMeter m
 
     var groupLowerBound = GetGroupLowerBound();
     var groupUpperBound = GetGroupUpperBound();
+    var dimensions = groupLowerBound.Length; // 32
 
-    var populationSize = groupLowerBound.Length * 12; // 32 * 12 = 384
-    var maxAvailableProcessors = Environment.ProcessorCount - 1;
-    int processorsCount = maxAvailableProcessors;
-    for (; processorsCount >= 14; processorsCount--)
-        if (populationSize % processorsCount == 0)
-            break;
+    var strategy = DifferentialEvolutionStrategy.LShade;
+    var maxAvailableProcessors = Math.Max(1, Environment.ProcessorCount - 1);
+    var safetyTimeout = new TimeoutTerminationStrategy(TimeSpan.FromHours(9));
 
-    var settings = DifferentialEvolutionScenarioSettings
+    int populationSize;
+    int processorsCount;
+    OrTerminationStrategy terminationStrategy;
+    long? maxEvaluationNumber = null;
+    // L-SHADE control parameters (left null for the fixed-population variants, which ignore them).
+    double? pBestRate = null;
+    double? archiveSizeRate = null;
+    int? memorySize = null;
+
+    if (strategy == DifferentialEvolutionStrategy.LShade)
+    {
+        // L-SHADE: a larger initial population (18*D) that shrinks linearly to ~4 across a fixed
+        // evaluation budget; the budget both terminates the run and defines the reduction schedule.
+        // Size it to what is actually achievable so the 576→4 schedule completes — a huge budget just
+        // back-loads convergence (the 9 h timeout would fire long before LPSR reaches the floor).
+        // NOTE: the memetic Nelder–Mead evaluations count toward this same budget.
+        populationSize = dimensions * 18; // 32 * 18 = 576
+        processorsCount = maxAvailableProcessors; // population shrinks, so the divisibility heuristic does not apply
+        maxEvaluationNumber = 5_000_000;
+        // Canonical L-SHADE control parameters (Tanabe & Fukunaga 2014): p-best 0.11, archive rate 2.6, memory 6.
+        pBestRate = 0.11;
+        archiveSizeRate = 2.6;
+        memorySize = 6;
+        terminationStrategy = new OrTerminationStrategy(
+            new LimitEvaluationNumberTerminationStrategy(maxEvaluationNumber.Value),
+            safetyTimeout);
+    }
+    else
+    {
+        // Fixed-population variants (Classic / jDE / JADE / SHADE): keep the stagnation+timeout
+        // run control and pick a worker count that divides the population evenly for balanced load.
+        populationSize = dimensions * 12; // 32 * 12 = 384
+        processorsCount = maxAvailableProcessors;
+        for (; processorsCount >= 14; processorsCount--)
+            if (populationSize % processorsCount == 0)
+                break;
+        terminationStrategy = new OrTerminationStrategy(
+            new CustomStagnationStreakTerminationStrategy(
+                maxStagnationStreak: 5_000,
+                relativeStagnationThreshold: 1e-6),
+            safetyTimeout);
+    }
+
+    // Nelder–Mead refinement layered on top of the DE search (DotNetNelderMead.DifferentialEvolution):
+    // an in-loop memetic refiner every N generations plus a final sequential polish of the converged best.
+    // Surfaced here like `strategy`; set Enabled = false to fall back to plain DE.
+    var nelderMeadRefinement = new NelderMeadRefinementSettings
+    {
+        Enabled = true,
+        // Memetic evals count toward the L-SHADE budget, so keep the cadence sparse to limit how much
+        // it shifts the 576→4 reduction schedule (~1–2 % of a 5 M budget at these settings).
+        MemeticInLoop = true,
+        EveryNGenerations = 50,
+        MemeticMaxEvaluationsPerCall = 200,
+        // Final polish runs once after L-SHADE converges (outside the budget) — give it room.
+        FinalPolish = true,
+        FinalPolishMaxEvaluations = 30_000,
+        AdaptiveCoefficients = true,
+        DomainTolerance = 1e-8,
+        FunctionTolerance = 1e-8,
+        Restarts = 2,
+    };
+
+    var settingsBuilder = DifferentialEvolutionScenarioSettings
                     .CreateBuilder()
                     .WithMeter(meter)
                     .WithPropellantsFromFile(inputFileName)
                     .WithPopulationSize(populationSize)
                     .WithLowerBound(groupLowerBound)
                     .WithUpperBound(groupUpperBound)
+                    .WithStrategy(strategy)
+                    // F/CR below are only consumed by the Classic and jDE strategies; the adaptive variants self-tune them.
                     .WithMutationForce(0.5)
                     .WithCrossoverProbability(0.9)
-                    .WithTerminationStrategy(
-                        new OrTerminationStrategy(
-                            new CustomStagnationStreakTerminationStrategy(
-                                maxStagnationStreak: 5_000,
-                                relativeStagnationThreshold: 1e-6),
-                            new TimeoutTerminationStrategy(TimeSpan.FromHours(9))
-                        )
-                    )
+                    .WithTerminationStrategy(terminationStrategy)
                     .AddPenaltyEvaluators(penaltyEvaluators)
                     .WithProcessorsCount(processorsCount)
-                    .Build();
+                    .WithNelderMeadRefinement(nelderMeadRefinement);
+
+    if (maxEvaluationNumber.HasValue)
+        settingsBuilder = settingsBuilder.WithMaxEvaluationNumber(maxEvaluationNumber.Value);
+
+    if (pBestRate.HasValue && archiveSizeRate.HasValue && memorySize.HasValue)
+        settingsBuilder = settingsBuilder.WithShadeParameters(pBestRate.Value, archiveSizeRate.Value, memorySize.Value);
+
+    var settings = settingsBuilder.Build();
 
     var scenario = new GroupDifferentialEvolutionScenario(settings);
 
     Console.WriteLine("Starting group optimization (Bas_0, Bas_1, Bas_2+Bas_3+Bas_4):");
     Console.WriteLine($"- Input file: {inputFileName}");
+    Console.WriteLine($"- Algorithm: {settings.DifferentialEvolutionSettings.Strategy}");
     Console.WriteLine($"- Population size: {populationSize}");
+    if (maxEvaluationNumber.HasValue)
+        Console.WriteLine($"- Evaluation budget: {maxEvaluationNumber.Value:N0}");
+    if (pBestRate.HasValue && archiveSizeRate.HasValue && memorySize.HasValue)
+        Console.WriteLine($"- L-SHADE control: p-best={pBestRate.Value}, archiveRate={archiveSizeRate.Value}, memory={memorySize.Value}");
     Console.WriteLine($"- Parameter vector size: 32 (11 shared + 7×3 specific)");
-    Console.WriteLine($"- Processors: {processorsCount}\n");
+    Console.WriteLine($"- Processors: {processorsCount}");
+    if (nelderMeadRefinement.Enabled)
+    {
+        var stages = new List<string>();
+        if (nelderMeadRefinement.MemeticInLoop)
+            stages.Add($"memetic every {nelderMeadRefinement.EveryNGenerations} gen ({nelderMeadRefinement.MemeticMaxEvaluationsPerCall} evals/call)");
+        if (nelderMeadRefinement.FinalPolish)
+            stages.Add($"final polish ({nelderMeadRefinement.FinalPolishMaxEvaluations:N0} evals)");
+        Console.WriteLine($"- Nelder–Mead refinement: {string.Join(" + ", stages)}");
+    }
+    else
+    {
+        Console.WriteLine("- Nelder–Mead refinement: off");
+    }
+    Console.WriteLine();
 
     OperationResult<GroupOptimizationResult> operationResult;
 

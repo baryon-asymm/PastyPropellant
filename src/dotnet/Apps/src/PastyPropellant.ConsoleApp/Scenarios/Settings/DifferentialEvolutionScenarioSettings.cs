@@ -51,9 +51,15 @@ public record DifferentialEvolutionScenarioSettings
         private ReadOnlyCollection<double>? _lowerBound;
         private ReadOnlyCollection<double>? _upperBound;
         private ITerminationStrategy? _terminationStrategy;
+        private DifferentialEvolutionStrategy _strategy = DifferentialEvolutionStrategy.Shade;
         private double? _mutationForce;
         private double? _crossoverProbability;
+        private long? _maxEvaluationNumber;
         private int? _processorsCount;
+        private double? _pBestRate;
+        private double? _archiveSizeRate;
+        private int? _memorySize;
+        private NelderMeadRefinementSettings _nelderMead = NelderMeadRefinementSettings.Disabled;
         private readonly List<IPenaltyEvaluator> _penaltyEvaluators = [];
 
         internal Builder() { }
@@ -85,6 +91,21 @@ public record DifferentialEvolutionScenarioSettings
             return this;
         }
 
+        public Builder WithStrategy(DifferentialEvolutionStrategy strategy)
+        {
+            _strategy = strategy;
+            return this;
+        }
+
+        public Builder WithMaxEvaluationNumber(long maxEvaluationNumber)
+        {
+            if (maxEvaluationNumber <= 0)
+                throw new ArgumentOutOfRangeException(nameof(maxEvaluationNumber), "Max evaluation number must be positive.");
+
+            _maxEvaluationNumber = maxEvaluationNumber;
+            return this;
+        }
+
         public Builder WithMutationForce(double mutationForce)
         {
             if (mutationForce < 0 || mutationForce > 2)
@@ -109,6 +130,24 @@ public record DifferentialEvolutionScenarioSettings
                 throw new ArgumentOutOfRangeException(nameof(processorsCount), "Processors count must be positive.");
 
             _processorsCount = processorsCount;
+            return this;
+        }
+
+        public Builder WithNelderMeadRefinement(NelderMeadRefinementSettings nelderMead)
+        {
+            _nelderMead = nelderMead ?? throw new ArgumentNullException(nameof(nelderMead));
+            return this;
+        }
+
+        /// <summary>
+        /// Overrides the JADE/SHADE/L-SHADE control parameters (otherwise the library defaults apply).
+        /// For canonical L-SHADE (Tanabe &amp; Fukunaga 2014) use p=0.11, archiveRate=2.6, memory=6.
+        /// </summary>
+        public Builder WithShadeParameters(double pBestRate, double archiveSizeRate, int memorySize)
+        {
+            _pBestRate = pBestRate;
+            _archiveSizeRate = archiveSizeRate;
+            _memorySize = memorySize;
             return this;
         }
 
@@ -198,16 +237,26 @@ public record DifferentialEvolutionScenarioSettings
             ValidateRequiredFields();
             ValidateBounds();
 
-            var baseSettings = DifferentialEvolutionSettings.CreateBuilder()
+            var baseSettingsBuilder = DifferentialEvolutionSettings.CreateBuilder()
                 .WithLowerBound(_lowerBound!)
                 .WithUpperBound(_upperBound!)
                 .WithPopulationSize(_populationSize!.Value)
                 .WithTerminationStrategy(_terminationStrategy!)
                 .WithPopulationUpdatedHandler(new PopulationUpdateHandler())
+                .WithStrategy(_strategy)
                 .WithMutationForce(_mutationForce!.Value)
                 .WithCrossoverProbability(_crossoverProbability!.Value)
                 .WithProcessorsCount(_processorsCount!.Value)
-                .Build();
+                .WithNelderMeadRefinement(_nelderMead);
+
+            if (_maxEvaluationNumber.HasValue)
+                baseSettingsBuilder = baseSettingsBuilder.WithMaxEvaluationNumber(_maxEvaluationNumber.Value);
+
+            if (_pBestRate.HasValue && _archiveSizeRate.HasValue && _memorySize.HasValue)
+                baseSettingsBuilder = baseSettingsBuilder.WithShadeParameters(
+                    _pBestRate.Value, _archiveSizeRate.Value, _memorySize.Value);
+
+            var baseSettings = baseSettingsBuilder.Build();
 
             return new DifferentialEvolutionScenarioSettings(
                 baseSettings,
