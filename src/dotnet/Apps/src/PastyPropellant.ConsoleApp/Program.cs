@@ -77,7 +77,7 @@ double[] GetLowerBound()
 double[] GetUpperBound()
 {
     return [
-        1e35,    // [0]  ADecompose
+        1e13,    // [0]  ADecompose  (user-chosen: jDE reaches the clean basin and avoids the degenerate corner; Bas_0 was pinned at the old 1e9 ceiling, so this can push lower)
         3e5,    // [1]  EDecompose
         1e13,   // [2]  AKineticFlameInterPocket
         2.5e5,  // [3]  EKineticFlameInterPocket
@@ -173,7 +173,10 @@ async Task<(OperationResult<GroupOptimizationResult>? result, PerformanceMeter m
     var groupUpperBound = GetGroupUpperBound();
     var dimensions = groupLowerBound.Length; // 32
 
-    var strategy = DifferentialEvolutionStrategy.LShade;
+    // jDE (self-adaptive rand/1) is the winning strategy on this branch: its exploration reaches the
+    // clean basin (obj 0.157 / penalty 0), whereas current-to-pbest variants either trap in a penalized
+    // degenerate corner (SHADE/L-SHADE → 0.92) or converge prematurely to a worse optimum (JADE → 0.42).
+    var strategy = DifferentialEvolutionStrategy.Jde;
     var maxAvailableProcessors = Math.Max(1, Environment.ProcessorCount - 1);
     var safetyTimeout = new TimeoutTerminationStrategy(TimeSpan.FromHours(9));
 
@@ -208,7 +211,7 @@ async Task<(OperationResult<GroupOptimizationResult>? result, PerformanceMeter m
     {
         // Fixed-population variants (Classic / jDE / JADE / SHADE): keep the stagnation+timeout
         // run control and pick a worker count that divides the population evenly for balanced load.
-        populationSize = dimensions * 12; // 32 * 12 = 384
+        populationSize = dimensions * 12; // 32 * 12 = 384 (jDE production population — reaches obj 0.157 / penalty 0)
         processorsCount = maxAvailableProcessors;
         for (; processorsCount >= 14; processorsCount--)
             if (populationSize % processorsCount == 0)
@@ -225,15 +228,18 @@ async Task<(OperationResult<GroupOptimizationResult>? result, PerformanceMeter m
     // Surfaced here like `strategy`; set Enabled = false to fall back to plain DE.
     var nelderMeadRefinement = new NelderMeadRefinementSettings
     {
-        Enabled = true,
-        // Memetic evals count toward the L-SHADE budget, so keep the cadence sparse to limit how much
-        // it shifts the 576→4 reduction schedule (~1–2 % of a 5 M budget at these settings).
-        MemeticInLoop = true,
+        Enabled = true, // final-polish-only (memetic stays off); guarded, so it can only improve the jDE best
+        // Memetic in-loop NM is OFF. Tested with jDE (2026-06-04): it does NOT collapse — jDE stays in the
+        // clean penalty-0 basin, so the memetic polish reached 0.15742 / penalty 0, basically the same point
+        // as final-polish-only (0.15721) but a hair worse and ~138k generations earlier (it trims diversity
+        // and accelerates stagnation for no gain). The earlier SHADE/L-SHADE memetic collapse (0.921099 /
+        // penalty 0.5) was current-to-pbest already sitting in the penalized corner, not an intrinsic flaw.
+        MemeticInLoop = false,
         EveryNGenerations = 50,
         MemeticMaxEvaluationsPerCall = 200,
         // Final polish runs once after L-SHADE converges (outside the budget) — give it room.
         FinalPolish = true,
-        FinalPolishMaxEvaluations = 30_000,
+        FinalPolishMaxEvaluations = 100_000,
         AdaptiveCoefficients = true,
         DomainTolerance = 1e-8,
         FunctionTolerance = 1e-8,
