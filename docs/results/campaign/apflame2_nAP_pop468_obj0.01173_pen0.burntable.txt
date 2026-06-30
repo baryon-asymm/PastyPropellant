@@ -1,0 +1,48 @@
+STEP-8 — float n_AP (KApPressureExponent) shared, bounds [0.77, 2.5]
+========================================================================
+Run: run_apflame2_20260621_210455.log  | jDE + Nelder-Mead | pop 468 | vec 39/25
+Converged: gen ~609k, best frozen 0.01173202893424561
+
+AGGREGATED: 0.011732   (Step-7: 0.014429)   penalty 0
+  Bas_2+Bas_3+Bas_4 group : 0.032617  (Step-7: 0.037261)   pen 0
+  Bas_1                   : 0.0018543                       pen 0
+  Bas_0                   : 0.00072434                      pen 0
+
+TAIL SHARED PARAMS (idx 32..38)
+  [32] C_rxn  (KDiffusionPressureFactor)  = 0.00186521
+  [33] m      (KDiffusionSizeExponent)    = 0.107807
+  [34] K_pack (KBimodalPackingFactor)     = 8.06364
+  [35] n_p    (KDiffusionPressureExponent)= 4.00000   <-- RAILED at upper 4
+  [36] K_wsb  (KCondensedReactionFactor)  = 0.220748  <-- RECOVERED (Step-7: 0.166477; target >=0.20) OK
+  [37] K_AP   (KApPremixedFactor)         = 1487.58   <-- DROPPED from 4253.28 (steeper gate needs less coeff)
+  [38] n_AP   (KApPressureExponent)       = 1.75391   <-- INTERIOR (floor 0.77, cap 2.5) — NOT railed: genuine optimum
+
+ANCHOR POINTS  (exp / calc mm/s, rel error)
+  Bas_2 (mixed  f_c=0.65, w_AP=0.35):
+     1.00 MPa : 16.94 / 15.34  = -9.45%   (Step-7: -11.3%; baseline -6.6%) — partial recovery
+     4.06 MPa : 35.09 / 36.16  = +3.05%
+     6.50 MPa : 44.85 / 43.58  = -2.83%
+  Bas_3 (pure fine f_c=0, w_AP=1.0):
+     1.00 MPa : 15.24 / 15.28  = +0.26%   excellent
+     4.06 MPa : 37.34 / 38.03  = +1.85%
+     6.50 MPa : 50.50 / 45.44  = -10.02%  (Step-7: -11.0%; baseline -18.5%) — STILL dominant residual
+     hi-seg nu(4.06->6.5): calc 0.378  (Step-7 0.340; target 0.642) — moved but still half
+  Bas_4 (pure coarse f_c=1, w_AP=0):
+     1.00 MPa :  9.73 /  9.98  = +2.57%
+     4.06 MPa : 25.92 / 26.14  = +0.85%
+     6.50 MPa : 36.06 / 35.42  = -1.77%   near-perfect, untouched (weight 0) OK
+  Bas_1 (f_c=0.65): -0.07% / 0% / -0.28%   near-perfect, untouched
+  Bas_0 (f_c=0.65):  0%   / 0% / +0.17%   near-perfect, untouched
+
+VERDICT
+  Step-8 mechanism CONFIRMED: n_AP went interior (1.75, steeper than 0.77 floor),
+  K_wsb recovered to 0.2207 (>=0.20), agg fell 0.014429 -> 0.011732, no penalty/NaN.
+  BUT did not close <0.01. Two residual pockets remain, both ~ -10% single points:
+    (1) Bas_3 @6.5 MPa = -10.0% : pure-fine high-p tail still too flat (nu 0.378 vs 0.642).
+        AP-premixed lever near its ceiling — K_AP held DOWN by the within-group shared
+        coupling: same K_AP/n_AP serves Bas_2 (f_c=0.65, already +3% @4.06) at weight 0.35,
+        so cannot raise enough to lift Bas_3 (weight 1.0) tail without over-predicting Bas_2.
+        n_AP interior => gate SHAPE already optimal; floating it more won't help.
+    (2) Bas_2 @1 MPa = -9.4% : bimodal mixture under-predicted at LOW p (AP term OFF below
+        2 MPa). Both pure modes fine at 1 MPa (Bas_3 +0.3%, Bas_4 +2.6%); only the f_c=0.65
+        BIMODAL is low. Distinct physics (bimodal heat-feedback/packing at low p), separate lever.

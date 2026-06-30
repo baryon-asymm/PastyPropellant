@@ -1,0 +1,20 @@
+Step-6 (WSB condensed-phase closure, K_wsb) | run_wsb_20260620_141817 | jDE+NM pop444
+aggregated=0.017087  penalty=0  | group(Bas_2/3/4)=0.045365  Bas_1=0.0031755  Bas_0=0.0027199
+tail params: C_rxn=0.00122(COLLAPSED ~0) m=1.98154 K_pack=9.34083 n_p=3.68392 K_wsb=0.199551(INTERIOR)
+  -> WSB displaced the diffusion-standoff pressure term: C_rxn fell 50(railed)->~0, so n_p=3.68 is now
+     a near-degenerate direction (multiplies ~0). High-p lift now comes from WSB theta(p), not standoff.
+seg-nu lo(1-4.06) / hi(4.06-6.5): Bas_2 0.592/0.353  Bas_3 0.612/0.187  Bas_4 0.678/0.701
+  (Step-5 ref hi-seg: Bas_2 0.290 Bas_3 0.225 Bas_4 0.580)
+hi-p(6.5MPa) err: Bas_2 -4.5%  Bas_3 -18.5%  Bas_4 -0.0%
+VERDICT: WSB WORKED (0.02315->0.01709). Bas_4 now near-perfect across range; Bas_2 good.
+  Residual is now ALMOST ENTIRELY Bas_3 (pure-fine AP, f_c=0 d=50um) high-pressure: -18.5% at 6.5 MPa,
+  upper-segment nu collapsed to 0.187 vs target 0.64. Shared pressure-only WSB cannot isolate Bas_3
+  (raising K_wsb would over-predict Bas_2/Bas_4). Bas_3-vs-others handle is morphology only.
+  agg 0.01709 > 0.01 target; group 0.04537 must fall to <0.024 (=> fix Bas_3 hi-p).
+NEXT LEVER (needs approval): fine-AP monopropillant/self-deflagration premixed flame, weighted by
+  fine-AP surface fraction, p-scaled (does NOT saturate) -> steepens Bas_3 hi-p without touching Bas_2/4 low-p.
+--- per-pressure calc burning rate vs exp (mm/s) ---
+          1MPa   4.06MPa  6.5MPa  | exp 1 / 4.06 / 6.5
+Bas_2    15.83   36.28    42.84   | 16.94 35.09 44.85
+Bas_3    16.00   37.71    41.18   | 15.24 37.34 50.50
+Bas_4    10.02   26.14    36.05   |  9.73 25.92 36.06

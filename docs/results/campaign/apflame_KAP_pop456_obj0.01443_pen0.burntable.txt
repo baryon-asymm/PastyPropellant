@@ -1,0 +1,29 @@
+Step-7 (AP premixed flame, K_AP) — pop456, agg=0.014429, penalty=0
+Tail params: C_rxn=0.00158  m=0.6125  K_pack=9.74589  n_p=3.99999  K_wsb=0.166477  K_AP=4253.28
+
+fuel                          p,MPa     exp    calc    err%
+Bas_2 (mixed f_c=0.65)         1.00   16.94   15.03   -11.3
+Bas_2 (mixed f_c=0.65)         4.06   35.09   36.17     3.1
+Bas_2 (mixed f_c=0.65)         6.50   44.85   44.15    -1.6
+  upper-seg nu 4.06->6.5:     calc=0.424  exp=0.521
+
+Bas_3 (pure-fine f_c=0)        1.00   15.24   14.93    -2.0
+Bas_3 (pure-fine f_c=0)        4.06   37.34   38.31     2.6
+Bas_3 (pure-fine f_c=0)        6.50   50.50   44.96   -11.0
+  upper-seg nu 4.06->6.5:     calc=0.340  exp=0.642
+
+Bas_4 (pure-coarse f_c=1)      1.00    9.73   10.22     5.0
+Bas_4 (pure-coarse f_c=1)      4.06   25.92   26.05     0.5
+Bas_4 (pure-coarse f_c=1)      6.50   36.06   35.49    -1.6
+  upper-seg nu 4.06->6.5:     calc=0.657  exp=0.702
+
+Bas_1                          1.00   14.26   14.30     0.3
+Bas_1                          4.06   38.01   38.08     0.2
+Bas_1                          6.50   52.88   52.60    -0.5
+  upper-seg nu 4.06->6.5:     calc=0.686  exp=0.702
+
+Bas_0                          1.00    5.97    5.97     0.0
+Bas_0                          4.06   13.63   13.67     0.3
+Bas_0                          6.50   18.00   17.94    -0.3
+  upper-seg nu 4.06->6.5:     calc=0.578  exp=0.591
+

@@ -1,0 +1,1724 @@
+Functional Constraints
+Flame competition constraint within pocket regions.
+        Penalty coefficient 0.0100
+        Maximum allowable heat flux density ratio (max/min) 1000.00
+The linear burning rate of the first conditional fuel is greater than that of the second.
+        Penalty coefficient 0.0100
+Constraint on maximum kinetic flame heat flux density.
+        Penalty coefficient 0.0100
+        Maximum kinetic flame heat flux density in inter-pocket medium 1.00e+09
+        Maximum kinetic flame heat flux density in skeleton structure 1.00e+08
+        Maximum kinetic flame heat flux density in pocket region outside skeleton 1.00e+08
+Constraint on skeleton thickness to pore diameter ratio.
+        Penalty coefficient 0.0100
+        Threshold for skeleton thickness to pore diameter ratio 3.00
+Constraint on skeleton thickness to large oxidizer particle diameter ratio.
+        Penalty coefficient 0.0100
+        Threshold for skeleton thickness to large oxidizer particle diameter ratio 1.00
+
+Parametric Constraints
+Constraint on allowable surface temperature range
+       Minimum surface temperature 600 K
+       Maximum surface temperature 900 K
+
+Differential Evolution Algorithm
+Population size: 420
+Mutation force: 0.5
+Crossover probability: 0.9
+Number of threads: 35
+Termination strategy: OrTerminationStrategy
+
+Group Combustion Solver Parameters
+Shared Parameters (All Compositions)
+Pre-exponential coefficient for gas phase reactions in inter-pocket medium 3462052667.0877614
+        Parameter bounds [1.000E+005; 1.000E+013]
+Activation energy for gas phase reactions in inter-pocket medium 187170.75660354065
+        Parameter bounds [5.000E+004; 2.500E+005]
+Pre-exponential factor for gas-phase reactions in pocket region outside skeleton 152384.5552547754
+        Parameter bounds [1.000E+005; 1.000E+013]
+Activation energy for gas-phase reactions in pocket region outside skeleton 50000.96637671934
+        Parameter bounds [5.000E+004; 2.500E+005]
+Reaction order for gas-phase chemistry in inter-pocket medium 2.499999997163841
+        Parameter bounds [0.000E+000; 2.500E+000]
+Reaction order for gas-phase chemistry outside skeleton structure 1.1330971950755286
+        Parameter bounds [0.000E+000; 2.500E+000]
+Enthalpy difference between vaporization and binder decomposition -160188.41921203668
+        Parameter bounds [-1.000E+007; 1.000E+007]
+Diffusion flame height correlation coefficient 0.0149
+        Parameter bounds [1.000E-003; 1.000E+001]
+Power law exponent for burning rate dependency on A (skeleton thickness) 1.1843
+        Parameter bounds [0.000E+000; 3.000E+000]
+Power law exponent for burning rate dependency on B (pore diameter) 1.1611
+        Parameter bounds [0.000E+000; 3.000E+000]
+Radiation temperature correlation coefficient (average layer temperature) 0.0000
+        Parameter bounds [0.000E+000; 1.000E+000]
+
+Bas_2 (includes Bas_3, Bas_4) - Condensed Phase Parameters
+Pre-exponential coefficient for condensed phase reactions 9999663016400.225
+        Parameter bounds [1.000E+000; 1.000E+013]
+Activation energy for condensed phase reactions 185264.1595376668
+        Parameter bounds [5.000E+004; 3.000E+005]
+Pre-exponential factor for gas-phase reactions within skeleton structure 29589710400.44427
+        Parameter bounds [1.000E+005; 1.000E+013]
+Activation energy for gas-phase reactions within skeleton structure 142558.41362812172
+        Parameter bounds [5.000E+004; 2.500E+005]
+Reaction order for gas-phase chemistry in skeleton structure 4.466925045124313E-05
+        Parameter bounds [0.000E+000; 2.500E+000]
+Coefficient A for metal combustion heat flux density in skeleton structure, 1.228542096955814E-07
+        Parameter bounds [1.000E-010; 1.000E-003]
+Coefficient B for metal combustion heat flux density in skeleton structure, 2.136632135452227E-11
+        Parameter bounds [1.000E-012; 1.000E-005]
+
+Bas_1 - Condensed Phase Parameters
+Pre-exponential coefficient for condensed phase reactions 274214532.11305004
+        Parameter bounds [1.000E+000; 1.000E+013]
+Activation energy for condensed phase reactions 106661.55999422757
+        Parameter bounds [5.000E+004; 3.000E+005]
+Pre-exponential factor for gas-phase reactions within skeleton structure 7930080.710582054
+        Parameter bounds [1.000E+005; 1.000E+013]
+Activation energy for gas-phase reactions within skeleton structure 50064.22873680223
+        Parameter bounds [5.000E+004; 2.500E+005]
+Reaction order for gas-phase chemistry in skeleton structure 1.9031609962541636
+        Parameter bounds [0.000E+000; 2.500E+000]
+Coefficient A for metal combustion heat flux density in skeleton structure, 4.119210254053302E-07
+        Parameter bounds [1.000E-010; 1.000E-003]
+Coefficient B for metal combustion heat flux density in skeleton structure, 1.4969151159245213E-07
+        Parameter bounds [1.000E-012; 1.000E-005]
+
+Bas_0 - Condensed Phase Parameters
+Pre-exponential coefficient for condensed phase reactions 3675094668583.8755
+        Parameter bounds [1.000E+000; 1.000E+013]
+Activation energy for condensed phase reactions 162057.39796439564
+        Parameter bounds [5.000E+004; 3.000E+005]
+Pre-exponential factor for gas-phase reactions within skeleton structure 186095869.73846608
+        Parameter bounds [1.000E+005; 1.000E+013]
+Activation energy for gas-phase reactions within skeleton structure 72033.34616245971
+        Parameter bounds [5.000E+004; 2.500E+005]
+Reaction order for gas-phase chemistry in skeleton structure 1.0038555063709016
+        Parameter bounds [0.000E+000; 2.500E+000]
+Coefficient A for metal combustion heat flux density in skeleton structure, 2.432457327669727E-07
+        Parameter bounds [1.000E-010; 1.000E-003]
+Coefficient B for metal combustion heat flux density in skeleton structure, 8.881600778569264E-08
+        Parameter bounds [1.000E-012; 1.000E-005]
+
+
+Optimization Results
+Objective function value 0.0237
+Total penalty from constraint violations 0.0000
+
+Propellant Composition "Bas_2"
+
+At pressure 1 MPa
+Experimental burning rate       16.94 mm/s
+Calculated burning rate                  15.75 mm/s
+First Conditional Fuel
+        Surface temperature 749.28 K
+        Linear burning rate 11.17 mm/s
+        Mass decomposition rate 18.54 kg·s¯¹·m¯²
+        Kinetic flame heat flux density to surface 9.58e+06 W/m²
+       Kinetic flame height 30.88 µm
+       Average kinetic flame density 1.78 kg/m³
+       Average kinetic flame temperature 2,228.14 K
+       Binder sublimation heat flux density 9.58e+06 W/m²
+       Surface heat balance error -0.0013 W/m²
+Secondary Conditional Fuel
+       Surface temperature 741.61 K
+       Linear burning rate 8.54 mm/s
+       Mass decomposition rate 14.16 kg·s¯¹·m¯²
+       Region Outside Skeleton Structure
+               Kinetic flame heat flux density to surface 105,296.19 W/m²
+               Kinetic flame height 1,541.73 µm
+               Average kinetic flame density 2.56 kg/m³
+               Average kinetic flame temperature 1,553.31 K
+       Skeleton Structure Region
+               Kinetic flame heat flux density to surface 2.27e+06 W/m²
+               Kinetic flame height 37.46 µm
+               Average kinetic flame density 3.4 kg/m³
+               Average kinetic flame temperature 1,166.31 K
+               Heat flux density due to metal combustion, 3.58e+06 W/m²
+               Effective thermal conductivity 0.44 W/(m·K)
+               Conductive thermal conductivity 0.4 W/(m·K)
+               Radiative thermal conductivity 0.036 W/(m·K)
+               Conductive thermal conductivity balance error -4.092294297874943E-08
+               Skeleton layer thickness 6.85e-05 m
+               Pore diameter 2.24e-05 m
+       Diffusion flame heat flux density 17,946.99 W/m²
+       Diffusion flame height 15,949.11 µm
+       Heat flux density to surface within skeletal structure 2.1e+06 W/m²
+       Heat flux density to surface outside skeletal structure 67,501.96 W/m²
+       Total heat flux density to surface 7.16e+06 W/m²
+       Binder sublimation heat flux density 7.16e+06 W/m²
+       Surface heat balance error -2.56e-04 W/m²
+
+At pressure 4.06 MPa
+Experimental burning rate       35.09 mm/s
+Calculated burning rate                  35.34 mm/s
+First Conditional Fuel
+        Surface temperature 802.14 K
+        Linear burning rate 62.04 mm/s
+        Mass decomposition rate 102.92 kg·s¯¹·m¯²
+        Kinetic flame heat flux density to surface 6.13e+07 W/m²
+        Kinetic flame height 4.74 µm
+        Average kinetic flame density 7.14 kg/m³
+        Average kinetic flame temperature 2,254.57 K
+        Binder sublimation heat flux density 6.13e+07 W/m²
+        Surface heat balance error 0.012 W/m²
+Secondary Conditional Fuel
+        Surface temperature 759.82 K
+        Linear burning rate 16.03 mm/s
+        Mass decomposition rate 26.59 kg·s¯¹·m¯²
+        Region Outside Skeleton Structure
+                Kinetic flame heat flux density to surface 275,373.96 W/m²
+                Kinetic flame height 582.91 µm
+                Average kinetic flame density 10.3 kg/m³
+                Average kinetic flame temperature 1,562.41 K
+        Skeleton Structure Region
+                Kinetic flame heat flux density to surface 5.07e+06 W/m²
+                Kinetic flame height 16.41 µm
+               Average kinetic flame density 13.69 kg/m³
+               Average kinetic flame temperature 1,175.41 K
+               Heat flux density due to metal combustion, 7e+06 W/m²
+               Effective thermal conductivity 0.42 W/(m·K)
+               Conductive thermal conductivity 0.4 W/(m·K)
+               Radiative thermal conductivity 0.017 W/(m·K)
+               Conductive thermal conductivity balance error -4.092294297874943E-08
+               Skeleton layer thickness 3.25e-05 m
+               Pore diameter 1.08e-05 m
+       Diffusion flame heat flux density 154,968.01 W/m²
+       Diffusion flame height 1,835.33 µm
+       Heat flux density to surface within skeletal structure 3.98e+06 W/m²
+       Heat flux density to surface outside skeletal structure 184,405.2 W/m²
+       Total heat flux density to surface 1.42e+07 W/m²
+       Binder sublimation heat flux density 1.42e+07 W/m²
+       Surface heat balance error -5.25e-04 W/m²
+
+At pressure 6.5 MPa
+Experimental burning rate        44.85 mm/s
+Calculated burning rate                  40.4 mm/s
+First Conditional Fuel
+        Surface temperature 821.7 K
+        Linear burning rate 110.62 mm/s
+        Mass decomposition rate 183.53 kg·s¯¹·m¯²
+        Kinetic flame heat flux density to surface 1.15e+08 W/m²
+        Kinetic flame height 2.51 µm
+        Average kinetic flame density 11.39 kg/m³
+        Average kinetic flame temperature 2,264.35 K
+        Binder sublimation heat flux density 1.15e+08 W/m²
+        Surface heat balance error -0.017 W/m²
+Secondary Conditional Fuel
+        Surface temperature 762.65 K
+        Linear burning rate 17.63 mm/s
+        Mass decomposition rate 29.24 kg·s¯¹·m¯²
+        Region Outside Skeleton Structure
+                Kinetic flame heat flux density to surface 427,624.49 W/m²
+                Kinetic flame height 374.71 µm
+                Average kinetic flame density 16.5 kg/m³
+                Average kinetic flame temperature 1,563.82 K
+        Skeleton Structure Region
+                Kinetic flame heat flux density to surface 7.43e+06 W/m²
+                Kinetic flame height 11.15 µm
+                Average kinetic flame density 21.92 kg/m³
+                Average kinetic flame temperature 1,176.82 K
+                Heat flux density due to metal combustion, 7.75e+06 W/m²
+                Effective thermal conductivity 0.42 W/(m·K)
+                Conductive thermal conductivity 0.4 W/(m·K)
+                Radiative thermal conductivity 0.016 W/(m·K)
+                Conductive thermal conductivity balance error -4.092294297874943E-08
+                Skeleton layer thickness 2.9e-05 m
+                Pore diameter 9.66e-06 m
+        Diffusion flame heat flux density 356,715.91 W/m²
+        Diffusion flame height 796.53 µm
+        Heat flux density to surface within skeletal structure 4.12e+06 W/m²
+        Heat flux density to surface outside skeletal structure 311,447.58 W/m²
+        Total heat flux density to surface 1.57e+07 W/m²
+        Binder sublimation heat flux density 1.57e+07 W/m²
+        Surface heat balance error -0.0012 W/m²
+Propellant Composition "Bas_3"
+
+At pressure 1 MPa
+Experimental burning rate        15.24 mm/s
+Calculated burning rate                  14.92 mm/s
+First Conditional Fuel
+        Surface temperature 749.28 K
+        Linear burning rate 11.17 mm/s
+        Mass decomposition rate 18.54 kg·s¯¹·m¯²
+        Kinetic flame heat flux density to surface 9.58e+06 W/m²
+        Kinetic flame height 30.88 µm
+        Average kinetic flame density 1.78 kg/m³
+        Average kinetic flame temperature 2,228.14 K
+        Binder sublimation heat flux density 9.58e+06 W/m²
+        Surface heat balance error -0.0013 W/m²
+Secondary Conditional Fuel
+        Surface temperature 749.28 K
+        Linear burning rate 11.17 mm/s
+        Mass decomposition rate 18.54 kg·s¯¹·m¯²
+        Region Outside Skeleton Structure
+                Kinetic flame heat flux density to surface 80,620.33 W/m²
+                Kinetic flame height 2,004.1 µm
+                Average kinetic flame density 2.55 kg/m³
+                Average kinetic flame temperature 1,557.14 K
+        Skeleton Structure Region
+                Kinetic flame heat flux density to surface 2.61e+07 W/m²
+                Kinetic flame height 7.19 µm
+                Average kinetic flame density 2.35 kg/m³
+                Average kinetic flame temperature 1,686.14 K
+                Heat flux density due to metal combustion, 4.25e+06 W/m²
+                Effective thermal conductivity 0.38 W/(m·K)
+                Conductive thermal conductivity 0.22 W/(m·K)
+                Radiative thermal conductivity 0.16 W/(m·K)
+                Conductive thermal conductivity balance error -5.5152085010057306E-08
+                Skeleton layer thickness 4.98e-05 m
+                Pore diameter 1.64e-05 m
+        Diffusion flame heat flux density 37,050.73 W/m²
+        Diffusion flame height 7,893.81 µm
+        Heat flux density to surface within skeletal structure 9.49e+06 W/m²
+        Heat flux density to surface outside skeletal structure 55,393.38 W/m²
+        Total heat flux density to surface 9.58e+06 W/m²
+        Binder sublimation heat flux density 9.58e+06 W/m²
+        Surface heat balance error 0.0011 W/m²
+
+At pressure 4.06 MPa
+Experimental burning rate       37.34 mm/s
+Calculated burning rate                  35.87 mm/s
+First Conditional Fuel
+        Surface temperature 802.14 K
+        Linear burning rate 62.04 mm/s
+        Mass decomposition rate 102.92 kg·s¯¹·m¯²
+        Kinetic flame heat flux density to surface 6.13e+07 W/m²
+        Kinetic flame height 4.74 µm
+        Average kinetic flame density 7.14 kg/m³
+        Average kinetic flame temperature 2,254.57 K
+        Binder sublimation heat flux density 6.13e+07 W/m²
+        Surface heat balance error 0.012 W/m²
+Secondary Conditional Fuel
+        Surface temperature 764.61 K
+       Linear burning rate 18.82 mm/s
+       Mass decomposition rate 31.22 kg·s¯¹·m¯²
+       Region Outside Skeleton Structure
+               Kinetic flame heat flux density to surface 234,782.44 W/m²
+               Kinetic flame height 681.65 µm
+               Average kinetic flame density 10.29 kg/m³
+               Average kinetic flame temperature 1,564.8 K
+       Skeleton Structure Region
+               Kinetic flame heat flux density to surface 6.38e+07 W/m²
+               Kinetic flame height 2.91 µm
+               Average kinetic flame density 9.5 kg/m³
+               Average kinetic flame temperature 1,693.8 K
+               Heat flux density due to metal combustion, 6.18e+06 W/m²
+               Effective thermal conductivity 0.31 W/(m·K)
+               Conductive thermal conductivity 0.22 W/(m·K)
+               Radiative thermal conductivity 0.089 W/(m·K)
+               Conductive thermal conductivity balance error -5.5152085010057306E-08
+               Skeleton layer thickness 2.69e-05 m
+               Pore diameter 8.95e-06 m
+       Diffusion flame heat flux density 356,855.5 W/m²
+       Diffusion flame height 815.29 µm
+       Heat flux density to surface within skeletal structure 1.63e+07 W/m²
+       Heat flux density to surface outside skeletal structure 180,035.82 W/m²
+       Total heat flux density to surface 1.69e+07 W/m²
+       Binder sublimation heat flux density 1.69e+07 W/m²
+       Surface heat balance error -9.75e-04 W/m²
+
+At pressure 6.5 MPa
+Experimental burning rate       50.5 mm/s
+Calculated burning rate                  39.91 mm/s
+First Conditional Fuel
+        Surface temperature 821.7 K
+        Linear burning rate 110.62 mm/s
+        Mass decomposition rate 183.53 kg·s¯¹·m¯²
+        Kinetic flame heat flux density to surface 1.15e+08 W/m²
+        Kinetic flame height 2.51 µm
+        Average kinetic flame density 11.39 kg/m³
+        Average kinetic flame temperature 2,264.35 K
+        Binder sublimation heat flux density 1.15e+08 W/m²
+        Surface heat balance error -0.017 W/m²
+Secondary Conditional Fuel
+        Surface temperature 765.34 K
+        Linear burning rate 19.28 mm/s
+        Mass decomposition rate 31.99 kg·s¯¹·m¯²
+        Region Outside Skeleton Structure
+                Kinetic flame heat flux density to surface 391,126.12 W/m²
+                Kinetic flame height 408.99 µm
+                Average kinetic flame density 16.48 kg/m³
+                Average kinetic flame temperature 1,565.17 K
+        Skeleton Structure Region
+                Kinetic flame heat flux density to surface 1e+08 W/m²
+                Kinetic flame height 1.86 µm
+                Average kinetic flame density 15.23 kg/m³
+                Average kinetic flame temperature 1,694.17 K
+                Heat flux density due to metal combustion, 6.3e+06 W/m²
+                Effective thermal conductivity 0.31 W/(m·K)
+                Conductive thermal conductivity 0.22 W/(m·K)
+                Radiative thermal conductivity 0.086 W/(m·K)
+                Conductive thermal conductivity balance error -5.5152085010057306E-08
+               Skeleton layer thickness 2.61e-05 m
+               Pore diameter 8.7e-06 m
+       Diffusion flame heat flux density 881,930.18 W/m²
+       Diffusion flame height 329.81 µm
+       Heat flux density to surface within skeletal structure 1.61e+07 W/m²
+       Heat flux density to surface outside skeletal structure 331,938.17 W/m²
+       Total heat flux density to surface 1.73e+07 W/m²
+       Binder sublimation heat flux density 1.73e+07 W/m²
+       Surface heat balance error -0.0048 W/m²
+
+Propellant Composition "Bas_4"
+
+At pressure 1 MPa
+Experimental burning rate        9.73 mm/s
+Calculated burning rate                  10.79 mm/s
+First Conditional Fuel
+        Surface temperature 749.28 K
+        Linear burning rate 11.17 mm/s
+        Mass decomposition rate 18.54 kg·s¯¹·m¯²
+        Kinetic flame heat flux density to surface 9.58e+06 W/m²
+        Kinetic flame height 30.88 µm
+        Average kinetic flame density 1.78 kg/m³
+        Average kinetic flame temperature 2,228.14 K
+        Binder sublimation heat flux density 9.58e+06 W/m²
+        Surface heat balance error -0.0013 W/m²
+Secondary Conditional Fuel
+        Surface temperature 719.3 K
+        Linear burning rate 3.78 mm/s
+        Mass decomposition rate 6.27 kg·s¯¹·m¯²
+        Region Outside Skeleton Structure
+                Kinetic flame heat flux density to surface 4,676.53 W/m²
+                Kinetic flame height 6,900.5 µm
+                Average kinetic flame density 4.51 kg/m³
+                Average kinetic flame temperature 880.65 K
+        Skeleton Structure Region
+                Kinetic flame heat flux density to surface 914,293.46 W/m²
+                Kinetic flame height 57.06 µm
+                Average kinetic flame density 4.05 kg/m³
+                Average kinetic flame temperature 980.15 K
+                Heat flux density due to metal combustion, 4.66e+06 W/m²
+                Effective thermal conductivity 1.45 W/(m·K)
+                Conductive thermal conductivity 1.41 W/(m·K)
+                Radiative thermal conductivity 0.035 W/(m·K)
+                Conductive thermal conductivity balance error 9.240271880983641E-10
+                Skeleton layer thickness 1.8e-04 m
+                Pore diameter 5.77e-05 m
+        Diffusion flame heat flux density 4,697.97 W/m²
+        Diffusion flame height 60,892.34 µm
+        Heat flux density to surface within skeletal structure 2.95e+06 W/m²
+        Heat flux density to surface outside skeletal structure 2,203.73 W/m²
+        Total heat flux density to surface 2.96e+06 W/m²
+        Binder sublimation heat flux density 2.96e+06 W/m²
+        Surface heat balance error -5.06e-05 W/m²
+
+At pressure 4.06 MPa
+Experimental burning rate      25.92 mm/s
+Calculated burning rate               26.22 mm/s
+First Conditional Fuel
+        Surface temperature 802.14 K
+       Linear burning rate 62.04 mm/s
+       Mass decomposition rate 102.92 kg·s¯¹·m¯²
+       Kinetic flame heat flux density to surface 6.13e+07 W/m²
+       Kinetic flame height 4.74 µm
+       Average kinetic flame density 7.14 kg/m³
+       Average kinetic flame temperature 2,254.57 K
+       Binder sublimation heat flux density 6.13e+07 W/m²
+       Surface heat balance error 0.012 W/m²
+Secondary Conditional Fuel
+       Surface temperature 739.74 K
+       Linear burning rate 7.99 mm/s
+       Mass decomposition rate 13.25 kg·s¯¹·m¯²
+       Region Outside Skeleton Structure
+               Kinetic flame heat flux density to surface 10,802.45 W/m²
+               Kinetic flame height 2,798.02 µm
+               Average kinetic flame density 18.07 kg/m³
+               Average kinetic flame temperature 890.87 K
+       Skeleton Structure Region
+               Kinetic flame heat flux density to surface 1.84e+06 W/m²
+               Kinetic flame height 27.3 µm
+               Average kinetic flame density 16.25 kg/m³
+               Average kinetic flame temperature 990.37 K
+               Heat flux density due to metal combustion, 1.08e+07 W/m²
+               Effective thermal conductivity 1.43 W/(m·K)
+               Conductive thermal conductivity 1.41 W/(m·K)
+               Radiative thermal conductivity 0.015 W/(m·K)
+               Conductive thermal conductivity balance error 9.240271880983641E-10
+               Skeleton layer thickness 7.41e-05 m
+               Pore diameter 2.42e-05 m
+       Diffusion flame heat flux density 36,097.7 W/m²
+       Diffusion flame height 7,868.24 µm
+       Heat flux density to surface within skeletal structure 6.62e+06 W/m²
+       Heat flux density to surface outside skeletal structure 5,131.38 W/m²
+       Total heat flux density to surface 6.66e+06 W/m²
+       Binder sublimation heat flux density 6.66e+06 W/m²
+       Surface heat balance error 2.47e-04 W/m²
+
+At pressure 6.5 MPa
+Experimental burning rate       36.06 mm/s
+Calculated burning rate                  34.58 mm/s
+First Conditional Fuel
+        Surface temperature 821.7 K
+        Linear burning rate 110.62 mm/s
+        Mass decomposition rate 183.53 kg·s¯¹·m¯²
+        Kinetic flame heat flux density to surface 1.15e+08 W/m²
+        Kinetic flame height 2.51 µm
+        Average kinetic flame density 11.39 kg/m³
+        Average kinetic flame temperature 2,264.35 K
+        Binder sublimation heat flux density 1.15e+08 W/m²
+        Surface heat balance error -0.017 W/m²
+Secondary Conditional Fuel
+        Surface temperature 746.85 K
+        Linear burning rate 10.26 mm/s
+        Mass decomposition rate 17.03 kg·s¯¹·m¯²
+        Region Outside Skeleton Structure
+                Kinetic flame heat flux density to surface 14,327.02 W/m²
+                Kinetic flame height 2,060.1 µm
+                Average kinetic flame density 28.84 kg/m³
+                Average kinetic flame temperature 894.42 K
+       Skeleton Structure Region
+               Kinetic flame heat flux density to surface 2.33e+06 W/m²
+               Kinetic flame height 21.25 µm
+               Average kinetic flame density 25.96 kg/m³
+               Average kinetic flame temperature 993.92 K
+               Heat flux density due to metal combustion, 1.43e+07 W/m²
+               Effective thermal conductivity 1.42 W/(m·K)
+               Conductive thermal conductivity 1.41 W/(m·K)
+               Radiative thermal conductivity 0.011 W/(m·K)
+               Conductive thermal conductivity balance error 9.240271880983641E-10
+               Skeleton layer thickness 5.51e-05 m
+               Pore diameter 1.81e-05 m
+       Diffusion flame heat flux density 71,411.32 W/m²
+       Diffusion flame height 3,967.37 µm
+       Heat flux density to surface within skeletal structure 8.66e+06 W/m²
+       Heat flux density to surface outside skeletal structure 6,851.72 W/m²
+       Total heat flux density to surface 8.74e+06 W/m²
+       Binder sublimation heat flux density 8.74e+06 W/m²
+       Surface heat balance error -1.39e-04 W/m²
+
+Propellant Composition "Bas_1"
+
+At pressure 1 MPa
+Experimental burning rate        14.26 mm/s
+Calculated burning rate                  14.22 mm/s
+First Conditional Fuel
+        Surface temperature 776.12 K
+        Linear burning rate 10.96 mm/s
+        Mass decomposition rate 18.18 kg·s¯¹·m¯²
+        Kinetic flame heat flux density to surface 1.01e+07 W/m²
+        Kinetic flame height 28.94 µm
+        Average kinetic flame density 1.77 kg/m³
+        Average kinetic flame temperature 2,241.56 K
+        Binder sublimation heat flux density 1.01e+07 W/m²
+        Surface heat balance error -0.001 W/m²
+Secondary Conditional Fuel
+        Surface temperature 758.79 K
+        Linear burning rate 7.51 mm/s
+        Mass decomposition rate 12.47 kg·s¯¹·m¯²
+        Region Outside Skeleton Structure
+                Kinetic flame heat flux density to surface 120,174.7 W/m²
+                Kinetic flame height 1,336.56 µm
+                Average kinetic flame density 2.54 kg/m³
+                Average kinetic flame temperature 1,561.89 K
+        Skeleton Structure Region
+                Kinetic flame heat flux density to surface 3.19e+06 W/m²
+                Kinetic flame height 26.06 µm
+                Average kinetic flame density 3.38 kg/m³
+                Average kinetic flame temperature 1,174.89 K
+                Heat flux density due to metal combustion, 1.9e+06 W/m²
+                Effective thermal conductivity 0.47 W/(m·K)
+                Conductive thermal conductivity 0.4 W/(m·K)
+                Radiative thermal conductivity 0.07 W/(m·K)
+                Conductive thermal conductivity balance error -4.092294297874943E-08
+                Skeleton layer thickness 1.35e-04 m
+                Pore diameter 4.38e-05 m
+        Diffusion flame heat flux density 20,712.29 W/m²
+        Diffusion flame height 14,036.16 µm
+        Heat flux density to surface within skeletal structure 1.93e+06 W/m²
+       Heat flux density to surface outside skeletal structure 74,742.14 W/m²
+       Total heat flux density to surface 6.62e+06 W/m²
+       Binder sublimation heat flux density 6.62e+06 W/m²
+       Surface heat balance error -9.16e-04 W/m²
+
+At pressure 4.06 MPa
+Experimental burning rate        38.01 mm/s
+Calculated burning rate                  37.88 mm/s
+First Conditional Fuel
+        Surface temperature 865.12 K
+        Linear burning rate 60.02 mm/s
+        Mass decomposition rate 99.57 kg·s¯¹·m¯²
+        Kinetic flame heat flux density to surface 6.88e+07 W/m²
+        Kinetic flame height 4.13 µm
+        Average kinetic flame density 7.04 kg/m³
+        Average kinetic flame temperature 2,286.06 K
+        Binder sublimation heat flux density 6.88e+07 W/m²
+        Surface heat balance error -0.0023 W/m²
+Secondary Conditional Fuel
+        Surface temperature 798.41 K
+        Linear burning rate 17.39 mm/s
+        Mass decomposition rate 28.85 kg·s¯¹·m¯²
+        Region Outside Skeleton Structure
+                Kinetic flame heat flux density to surface 256,048.11 W/m²
+                Kinetic flame height 611.83 µm
+                Average kinetic flame density 10.18 kg/m³
+                Average kinetic flame temperature 1,581.71 K
+        Skeleton Structure Region
+                Kinetic flame heat flux density to surface 1.99e+07 W/m²
+                Kinetic flame height 3.98 µm
+                Average kinetic flame density 13.47 kg/m³
+                Average kinetic flame temperature 1,194.71 K
+                Heat flux density due to metal combustion, 4.32e+06 W/m²
+                Effective thermal conductivity 0.43 W/(m·K)
+                Conductive thermal conductivity 0.4 W/(m·K)
+                Radiative thermal conductivity 0.027 W/(m·K)
+                Conductive thermal conductivity balance error -4.092294297874943E-08
+                Skeleton layer thickness 5e-05 m
+                Pore diameter 1.65e-05 m
+        Diffusion flame heat flux density 144,018.26 W/m²
+        Diffusion flame height 1,991.13 µm
+        Heat flux density to surface within skeletal structure 4.85e+06 W/m²
+        Heat flux density to surface outside skeletal structure 204,762.63 W/m²
+        Total heat flux density to surface 1.7e+07 W/m²
+        Binder sublimation heat flux density 1.7e+07 W/m²
+        Surface heat balance error -0.0011 W/m²
+
+At pressure 6.5 MPa
+Experimental burning rate       52.88 mm/s
+Calculated burning rate                  52.94 mm/s
+First Conditional Fuel
+        Surface temperature 900 K
+        Linear burning rate 106.63 mm/s
+        Mass decomposition rate 176.9 kg·s¯¹·m¯²
+        Kinetic flame heat flux density to surface 1.31e+08 W/m²
+        Kinetic flame height 2.14 µm
+        Average kinetic flame density 11.2 kg/m³
+        Average kinetic flame temperature 2,303.5 K
+        Binder sublimation heat flux density 1.31e+08 W/m²
+       Surface heat balance error 0.0012 W/m²
+Secondary Conditional Fuel
+       Surface temperature 814.05 K
+       Linear burning rate 23.67 mm/s
+       Mass decomposition rate 39.27 kg·s¯¹·m¯²
+       Region Outside Skeleton Structure
+               Kinetic flame heat flux density to surface 321,929.72 W/m²
+               Kinetic flame height 481.77 µm
+               Average kinetic flame density 16.23 kg/m³
+               Average kinetic flame temperature 1,589.52 K
+       Skeleton Structure Region
+               Kinetic flame heat flux density to surface 3.59e+07 W/m²
+               Kinetic flame height 2.16 µm
+               Average kinetic flame density 21.45 kg/m³
+               Average kinetic flame temperature 1,202.52 K
+               Heat flux density due to metal combustion, 5.92e+06 W/m²
+               Effective thermal conductivity 0.42 W/(m·K)
+               Conductive thermal conductivity 0.4 W/(m·K)
+               Radiative thermal conductivity 0.019 W/(m·K)
+               Conductive thermal conductivity balance error -4.092294297874943E-08
+               Skeleton layer thickness 3.47e-05 m
+               Pore diameter 1.16e-05 m
+       Diffusion flame heat flux density 266,573.42 W/m²
+       Diffusion flame height 1,069.86 µm
+       Heat flux density to surface within skeletal structure 6.83e+06 W/m²
+       Heat flux density to surface outside skeletal structure 269,370.06 W/m²
+       Total heat flux density to surface 2.41e+07 W/m²
+       Binder sublimation heat flux density 2.41e+07 W/m²
+       Surface heat balance error 3.43e-06 W/m²
+
+Propellant Composition "Bas_0"
+
+At pressure 1 MPa
+Experimental burning rate       5.97 mm/s
+Calculated burning rate                  5.97 mm/s
+First Conditional Fuel
+        Surface temperature 823.38 K
+        Linear burning rate 10.65 mm/s
+        Mass decomposition rate 17.67 kg·s¯¹·m¯²
+        Kinetic flame heat flux density to surface 1.11e+07 W/m²
+        Kinetic flame height 26 µm
+        Average kinetic flame density 1.75 kg/m³
+        Average kinetic flame temperature 2,265.19 K
+        Binder sublimation heat flux density 1.11e+07 W/m²
+        Surface heat balance error -6.29e-04 W/m²
+Secondary Conditional Fuel
+        Surface temperature 783.69 K
+        Linear burning rate 2.71 mm/s
+        Mass decomposition rate 4.49 kg·s¯¹·m¯²
+        Region Outside Skeleton Structure
+                Kinetic flame heat flux density to surface 335,752.41 W/m²
+                Kinetic flame height 470.97 µm
+                Average kinetic flame density 2.52 kg/m³
+                Average kinetic flame temperature 1,574.35 K
+        Skeleton Structure Region
+                Kinetic flame heat flux density to surface 284,941.06 W/m²
+                Kinetic flame height 283.32 µm
+                Average kinetic flame density 3.34 kg/m³
+                Average kinetic flame temperature 1,187.35 K
+               Heat flux density due to metal combustion, 1.54e+06 W/m²
+               Effective thermal conductivity 0.4 W/(m·K)
+               Conductive thermal conductivity 0.4 W/(m·K)
+               Radiative thermal conductivity 3.29e-05 W/(m·K)
+               Conductive thermal conductivity balance error -4.092294297874943E-08
+               Skeleton layer thickness 1.35e-04 m
+               Pore diameter 2.05e-08 m
+       Diffusion flame heat flux density 57,038.24 W/m²
+       Diffusion flame height 5,053.29 µm
+       Heat flux density to surface within skeletal structure 472,862.83 W/m²
+       Heat flux density to surface outside skeletal structure 248,929.72 W/m²
+       Total heat flux density to surface 2.55e+06 W/m²
+       Binder sublimation heat flux density 2.55e+06 W/m²
+       Surface heat balance error 3.87e-04 W/m²
+
+At pressure 4.06 MPa
+Experimental burning rate        13.63 mm/s
+Calculated burning rate                  13.65 mm/s
+First Conditional Fuel
+        Surface temperature 879.36 K
+        Linear burning rate 59.64 mm/s
+        Mass decomposition rate 98.94 kg·s¯¹·m¯²
+        Kinetic flame heat flux density to surface 7.04e+07 W/m²
+        Kinetic flame height 4.01 µm
+        Average kinetic flame density 7.02 kg/m³
+        Average kinetic flame temperature 2,293.18 K
+        Binder sublimation heat flux density 7.04e+07 W/m²
+        Surface heat balance error 0.012 W/m²
+Secondary Conditional Fuel
+        Surface temperature 805.33 K
+        Linear burning rate 5.81 mm/s
+        Mass decomposition rate 9.63 kg·s¯¹·m¯²
+        Region Outside Skeleton Structure
+                Kinetic flame heat flux density to surface 767,864.35 W/m²
+                Kinetic flame height 203.12 µm
+                Average kinetic flame density 10.15 kg/m³
+                Average kinetic flame temperature 1,585.16 K
+        Skeleton Structure Region
+                Kinetic flame heat flux density to surface 147,203.02 W/m²
+                Kinetic flame height 533.73 µm
+                Average kinetic flame density 13.43 kg/m³
+                Average kinetic flame temperature 1,198.16 K
+                Heat flux density due to metal combustion, 3.65e+06 W/m²
+                Effective thermal conductivity 0.4 W/(m·K)
+                Conductive thermal conductivity 0.4 W/(m·K)
+                Radiative thermal conductivity 1.36e-05 W/(m·K)
+                Conductive thermal conductivity balance error -4.092294297874943E-08
+                Skeleton layer thickness 5.46e-05 m
+                Pore diameter 8.43e-09 m
+        Diffusion flame heat flux density 430,254.97 W/m²
+        Diffusion flame height 664.88 µm
+        Heat flux density to surface within skeletal structure 712,909.05 W/m²
+        Heat flux density to surface outside skeletal structure 623,844.35 W/m²
+        Total heat flux density to surface 5.79e+06 W/m²
+        Binder sublimation heat flux density 5.79e+06 W/m²
+        Surface heat balance error -1.55e-04 W/m²
+
+At pressure 6.5 MPa
+Experimental burning rate     18 mm/s
+Calculated burning rate                  17.99 mm/s
+First Conditional Fuel
+        Surface temperature 900 K
+        Linear burning rate 106.63 mm/s
+        Mass decomposition rate 176.9 kg·s¯¹·m¯²
+        Kinetic flame heat flux density to surface 1.31e+08 W/m²
+        Kinetic flame height 2.14 µm
+        Average kinetic flame density 11.2 kg/m³
+        Average kinetic flame temperature 2,303.5 K
+        Binder sublimation heat flux density 1.31e+08 W/m²
+        Surface heat balance error -0.026 W/m²
+Secondary Conditional Fuel
+        Surface temperature 813.13 K
+        Linear burning rate 7.57 mm/s
+        Mass decomposition rate 12.56 kg·s¯¹·m¯²
+        Region Outside Skeleton Structure
+                Kinetic flame heat flux density to surface 1.01e+06 W/m²
+                Kinetic flame height 154.19 µm
+                Average kinetic flame density 16.23 kg/m³
+                Average kinetic flame temperature 1,589.06 K
+        Skeleton Structure Region
+                Kinetic flame heat flux density to surface 117,080.66 W/m²
+                Kinetic flame height 664.39 µm
+                Average kinetic flame density 21.46 kg/m³
+                Average kinetic flame temperature 1,202.06 K
+                Heat flux density due to metal combustion, 4.92e+06 W/m²
+                Effective thermal conductivity 0.4 W/(m·K)
+                Conductive thermal conductivity 0.4 W/(m·K)
+                Radiative thermal conductivity 9.97e-06 W/(m·K)
+                Conductive thermal conductivity balance error -4.092294297874943E-08
+                Skeleton layer thickness 3.99e-05 m
+                Pore diameter 6.2e-09 m
+        Diffusion flame heat flux density 833,817.76 W/m²
+        Diffusion flame height 342.15 µm
+        Heat flux density to surface within skeletal structure 635,631.63 W/m²
+        Heat flux density to surface outside skeletal structure 879,569.88 W/m²
+        Total heat flux density to surface 7.69e+06 W/m²
+        Binder sublimation heat flux density 7.69e+06 W/m²
+        Surface heat balance error -5.83e-04 W/m²
+                                                                         1 MPa
+        Parameter                   Bas_2                   Bas_3                     Bas_4                    Bas_1                    Bas_0
+  Experimental Burning
+                                 16.94 mm/s               15.24 mm/s                9.73 mm/s                14.26 mm/s                5.97 mm/s
+           Rate
+ Calculated Burning Rate         15.75 mm/s               14.92 mm/s                10.79 mm/s               14.22 mm/s                 5.97 mm/s
+        Difference                1.19 mm/s                0.32 mm/s                -1.06 mm/s               0.042 mm/s               -0.0084 mm/s
+             -                 I             II          I            II           I           II           I           II           I            II
+   Linear Burning Rate    11.17 mm/s 8.54 mm/s      11.17 mm/s   11.17 mm/s   11.17 mm/s   3.78 mm/s   10.96 mm/s   7.51 mm/s   10.65 mm/s 2.71 mm/s
+   Surface Temperature     749.28 K      741.61 K    749.28 K     749.28 K     749.28 K     719.3 K     776.12 K     758.79 K    823.38 K      783.69 K
+ Kinetic Flame Heat Flux
+                               9.58e+06 W/m²            9.58e+06 W/m²             9.58e+06 W/m²            1.01e+07 W/m²            1.11e+07 W/m²
+  Density (Inter-Pocket)
+ Kinetic Flame Heat Flux
+                               2.27e+06 W/m²            2.61e+07 W/m²            914,293.46 W/m²           3.19e+06 W/m²           284,941.06 W/m²
+    Density (Skeleton)
+  Kinetic Flame Height
+                                  37.46 µm                 7.19 µm                   57.06 µm                 26.06 µm                283.32 µm
+        (Skeleton)
+ Kinetic Flame Heat Flux
+                              105,296.19 W/m²           80,620.33 W/m²            4,676.53 W/m²            120,174.7 W/m²          335,752.41 W/m²
+ Density (Out-Skeleton)
+  Kinetic Flame Height
+                                 1,541.73 µm              2,004.1 µm                6,900.5 µm              1,336.56 µm               470.97 µm
+      (Out-Skeleton)
+Diffusion Flame Heat Flux
+                               17,946.99 W/m²           37,050.73 W/m²            4,697.97 W/m²            20,712.29 W/m²           57,038.24 W/m²
+         Density
+ Diffusion Flame Height         15,949.11 µm             7,893.81 µm               60,892.34 µm             14,036.16 µm              5,053.29 µm
+ Metal Combustion Heat
+                               3.58e+06 W/m²            4.25e+06 W/m²             4.66e+06 W/m²            1.9e+06 W/m²             1.54e+06 W/m²
+       Flux Density
+                                                                          4.06 MPa
+        Parameter                    Bas_2                   Bas_3                       Bas_4                   Bas_1                     Bas_0
+  Experimental Burning
+                                 35.09 mm/s                37.34 mm/s                 25.92 mm/s               38.01 mm/s                13.63 mm/s
+           Rate
+ Calculated Burning Rate         35.34 mm/s                35.87 mm/s                 26.22 mm/s               37.88 mm/s                13.65 mm/s
+        Difference                -0.24 mm/s                1.47 mm/s                  -0.3 mm/s               0.13 mm/s                -0.021 mm/s
+             -                 I             II           I            II           I            II           I            II           I           II
+   Linear Burning Rate    62.04 mm/s 16.03 mm/s      62.04 mm/s   18.82 mm/s   62.04 mm/s    7.99 mm/s   60.02 mm/s   17.39 mm/s   59.64 mm/s   5.81 mm/s
+   Surface Temperature     802.14 K       759.82 K    802.14 K     764.61 K     802.14 K      739.74 K    865.12 K     798.41 K     879.36 K     805.33 K
+ Kinetic Flame Heat Flux
+                               6.13e+07 W/m²             6.13e+07 W/m²               6.13e+07 W/m²           6.88e+07 W/m²             7.04e+07 W/m²
+  Density (Inter-Pocket)
+ Kinetic Flame Heat Flux
+                               5.07e+06 W/m²             6.38e+07 W/m²               1.84e+06 W/m²           1.99e+07 W/m²            147,203.02 W/m²
+    Density (Skeleton)
+  Kinetic Flame Height
+                                   16.41 µm                 2.91 µm                     27.3 µm                 3.98 µm                  533.73 µm
+        (Skeleton)
+ Kinetic Flame Heat Flux
+                              275,373.96 W/m²           234,782.44 W/m²              10,802.45 W/m²         256,048.11 W/m²           767,864.35 W/m²
+ Density (Out-Skeleton)
+  Kinetic Flame Height
+                                  582.91 µm                681.65 µm                  2,798.02 µm              611.83 µm                 203.12 µm
+      (Out-Skeleton)
+Diffusion Flame Heat Flux
+                              154,968.01 W/m²            356,855.5 W/m²              36,097.7 W/m²          144,018.26 W/m²           430,254.97 W/m²
+         Density
+ Diffusion Flame Height          1,835.33 µm               815.29 µm                  7,868.24 µm             1,991.13 µm                664.88 µm
+ Metal Combustion Heat
+                                 7e+06 W/m²              6.18e+06 W/m²               1.08e+07 W/m²           4.32e+06 W/m²             3.65e+06 W/m²
+       Flux Density
+                                                                             6.5 MPa
+        Parameter                     Bas_2                     Bas_3                        Bas_4                    Bas_1                 Bas_0
+  Experimental Burning
+                                44.85 mm/s                 50.5 mm/s                    36.06 mm/s               52.88 mm/s                18 mm/s
+           Rate
+ Calculated Burning Rate         40.4 mm/s                39.91 mm/s                    34.58 mm/s              52.94 mm/s                 17.99 mm/s
+       Difference                4.44 mm/s                10.59 mm/s                     1.49 mm/s              -0.056 mm/s               0.0078 mm/s
+            -                  I              II         I              II            I               II       I              II        I             II
+                            110.62                    110.62                       110.62                    106.63                   106.63
+  Linear Burning Rate                    17.63 mm/s                19.28 mm/s                   10.26 mm/s               23.67 mm/s               7.57 mm/s
+                             mm/s                      mm/s                         mm/s                      mm/s                     mm/s
+   Surface Temperature      821.7 K       762.65 K    821.7 K       765.34 K       821.7 K       746.85 K    900 K        814.05 K    900 K        813.13 K
+ Kinetic Flame Heat Flux
+                              1.15e+08 W/m²             1.15e+08 W/m²                  1.15e+08 W/m²           1.31e+08 W/m²            1.31e+08 W/m²
+  Density (Inter-Pocket)
+ Kinetic Flame Heat Flux
+                              7.43e+06 W/m²               1e+08 W/m²                   2.33e+06 W/m²           3.59e+07 W/m²           117,080.66 W/m²
+    Density (Skeleton)
+  Kinetic Flame Height
+                                 11.15 µm                   1.86 µm                      21.25 µm                 2.16 µm                 664.39 µm
+        (Skeleton)
+ Kinetic Flame Heat Flux
+                              427,624.49 W/m²           391,126.12 W/m²                14,327.02 W/m²         321,929.72 W/m²           1.01e+06 W/m²
+ Density (Out-Skeleton)
+  Kinetic Flame Height
+                                 374.71 µm                 408.99 µm                     2,060.1 µm              481.77 µm                154.19 µm
+      (Out-Skeleton)
+Diffusion Flame Heat Flux
+                              356,715.91 W/m²           881,930.18 W/m²                71,411.32 W/m²         266,573.42 W/m²          833,817.76 W/m²
+         Density
+ Diffusion Flame Height          796.53 µm                 329.81 µm                    3,967.37 µm             1,069.86 µm               342.15 µm
+ Metal Combustion Heat
+                              7.75e+06 W/m²              6.3e+06 W/m²                  1.43e+07 W/m²           5.92e+06 W/m²            4.92e+06 W/m²
+       Flux Density
+Propellant Composition Parameters
+Composition "Bas_2"
+Density 1,659 kg/m³, specific heat capacity 1,500 J/kg.K, initial temperature 298 K, mass fraction of
+"pockets" in "binder-metal" composition 0.7.
+Vieille's Power Law: U = A · p^v, A = 1.285341E-05; v = 0.52.
+Gas Phase Parameters in Inter-Pocket Medium
+         Thermal conductivity 0.1 W/(m·K)
+         Average molar mass 0.033 kg/mol
+         Specific heat capacity (constant volume) 635.6 J/kg.K
+         Kinetic flame temperature 3,707 K
+Gas Phase Parameters in Pocket Region
+         Thermal conductivity 0.1 W/(m·K)
+         Average molar mass 0.033 kg/mol
+         Specific heat capacity (constant volume) 635.6 J/kg.K
+         Diffusion flame temperature 3,604 K
+         Gas Phase Parameters in Skeleton Structure
+                 Thermal conductivity 0.1 W/(m·K)
+                 Average molar mass 0.033 kg/mol
+                 Specific heat capacity (constant volume) 635.6 J/kg.K
+                 Kinetic flame temperature 1,591 K
+         Gas Phase Parameters Outside Skeleton Structure
+                 Thermal conductivity 0.1 W/(m·K)
+                 Average molar mass 0.033 kg/mol
+                 Specific heat capacity (constant volume) 635.6 J/kg.K
+                 Kinetic flame temperature 2,365 K
+Composition "Bas_3"
+Density 1,659 kg/m³, specific heat capacity 1,500 J/kg.K, initial temperature 298 K, mass fraction of
+"pockets" in "binder-metal" composition 0.57.
+Vieille's Power Law: U = A · p^v, A = 2.203002E-06; v = 0.64.
+Gas Phase Parameters in Inter-Pocket Medium
+         Thermal conductivity 0.1 W/(m·K)
+         Average molar mass 0.033 kg/mol
+         Specific heat capacity (constant volume) 635.6 J/kg.K
+         Kinetic flame temperature 3,707 K
+Gas Phase Parameters in Pocket Region
+         Thermal conductivity 0.1 W/(m·K)
+         Average molar mass 0.033 kg/mol
+         Specific heat capacity (constant volume) 635.6 J/kg.K
+         Diffusion flame temperature 3,674 K
+         Gas Phase Parameters in Skeleton Structure
+                 Thermal conductivity 0.1 W/(m·K)
+                 Average molar mass 0.033 kg/mol
+                 Specific heat capacity (constant volume) 635.6 J/kg.K
+                 Kinetic flame temperature 2,623 K
+         Gas Phase Parameters Outside Skeleton Structure
+                 Thermal conductivity 0.1 W/(m·K)
+                 Average molar mass 0.033 kg/mol
+                 Specific heat capacity (constant volume) 635.6 J/kg.K
+                 Kinetic flame temperature 2,365 K
+Composition "Bas_4"
+Density 1,659 kg/m³, specific heat capacity 1,500 J/kg.K, initial temperature 298 K, mass fraction of
+"pockets" in "binder-metal" composition 0.56.
+Vieille's Power Law: U = A · p^v, A = 6.137894E-07; v = 0.7.
+Gas Phase Parameters in Inter-Pocket Medium
+         Thermal conductivity 0.1 W/(m·K)
+         Average molar mass 0.033 kg/mol
+         Specific heat capacity (constant volume) 635.6 J/kg.K
+         Kinetic flame temperature 3,707 K
+Gas Phase Parameters in Pocket Region
+         Thermal conductivity 0.1 W/(m·K)
+         Average molar mass 0.033 kg/mol
+         Specific heat capacity (constant volume) 635.6 J/kg.K
+         Diffusion flame temperature 3,580 K
+         Gas Phase Parameters in Skeleton Structure
+                 Thermal conductivity 0.1 W/(m·K)
+                 Average molar mass 0.033 kg/mol
+                 Specific heat capacity (constant volume) 635.6 J/kg.K
+                 Kinetic flame temperature 1,241 K
+         Gas Phase Parameters Outside Skeleton Structure
+                 Thermal conductivity 0.1 W/(m·K)
+                 Average molar mass 0.033 kg/mol
+                 Specific heat capacity (constant volume) 635.6 J/kg.K
+                 Kinetic flame temperature 1,042 K
+Composition "Bas_1"
+Density 1,659 kg/m³, specific heat capacity 1,500 J/kg.K, initial temperature 298 K, mass fraction of
+"pockets" in "binder-metal" composition 0.7.
+Vieille's Power Law: U = A · p^v, A = 9.000448E-07; v = 0.7.
+Gas Phase Parameters in Inter-Pocket Medium
+         Thermal conductivity 0.1 W/(m·K)
+         Average molar mass 0.033 kg/mol
+         Specific heat capacity (constant volume) 635.6 J/kg.K
+         Kinetic flame temperature 3,707 K
+Gas Phase Parameters in Pocket Region
+         Thermal conductivity 0.1 W/(m·K)
+         Average molar mass 0.033 kg/mol
+         Specific heat capacity (constant volume) 635.6 J/kg.K
+         Diffusion flame temperature 3,666 K
+         Gas Phase Parameters in Skeleton Structure
+                 Thermal conductivity 0.1 W/(m·K)
+                 Average molar mass 0.033 kg/mol
+                 Specific heat capacity (constant volume) 635.6 J/kg.K
+                 Kinetic flame temperature 1,591 K
+         Gas Phase Parameters Outside Skeleton Structure
+                 Thermal conductivity 0.1 W/(m·K)
+                 Average molar mass 0.033 kg/mol
+                 Specific heat capacity (constant volume) 635.6 J/kg.K
+                 Kinetic flame temperature 2,365 K
+Composition "Bas_0"
+Density 1,659 kg/m³, specific heat capacity 1,500 J/kg.K, initial temperature 298 K, mass fraction of
+"pockets" in "binder-metal" composition 0.7.
+Vieille's Power Law: U = A · p^v, A = 1.720582E-06; v = 0.59.
+Gas Phase Parameters in Inter-Pocket Medium
+         Thermal conductivity 0.1 W/(m·K)
+         Average molar mass 0.033 kg/mol
+         Specific heat capacity (constant volume) 635.6 J/kg.K
+         Kinetic flame temperature 3,707 K
+Gas Phase Parameters in Pocket Region
+         Thermal conductivity 0.1 W/(m·K)
+         Average molar mass 0.033 kg/mol
+         Specific heat capacity (constant volume) 635.6 J/kg.K
+         Diffusion flame temperature 3,666 K
+         Gas Phase Parameters in Skeleton Structure
+                 Thermal conductivity 0.1 W/(m·K)
+                 Average molar mass 0.033 kg/mol
+                 Specific heat capacity (constant volume) 635.6 J/kg.K
+                 Kinetic flame temperature 1,591 K
+         Gas Phase Parameters Outside Skeleton Structure
+                 Thermal conductivity 0.1 W/(m·K)
+                 Average molar mass 0.033 kg/mol
+                 Specific heat capacity (constant volume) 635.6 J/kg.K
+                 Kinetic flame temperature 2,365 K
+Performance Report
+
+System Information
+Operating System: Unix 6.8.0.124 (Ubuntu 24.04.4 LTS)
+Processor: Intel(R) Xeon(R) CPU E5-2697 v4 @ 2.30GHz (Base Clock Frequency 2.29 GHz)
+Memory: 15.6 GB (64-bit), Unknown
+Machine Name: vscode
+Runtime: .NET 10.0.9 (.NET 10.0.9)
+Architecture: X64 / X64
+
+Total Execution Time
+Total execution time: 09:01:29.925
+
+Garbage Collection Information
+Total Memory: 7917552 bytes
+GC Pause Time Percentage: 0.16%
+Generation 0 Collections: 40869
+Generation 1 Collections: 3228
+Generation 2 Collections: 323
+
+Detailed Performance Metrics
+Method: Telemetry/Proc/0/OptimizationProblemExecutionPerformance
+Call count: 17728476
+Maximum execution time: 100.9636 ms
+Minimum execution time: 0.0001 ms
+Mean execution time: 1.0018983741466823 ms
+Execution time standard deviation: 0.1701441685177096 ms
+
+Method: Telemetry/Proc/0/OptimizationProblemExecutionPerformance
+Call count: 17341604
+Maximum execution time: 37.7542 ms
+Minimum execution time: 0.0001 ms
+Mean execution time: 0.3454085185487986 ms
+Execution time standard deviation: 0.07616811412548496 ms
+
+Method: Telemetry/Proc/0/OptimizationProblemExecutionPerformance
+Call count: 14640238
+Maximum execution time: 48.2458 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34255560139121033 ms
+Execution time standard deviation: 0.08459136493712968 ms
+
+Method: Telemetry/Proc/1/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 45.0405 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.005581468509778 ms
+Execution time standard deviation: 0.16402247149534344 ms
+
+Method: Telemetry/Proc/1/OptimizationProblemExecutionPerformance
+Call count: 17234407
+Maximum execution time: 44.4357 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.3464874117107452 ms
+Execution time standard deviation: 0.07487624250002009 ms
+
+Method: Telemetry/Proc/1/OptimizationProblemExecutionPerformance
+Call count: 14520585
+Maximum execution time: 69.7696 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34371851247038476 ms
+Execution time standard deviation: 0.08694292520190189 ms
+
+Method: Telemetry/Proc/2/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 82.0065 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.0052027421811287 ms
+Execution time standard deviation: 0.1665684018565072 ms
+
+Method: Telemetry/Proc/2/OptimizationProblemExecutionPerformance
+Call count: 17252390
+Maximum execution time: 63.3983 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34647699352372385 ms
+Execution time standard deviation: 0.07619174334400014 ms
+
+Method: Telemetry/Proc/2/OptimizationProblemExecutionPerformance
+Call count: 14543925
+Maximum execution time: 38.2714 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.343798668193143 ms
+Execution time standard deviation: 0.08513137758665427 ms
+
+Method: Telemetry/Proc/3/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 53.0517 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.0056658700216363 ms
+Execution time standard deviation: 0.1652418441459734 ms
+
+Method: Telemetry/Proc/3/OptimizationProblemExecutionPerformance
+Call count: 17242961
+Maximum execution time: 51.328 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34708756896802834 ms
+Execution time standard deviation: 0.07686975480099607 ms
+
+Method: Telemetry/Proc/3/OptimizationProblemExecutionPerformance
+Call count: 14536547
+Maximum execution time: 47.3876 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.3442156859396989 ms
+Execution time standard deviation: 0.08322637164260657 ms
+
+Method: Telemetry/Proc/4/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 96.0102 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.005156808428287 ms
+Execution time standard deviation: 0.16463096180177583 ms
+
+Method: Telemetry/Proc/4/OptimizationProblemExecutionPerformance
+Call count: 17252095
+Maximum execution time: 32.3666 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34659772906423697 ms
+Execution time standard deviation: 0.07191032077185294 ms
+Method: Telemetry/Proc/4/OptimizationProblemExecutionPerformance
+Call count: 14569182
+Maximum execution time: 33.6789 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34410857990515037 ms
+Execution time standard deviation: 0.08244972860196949 ms
+
+Method: Telemetry/Proc/5/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 53.6329 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.0065128865942772 ms
+Execution time standard deviation: 0.1659705797027966 ms
+
+Method: Telemetry/Proc/5/OptimizationProblemExecutionPerformance
+Call count: 17250943
+Maximum execution time: 31.4846 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34655256538734397 ms
+Execution time standard deviation: 0.07097824717849828 ms
+
+Method: Telemetry/Proc/5/OptimizationProblemExecutionPerformance
+Call count: 14566599
+Maximum execution time: 37.3752 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.343701459386619 ms
+Execution time standard deviation: 0.081843797204675 ms
+
+Method: Telemetry/Proc/6/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 58.0192 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.005914642659279 ms
+Execution time standard deviation: 0.16235227023211152 ms
+
+Method: Telemetry/Proc/6/OptimizationProblemExecutionPerformance
+Call count: 17253895
+Maximum execution time: 39.2075 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.3464141377990623 ms
+Execution time standard deviation: 0.07308948035672765 ms
+
+Method: Telemetry/Proc/6/OptimizationProblemExecutionPerformance
+Call count: 14573661
+Maximum execution time: 36.3253 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34341492692874886 ms
+Execution time standard deviation: 0.0833182871243545 ms
+
+Method: Telemetry/Proc/7/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 43.1281 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.0058696747817828 ms
+Execution time standard deviation: 0.16354356226478642 ms
+
+Method: Telemetry/Proc/7/OptimizationProblemExecutionPerformance
+Call count: 17253006
+Maximum execution time: 39.4957 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.346558369515412 ms
+Execution time standard deviation: 0.07587499367159178 ms
+
+Method: Telemetry/Proc/7/OptimizationProblemExecutionPerformance
+Call count: 14554788
+Maximum execution time: 61.3787 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34362369855202163 ms
+Execution time standard deviation: 0.08712027117393982 ms
+
+Method: Telemetry/Proc/8/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 50.9846 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.0041176044678393 ms
+Execution time standard deviation: 0.16512514364942638 ms
+
+Method: Telemetry/Proc/8/OptimizationProblemExecutionPerformance
+Call count: 17234027
+Maximum execution time: 39.5714 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34619212714478553 ms
+Execution time standard deviation: 0.07388457434970508 ms
+
+Method: Telemetry/Proc/8/OptimizationProblemExecutionPerformance
+Call count: 14530896
+Maximum execution time: 55.65 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34476497186407645 ms
+Execution time standard deviation: 0.0857640645196592 ms
+
+Method: Telemetry/Proc/9/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 54.9967 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.0055361927309892 ms
+Execution time standard deviation: 0.16774667646768732 ms
+
+Method: Telemetry/Proc/9/OptimizationProblemExecutionPerformance
+Call count: 17233742
+Maximum execution time: 51.6027 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.3465836964601398 ms
+Execution time standard deviation: 0.0768838350554252 ms
+
+Method: Telemetry/Proc/9/OptimizationProblemExecutionPerformance
+Call count: 14532674
+Maximum execution time: 55.3792 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34364671717676637 ms
+Execution time standard deviation: 0.08612797046411746 ms
+
+Method: Telemetry/Proc/10/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 56.0211 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.0031286829831185 ms
+Execution time standard deviation: 0.16474675594360735 ms
+
+Method: Telemetry/Proc/10/OptimizationProblemExecutionPerformance
+Call count: 17234752
+Maximum execution time: 38.0973 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34750833623251287 ms
+Execution time standard deviation: 0.07468569263191385 ms
+
+Method: Telemetry/Proc/10/OptimizationProblemExecutionPerformance
+Call count: 14529361
+Maximum execution time: 33.3858 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.3430087314507293 ms
+Execution time standard deviation: 0.08271377581220372 ms
+
+Method: Telemetry/Proc/11/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 74.0184 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.0044830466879338 ms
+Execution time standard deviation: 0.16270119959363125 ms
+
+Method: Telemetry/Proc/11/OptimizationProblemExecutionPerformance
+Call count: 17240987
+Maximum execution time: 37.3974 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34632747519615686 ms
+Execution time standard deviation: 0.07400916934710619 ms
+
+Method: Telemetry/Proc/11/OptimizationProblemExecutionPerformance
+Call count: 14552962
+Maximum execution time: 43.573 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.343330471473778 ms
+Execution time standard deviation: 0.08092871068735376 ms
+
+Method: Telemetry/Proc/12/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 72.0198 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.0057785139172366 ms
+Execution time standard deviation: 0.1657751705892831 ms
+
+Method: Telemetry/Proc/12/OptimizationProblemExecutionPerformance
+Call count: 17253962
+Maximum execution time: 58.5507 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34643054978331056 ms
+Execution time standard deviation: 0.07505537079349651 ms
+
+Method: Telemetry/Proc/12/OptimizationProblemExecutionPerformance
+Call count: 14583983
+Maximum execution time: 44.87 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.3433336981125279 ms
+Execution time standard deviation: 0.08294466854370286 ms
+
+Method: Telemetry/Proc/13/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 55.972 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.005007238742561 ms
+Execution time standard deviation: 0.16436812185925082 ms
+
+Method: Telemetry/Proc/13/OptimizationProblemExecutionPerformance
+Call count: 17256922
+Maximum execution time: 39.3255 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.3466925587772404 ms
+Execution time standard deviation: 0.07656712648171475 ms
+
+Method: Telemetry/Proc/13/OptimizationProblemExecutionPerformance
+Call count: 14574794
+Maximum execution time: 55.4038 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.3438450738925984 ms
+Execution time standard deviation: 0.08664859592351366 ms
+
+Method: Telemetry/Proc/14/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 57.0402 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.0048600617833323 ms
+Execution time standard deviation: 0.16669593756844425 ms
+
+Method: Telemetry/Proc/14/OptimizationProblemExecutionPerformance
+Call count: 17237757
+Maximum execution time: 36.3952 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.3464526158885172 ms
+Execution time standard deviation: 0.0737962414606362 ms
+
+Method: Telemetry/Proc/14/OptimizationProblemExecutionPerformance
+Call count: 14531472
+Maximum execution time: 58.3447 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.3429257940558018 ms
+Execution time standard deviation: 0.08509284555753241 ms
+
+Method: Telemetry/Proc/15/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 57.6146 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.0045140885989556 ms
+Execution time standard deviation: 0.1635431705578485 ms
+
+Method: Telemetry/Proc/15/OptimizationProblemExecutionPerformance
+Call count: 17250327
+Maximum execution time: 39.3289 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34628093588024844 ms
+Execution time standard deviation: 0.07663904261626597 ms
+
+Method: Telemetry/Proc/15/OptimizationProblemExecutionPerformance
+Call count: 14563317
+Maximum execution time: 30.4154 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.3435370375718637 ms
+Execution time standard deviation: 0.08213643198665059 ms
+
+Method: Telemetry/Proc/16/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 45.0562 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.0059324979259359 ms
+Execution time standard deviation: 0.1666816608102624 ms
+
+Method: Telemetry/Proc/16/OptimizationProblemExecutionPerformance
+Call count: 17238666
+Maximum execution time: 86.4016 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34580293171755366 ms
+Execution time standard deviation: 0.082081719304286 ms
+
+Method: Telemetry/Proc/16/OptimizationProblemExecutionPerformance
+Call count: 14531932
+Maximum execution time: 46.4047 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34317362807639923 ms
+Execution time standard deviation: 0.08636967332170513 ms
+
+Method: Telemetry/Proc/17/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 37.1712 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.0041190695021396 ms
+Execution time standard deviation: 0.163415947106078 ms
+
+Method: Telemetry/Proc/17/OptimizationProblemExecutionPerformance
+Call count: 17231081
+Maximum execution time: 40.4064 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.3459314576955275 ms
+Execution time standard deviation: 0.07426557394537008 ms
+
+Method: Telemetry/Proc/17/OptimizationProblemExecutionPerformance
+Call count: 14508480
+Maximum execution time: 41.5493 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34398900913118013 ms
+Execution time standard deviation: 0.08360097191520123 ms
+
+Method: Telemetry/Proc/18/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 62.0484 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.0052642932669338 ms
+Execution time standard deviation: 0.16316457906988122 ms
+
+Method: Telemetry/Proc/18/OptimizationProblemExecutionPerformance
+Call count: 17250308
+Maximum execution time: 55.3824 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34694848552846147 ms
+Execution time standard deviation: 0.07581086456526652 ms
+Method: Telemetry/Proc/18/OptimizationProblemExecutionPerformance
+Call count: 14599558
+Maximum execution time: 31.7318 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.3436277225447871 ms
+Execution time standard deviation: 0.08427407792315365 ms
+
+Method: Telemetry/Proc/19/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 63.8066 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.0036755012864262 ms
+Execution time standard deviation: 0.16712021111829614 ms
+
+Method: Telemetry/Proc/19/OptimizationProblemExecutionPerformance
+Call count: 17238860
+Maximum execution time: 56.7785 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34605792580835765 ms
+Execution time standard deviation: 0.07531389478590038 ms
+
+Method: Telemetry/Proc/19/OptimizationProblemExecutionPerformance
+Call count: 14553982
+Maximum execution time: 48.7987 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.3446481764371711 ms
+Execution time standard deviation: 0.08719835090182589 ms
+
+Method: Telemetry/Proc/20/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 49.635 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.0064895675801675 ms
+Execution time standard deviation: 0.16211504381715916 ms
+
+Method: Telemetry/Proc/20/OptimizationProblemExecutionPerformance
+Call count: 17246546
+Maximum execution time: 47.6122 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.3463536862453221 ms
+Execution time standard deviation: 0.07368687788635368 ms
+
+Method: Telemetry/Proc/20/OptimizationProblemExecutionPerformance
+Call count: 14541506
+Maximum execution time: 43.9873 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.3434132773799102 ms
+Execution time standard deviation: 0.08444415134253189 ms
+
+Method: Telemetry/Proc/21/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 60.0475 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.0046083819942917 ms
+Execution time standard deviation: 0.16364238371255788 ms
+
+Method: Telemetry/Proc/21/OptimizationProblemExecutionPerformance
+Call count: 17256028
+Maximum execution time: 45.3939 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.3472935600881962 ms
+Execution time standard deviation: 0.07427671295893847 ms
+
+Method: Telemetry/Proc/21/OptimizationProblemExecutionPerformance
+Call count: 14551189
+Maximum execution time: 37.4118 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.3435940225365812 ms
+Execution time standard deviation: 0.08394688364602018 ms
+
+Method: Telemetry/Proc/22/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 65.0252 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.0049573824112235 ms
+Execution time standard deviation: 0.16398333312238686 ms
+
+Method: Telemetry/Proc/22/OptimizationProblemExecutionPerformance
+Call count: 17255907
+Maximum execution time: 36.1267 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34602887490061135 ms
+Execution time standard deviation: 0.0734288418190095 ms
+
+Method: Telemetry/Proc/22/OptimizationProblemExecutionPerformance
+Call count: 14557740
+Maximum execution time: 51.3561 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34371632780911693 ms
+Execution time standard deviation: 0.08473270102624446 ms
+
+Method: Telemetry/Proc/23/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 56.9452 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.0047424180092772 ms
+Execution time standard deviation: 0.16892476851195512 ms
+
+Method: Telemetry/Proc/23/OptimizationProblemExecutionPerformance
+Call count: 17243995
+Maximum execution time: 46.9527 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34617150464259616 ms
+Execution time standard deviation: 0.07866647857331159 ms
+
+Method: Telemetry/Proc/23/OptimizationProblemExecutionPerformance
+Call count: 14563200
+Maximum execution time: 40.3619 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.343996665616033 ms
+Execution time standard deviation: 0.08448088816752991 ms
+
+Method: Telemetry/Proc/24/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 39.9775 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.0045028467191728 ms
+Execution time standard deviation: 0.1644545706846462 ms
+Method: Telemetry/Proc/24/OptimizationProblemExecutionPerformance
+Call count: 17243982
+Maximum execution time: 50.3941 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34652477508965934 ms
+Execution time standard deviation: 0.07585628736841489 ms
+
+Method: Telemetry/Proc/24/OptimizationProblemExecutionPerformance
+Call count: 14551691
+Maximum execution time: 36.3782 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34300129721695244 ms
+Execution time standard deviation: 0.0843006525625996 ms
+
+Method: Telemetry/Proc/25/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 66.0437 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.0048149050764563 ms
+Execution time standard deviation: 0.1698393539471332 ms
+
+Method: Telemetry/Proc/25/OptimizationProblemExecutionPerformance
+Call count: 17220713
+Maximum execution time: 58.7688 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34628634209859066 ms
+Execution time standard deviation: 0.0756419122929188 ms
+
+Method: Telemetry/Proc/25/OptimizationProblemExecutionPerformance
+Call count: 14495799
+Maximum execution time: 60.6247 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.3429935640042565 ms
+Execution time standard deviation: 0.08386055846501032 ms
+
+Method: Telemetry/Proc/26/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 58.2843 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.004718807629555 ms
+Execution time standard deviation: 0.16540786254368178 ms
+
+Method: Telemetry/Proc/26/OptimizationProblemExecutionPerformance
+Call count: 17243246
+Maximum execution time: 49.3872 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34681615125714155 ms
+Execution time standard deviation: 0.0760961134111778 ms
+
+Method: Telemetry/Proc/26/OptimizationProblemExecutionPerformance
+Call count: 14565585
+Maximum execution time: 53.3838 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.3434849516446182 ms
+Execution time standard deviation: 0.08616370841828908 ms
+
+Method: Telemetry/Proc/27/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 51.0393 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.005398411605217 ms
+Execution time standard deviation: 0.16386718161316297 ms
+
+Method: Telemetry/Proc/27/OptimizationProblemExecutionPerformance
+Call count: 17243155
+Maximum execution time: 44.0513 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34602356018370095 ms
+Execution time standard deviation: 0.07535586148070923 ms
+
+Method: Telemetry/Proc/27/OptimizationProblemExecutionPerformance
+Call count: 14569709
+Maximum execution time: 47.398 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34402236783862533 ms
+Execution time standard deviation: 0.08220789401866979 ms
+
+Method: Telemetry/Proc/28/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 40.806 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.0045787042842667 ms
+Execution time standard deviation: 0.1617103360448424 ms
+
+Method: Telemetry/Proc/28/OptimizationProblemExecutionPerformance
+Call count: 17251259
+Maximum execution time: 62.9253 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34626179230747467 ms
+Execution time standard deviation: 0.0749320374363002 ms
+
+Method: Telemetry/Proc/28/OptimizationProblemExecutionPerformance
+Call count: 14553570
+Maximum execution time: 38.118 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.3435035701618212 ms
+Execution time standard deviation: 0.08142678732192787 ms
+
+Method: Telemetry/Proc/29/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 60.3158 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.0050917427611483 ms
+Execution time standard deviation: 0.16908835482679252 ms
+
+Method: Telemetry/Proc/29/OptimizationProblemExecutionPerformance
+Call count: 17239761
+Maximum execution time: 38.5215 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34596964736930597 ms
+Execution time standard deviation: 0.07617941418778841 ms
+
+Method: Telemetry/Proc/29/OptimizationProblemExecutionPerformance
+Call count: 14548094
+Maximum execution time: 111.3512 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.3433715036210095 ms
+Execution time standard deviation: 0.08884014938239342 ms
+
+Method: Telemetry/Proc/30/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 84.9882 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.0051605984791718 ms
+Execution time standard deviation: 0.1646651943944277 ms
+
+Method: Telemetry/Proc/30/OptimizationProblemExecutionPerformance
+Call count: 17229434
+Maximum execution time: 57.3937 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34618020036520974 ms
+Execution time standard deviation: 0.0747334244908243 ms
+
+Method: Telemetry/Proc/30/OptimizationProblemExecutionPerformance
+Call count: 14509933
+Maximum execution time: 113.4529 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34471538907868604 ms
+Execution time standard deviation: 0.09072212393575688 ms
+
+Method: Telemetry/Proc/31/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 45.0615 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.005669445210298 ms
+Execution time standard deviation: 0.1677106848549426 ms
+
+Method: Telemetry/Proc/31/OptimizationProblemExecutionPerformance
+Call count: 17240458
+Maximum execution time: 42.4473 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34625176474427666 ms
+Execution time standard deviation: 0.0763246730874297 ms
+
+Method: Telemetry/Proc/31/OptimizationProblemExecutionPerformance
+Call count: 14527377
+Maximum execution time: 44.1291 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34385500272346364 ms
+Execution time standard deviation: 0.08775251893126458 ms
+
+Method: Telemetry/Proc/32/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 56.9779 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.005925890115603 ms
+Execution time standard deviation: 0.16435014645358423 ms
+
+Method: Telemetry/Proc/32/OptimizationProblemExecutionPerformance
+Call count: 17249889
+Maximum execution time: 104.4707 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.3475697018456641 ms
+Execution time standard deviation: 0.07795186309053476 ms
+
+Method: Telemetry/Proc/32/OptimizationProblemExecutionPerformance
+Call count: 14555163
+Maximum execution time: 38.3998 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34333164808940914 ms
+Execution time standard deviation: 0.08464593382259622 ms
+
+Method: Telemetry/Proc/33/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 66.0492 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.0044779055171498 ms
+Execution time standard deviation: 0.16282910654890648 ms
+
+Method: Telemetry/Proc/33/OptimizationProblemExecutionPerformance
+Call count: 17249141
+Maximum execution time: 49.399 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.3464639507788126 ms
+Execution time standard deviation: 0.07625035250264771 ms
+
+Method: Telemetry/Proc/33/OptimizationProblemExecutionPerformance
+Call count: 14546721
+Maximum execution time: 30.4871 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.343467340901072 ms
+Execution time standard deviation: 0.0810529956810261 ms
+
+Method: Telemetry/Proc/34/OptimizationProblemExecutionPerformance
+Call count: 17628048
+Maximum execution time: 48.755 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 1.0074824718766864 ms
+Execution time standard deviation: 0.16686684709924665 ms
+
+Method: Telemetry/Proc/34/OptimizationProblemExecutionPerformance
+Call count: 17252418
+Maximum execution time: 37.6495 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.34642393811701716 ms
+Execution time standard deviation: 0.07771338770141507 ms
+
+Method: Telemetry/Proc/34/OptimizationProblemExecutionPerformance
+Call count: 14548174
+Maximum execution time: 55.2436 ms
+Minimum execution time: 0.0002 ms
+Mean execution time: 0.3439956940781518 ms
+Execution time standard deviation: 0.08549498584768919 ms
+
+
+
+
+                                                                                 Generated at 6/20/2026 1:35:38 AM
+                                                        Generated by ParametricCombustionModel (Group Optimization)
+

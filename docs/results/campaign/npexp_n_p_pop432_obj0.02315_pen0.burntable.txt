@@ -1,0 +1,12 @@
+Step-5 (unfreeze diffusion-standoff n_p) | run_npexp_20260620_035914 | jDE+NM pop432
+aggregated=0.023148  penalty=0  | group(Bas_2/3/4)=0.064752  Bas_1=0.0037555  Bas_0=0.00093609
+tail params: C_rxn=50(RAILED hi) m=0.219675 K_pack=10(RAILED hi) n_p=2.11429(at floor 2.0)
+calc nu: Bas_2=0.510(t0.52) Bas_3=0.531(t0.64) Bas_4=0.620(t0.70)
+hi-p(6.5MPa) err: Bas_2 -10.3%  Bas_3 -19.3%  Bas_4 -4.6%
+VERDICT: n_p was the WRONG lever (parked at floor); 0.02366->0.02315 negligible.
+Residual = high-p under-prediction of MONOMODALS (Bas_3 fine, Bas_4 coarse); bimodal Bas_2 slope already correct.
+--- per-pressure calc burning rate vs exp (mm/s) ---
+          1MPa   4.06MPa  6.5MPa  | exp 1 / 4.06 / 6.5
+Bas_2    15.48   35.12    40.24   | 16.94 35.09 44.85
+Bas_3    15.09   36.66    40.76   | 15.24 37.34 50.50
+Bas_4    10.79   26.20    34.41   |  9.73 25.92 36.06
