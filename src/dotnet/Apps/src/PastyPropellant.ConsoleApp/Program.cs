@@ -369,6 +369,16 @@ try
     await propellantPlotsRenderingHelper.RenderPlotsAsync("propellants.01234.json");
     Console.WriteLine("✓ Python plots rendered\n");
 
+    // Render skeleton-layer plots from the fitted solver outputs (JSON sidecar)
+    Console.WriteLine("Rendering skeleton-layer plots...");
+    var skeletonPlotsResult = await SkeletonLayerPlotsHelper.RenderPlotsAsync(
+        groupResult!.ToOptimizationResult(),
+        "../../../../../src/python/PropellantsPlotRendering/src/skeleton_layer_plots.py");
+    if (skeletonPlotsResult.IsSuccess)
+        Console.WriteLine("✓ Skeleton-layer plots rendered\n");
+    else
+        Console.WriteLine($"⚠ Skeleton-layer plots failed: {skeletonPlotsResult.Exception?.Message}\n");
+
     // Generate PDF report
     Console.WriteLine("Generating PDF report...");
     GenerateGroupReport(groupResult!, "propellants.01234.json", "en-US", "en", propellants, deSettings, meter);

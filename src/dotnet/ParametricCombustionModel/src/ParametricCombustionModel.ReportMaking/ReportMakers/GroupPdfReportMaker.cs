@@ -97,6 +97,20 @@ public class GroupPdfReportMaker : IReportMaker, IPdfOperationVisitor
         _pdfGeneratorAdapter.AddImage("agglomeration_fraction_plot.png", isPortrait: false);
         _pdfGeneratorAdapter.AddImage("skeleton_surface_fraction_plot.png", isPortrait: false);
 
+        // Add skeleton-layer plots (fitted solver outputs). Guarded so a missing
+        // sidecar/Python failure degrades gracefully instead of breaking the PDF.
+        foreach (var skeletonPlot in new[]
+                 {
+                     "skeleton_heat_flux_plot.png",
+                     "skeleton_flame_heights_plot.png",
+                     "skeleton_layer_geometry_plot.png",
+                     "skeleton_temperatures_plot.png"
+                 })
+        {
+            if (File.Exists(skeletonPlot))
+                _pdfGeneratorAdapter.AddImage(skeletonPlot, isPortrait: false);
+        }
+
         _pdfGeneratorAdapter.SetOrientation(PageOrientation.Portrait);
         _pdfGeneratorAdapter.AddParagraph(TextAlignment.Left);
 
