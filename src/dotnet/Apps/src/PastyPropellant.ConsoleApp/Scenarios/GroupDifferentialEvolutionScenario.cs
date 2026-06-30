@@ -242,4 +242,11 @@ public class GroupDifferentialEvolutionScenario
     {
         return _optimizer.RunAsync();
     }
+
+    /// <summary>
+    /// Forward-evaluates a single group parameter vector through the same composition contexts the
+    /// optimizer uses, without running differential evolution. Returns the fully populated
+    /// <see cref="GroupOptimizationResult"/> for reporting/plotting any given point in parameter space.
+    /// </summary>
+    public GroupOptimizationResult EvaluateVector(double[] genes) => _optimizer.EvaluateVector(genes);
 }

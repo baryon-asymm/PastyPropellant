@@ -144,20 +144,20 @@ double[] GetGroupUpperBound()
     return groupBounds;
 }
 
-async Task<(OperationResult<GroupOptimizationResult>? result, PerformanceMeter meter, DifferentialEvolutionSettings? deSettings, System.Collections.ObjectModel.ReadOnlyCollection<Propellant> propellants)> RunGroupOptimizationAsync(string inputFileName)
+// Shared physical-constraint penalty evaluators, single-sourced so the optimization run and the
+// forward-eval path report identical penalties for the same point.
+IPenaltyEvaluator[] BuildGroupPenaltyEvaluators()
 {
     const double penaltyRate = 0.01;
     const double heatFluxRatioThreshold = 100.0;
     const double poreDiameterThreshold = 3.0;
     const double largeOxidizerParticleSizeThreshold = 1.0;
 
-    var meter = new PerformanceMeter();
-
     var maxInterPocketKineticFlameHeatFlux = HeatFlux.FromWattsPerSquareMeter(1e9);
     var maxSkeletonKineticFlameHeatFlux = HeatFlux.FromWattsPerSquareMeter(1e8);
     var maxOutSkeletonKineticFlameHeatFlux = HeatFlux.FromWattsPerSquareMeter(1e8);
 
-    IPenaltyEvaluator[] penaltyEvaluators = [
+    return [
         new PocketHeatFluxRatioCompetitionPenaltyEvaluator(penaltyRate, heatFluxRatioThreshold),
         new InterPocketFasterBurnPenaltyEvaluator(penaltyRate),
         new KineticFlameHeatFluxPenaltyEvaluator(
@@ -168,6 +168,13 @@ async Task<(OperationResult<GroupOptimizationResult>? result, PerformanceMeter m
         new PoreDiameterPenaltyEvaluator(penaltyRate, poreDiameterThreshold),
         new LargeOxidizerParticleSizePenaltyEvaluator(penaltyRate, largeOxidizerParticleSizeThreshold)
     ];
+}
+
+async Task<(OperationResult<GroupOptimizationResult>? result, PerformanceMeter meter, DifferentialEvolutionSettings? deSettings, System.Collections.ObjectModel.ReadOnlyCollection<Propellant> propellants)> RunGroupOptimizationAsync(string inputFileName)
+{
+    var meter = new PerformanceMeter();
+
+    var penaltyEvaluators = BuildGroupPenaltyEvaluators();
 
     var groupLowerBound = GetGroupLowerBound();
     var groupUpperBound = GetGroupUpperBound();
@@ -307,12 +314,137 @@ async Task<(OperationResult<GroupOptimizationResult>? result, PerformanceMeter m
     return (operationResult, meter, settings.DifferentialEvolutionSettings, settings.Propellants);
 }
 
+// Reads a list of doubles (invariant culture) from a file: whitespace/comma/semicolon separated,
+// with optional '#' line comments so the vector file can be self-documenting.
+double[] ReadVectorFile(string path)
+{
+    if (!File.Exists(path))
+        throw new FileNotFoundException($"Vector file not found: {path}");
+
+    var values = new List<double>();
+    foreach (var rawLine in File.ReadLines(path))
+    {
+        var commentStart = rawLine.IndexOf('#');
+        var line = commentStart >= 0 ? rawLine[..commentStart] : rawLine;
+
+        foreach (var token in line.Split([' ', '\t', ',', ';'], StringSplitOptions.RemoveEmptyEntries))
+            values.Add(double.Parse(token, CultureInfo.InvariantCulture));
+    }
+
+    return values.ToArray();
+}
+
+// Persists a vector at round-trip ("R") precision, one value per line, so an optimization run can
+// be replayed exactly via --forward-eval (a PDF report is too lossy to recover the vector from).
+void WriteVectorFile(string path, double[] genes)
+{
+    File.WriteAllLines(path, genes.Select(g => g.ToString("R", CultureInfo.InvariantCulture)));
+}
+
+// Forward-eval: solve every (fuel, pressure) context for a SINGLE supplied group vector — no DE
+// search — and emit the same report/plots as an optimization run. Seconds instead of ~4 hours.
+async Task RunForwardEvalAsync(string inputFileName, string vectorFilePath)
+{
+    Console.WriteLine(new string('=', 90));
+    Console.WriteLine("FORWARD EVALUATION (single parameter vector — no optimization)");
+    Console.WriteLine(new string('=', 90) + "\n");
+
+    var genes = ReadVectorFile(vectorFilePath);
+    var groupLowerBound = GetGroupLowerBound();
+    if (genes.Length != groupLowerBound.Length)
+        throw new ArgumentException(
+            $"Vector file '{vectorFilePath}' has {genes.Length} values; expected {groupLowerBound.Length} (group vector).");
+
+    var meter = new PerformanceMeter();
+    var settings = DifferentialEvolutionScenarioSettings.CreateBuilder()
+        .WithMeter(meter)
+        .WithPropellantsFromFile(inputFileName)
+        .WithPopulationSize(groupLowerBound.Length) // unused (no DE run), but the builder requires a positive value
+        .WithLowerBound(groupLowerBound)
+        .WithUpperBound(GetGroupUpperBound())
+        .WithStrategy(DifferentialEvolutionStrategy.Jde)
+        .WithMutationForce(0.5)
+        .WithCrossoverProbability(0.9)
+        .WithTerminationStrategy(new TimeoutTerminationStrategy(TimeSpan.FromMinutes(1)))
+        .AddPenaltyEvaluators(BuildGroupPenaltyEvaluators())
+        .WithProcessorsCount(1)
+        .Build();
+
+    var scenario = new GroupDifferentialEvolutionScenario(settings);
+
+    Console.WriteLine($"- Input file: {inputFileName}");
+    Console.WriteLine($"- Vector file: {vectorFilePath} ({genes.Length} parameters)\n");
+
+    GroupOptimizationResult result;
+    using (meter.GetTotalExecutionTimeMeasurer().StartFrame())
+        result = scenario.EvaluateVector(genes);
+
+    Console.WriteLine($"  Aggregated fitness: {result.AggregatedFitness:E4}");
+    Console.WriteLine($"  Total aggregated penalty: {result.TotalAggregatedPenalty:E4}\n");
+
+    var compositionNames = new[] { "Bas_2+Bas_3+Bas_4", "Bas_1", "Bas_0" };
+    Console.WriteLine("Individual Results:");
+    for (int i = 0; i < 3; i++)
+    {
+        Console.WriteLine($"  {compositionNames[i]}:");
+        Console.WriteLine($"    - Fitness: {result.IndividualFitnesses[i]:E4}");
+        Console.WriteLine($"    - Penalty: {result.IndividualPenalties[i]:E4}");
+    }
+
+    // Same report pipeline as the optimization path.
+    Console.WriteLine("\nRendering burning rate plots...");
+    var plotSettings = new PlotSettings
+    {
+        Title = "Burning Rates - Forward Evaluation (All Propellants)",
+        TitleFontSize = 22,
+        XAxisMinimum = 0.9,
+        XAxisMaximum = 6.6,
+        XAxisTitle = "Pressure, MPa",
+        YAxisTitle = "mm/s",
+        Width = 800,
+        Height = 800,
+        Dpi = 96
+    };
+    new GroupBurningRatePlotRenderer().Render(result, plotSettings);
+
+    Console.WriteLine("Rendering Python plots...");
+    var propellantPlotsRenderingHelper = new PropellantPlotsRenderingHelper(
+        "../../../../../src/python/PropellantsPlotRendering/src/main.py");
+    await propellantPlotsRenderingHelper.RenderPlotsAsync(inputFileName);
+
+    Console.WriteLine("Rendering skeleton-layer plots...");
+    var skeletonPlotsResult = await SkeletonLayerPlotsHelper.RenderPlotsAsync(
+        result.ToOptimizationResult(),
+        "../../../../../src/python/PropellantsPlotRendering/src/skeleton_layer_plots.py");
+    if (!skeletonPlotsResult.IsSuccess)
+        Console.WriteLine($"⚠ Skeleton-layer plots failed: {skeletonPlotsResult.Exception?.Message}");
+
+    Console.WriteLine("Generating PDF report...");
+    GenerateGroupReport(result, inputFileName, "en-US", "en",
+        settings.Propellants, settings.DifferentialEvolutionSettings, meter);
+
+    Console.WriteLine("\n✓ Forward-evaluation report generated\n");
+}
+
 EventBus<InfoLogEvent>.Subscribe(logEvent => {
     Console.WriteLine($"[{DateTime.Now.ToLongTimeString()}] ({logEvent.Sender ?? "none"}) | {logEvent.Message}");
 });
 
 try
 {
+    // Forward-eval mode: `--forward-eval <vector-file>` solves and reports a single supplied
+    // group vector without running the optimizer (point evaluation; ~seconds).
+    var forwardEvalIndex = Array.IndexOf(args, "--forward-eval");
+    if (forwardEvalIndex >= 0)
+    {
+        if (forwardEvalIndex + 1 >= args.Length)
+            throw new ArgumentException(
+                "--forward-eval requires a path to a vector file, e.g. --forward-eval best_vector.txt");
+
+        await RunForwardEvalAsync("propellants.01234.json", args[forwardEvalIndex + 1]);
+        return;
+    }
+
     Console.WriteLine(new string('=', 90));
     Console.WriteLine("GROUP OPTIMIZATION: BAS_0, BAS_1, BAS_2+BAS_3+BAS_4 (SIMULTANEOUS)");
     Console.WriteLine(new string('=', 90) + "\n");
@@ -342,6 +474,10 @@ try
         Console.WriteLine($"    - Fitness: {groupResult.IndividualFitnesses[i]:E4}");
         Console.WriteLine($"    - Penalty: {groupResult.IndividualPenalties[i]:E4}");
     }
+
+    // Persist the best vector at full precision so this exact run can be replayed via --forward-eval.
+    WriteVectorFile("best_vector.txt", groupResult.BestParams);
+    Console.WriteLine("\n✓ Best vector saved to best_vector.txt (replay: --forward-eval best_vector.txt)\n");
 
     // Render burning rate plots for each group
     Console.WriteLine("\nRendering burning rate plots...");

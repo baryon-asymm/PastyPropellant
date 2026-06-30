@@ -137,23 +137,33 @@ public class GroupDifferentialEvolutionOptimizer : IFitnessFunctionEvaluator
         if (nelderMead is { Enabled: true, FinalPolish: true })
             (bestGenes, bestFitness) = ApplyFinalPolish(bestGenes, bestFitness, lowerBound, upperBound);
 
-        // Evaluate final best solution using UnitsNet types for each composition group
-        var bestGroupParams = GroupCombustionSolverParamsByUnits.FromVector(bestGenes);
+        // Final evaluation reuses the single-vector forward pass exposed for point evaluation,
+        // so the converged-best report and forward-eval share exactly one code path.
+        return EvaluateVector(bestGenes);
+    }
+
+    /// <summary>
+    /// Forward-evaluates a single group parameter vector with no DE search: applies it to each
+    /// composition's UnitsNet context and builds the fully populated <see cref="GroupOptimizationResult"/>.
+    /// This is the same final-evaluation pass the optimizer runs after convergence, exposed so a caller
+    /// can compute and report any point in parameter space directly (seconds instead of a full run).
+    /// </summary>
+    public GroupOptimizationResult EvaluateVector(double[] genes)
+    {
+        var groupParams = GroupCombustionSolverParamsByUnits.FromVector(genes);
 
         for (var groupIdx = 0; groupIdx < 3; groupIdx++)
         {
-            var compositionParams = bestGroupParams.ToCompositionVector(groupIdx);
+            var compositionParams = groupParams.ToCompositionVector(groupIdx);
             var combustionParams = CombustionSolverParamsByUnits.FromVector(compositionParams);
             _fitnessFunctionEvaluator.Visit(combustionParams, _finalContextsByUnits[groupIdx]);
         }
 
-        var result = new GroupOptimizationResult(
+        return new GroupOptimizationResult(
             compositionContexts: _finalContextsByUnits,
-            lowerBound: lowerBound,
-            upperBound: upperBound,
-            bestParams: bestGenes);
-
-        return result;
+            lowerBound: _settings.LowerBound.ToArray(),
+            upperBound: _settings.UpperBound.ToArray(),
+            bestParams: genes);
     }
 
     /// <summary>
