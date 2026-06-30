@@ -55,7 +55,7 @@ The repository uses a git submodule at [externals/src/python/AerospacePropellant
 
 **Event bus.** `EventBus<TEvent>` is a *static, process-wide* pub/sub keyed by event type. Components publish typed events (`LogEvent`, `InfoLogEvent`, …) and the console host plus the optional Telegram relay both subscribe during `Initializer` startup. Because subscriptions are static, tests that exercise the bus must clean up handlers, and adding a new event type is the canonical way to surface new lifecycle information — don't add ad-hoc logger interfaces.
 
-**Group optimisation parameter layout.** When several propellant compositions share an optimisation run, the parameter vector is laid out as a single 32-element array:
+**Group optimisation parameter layout.** When several propellant compositions share an optimisation run, the parameter vector is laid out as a single 40-element array:
 
 | Slot | Meaning |
 |------|---------|
@@ -63,10 +63,18 @@ The repository uses a git submodule at [externals/src/python/AerospacePropellant
 | `[11..17]` | 7 parameters specific to the `Bas_2 + Bas_3 + Bas_4` group (`compositionIndex = 0`) |
 | `[18..24]` | 7 parameters specific to `Bas_1` (`compositionIndex = 1`) |
 | `[25..31]` | 7 parameters specific to `Bas_0` (`compositionIndex = 2`) |
+| `[32]` | shared `KDiffusionPressureFactor` (C_rxn) — diffusion-standoff pressure factor (appended at tail) |
+| `[33]` | shared `KDiffusionSizeExponent` (m) — diffusion-standoff size exponent (appended at tail) |
+| `[34]` | shared `KBimodalPackingFactor` (K_pack) — bimodal heat-feedback enhancement (appended at tail) |
+| `[35]` | shared `KDiffusionPressureExponent` (n_p) — diffusion-standoff pressure exponent (p_ref/p)^n_p, bounds [2,4] (appended at tail) |
+| `[36]` | shared `KCondensedReactionFactor` (K_wsb) — WSB condensed-phase reaction completeness θ=Da/(1+Da), Da=K_wsb·(p/p_ref)², bounds [0,5] (appended at tail) |
+| `[37]` | shared `KApPremixedFactor` (K_AP) — AP self-deflagration premixed-flame conductance q_AP=K_AP·(1−f_c)·(T_AP−T_s)·max(0,(p/p_dl)^n_AP−1), T_AP=1400 K fixed, p_dl=2 MPa fixed deflagration limit, bounds [0,5000] (appended at tail) |
+| `[38]` | shared `KApPressureExponent` (n_AP) — AP self-deflagration pressure exponent in the q_AP gate (p/p_dl)^n_AP, bounds [0.77,2.5] (floor 0.77 = Guirao–Williams exponent; appended at tail) |
+| `[39]` | shared `KBimodalPackingPressureExponent` (a_pack) — bimodal-packing heat-feedback pressure-decay: factor = 1+K_pack·f_c·(1−f_c)·(p_ref/p)^a_pack, p_ref=1 MPa, bounds [0,2] (floor 0 = pressure-independent K_pack = pre-Step-11 model; LEF importance falls with pressure, BDP 1970 + AP plateau lit; appended at tail). Replaced the Step-10 null `KApBreakPressure` (p_break) in this slot. |
 
-The same ordering is used for `compositionIndex` everywhere downstream — `GroupCombustionSolverParamsByDoubles.ToCompositionVector(idx)`, the per-group context arrays in `GroupOptimizationResult.CompositionContexts`, and the merged matrix produced by `GroupOptimizationResultAdapter`. Anything that splices, bounds-checks, or reports on this vector must follow the same slicing.
+The eight appended shared parameters are kept at the **tail** (not interleaved) so that older 32-element checkpoints remap by simple truncation; the single-composition vector is correspondingly 26 elements (the same eight shared params at `[18]`/`[19]`/`[20]`/`[21]`/`[22]`/`[23]`/`[24]`/`[25]`). The same ordering is used for `compositionIndex` everywhere downstream — `GroupCombustionSolverParamsByDoubles.ToCompositionVector(idx)`, the per-group context arrays in `GroupOptimizationResult.CompositionContexts`, and the merged matrix produced by `GroupOptimizationResultAdapter`. Anything that splices, bounds-checks, or reports on this vector must follow the same slicing.
 
-`Bas_2`, `Bas_3`, and `Bas_4` are always optimised together as one group sharing the same composition-specific parameters — that is the load-bearing reason for the grouped 32-parameter formulation.
+`Bas_2`, `Bas_3`, and `Bas_4` are always optimised together as one group sharing the same composition-specific parameters — that is the load-bearing reason for the grouped formulation. The three differ only in oxidizer morphology (coarse fraction + mean diameter); the shared two-mode diffusion ensemble (`PocketPropellantSolver.GetDiffusionFlameHeatFlux`, see `docs/math-model.md` §9) is what spreads their burn-rate pressure exponents apart without per-composition reaction orders.
 
 ## Runtime data and tickets
 

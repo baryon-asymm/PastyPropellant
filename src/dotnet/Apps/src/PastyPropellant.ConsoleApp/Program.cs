@@ -70,7 +70,15 @@ double[] GetLowerBound()
         1e-3,   // [14] KDiffusionHeight
         0.0,    // [15] APowOrder                        (degenerate dimensional const = 1)
         0.0,    // [16] BPowOrder                        (degenerate dimensional const = 2)
-        0.0     // [17] KCoefficientRadiationTemperature opened to [0,1] so DE can explore the radiative-temperature closure
+        0.0,    // [17] KCoefficientRadiationTemperature opened to [0,1] so DE can explore the radiative-temperature closure
+        0.0,    // [18] KDiffusionPressureFactor (C_rxn): BDP/Lengellé diffusion-standoff pressure factor; 0 ⇒ original laminar model
+        0.0,    // [19] KDiffusionSizeExponent (m): petite-ensemble standoff size-exponent (d/d_ref)^m; 0 ⇒ size-independent
+        0.0,    // [20] KBimodalPackingFactor (K_pack): bimodal heat-feedback enhancement 1+K·f_c(1−f_c); 0 ⇒ no enhancement
+        2.0,    // [21] KDiffusionPressureExponent (n_p): standoff pressure-exponent (p_ref/p)^n_p; 2 ⇒ original fixed quadratic law
+        0.0,    // [22] KCondensedReactionFactor (K_wsb): WSB condensed-phase reaction completeness θ=Da/(1+Da), Da=K_wsb(p/p_ref)²; 0 ⇒ original surface energy balance
+        0.0,    // [23] KApPremixedFactor (K_AP): AP self-deflagration premixed-flame conductance q_AP=K·(1−f_c)·(T_AP−T_s)·max(0,(p/p_dl)^n_AP−1) [W·m⁻²·K⁻¹]; 0 ⇒ Step-6 model
+        0.77,   // [24] KApPressureExponent (n_AP): AP monopropellant pressure exponent; 0.77 ⇒ Guirao–Williams floor
+        0.0     // [25] KBimodalPackingPressureExponent (a_pack): bimodal-packing pressure-decay (p_ref/p)^a_pack; 0 ⇒ pressure-independent K_pack = Step-8 model (floor, cannot regress)
     ];
 }
 
@@ -94,16 +102,25 @@ double[] GetUpperBound()
         1e1,    // [14] KDiffusionHeight
         3.0,    // [15] APowOrder
         3.0,    // [16] BPowOrder
-        1.0     // [17] KCoefficientRadiationTemperature (was [0,0], now [0,1])
+        1.0,    // [17] KCoefficientRadiationTemperature (was [0,0], now [0,1])
+        50.0,   // [18] KDiffusionPressureFactor (C_rxn): diffusion-standoff pressure-factor coeff, range [0,50] (BDP/Lengellé)
+        2.0,    // [19] KDiffusionSizeExponent (m): petite-ensemble standoff size-exponent, range [0,2] (BDP/Lengellé)
+        10.0,   // [20] KBimodalPackingFactor (K_pack): bimodal heat-feedback enhancement coeff, range [0,10] (Miller 1982/Kubota)
+        4.0,    // [21] KDiffusionPressureExponent (n_p): standoff pressure-exponent, range [2,4] (Lengellé–Duterque–Trubert 2000/BDP 1970)
+        5.0,    // [22] KCondensedReactionFactor (K_wsb): WSB condensed-phase reaction coeff, range [0,5] (Ward–Son–Brewster 1998/Zenin 1995)
+        5000.0, // [23] KApPremixedFactor (K_AP): AP premixed-flame conductance [W·m⁻²·K⁻¹], range [0,5000] (Boggs 1970/Guirao–Williams 1971/Price 1984)
+        2.5,    // [24] KApPressureExponent (n_AP): AP monopropellant burn-rate pressure exponent, range [0.77,2.5] (Boggs 1970/Price 1984 — AP slope is regime-dependent)
+        2.0     // [25] KBimodalPackingPressureExponent (a_pack): bimodal-packing pressure-decay exponent, range [0,2] (LEF importance ~ diffusion-standoff p⁻¹–p⁻²; BDP 1970 / AP plateau lit.)
     ];
 }
 
-// ========== GROUP OPTIMIZATION BOUNDS (32-ELEMENT VECTOR) ==========
-// Structure: [0-10] shared, [11-17] Bas_2, [18-24] Bas_1, [25-31] Bas_0
+// ========== GROUP OPTIMIZATION BOUNDS (40-ELEMENT VECTOR) ==========
+// Structure: [0-10] shared, [11-17] Bas_2, [18-24] Bas_1, [25-31] Bas_0,
+//            [32] C_rxn, [33] m, [34] K_pack, [35] n_p, [36] K_wsb, [37] K_AP, [38] n_AP, [39] a_pack (appended-tail shared)
 double[] GetGroupLowerBound()
 {
     var originalLower = GetLowerBound();
-    var groupBounds = new double[32];
+    var groupBounds = new double[40];
     
     // Map shared parameters [0-10] from original indices [2, 3, 4, 5, 8, 9, 13, 14, 15, 16, 17]
     int[] commonIndices = [2, 3, 4, 5, 8, 9, 13, 14, 15, 16, 17];
@@ -118,14 +135,38 @@ double[] GetGroupLowerBound()
         for (int i = 0; i < specificIndices.Length; i++)
             groupBounds[blockStart + i] = originalLower[specificIndices[i]];
     }
-    
+
+    // Shared diffusion-flame pressure-factor coefficient (18-vector index 18) appended at group index 32
+    groupBounds[32] = originalLower[18];
+
+    // Shared diffusion-flame standoff size-exponent (19-vector index 19) appended at group index 33
+    groupBounds[33] = originalLower[19];
+
+    // Shared bimodal-packing heat-feedback enhancement (20-vector index 20) appended at group index 34
+    groupBounds[34] = originalLower[20];
+
+    // Shared diffusion-flame standoff pressure-exponent (21-vector index 21) appended at group index 35
+    groupBounds[35] = originalLower[21];
+
+    // Shared WSB condensed-phase reaction coefficient (22-vector index 22) appended at group index 36
+    groupBounds[36] = originalLower[22];
+
+    // Shared AP monopropellant premixed-flame conductance (23-vector index 23) appended at group index 37
+    groupBounds[37] = originalLower[23];
+
+    // Shared AP self-deflagration pressure exponent (24-vector index 24) appended at group index 38
+    groupBounds[38] = originalLower[24];
+
+    // Shared bimodal-packing pressure-decay exponent a_pack (25-vector index 25) appended at group index 39
+    groupBounds[39] = originalLower[25];
+
     return groupBounds;
 }
 
 double[] GetGroupUpperBound()
 {
     var originalUpper = GetUpperBound();
-    var groupBounds = new double[32];
+    var groupBounds = new double[40];
     
     // Map shared parameters [0-10] from original indices [2, 3, 4, 5, 8, 9, 13, 14, 15, 16, 17]
     int[] commonIndices = [2, 3, 4, 5, 8, 9, 13, 14, 15, 16, 17];
@@ -140,14 +181,38 @@ double[] GetGroupUpperBound()
         for (int i = 0; i < specificIndices.Length; i++)
             groupBounds[blockStart + i] = originalUpper[specificIndices[i]];
     }
-    
+
+    // Shared diffusion-flame pressure-factor coefficient (18-vector index 18) appended at group index 32
+    groupBounds[32] = originalUpper[18];
+
+    // Shared diffusion-flame standoff size-exponent (19-vector index 19) appended at group index 33
+    groupBounds[33] = originalUpper[19];
+
+    // Shared bimodal-packing heat-feedback enhancement (20-vector index 20) appended at group index 34
+    groupBounds[34] = originalUpper[20];
+
+    // Shared diffusion-flame standoff pressure-exponent (21-vector index 21) appended at group index 35
+    groupBounds[35] = originalUpper[21];
+
+    // Shared WSB condensed-phase reaction coefficient (22-vector index 22) appended at group index 36
+    groupBounds[36] = originalUpper[22];
+
+    // Shared AP monopropellant premixed-flame conductance (23-vector index 23) appended at group index 37
+    groupBounds[37] = originalUpper[23];
+
+    // Shared AP self-deflagration pressure exponent (24-vector index 24) appended at group index 38
+    groupBounds[38] = originalUpper[24];
+
+    // Shared bimodal-packing pressure-decay exponent a_pack (25-vector index 25) appended at group index 39
+    groupBounds[39] = originalUpper[25];
+
     return groupBounds;
 }
 
 async Task<(OperationResult<GroupOptimizationResult>? result, PerformanceMeter meter, DifferentialEvolutionSettings? deSettings, System.Collections.ObjectModel.ReadOnlyCollection<Propellant> propellants)> RunGroupOptimizationAsync(string inputFileName)
 {
     const double penaltyRate = 0.01;
-    const double heatFluxRatioThreshold = 100.0;
+    const double heatFluxRatioThreshold = 1000.0;
     const double poreDiameterThreshold = 3.0;
     const double largeOxidizerParticleSizeThreshold = 1.0;
 
@@ -171,7 +236,7 @@ async Task<(OperationResult<GroupOptimizationResult>? result, PerformanceMeter m
 
     var groupLowerBound = GetGroupLowerBound();
     var groupUpperBound = GetGroupUpperBound();
-    var dimensions = groupLowerBound.Length; // 32
+    var dimensions = groupLowerBound.Length; // 40 (11 shared + 7×3 specific + 8 appended-tail shared)
 
     // jDE (self-adaptive rand/1) is the winning strategy on this branch: its exploration reaches the
     // clean basin (obj 0.157 / penalty 0), whereas current-to-pbest variants either trap in a penalized
@@ -196,7 +261,7 @@ async Task<(OperationResult<GroupOptimizationResult>? result, PerformanceMeter m
         // Size it to what is actually achievable so the 576→4 schedule completes — a huge budget just
         // back-loads convergence (the 9 h timeout would fire long before LPSR reaches the floor).
         // NOTE: the memetic Nelder–Mead evaluations count toward this same budget.
-        populationSize = dimensions * 18; // 32 * 18 = 576
+        populationSize = dimensions * 18; // 40 * 18 = 720
         processorsCount = maxAvailableProcessors; // population shrinks, so the divisibility heuristic does not apply
         maxEvaluationNumber = 5_000_000;
         // Canonical L-SHADE control parameters (Tanabe & Fukunaga 2014): p-best 0.11, archive rate 2.6, memory 6.
@@ -211,14 +276,14 @@ async Task<(OperationResult<GroupOptimizationResult>? result, PerformanceMeter m
     {
         // Fixed-population variants (Classic / jDE / JADE / SHADE): keep the stagnation+timeout
         // run control and pick a worker count that divides the population evenly for balanced load.
-        populationSize = dimensions * 12; // 32 * 12 = 384 (jDE production population — reaches obj 0.157 / penalty 0)
+        populationSize = dimensions * 12; // 40 * 12 = 480 (jDE production population)
         processorsCount = maxAvailableProcessors;
         for (; processorsCount >= 14; processorsCount--)
             if (populationSize % processorsCount == 0)
                 break;
         terminationStrategy = new OrTerminationStrategy(
             new CustomStagnationStreakTerminationStrategy(
-                maxStagnationStreak: 5_000,
+                maxStagnationStreak: 100_000,
                 relativeStagnationThreshold: 1e-6),
             safetyTimeout);
     }
@@ -280,7 +345,7 @@ async Task<(OperationResult<GroupOptimizationResult>? result, PerformanceMeter m
         Console.WriteLine($"- Evaluation budget: {maxEvaluationNumber.Value:N0}");
     if (pBestRate.HasValue && archiveSizeRate.HasValue && memorySize.HasValue)
         Console.WriteLine($"- L-SHADE control: p-best={pBestRate.Value}, archiveRate={archiveSizeRate.Value}, memory={memorySize.Value}");
-    Console.WriteLine($"- Parameter vector size: 32 (11 shared + 7×3 specific)");
+    Console.WriteLine($"- Parameter vector size: {dimensions} (11 shared + 7×3 specific + 8 appended-tail shared)");
     Console.WriteLine($"- Processors: {processorsCount}");
     if (nelderMeadRefinement.Enabled)
     {
@@ -379,7 +444,7 @@ try
     Console.WriteLine(new string('=', 90));
     Console.WriteLine("Summary:");
     Console.WriteLine("  ✓ Simultaneous optimization of 3 composition groups");
-    Console.WriteLine("  ✓ 32-parameter unified vector");
+    Console.WriteLine("  ✓ 40-parameter unified vector");
     Console.WriteLine("  ✓ 11 shared parameters optimized once");
     Console.WriteLine("  ✓ 7 specific parameters for each composition");
     Console.WriteLine("  ✓ Bas_2 group includes Bas_3 and Bas_4 (same specific parameters)");

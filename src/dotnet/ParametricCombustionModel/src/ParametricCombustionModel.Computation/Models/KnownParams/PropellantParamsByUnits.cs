@@ -40,6 +40,14 @@ public readonly struct PropellantParamsByDoubles
     public required double AverageOxidizerDiameter { get; init; }
 
     /// <summary>
+    /// Mass fraction of the coarse (large) ammonium-perchlorate fraction f_c ∈ [0,1] (JSON large_particles_fraction).
+    /// Modulates the pressure dependence of the diffusion-flame standoff (BDP / Lengellé): coarse-AP-rich
+    /// compositions are diffusion-controlled and acquire a steeper burn-rate pressure exponent.
+    /// See docs/research/ap_size_pressure_exponent.md.
+    /// </summary>
+    public required double CoarseFraction { get; init; }
+
+    /// <summary>
     /// Gets the fraction of the propellant surface occupied by the pocket.
     /// This property represents the proportion of the surface area that is occupied by pockets in the propellant.
     /// It is a dimensionless value (ratio).
@@ -83,6 +91,14 @@ public struct PropellantParamsByUnits
     /// This property is used to characterize the physical dimensions of the oxidizer particles, which can affect the combustion dynamics.
     /// </summary>
     public required Length AverageOxidizerDiameter { get; init; }
+
+    /// <summary>
+    /// Mass fraction of the coarse (large) ammonium-perchlorate fraction f_c ∈ [0,1] (JSON large_particles_fraction).
+    /// Modulates the pressure dependence of the diffusion-flame standoff (BDP / Lengellé): coarse-AP-rich
+    /// compositions are diffusion-controlled and acquire a steeper burn-rate pressure exponent.
+    /// See docs/research/ap_size_pressure_exponent.md.
+    /// </summary>
+    public required double CoarseFraction { get; init; }
 
     /// <summary>
     /// Gets the fraction of the propellant surface occupied by the pocket.

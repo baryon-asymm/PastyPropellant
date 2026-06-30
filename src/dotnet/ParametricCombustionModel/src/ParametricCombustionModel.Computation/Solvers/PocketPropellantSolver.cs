@@ -484,13 +484,14 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
         contextBag.MetalBurningHeatFlux = GetMetalBurningHeatFlux(
             surfaceTemperature, contextBag.SkeletonLayerThickness, contextBag.EffectiveThermalConductivity, context.PocketMetalCombustionParamsByUnits);
 
-        contextBag.DiffusionFlameHeight = GetDiffusionFlameHeight(contextBag.DecomposeRate,
-                                                                  solverParamsByUnits,
-                                                                  context.PocketDiffusionFlameParamsByUnits,
-                                                                  context.PropellantParamsByUnits);
         contextBag.DiffusionFlameHeatFlux = GetDiffusionFlameHeatFlux(surfaceTemperature,
-                                                                      contextBag.DiffusionFlameHeight,
-                                                                      context.PocketDiffusionFlameParamsByUnits);
+                                                                      contextBag.DecomposeRate,
+                                                                      context.Pressure,
+                                                                      solverParamsByUnits,
+                                                                      context.PocketDiffusionFlameParamsByUnits,
+                                                                      context.PropellantParamsByUnits,
+                                                                      out var diffusionFlameHeight);
+        contextBag.DiffusionFlameHeight = diffusionFlameHeight;
 
         var fullRatio = Ratio.FromDecimalFractions(1.0);
         var outSkeletonSurfaceFraction = fullRatio - context.PropellantParamsByUnits.SkeletonSurfaceFraction;
@@ -499,12 +500,34 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
         contextBag.SkeletonHeatFlux = context.PropellantParamsByUnits.SkeletonSurfaceFraction.DecimalFractions
                                       * (contextBag.MetalBurningHeatFlux
                                          + skeletonKineticFlameParams.KineticFlameHeatFlux);
-        contextBag.ToSurfaceTotalHeatFlux = contextBag.OutSkeletonHeatFlux
+        // AP self-deflagration (monopropellant premixed) flame: a parallel near-surface heat source that, unlike
+        // the surface-attached diffusion/kinetic flames, keeps rising with pressure (premixed) — it de-saturates the
+        // high-pressure burn rate of the fine-AP-dominated compositions. Weighted by (1−f_c) and gated above the
+        // fixed 2 MPa AP deflagration limit (Boggs 1970); q_AP ≡ 0 when K_AP = 0. The bimodal-packing factor carries
+        // a (p_ref/p)^a_pack pressure decay (Step 11; LEF importance falls with pressure) for the bimodal compositions.
+        contextBag.ToSurfaceTotalHeatFlux = (contextBag.OutSkeletonHeatFlux
                                             + contextBag.SkeletonHeatFlux
-                                            + contextBag.DiffusionFlameHeatFlux;
+                                            + contextBag.DiffusionFlameHeatFlux)
+                                            * GetBimodalPackingFactor(
+                                                context.Pressure.Pascals,
+                                                context.PropellantParamsByUnits.CoarseFraction,
+                                                solverParamsByUnits.KBimodalPackingFactor,
+                                                solverParamsByUnits.KBimodalPackingPressureExponent)
+                                            + HeatFlux.FromWattsPerSquareMeter(GetApPremixedFlameHeatFlux(
+                                                context.Pressure.Pascals,
+                                                surfaceTemperature.Kelvins,
+                                                context.PropellantParamsByUnits.CoarseFraction,
+                                                solverParamsByUnits.KApPremixedFactor,
+                                                solverParamsByUnits.KApPressureExponent));
 
+        // WSB condensed-phase reaction supplies a fraction θ(p) of the sensible enthalpy (de-saturates the
+        // high-pressure burn rate once kinetic flames go surface-attached); θ ≡ 0 when K_wsb = 0.
+        var wsbCompleteness = GetWsbCondensedCompleteness(
+            context.Pressure.Pascals,
+            solverParamsByUnits.KCondensedReactionFactor);
         var enthalpyChange = context.PropellantParamsByUnits.SpecificHeatCapacity
                              * (surfaceTemperature - context.PropellantParamsByUnits.InitialTemperature)
+                             * (1.0 - wsbCompleteness)
                              + solverParamsByUnits.DeltaH;
         contextBag.SublimationHeatFlux = HeatFlux.FromWattsPerSquareMeter(
             contextBag.DecomposeRate.KilogramsPerSecondPerSquareMeter
@@ -681,73 +704,248 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
     }
 
     /// <summary>
-    /// Computes the height of the diffusion flame based on the decompose rate and burn parameters.
+    /// Computes the diffusion-flame heat flux to the surface using the two-mode petite-ensemble model
+    /// (Beckstead–Derr–Price 1970; Cohen &amp; Strand 1982; Glick 1974). A polydisperse AP propellant is
+    /// treated as a parallel ensemble of a coarse mode (mass fraction f_c) and a fine mode (1−f_c), each
+    /// with its own diffusion standoff h(d,p) = K_h·c_v·ṁ·d²/λ·[1 + C_rxn·(d/d_ref)^m·(p_ref/p)²]:
+    ///     q_diff,eff = f_c·λ(T_diff−T_s)/h(d_coarse,p) + (1−f_c)·λ(T_diff−T_s)/h(d_fine,p).
+    /// The fine mode (small d) carries a large, weakly pressure-dependent flux that dominates bimodal
+    /// blends (raising rate, lowering ν), while the coarse mode (large d) is slow and strongly
+    /// pressure-sensitive (steep ν). With C_rxn = 0 every mode reduces to the original laminar standoff.
+    /// See docs/research/ap_size_pressure_exponent.md.
     /// </summary>
-    /// <param name="decomposeRate">
-    /// The mass flux rate at which the propellant decomposes, provided as a <see cref="MassFlux"/> object.
-    /// </param>
-    /// <param name="solverParamsByUnits">
-    /// The parameters related to the burn process, including the enthalpy change and specific heat capacity.
-    /// </param>
-    /// <param name="diffusionFlameParamsByUnits">
-    /// The parameters related to the diffusion flame, including volumetric specific heat capacity and thermal conductivity.
-    /// </param>
-    /// <param name="propellantParamsByUnits">
-    /// The parameters related to the propellant, including the average oxidizer diameter.
-    /// </param>
-    /// <returns>
-    /// The height of the diffusion flame as a <see cref="Length"/> object.
-    /// </returns>
-    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    private Length GetDiffusionFlameHeight(
-        in MassFlux decomposeRate,
-        in CombustionSolverParamsByUnits solverParamsByUnits,
-        in DiffusionFlameParamsByUnits diffusionFlameParamsByUnits,
-        in PropellantParamsByUnits propellantParamsByUnits)
-    {
-        var averageOxidizerDiameter = propellantParamsByUnits.AverageOxidizerDiameter;
-        var volumedSpecificHeatCapacity = diffusionFlameParamsByUnits.VolumetricSpecificHeatCapacity;
-        var lambdaGas = diffusionFlameParamsByUnits.ThermalConductivity;
-
-        var massFlow = decomposeRate * (averageOxidizerDiameter * averageOxidizerDiameter);
-        var thermalConductanceDouble =
-            volumedSpecificHeatCapacity.JoulesPerKilogramKelvin * massFlow.KilogramsPerSecond;
-        var heightDouble = solverParamsByUnits.KDiffusionHeight
-                           * thermalConductanceDouble
-                           / lambdaGas.WattsPerMeterKelvin;
-
-        return Length.FromMeters(heightDouble);
-    }
-
-    /// <summary>
-    /// Computes the heat flux due to the diffusion flame based on the surface temperature and flame height.
-    /// </summary>
-    /// <param name="surfaceTemperature">
-    /// The temperature of the propellant surface, provided as a <see cref="Temperature"/> object.
-    /// </param>
-    /// <param name="diffusionFlameHeight">
-    /// The height of the diffusion flame, provided as a <see cref="Length"/> object.
-    /// </param>
-    /// <param name="diffusionFlameParamsByUnits">
-    /// The parameters related to the diffusion flame, including final temperature and thermal conductivity.
-    /// </param>
-    /// <returns>
-    /// The heat flux due to the diffusion flame as a <see cref="HeatFlux"/> object.
-    /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private HeatFlux GetDiffusionFlameHeatFlux(
         in Temperature surfaceTemperature,
-        in Length diffusionFlameHeight,
-        in DiffusionFlameParamsByUnits diffusionFlameParamsByUnits)
+        in MassFlux decomposeRate,
+        in Pressure pressure,
+        in CombustionSolverParamsByUnits solverParamsByUnits,
+        in DiffusionFlameParamsByUnits diffusionFlameParamsByUnits,
+        in PropellantParamsByUnits propellantParamsByUnits,
+        out Length effectiveHeight)
     {
-        var lambdaGas = diffusionFlameParamsByUnits.ThermalConductivity;
-        var diffusionFlameTemperature = diffusionFlameParamsByUnits.FinalTemperature;
+        var lambdaGas = diffusionFlameParamsByUnits.ThermalConductivity.WattsPerMeterKelvin;
+        var deltaTemperature = (diffusionFlameParamsByUnits.FinalTemperature - surfaceTemperature).Kelvins;
+        var volumedSpecificHeatCapacity = diffusionFlameParamsByUnits.VolumetricSpecificHeatCapacity.JoulesPerKilogramKelvin;
+        var massFlux = decomposeRate.KilogramsPerSecondPerSquareMeter;
+        var kDiffusionHeight = solverParamsByUnits.KDiffusionHeight;
+        var kDiffusionPressureFactor = solverParamsByUnits.KDiffusionPressureFactor;
+        var sizeExponent = solverParamsByUnits.KDiffusionSizeExponent;
+        var pressureExponent = solverParamsByUnits.KDiffusionPressureExponent;
+        var pressurePascals = pressure.Pascals;
 
-        var heatFluxDouble = lambdaGas.WattsPerMeterKelvin
-                             * (diffusionFlameTemperature - surfaceTemperature).Kelvins
-                             / diffusionFlameHeight.Meters;
+        GetOxidizerModeDiameters(
+            propellantParamsByUnits.AverageOxidizerDiameter.Meters,
+            propellantParamsByUnits.CoarseFraction,
+            out var coarseDiameter,
+            out var fineDiameter,
+            out var coarseMassFraction,
+            out var fineMassFraction);
+
+        // Mass-fraction weighting of the two flame modes.
+        var heatFluxDouble = 0.0;
+        if (coarseMassFraction > 0.0)
+            heatFluxDouble += coarseMassFraction * ModeHeatFlux(coarseDiameter);
+        if (fineMassFraction > 0.0)
+            heatFluxDouble += fineMassFraction * ModeHeatFlux(fineDiameter);
+
+        effectiveHeight = Length.FromMeters(
+            heatFluxDouble > 0.0 ? lambdaGas * deltaTemperature / heatFluxDouble : double.PositiveInfinity);
 
         return HeatFlux.FromWattsPerSquareMeter(heatFluxDouble);
+
+        double ModeHeatFlux(double diameter)
+        {
+            var laminarHeight = kDiffusionHeight * volumedSpecificHeatCapacity * massFlux * diameter * diameter / lambdaGas;
+            var height = laminarHeight * GetDiffusionPressureFactor(
+                pressurePascals, diameter, kDiffusionPressureFactor, sizeExponent, pressureExponent);
+            return lambdaGas * deltaTemperature / height;
+        }
+    }
+
+    /// <summary>
+    /// Splits a propellant's mass-mean oxidizer diameter into a coarse and a fine sub-population for the
+    /// two-mode petite-ensemble diffusion model. Pure compositions (f_c = 0 or 1) use the stored average
+    /// directly as the single present mode; bimodal blends reconstruct the coarse-class diameter from the
+    /// mass-mixing rule d_avg = f_c·d_coarse + (1−f_c)·d_fine with a fixed fine-class diameter. Shared by
+    /// the ByUnits and ByDoubles paths so both produce identical numbers.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    private static void GetOxidizerModeDiameters(
+        double averageDiameterMeters,
+        double coarseFraction,
+        out double coarseDiameterMeters,
+        out double fineDiameterMeters,
+        out double coarseWeight,
+        out double fineWeight)
+    {
+        // Fine AP class diameter of the Babuk pasty-propellant series (50 µm) — the same fine population
+        // that, taken pure, forms Bas_3. Used only to split a bimodal average into its sub-populations
+        // (user-confirmed blend: 65 %·180 µm + 35 %·50 µm). It is a normalisation constant, not a model
+        // parameter, and is never written back to the propellant input data.
+        const double fineClassDiameterMeters = 5.0e-5;
+
+        if (coarseFraction <= 0.0)
+        {
+            // Pure fine population (e.g. Bas_3): the stored average IS the fine-class diameter.
+            fineDiameterMeters = averageDiameterMeters;
+            coarseDiameterMeters = averageDiameterMeters;
+            fineWeight = 1.0;
+            coarseWeight = 0.0;
+        }
+        else if (coarseFraction >= 1.0)
+        {
+            // Pure coarse population (e.g. Bas_4): the stored average IS the coarse-class diameter.
+            coarseDiameterMeters = averageDiameterMeters;
+            fineDiameterMeters = averageDiameterMeters;
+            coarseWeight = 1.0;
+            fineWeight = 0.0;
+        }
+        else
+        {
+            // Bimodal blend (e.g. Bas_2/Bas_1/Bas_0): reconstruct the coarse-class diameter from the
+            // mass-mixing rule using the fixed fine-class diameter.
+            fineDiameterMeters = fineClassDiameterMeters;
+            coarseDiameterMeters = (averageDiameterMeters - (1.0 - coarseFraction) * fineDiameterMeters) / coarseFraction;
+            if (coarseDiameterMeters < fineDiameterMeters)
+                coarseDiameterMeters = fineDiameterMeters;
+            coarseWeight = coarseFraction;
+            fineWeight = 1.0 - coarseFraction;
+        }
+    }
+
+    /// <summary>
+    /// Per-mode pressure/size modulation of the diffusion-flame standoff (BDP / Lengellé), shared by the
+    /// ByUnits and ByDoubles paths so both produce identical numbers:
+    ///     factor = 1 + C_rxn · (d / d_ref)^m · (p_ref / p)^n_p,    p_ref = 7 MPa,  d_ref = 100 µm.
+    /// With C_rxn (KDiffusionPressureFactor) = 0 the factor is identically 1 — the original laminar standoff.
+    /// The size exponent m (KDiffusionSizeExponent) makes coarse modes collapse faster with pressure than
+    /// fine modes, giving the size-dependent burn-rate pressure exponent. The pressure exponent n_p
+    /// (KDiffusionPressureExponent, bounds [2,4]) sets how steeply the reaction/turbulent standoff contracts
+    /// with pressure — n_p = 2 reproduces the original fixed quadratic law, while larger n_p sharpens the
+    /// pure-mode burn-rate pressure exponents without restructuring the model (Lengellé–Duterque–Trubert 2000,
+    /// regime-dependent standoff exponent; BDP 1970). See docs/research/ap_size_pressure_exponent.md.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    private static double GetDiffusionPressureFactor(
+        double pressurePascals,
+        double diameterMeters,
+        double kDiffusionPressureFactor,
+        double sizeExponent,
+        double pressureExponent)
+    {
+        const double referencePressurePascals = 7.0e6;
+        const double referenceDiameterMeters = 1.0e-4; // 100 µm normalisation scale
+        var guardedPressure = pressurePascals < 1.0e3 ? 1.0e3 : pressurePascals;
+        var pressureRatio = referencePressurePascals / guardedPressure;
+        var sizeFactor = Math.Pow(diameterMeters / referenceDiameterMeters, sizeExponent);
+        return 1.0 + kDiffusionPressureFactor * sizeFactor * Math.Pow(pressureRatio, pressureExponent);
+    }
+
+    /// <summary>
+    /// Bimodal-packing heat-feedback enhancement, shared by the ByUnits and ByDoubles paths so both produce
+    /// identical numbers:  factor = 1 + K_pack · f_c · (1 − f_c) · (p_ref / p)^a_pack,  p_ref = 1 MPa.
+    /// The bimodality measure f_c·(1−f_c) vanishes for monomodal AP (pure coarse f_c = 1 or pure fine
+    /// f_c = 0) and is maximal for a balanced blend, so the factor scales up the surface heat feedback —
+    /// and hence the burn-rate magnitude — only for bimodal compositions (denser bimodal packing → more
+    /// intense, closer flames; Miller 1982; Kubota, "Propellants and Explosives"). Step 11: the enhancement
+    /// is given a pressure decay (p_ref/p)^a_pack — the bimodal leading-edge flame (LEF) structure dominates
+    /// the heat feedback only while the diffusion flames stand off (low pressure); as pressure rises the flames
+    /// collapse toward the surface and the near-surface LEF loses its relative importance, so the bimodal
+    /// enhancement weakens (Beckstead–Derr–Price 1970, AIAA J 8(12):2200, doi 10.2514/3.6087; plateau /
+    /// particle-size literature: Combust. Expl. Shock Waves 43:436 (2007), doi 10.1007/s10573-007-0059-5;
+    /// Combust. Flame 1987 doi 10.1016/0010-2180(87)90099-X and 2015 doi 10.1016/j.combustflame.2015.10.017).
+    /// This lifts the LOW-pressure magnitude of the bimodal compositions (pure-bimodal Bas_2 is under-predicted
+    /// at 1 MPa) while RELAXING the over-prediction at 4 MPa — a slope correction the pressure-independent factor
+    /// cannot make. a_pack (bimodalPackingPressureExponent) ≥ 0 is the shared decay exponent; a_pack = 0
+    /// reproduces the pressure-independent factor exactly (cannot regress), and the whole bimodal term is
+    /// identically 0 for monomodal Bas_3 (f_c = 0) and Bas_4 (f_c = 1) so they are untouched. With K_pack = 0 the
+    /// factor is identically 1. See docs/research/bimodal_packing_pressure_decay.md.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    private static double GetBimodalPackingFactor(
+        double pressurePascals,
+        double coarseFraction,
+        double kBimodalPackingFactor,
+        double bimodalPackingPressureExponent)
+    {
+        const double referencePressurePascals = 1.0e6; // 1 MPa: low-pressure anchor of the data range
+        var guardedPressure = pressurePascals < 1.0e3 ? 1.0e3 : pressurePascals;
+        var pressureDecay = Math.Pow(referencePressurePascals / guardedPressure, bimodalPackingPressureExponent);
+        return 1.0 + kBimodalPackingFactor * coarseFraction * (1.0 - coarseFraction) * pressureDecay;
+    }
+
+    /// <summary>
+    /// WSB condensed-phase reaction completeness θ ∈ [0,1), shared by the ByUnits and ByDoubles paths so both
+    /// produce identical numbers:  θ = Da / (1 + Da),  Da = K_wsb · (p / p_ref)²,  p_ref = 1 MPa.
+    /// The exothermic condensed-phase reaction supplies a fraction θ of the sensible enthalpy, so the net surface
+    /// heat demand becomes ṁ·[c_s·(T_s − T_0)·(1 − θ) + ΔH]. As pressure rises the second-order (p²) Damköhler
+    /// number grows and θ → 1, letting the burn rate keep climbing once the kinetic flames go surface-attached —
+    /// which otherwise saturates the high-pressure (4–6.5 MPa) burn rate. With K_wsb = 0, θ ≡ 0 and the surface
+    /// energy balance is unchanged (cannot regress). θ &lt; 1 always, so the sensible sink stays positive and the
+    /// surface-temperature bracketing root is preserved. The p² Damköhler is the WSB / Zenin second-order
+    /// gas-condensed coupling (Ward–Son–Brewster 1998, Combust. Flame 114:556; Zenin 1995, J. Propul. Power 11:752).
+    /// See docs/research/wsb_condensed_phase_closure.md.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    private static double GetWsbCondensedCompleteness(double pressurePascals, double kCondensedReactionFactor)
+    {
+        if (kCondensedReactionFactor <= 0.0)
+            return 0.0;
+
+        const double referencePressurePascals = 1.0e6; // 1 MPa: low-pressure anchor of the data range
+        var guardedPressure = pressurePascals < 1.0e3 ? 1.0e3 : pressurePascals;
+        var pressureRatio = guardedPressure / referencePressurePascals;
+        var damkohler = kCondensedReactionFactor * pressureRatio * pressureRatio;
+        return damkohler / (1.0 + damkohler);
+    }
+
+    /// <summary>
+    /// Ammonium-perchlorate self-deflagration (monopropellant premixed-flame) heat flux [W·m⁻²] fed back to the
+    /// burning surface, shared by the ByUnits and ByDoubles paths so both produce identical numbers:
+    ///   q_AP = K_AP · (1 − f_c) · max(0, T_AP − T_s) · max(0, (p / p_dl)^n_AP − 1).
+    /// Fine AP self-deflagrates as a monopropellant premixed flame that — unlike the surface-attached
+    /// diffusion/kinetic flames — does NOT saturate with pressure, so it de-saturates the 4–6.5 MPa burn rate of the
+    /// fine-AP-dominated compositions (pure-fine Bas_3, the post-WSB residual). The gate max(0,(p/p_dl)^n_AP − 1) is
+    /// referenced to the fixed AP deflagration limit p_dl = 2 MPa (≈ 20 atm; Boggs 1970, AIAA J 8:867; Price 1984):
+    /// it vanishes at/below 2 MPa so the already-correct low-pressure region is untouched. (Step 10 trialled a fitted
+    /// slope-break reference p_break here; it was a confirmed null — the optimiser left it at the 2 MPa floor — so the
+    /// reference is fixed back to 2 MPa.) The (1 − f_c) weight is the fine-AP surface fraction: coarse AP (f_c = 1,
+    /// Bas_4) is diffusion-controlled and gets ZERO contribution, pure-fine AP (f_c = 0, Bas_3) gets the full term.
+    /// n_AP (apPressureExponent) is the AP monopropellant pressure exponent, floor 0.77 (Guirao &amp; Williams 1971,
+    /// AIAA J 9:1345). T_AP = 1400 K is the AP monopropellant flame temperature (Boggs; Price 1984); on this branch
+    /// T_s ≤ 900 K so (T_AP − T_s) &gt; 0. K_AP is a lumped premixed-flame conductance λ_g/δ_AP [W·m⁻²·K⁻¹]; K_AP = 0 ⇒
+    /// q_AP ≡ 0 and the model is unchanged (cannot regress the already-fit Bas_4/Bas_2/Bas_1/Bas_0). Added as a
+    /// parallel near-surface heat source (outside the bimodal-packing factor).
+    /// See docs/research/ap_monopropellant_premixed_flame.md.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+    private static double GetApPremixedFlameHeatFlux(
+        double pressurePascals,
+        double surfaceTemperatureKelvins,
+        double coarseFraction,
+        double kApPremixedFactor,
+        double apPressureExponent)
+    {
+        if (kApPremixedFactor <= 0.0)
+            return 0.0;
+
+        var fineFraction = 1.0 - coarseFraction;
+        if (fineFraction <= 0.0)
+            return 0.0;
+
+        const double apFlameTemperatureKelvins = 1400.0; // AP monopropellant flame temperature (Boggs; Price 1984)
+        const double deflagrationLimitPascals = 2.0e6;   // AP self-deflagration limit ≈ 20 atm (Boggs 1970)
+
+        var pressureGate = Math.Pow(pressurePascals / deflagrationLimitPascals, apPressureExponent) - 1.0;
+        if (pressureGate <= 0.0)
+            return 0.0;
+
+        var temperatureDifference = apFlameTemperatureKelvins - surfaceTemperatureKelvins;
+        if (temperatureDifference <= 0.0)
+            return 0.0;
+
+        return kApPremixedFactor * fineFraction * temperatureDifference * pressureGate;
     }
 
 #endregion
@@ -856,13 +1054,14 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
         contextBag.MetalBurningHeatFlux = GetMetalBurningHeatFlux(
             surfaceTemperature, contextBag.SkeletonLayerThickness, contextBag.EffectiveThermalConductivity, context.PocketMetalCombustionParams);
 
-        contextBag.DiffusionFlameHeight = GetDiffusionFlameHeight(contextBag.DecomposeRate,
-                                                                  solverParams,
-                                                                  context.PocketDiffusionFlameParams,
-                                                                  context.PropellantParams);
         contextBag.DiffusionFlameHeatFlux = GetDiffusionFlameHeatFlux(surfaceTemperature,
-                                                                      contextBag.DiffusionFlameHeight,
-                                                                      context.PocketDiffusionFlameParams);
+                                                                      contextBag.DecomposeRate,
+                                                                      context.Pressure,
+                                                                      solverParams,
+                                                                      context.PocketDiffusionFlameParams,
+                                                                      context.PropellantParams,
+                                                                      out var diffusionFlameHeight);
+        contextBag.DiffusionFlameHeight = diffusionFlameHeight;
 
         var fullRatio = 1.0;
         var outSkeletonSurfaceFraction = fullRatio - context.PropellantParams.SkeletonSurfaceFraction;
@@ -871,12 +1070,34 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
         contextBag.SkeletonHeatFlux = context.PropellantParams.SkeletonSurfaceFraction
                                       * (contextBag.MetalBurningHeatFlux
                                          + skeletonKineticFlameParams.KineticFlameHeatFlux);
-        contextBag.ToSurfaceTotalHeatFlux = contextBag.OutSkeletonHeatFlux
+        // AP self-deflagration (monopropellant premixed) flame: a parallel near-surface heat source that, unlike
+        // the surface-attached diffusion/kinetic flames, keeps rising with pressure (premixed) — it de-saturates the
+        // high-pressure burn rate of the fine-AP-dominated compositions. Weighted by (1−f_c) and gated above the
+        // fixed 2 MPa AP deflagration limit (Boggs 1970); q_AP ≡ 0 when K_AP = 0. The bimodal-packing factor carries
+        // a (p_ref/p)^a_pack pressure decay (Step 11; LEF importance falls with pressure) for the bimodal compositions.
+        contextBag.ToSurfaceTotalHeatFlux = (contextBag.OutSkeletonHeatFlux
                                             + contextBag.SkeletonHeatFlux
-                                            + contextBag.DiffusionFlameHeatFlux;
+                                            + contextBag.DiffusionFlameHeatFlux)
+                                            * GetBimodalPackingFactor(
+                                                context.Pressure,
+                                                context.PropellantParams.CoarseFraction,
+                                                solverParams.KBimodalPackingFactor,
+                                                solverParams.KBimodalPackingPressureExponent)
+                                            + GetApPremixedFlameHeatFlux(
+                                                context.Pressure,
+                                                surfaceTemperature,
+                                                context.PropellantParams.CoarseFraction,
+                                                solverParams.KApPremixedFactor,
+                                                solverParams.KApPressureExponent);
 
+        // WSB condensed-phase reaction supplies a fraction θ(p) of the sensible enthalpy (de-saturates the
+        // high-pressure burn rate once kinetic flames go surface-attached); θ ≡ 0 when K_wsb = 0.
+        var wsbCompleteness = GetWsbCondensedCompleteness(
+            context.Pressure,
+            solverParams.KCondensedReactionFactor);
         var enthalpyChange = context.PropellantParams.SpecificHeatCapacity
                              * (surfaceTemperature - context.PropellantParams.InitialTemperature)
+                             * (1.0 - wsbCompleteness)
                              + solverParams.DeltaH;
         contextBag.SublimationHeatFlux =
             contextBag.DecomposeRate
@@ -1053,56 +1274,59 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
     /// <returns>
     /// The height of the diffusion flame as a <see cref="double"/> value in meters (m).
     /// </returns>
-    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    private double GetDiffusionFlameHeight(
-        double decomposeRate,
-        in CombustionSolverParamsByDoubles solverParams,
-        in DiffusionFlameParamsByDoubles diffusionFlameParams,
-        in PropellantParamsByDoubles propellantParams)
-    {
-        var averageOxidizerDiameter = propellantParams.AverageOxidizerDiameter;
-        var volumedSpecificHeatCapacity = diffusionFlameParams.VolumetricSpecificHeatCapacity;
-        var lambdaGas = diffusionFlameParams.ThermalConductivity;
-
-        var massFlow = decomposeRate * (averageOxidizerDiameter * averageOxidizerDiameter);
-        var thermalConductanceDouble = volumedSpecificHeatCapacity * massFlow;
-        var heightDouble = solverParams.KDiffusionHeight
-                           * thermalConductanceDouble
-                           / lambdaGas;
-
-        return heightDouble;
-    }
-
     /// <summary>
-    /// Computes the heat flux due to the diffusion flame based on the surface temperature, the height of the diffusion flame,
-    /// and the provided diffusion flame parameters.
+    /// Two-mode petite-ensemble diffusion-flame heat flux (ByDoubles mirror of the ByUnits overload) —
+    /// see that method and docs/research/ap_size_pressure_exponent.md for the full description. Uses the
+    /// same shared static helpers <see cref="GetOxidizerModeDiameters"/> and
+    /// <see cref="GetDiffusionPressureFactor"/> so the two paths produce identical numbers (§17.8 parity).
     /// </summary>
-    /// <param name="surfaceTemperature">
-    /// The temperature of the propellant surface, provided as a <see cref="double"/> value in Kelvin.
-    /// </param>
-    /// <param name="diffusionFlameHeight">
-    /// The height of the diffusion flame, provided as a <see cref="double"/> value in meters (m).
-    /// </param>
-    /// <param name="diffusionFlameParams">
-    /// The parameters related to the diffusion flame, including final temperature and thermal conductivity.
-    /// </param>
-    /// <returns>
-    /// The heat flux due to the diffusion flame as a <see cref="double"/> value in Watts per square meter (W/m²).
-    /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private double GetDiffusionFlameHeatFlux(
         double surfaceTemperature,
-        double diffusionFlameHeight,
-        in DiffusionFlameParamsByDoubles diffusionFlameParams)
+        double decomposeRate,
+        double pressure,
+        in CombustionSolverParamsByDoubles solverParams,
+        in DiffusionFlameParamsByDoubles diffusionFlameParams,
+        in PropellantParamsByDoubles propellantParams,
+        out double effectiveHeight)
     {
         var lambdaGas = diffusionFlameParams.ThermalConductivity;
-        var diffusionFlameTemperature = diffusionFlameParams.FinalTemperature;
+        var deltaTemperature = diffusionFlameParams.FinalTemperature - surfaceTemperature;
+        var volumedSpecificHeatCapacity = diffusionFlameParams.VolumetricSpecificHeatCapacity;
+        var massFlux = decomposeRate;
+        var kDiffusionHeight = solverParams.KDiffusionHeight;
+        var kDiffusionPressureFactor = solverParams.KDiffusionPressureFactor;
+        var sizeExponent = solverParams.KDiffusionSizeExponent;
+        var pressureExponent = solverParams.KDiffusionPressureExponent;
 
-        var heatFluxDouble = lambdaGas
-                             * (diffusionFlameTemperature - surfaceTemperature)
-                             / diffusionFlameHeight;
+        GetOxidizerModeDiameters(
+            propellantParams.AverageOxidizerDiameter,
+            propellantParams.CoarseFraction,
+            out var coarseDiameter,
+            out var fineDiameter,
+            out var coarseMassFraction,
+            out var fineMassFraction);
+
+        // Mass-fraction weighting of the two flame modes.
+        var heatFluxDouble = 0.0;
+        if (coarseMassFraction > 0.0)
+            heatFluxDouble += coarseMassFraction * ModeHeatFlux(coarseDiameter);
+        if (fineMassFraction > 0.0)
+            heatFluxDouble += fineMassFraction * ModeHeatFlux(fineDiameter);
+
+        effectiveHeight = heatFluxDouble > 0.0
+            ? lambdaGas * deltaTemperature / heatFluxDouble
+            : double.PositiveInfinity;
 
         return heatFluxDouble;
+
+        double ModeHeatFlux(double diameter)
+        {
+            var laminarHeight = kDiffusionHeight * volumedSpecificHeatCapacity * massFlux * diameter * diameter / lambdaGas;
+            var height = laminarHeight * GetDiffusionPressureFactor(
+                pressure, diameter, kDiffusionPressureFactor, sizeExponent, pressureExponent);
+            return lambdaGas * deltaTemperature / height;
+        }
     }
 
 #endregion

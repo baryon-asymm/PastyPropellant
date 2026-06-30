@@ -117,6 +117,19 @@ public static class PropellantExtensions
     }
 
     /// <summary>
+    /// Gets the mass fraction of the coarse (large) ammonium-perchlorate fraction f_c ∈ [0,1]
+    /// (JSON large_particles_fraction). Used to modulate the diffusion-flame standoff pressure dependence.
+    /// </summary>
+    public static double GetLargeParticlesFraction(
+        this Propellant propellant)
+    {
+        var ammoniumPerchlorate = propellant.Components.OfType<AmmoniumPerchlorate>().FirstOrDefault()
+                                  ?? throw new ArgumentNullException(nameof(AmmoniumPerchlorate));
+
+        return ammoniumPerchlorate.LargeParticlesFraction;
+    }
+
+    /// <summary>
     /// Calculates the pocket surface fraction based on the given pressure.
     /// </summary>
     /// <param name="propellant">

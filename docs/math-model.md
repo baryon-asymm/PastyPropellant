@@ -1,6 +1,6 @@
 # Pasty Propellant — Mathematical Model
 
-This document is the reference description of the combustion model implemented in `ParametricCombustionModel.Computation` together with the optimization layer that fits its 18 free parameters to experimental burn-rate data. It is meant to be read alongside:
+This document is the reference description of the combustion model implemented in `ParametricCombustionModel.Computation` together with the optimization layer that fits its 26 free parameters (per single composition; 40 in the joint group vector) to experimental burn-rate data. It is meant to be read alongside:
 
 - the C# source (every formula carries a `[file.cs:Lxx-Lyy]` link);
 - a generated PDF report (e.g. `propellants.group_optimization.report.en.pdf`) — each quantity lists the PDF resource key it is printed under;
@@ -140,7 +140,7 @@ These five structs bundle the inputs that the solver receives every iteration. T
 | `MetalCombustionParamsByUnits` | [MetalCombustionParamsByUnits.cs:40-55](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Models/KnownParams/MetalCombustionParamsByUnits.cs#L40-L55) | $T_{melt}$, $T_{boil}$ both K | hard-coded / polynomial of $p$ |
 | `SkeletonLayerParamsByUnits` | [SkeletonLayerParamsByUnits.cs:18-23](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Models/KnownParams/SkeletonLayerParamsByUnits.cs#L18-L23) | $\varphi$ porosity, $\lambda_c^{(s)}$ W/(m·K) | `porosity_within_skeleton`; $\lambda_c^{(s)}$ is the condensed-phase conductivity used in §7.2 |
 
-### 3.5 The 18-element optimization vector (single composition)
+### 3.5 The 26-element optimization vector (single composition)
 
 [CombustionSolverParamsByUnits.cs:93-117](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Models/KnownParams/CombustionSolverParamsByUnits.cs#L93-L117), [CombustionSolverParamsByUnits.cs:207-232](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Models/KnownParams/CombustionSolverParamsByUnits.cs#L207-L232).
 
@@ -164,25 +164,41 @@ These five structs bundle the inputs that the solver receives every iteration. T
 | 15 | `APowOrder` | $p_A$ | — | exponent in $\delta_s = A_m / v_b^{p_A}$ |
 | 16 | `BPowOrder` | $p_B$ | — | exponent in $d_p = B_m / v_b^{p_B}$ |
 | 17 | `KCoefficientRadiationTemperature` | $k_{rT}$ | — | convex combination weight in $\bar T_r$ (§7.1) |
+| 18 | `KDiffusionPressureFactor` | $C_{rxn}$ | — | diffusion-standoff pressure-factor coefficient (§9.1); $0 \Rightarrow$ original laminar model |
+| 19 | `KDiffusionSizeExponent` | $m$ | — | diffusion-standoff size exponent $(d/d_{ref})^m$ (§9.1) |
+| 20 | `KBimodalPackingFactor` | $K_{pack}$ | — | bimodal-packing heat-feedback enhancement $1 + K_{pack}\,f_c(1-f_c)(p_{ref}/p)^{a_{pack}}$ (§11.1.1); $0 \Rightarrow$ no enhancement |
+| 21 | `KDiffusionPressureExponent` | $n_p$ | — | diffusion-standoff pressure exponent $(p_{ref}/p)^{n_p}$ (§9.1), bounds $[2,4]$; $2 \Rightarrow$ original fixed quadratic law |
+| 22 | `KCondensedReactionFactor` | $K_{wsb}$ | — | WSB condensed-phase reaction completeness $\theta = Da/(1+Da)$, $Da = K_{wsb}(p/p_{ref})^2$ (§11.3), bounds $[0,5]$; $0 \Rightarrow$ original surface energy balance |
+| 23 | `KApPremixedFactor` | $K_{AP}$ | W/(m²·K) | AP self-deflagration premixed-flame conductance $q_{AP}=K_{AP}(1-f_c)(T_{AP}-T_s)\max(0,(p/p_{dl})^{n_{AP}}-1)$ (§11.5), $p_{dl}=2$ MPa, $T_{AP}=1400$ K fixed, bounds $[0,5000]$; $0 \Rightarrow$ original model |
+| 24 | `KApPressureExponent` | $n_{AP}$ | — | AP self-deflagration pressure exponent in the $q_{AP}$ gate $(p/p_{dl})^{n_{AP}}$ (§11.5), bounds $[0.77,2.5]$; floor $0.77 \Rightarrow$ fixed Guirao–Williams exponent (original model) |
+| 25 | `KBimodalPackingPressureExponent` | $a_{pack}$ | — | bimodal-packing heat-feedback pressure-decay exponent $(p_{ref}/p)^{a_{pack}}$, $p_{ref}=1$ MPa (§11.1.1), bounds $[0,2]$; $0 \Rightarrow$ pressure-independent $K_{pack}$ (original model) |
 
-Bounds for the DE optimizer are defined inline at [Program.cs:53-61](../src/dotnet/Apps/src/PastyPropellant.ConsoleApp/Program.cs#L53-L61).
+Bounds for the DE optimizer are defined inline at [Program.cs:53-113](../src/dotnet/Apps/src/PastyPropellant.ConsoleApp/Program.cs#L53-L113).
 
-### 3.6 The 32-element group vector (joint optimization)
+### 3.6 The 40-element group vector (joint optimization)
 
-When several compositions are optimized at once, the DE vector has 32 elements. The 11 first elements are **shared** across all three composition groups; the next three blocks of 7 hold composition-specific values:
+When several compositions are optimized at once, the DE vector has 40 elements: the first 11 are **shared** across all three composition groups, the next three blocks of 7 hold composition-specific values, and **eight further shared parameters are appended at the end** (kept at the tail so older 32-element checkpoints remap by simple truncation):
 
 ```
 [ 0..10 ]   shared (11)
 [11..17 ]   Bas_2 + Bas_3 + Bas_4 specific (7)   compositionIndex = 0
 [18..24 ]   Bas_1 specific (7)                   compositionIndex = 1
 [25..31 ]   Bas_0 specific (7)                   compositionIndex = 2
+[32]        shared  C_rxn   (KDiffusionPressureFactor)    → 26-vector idx 18
+[33]        shared  m       (KDiffusionSizeExponent)      → 26-vector idx 19
+[34]        shared  K_pack  (KBimodalPackingFactor)       → 26-vector idx 20
+[35]        shared  n_p     (KDiffusionPressureExponent)  → 26-vector idx 21
+[36]        shared  K_wsb   (KCondensedReactionFactor)    → 26-vector idx 22
+[37]        shared  K_AP    (KApPremixedFactor)           → 26-vector idx 23
+[38]        shared  n_AP    (KApPressureExponent)         → 26-vector idx 24
+[39]        shared  a_pack  (KBimodalPackingPressureExponent) → 26-vector idx 25
 ```
 
-**Important: the 32-vector slot order is NOT the 18-vector slot order.** The shared block stores fields in a different sequence; the composition-specific block also reorders the 7 fields. The canonical 32→18 mapping for evaluating one composition is `GroupCombustionSolverParamsByDoubles.ToCompositionVector(idx)`:
+**Important: the 40-vector slot order is NOT the 26-vector slot order.** The shared block stores fields in a different sequence; the composition-specific block also reorders the 7 fields. The canonical mapping for evaluating one composition is `GroupCombustionSolverParamsByDoubles.ToCompositionVector(idx)`:
 
 [GroupCombustionSolverParams.cs:123-164](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Models/KnownParams/GroupCombustionSolverParams.cs#L123-L164):
 
-| 32-vector index | 32-vector field | → 18-vector index |
+| 40-vector index | 40-vector field | → 26-vector index |
 |---:|---|---:|
 | 0 | `AKineticFlameInterPocket` | 2 |
 | 1 | `EKineticFlameInterPocket` | 3 |
@@ -202,12 +218,20 @@ When several compositions are optimized at once, the DE vector has 32 elements. 
 | 15 + 7·g | `NuPocketSkeletonBas{*}` | 10 |
 | 16 + 7·g | `AMetalBurningConstantBas{*}` | 11 |
 | 17 + 7·g | `BMetalBurningConstantBas{*}` | 12 |
+| 32 | `KDiffusionPressureFactor` ($C_{rxn}$, shared) | 18 |
+| 33 | `KDiffusionSizeExponent` ($m$, shared) | 19 |
+| 34 | `KBimodalPackingFactor` ($K_{pack}$, shared) | 20 |
+| 35 | `KDiffusionPressureExponent` ($n_p$, shared) | 21 |
+| 36 | `KCondensedReactionFactor` ($K_{wsb}$, shared) | 22 |
+| 37 | `KApPremixedFactor` ($K_{AP}$, shared) | 23 |
+| 38 | `KApPressureExponent` ($n_{AP}$, shared) | 24 |
+| 39 | `KBimodalPackingPressureExponent` ($a_{pack}$, shared) | 25 |
 
-with $g \in \{0,1,2\}$ for Bas_2-group, Bas_1, Bas_0.
+with $g \in \{0,1,2\}$ for Bas_2-group, Bas_1, Bas_0. The eight appended shared parameters ($C_{rxn}$, $m$, $K_{pack}$, $n_p$, $K_{wsb}$, $K_{AP}$, $n_{AP}$, $a_{pack}$) carry through to every composition's 26-vector unchanged.
 
-The reverse remapping (18-bounds → 32-bounds), used to construct the DE search box, lives in [Program.cs:65-107](../src/dotnet/Apps/src/PastyPropellant.ConsoleApp/Program.cs#L65-L107).
+The reverse remapping (26-bounds → 40-bounds), used to construct the DE search box, lives in [Program.cs:112-208](../src/dotnet/Apps/src/PastyPropellant.ConsoleApp/Program.cs#L112-L208).
 
-Bas_2, Bas_3, Bas_4 share the same 7 composition-specific values — that is the load-bearing reason for the 32-parameter formulation.
+Bas_2, Bas_3, Bas_4 share the same 7 composition-specific values — that is the load-bearing reason for the grouped formulation. They differ only in oxidizer morphology (coarse fraction $f_c$ and mean diameter $d_{ox}$), which the two-mode diffusion ensemble (§9.1) uses to spread their burn-rate pressure exponents.
 
 ---
 
@@ -347,7 +371,7 @@ $$\bar\rho_k \;=\; \frac{p \, M}{R\,\bar T_k}$$
 $$h_k \;=\; \frac{\dot m_d}{A_k \,\bar\rho_k^{\,\nu}\,\exp(-E_k / (R\,\bar T_k))}$$
 
 **Code:** [BaseKineticPropellantSolver.cs:216-237](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/BaseKineticPropellantSolver.cs#L216-L237), [BaseKineticPropellantSolver.cs:373-393](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/BaseKineticPropellantSolver.cs#L373-L393).
-**Inputs:** $\dot m_d$ (§5.1), $\bar\rho_k$ (§8.2), $\bar T_k$ (§8.1), $A_k$ from the appropriate `Frequency` slot of the 18-vector, $E_k$ from the matching `MolarEnergy` slot, $\nu$ from the matching reaction-order slot. The choice of which slot depends on the region; see the dispatcher table below.
+**Inputs:** $\dot m_d$ (§5.1), $\bar\rho_k$ (§8.2), $\bar T_k$ (§8.1), $A_k$ from the appropriate `Frequency` slot of the 26-vector, $E_k$ from the matching `MolarEnergy` slot, $\nu$ from the matching reaction-order slot. The choice of which slot depends on the region; see the dispatcher table below.
 **In PDF:** `ProblemContextReport` key `KineticFlameHeight`, `PressureTablesReport` rows `InterPocketKineticFlameHeight`, `SkeletonKineticFlameHeight`, `OutSkeletonKineticFlameHeight`.
 
 ### 8.4 Kinetic-flame heat flux (Fourier-like)
@@ -359,7 +383,7 @@ $$q_k \;=\; \lambda_g \,\frac{T_f - T_s}{h_k}$$
 
 ### 8.5 Region dispatcher
 
-Each region implements `ExtractKineticBurnParams` to pick the triple from the 18-vector:
+Each region implements `ExtractKineticBurnParams` to pick the triple from the 26-vector:
 
 | Solver | $A_k$ slot | $E_k$ slot | $\nu$ slot | Code |
 |---|---|---|---|---|
@@ -369,25 +393,59 @@ Each region implements `ExtractKineticBurnParams` to pick the triple from the 18
 
 ---
 
-## 9. Diffusion flame
+## 9. Diffusion flame (two-mode petite-ensemble)
 
-### 9.1 Diffusion flame height
+The diffusion flame is modelled as a **parallel two-mode petite ensemble** over the oxidizer particle-size
+distribution (Beckstead–Derr–Price 1970; Cohen & Strand 1982, *AIAA J.* 20:1739; Glick 1974, *AIAA J.*
+12:384). A polydisperse AP propellant is split into a **coarse mode** (mass fraction $f_c$) and a **fine
+mode** ($1-f_c$); each has its own pressure/size-dependent standoff, and their heat fluxes add in
+proportion to mass fraction. This is what lets compositions that share all 7 group parameters but differ
+in oxidizer morphology (Bas_2/Bas_3/Bas_4) take **different burn-rate pressure exponents** — fine modes
+are fast and weakly pressure-sensitive (low $\nu$), coarse modes slow and strongly pressure-sensitive
+(high $\nu$). See [docs/research/ap_size_pressure_exponent.md](research/ap_size_pressure_exponent.md).
 
-$$h_{\text{diff}} \;=\; K_h \;\dot m_d \,d_{ox}^{\,2} \,\frac{c_{p,V}}{\lambda_g}$$
+### 9.1 Per-mode diffusion-flame standoff
+
+For a mode of diameter $d$:
+
+$$h_{\text{diff}}(d,p) \;=\; K_h \;\dot m_d \,d^{\,2} \,\frac{c_{p,V}}{\lambda_g}\;\Bigl[\,1 \;+\; C_{rxn}\,\bigl(d/d_{ref}\bigr)^{m}\,\bigl(p_{ref}/p\bigr)^{n_p}\,\Bigr]$$
+
+with fixed constants $p_{ref} = 7\ \mathrm{MPa}$ and $d_{ref} = 100\ \mathrm{\mu m}$. The bracket is the
+BDP/Lengellé pressure factor: as pressure rises the chemical-reaction standoff collapses
+($\propto p^{-n_p}$), raising $q_{\text{diff}}$ at high pressure; the size exponent $m$ makes that collapse
+stronger for coarse modes, and the pressure exponent $n_p$ (`KDiffusionPressureExponent`, vector[21],
+bounds $[2,4]$) sets how steeply it collapses. The turbulent/chemical standoff exponent is **regime-dependent,
+not universally 2** (Lengellé–Duterque–Trubert 2000; BDP 1970), so it is fitted rather than fixed: $n_p = 2$
+reproduces the original quadratic law exactly, while $n_p > 2$ sharpens the pure-mode burn-rate pressure
+exponents (Bas_3/Bas_4) without affecting the kinetic-dominated flat slope of the bimodal Bas_2. With
+$C_{rxn} = 0$ the bracket is identically 1 and every mode reduces to the original laminar
+standoff $h_{\text{diff}} = K_h\,\dot m_d\,d^2\,c_{p,V}/\lambda_g$.
 
 > **Reading the code carefully.** The C# uses `volumetricSpecificHeatCapacity.JoulesPerKilogramKelvin` even though the field stores a *volumetric* heat capacity in $\mathrm{J/(m^{3}\cdot K)}$. This is an UnitsNet accessor name only — the numerical value is the volumetric one (`c_volume` in JSON). See [§17](#17-known-limitations--open-questions).
 
-**Code:** [PocketPropellantSolver.cs:701-720](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L701-L720), [PocketPropellantSolver.cs:1056-1074](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L1056-L1074).
-**Inputs:** $K_h$ (vector[14]), $\dot m_d$ (§5.1), $d_{ox}$ from `PropellantParamsByUnits.AverageOxidizerDiameter` (JSON `components.AmmoniumPerchlorate.average_particles_diameter`), $c_{p,V}$ from `DiffusionFlameParamsByUnits.VolumetricSpecificHeatCapacity` (JSON `pocket_gas_phase.c_volume`), $\lambda_g$ from `DiffusionFlameParamsByUnits.ThermalConductivity` (JSON `pocket_gas_phase.lambda_gas`).
-**In PDF:** `PressureTablesReport` row `DiffusionFlameHeight`.
+### 9.2 Mode split and ensemble heat flux
 
-### 9.2 Diffusion flame heat flux
+The stored mass-mean diameter $d_{ox}$ is split with the mass-mixing rule
+$d_{ox} = f_c\,d_{\text{coarse}} + (1-f_c)\,d_{\text{fine}}$. Pure compositions ($f_c = 0$ or $1$) use
+$d_{ox}$ directly as their single present mode; bimodal blends reconstruct the coarse-class diameter from
+a fixed fine-class diameter $d_{\text{fine}} = 50\ \mathrm{\mu m}$ (e.g. Bas_2 = $65\%\cdot180\ \mathrm{\mu m} + 35\%\cdot50\ \mathrm{\mu m}$ ⇒ $d_{\text{coarse}} = 180\ \mathrm{\mu m}$).
 
-$$q_{\text{diff}} \;=\; \lambda_g \,\frac{T_{f,\text{diff}} - T_s}{h_{\text{diff}}}$$
+The two modes are combined by mass fraction:
 
-**Code:** [PocketPropellantSolver.cs:737-751](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L737-L751), [PocketPropellantSolver.cs:1092-1106](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L1092-L1106).
-**Inputs:** $T_{f,\text{diff}}$ from `DiffusionFlameParamsByUnits.FinalTemperature` (JSON `pocket_gas_phase.T_diffusion_flame`); the rest as in §9.1.
-**In PDF:** `PressureTablesReport` row `DiffusionFlameHeatFlux`.
+$$q_{\text{diff}} \;=\; f_c\,\lambda_g\frac{T_{f,\text{diff}} - T_s}{h_{\text{diff}}(d_{\text{coarse}},p)} \;+\; (1-f_c)\,\lambda_g\frac{T_{f,\text{diff}} - T_s}{h_{\text{diff}}(d_{\text{fine}},p)}$$
+
+and the reported `DiffusionFlameHeight` is the effective standoff $\lambda_g(T_{f,\text{diff}}-T_s)/q_{\text{diff}}$.
+
+> **Note (surface-area weighting tested and rejected).** Weighting the two modes by burning surface area
+> ($w \propto \text{mass}/d$, the formal Cohen–Strand average) instead of mass was tried (run `saweight`,
+> 2026-06-19): it did **not** close the bimodal Bas_2 magnitude deficit (the diffusion flux is too small a
+> share of the total heat balance, so the optimiser simply re-absorbed it through $K_h$) and slightly
+> degraded the Bas_3/Bas_4 slopes. Mass weighting (aggregated 0.0561) is kept; the bimodal magnitude is
+> handled instead by a dedicated packing factor (§11.1.1).
+
+**Code:** ByUnits ensemble [PocketPropellantSolver.cs:696-744](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L696-L744); ByDoubles mirror [PocketPropellantSolver.cs:1127-1175](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L1127-L1175); shared static helpers `GetOxidizerModeDiameters` [:750](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L750) and `GetDiffusionPressureFactor` [:802](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L802).
+**Inputs:** $K_h$ (vector[14]), $C_{rxn}$ (vector[18]), $m$ (vector[19]), $n_p$ (vector[21]), $\dot m_d$ (§5.1); $d_{ox}$, $f_c$ from `PropellantParamsByUnits.AverageOxidizerDiameter` / `CoarseFraction` (JSON `components.AmmoniumPerchlorate.average_particles_diameter` / `large_particles_fraction`); $c_{p,V}$ from `DiffusionFlameParamsByUnits.VolumetricSpecificHeatCapacity` (JSON `pocket_gas_phase.c_volume`); $\lambda_g$ from `ThermalConductivity` (JSON `pocket_gas_phase.lambda_gas`); $T_{f,\text{diff}}$ from `FinalTemperature` (JSON `pocket_gas_phase.T_diffusion_flame`).
+**In PDF:** `PressureTablesReport` rows `DiffusionFlameHeight`, `DiffusionFlameHeatFlux`.
 
 ---
 
@@ -409,11 +467,43 @@ $$q_{\text{metal}} \;=\; \lambda_{\text{eff}}\,\frac{T_{melt} - T_s}{\delta_s}$$
 
 ### 11.1 Pocket region (composite)
 
-Components are weighted by the surface fractions of the skeleton ($f_s$) vs out-skeleton ($1 - f_s$); the diffusion flame contributes in full:
+Components are weighted by the surface fractions of the skeleton ($f_s$) vs out-skeleton ($1 - f_s$); the diffusion flame contributes in full. The whole pocket heat feedback is then scaled by the **bimodal-packing factor** (§11.1.1):
 
-$$q_{\text{total}}^{(P)} \;=\; (1-f_s)\,q_k^{(OS)} \;+\; f_s\big(q_{\text{metal}} + q_k^{(S)}\big) \;+\; q_{\text{diff}}$$
+$$q_{\text{total}}^{(P)} \;=\; \Big[\,(1-f_s)\,q_k^{(OS)} \;+\; f_s\big(q_{\text{metal}} + q_k^{(S)}\big) \;+\; q_{\text{diff}}\,\Big]\cdot\big[\,1 + K_{pack}\,f_c(1-f_c)\,\big] \;+\; q_{AP}$$
+
+where $q_{AP}$ is the AP self-deflagration premixed-flame flux (§11.5), added as a **parallel** near-surface source outside the bimodal-packing factor; $q_{AP} \equiv 0$ when $K_{AP}=0$.
 
 **Code:** [PocketPropellantSolver.cs:495-504](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L495-L504), [PocketPropellantSolver.cs:867-876](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L867-L876).
+
+#### 11.1.1 Bimodal-packing heat-feedback enhancement
+
+$$\Pi_{pack}(p,f_c) \;=\; 1 + K_{pack}\,f_c(1-f_c)\,\Big(\frac{p_{ref}}{p}\Big)^{a_{pack}},
+\qquad p_{ref}=1\,\text{MPa},\ a_{pack}\in[0,2]$$
+
+The bimodality measure $f_c(1-f_c)$ is **zero for monomodal AP** (pure coarse $f_c=1$ or pure fine $f_c=0$)
+and maximal for a balanced blend, so the factor $\Pi_{pack}$ raises the surface heat feedback —
+and hence the burn-rate magnitude — **only** for bimodal compositions. This captures the experimentally
+well-known bimodal burn-rate enhancement (a dense bimodal AP packing gives a higher solids loading and more
+intense, closer flames, so it burns faster than either monomodal size — e.g. Bas_2 exceeds both pure Bas_3
+and pure Bas_4): Miller 1982; Kubota, *Propellants and Explosives*. It is the lever that separates the
+**magnitude** of bimodal Bas_2 from its group-mates Bas_3/Bas_4, which share all 7 group parameters and can
+only be distinguished by AP morphology. $K_{pack}$ (`KBimodalPackingFactor`, vector[20]) is a shared
+parameter; $K_{pack}=0$ recovers the unmodified balance.
+
+The pressure-decay factor $(p_{ref}/p)^{a_{pack}}$ (`KBimodalPackingPressureExponent`, $a_{pack}$, vector[25])
+makes the bimodal enhancement **strongest at low pressure and decay as pressure rises**. Physically, the
+bimodal packing advantage is carried by a leading-edge flame (LEF) structure that stands tall and feeds the
+surface efficiently only while the flames are detached (low pressure); as pressure rises the flames collapse
+toward the surface and the geometric packing benefit washes out — the well-documented decline of the
+size/bimodal effect on burn rate with pressure (BDP 1970, doi:10.2514/3.6087; the AP particle-size plateau
+literature: CESW 2007, doi:10.1007/s10573-007-0059-5; Combust. Flame 1987, doi:10.1016/0010-2180(87)90099-X
+and 2015, doi:10.1016/j.combustflame.2015.10.017). This is the lever that fixes the **whole low-pressure slope**
+of bimodal Bas_2 (lifting the 1 MPa point and relaxing the 4 MPa point together) rather than just its magnitude.
+With $a_{pack}=0$ the factor is pressure-independent and the prior model (§11.2 form) is recovered exactly; the
+term remains **identically zero** for the monomodal compositions Bas_3/Bas_4 regardless of $a_{pack}$, so they
+are untouched. The fitted optimum on this branch is $a_{pack}\approx0.22$ (interior). Applied via the shared
+static helper `PocketPropellantSolver.GetBimodalPackingFactor`. Derivation and references:
+`docs/research/bimodal_packing_pressure_decay.md`.
 
 ### 11.2 Inter-pocket region (single kinetic flame only)
 
@@ -421,17 +511,57 @@ $$q_{\text{total}}^{(IP)} \;=\; q_k^{(IP)}$$
 
 **Code:** [InterPocketPropellantSolver.cs:55-84](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/InterPocketPropellantSolver.cs#L55-L84), [InterPocketPropellantSolver.cs:148-178](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/InterPocketPropellantSolver.cs#L148-L178).
 
-### 11.3 Sublimation / decomposition heat flux
+### 11.3 Sublimation / decomposition heat flux (with WSB condensed-phase reaction)
 
-$$q_{\text{sub}} \;=\; \dot m_d \,\Big(\,c_p\,(T_s - T_0) \;+\; \Delta H\,\Big)$$
+$$q_{\text{sub}} \;=\; \dot m_d \,\Big(\,c_p\,(T_s - T_0)\,(1-\theta) \;+\; \Delta H\,\Big),
+\qquad \theta(p) \;=\; \frac{Da}{1+Da},\quad Da \;=\; K_{wsb}\,\Big(\frac{p}{p_{ref}}\Big)^{2},\quad p_{ref}=1\,\text{MPa}$$
 
-**Code:** [PocketPropellantSolver.cs:506-511](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L506-L511), [PocketPropellantSolver.cs:878-883](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L878-L883), [InterPocketPropellantSolver.cs:76-82](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/InterPocketPropellantSolver.cs#L76-L82), [InterPocketPropellantSolver.cs:170-176](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/InterPocketPropellantSolver.cs#L170-L176).
-**Inputs:** $c_p$ from `PropellantParamsByUnits.SpecificHeatCapacity` (JSON `specific_heat_capacity`), $T_0$ from `InitialTemperature` (JSON `initial_temperature`), $\Delta H$ (vector[13]).
+The factor $(1-\theta)$ is the **WSB condensed-phase reaction closure** (`KCondensedReactionFactor`, $K_{wsb}$,
+vector[22]). An exothermic condensed-phase reaction supplies a fraction $\theta(p)$ of the sensible enthalpy, so
+the net surface heat the gas must deliver is reduced; the energy balance §11.4 then crosses at a higher $T_s$
+(hence higher $\dot m_d$). $\theta$ rises with the second-order Damköhler number $Da \propto p^2$ (Ward–Son–Brewster
+1998, Combust. Flame 114:556; Zenin 1995, J. Propul. Power 11:752), so the correction grows with pressure and
+**de-saturates the high-pressure (4–6.5 MPa) burn rate** that the current closure flattens once the kinetic flames
+become surface-attached (`KineticFlameHeight` $\to 0$). With $K_{wsb} = 0$, $\theta \equiv 0$ and the original
+balance is recovered exactly; $\theta < 1$ always, so the sensible sink stays positive and the §4 bisection root is
+preserved. Derivation and references: `docs/research/wsb_condensed_phase_closure.md`.
+
+**Code:** [PocketPropellantSolver.cs:506-525](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L506-L525) (and the ByDoubles twin), completeness helper `GetWsbCondensedCompleteness`, [InterPocketPropellantSolver.cs:76-82](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/InterPocketPropellantSolver.cs#L76-L82), [InterPocketPropellantSolver.cs:170-176](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/InterPocketPropellantSolver.cs#L170-L176).
+**Inputs:** $c_p$ from `PropellantParamsByUnits.SpecificHeatCapacity` (JSON `specific_heat_capacity`), $T_0$ from `InitialTemperature` (JSON `initial_temperature`), $\Delta H$ (vector[13]), $K_{wsb}$ (vector[22]), $p$ from `context.Pressure`.
 **In PDF:** `ProblemContextReport` key `SublimationHeatFlux`.
+
+> **Note.** The WSB term is currently applied only in the pocket solver's surface balance (`PocketPropellantSolver`), which sets the group compositions' burn rate; the inter-pocket solver retains the plain $q_{\text{sub}}$. With $K_{wsb}=0$ the two are identical.
 
 ### 11.4 Equilibrium condition (closes §4)
 
 The root of the bisection in §4 is the $T_s$ for which $q_{\text{total}}(T_s) = q_{\text{sub}}(T_s)$ — separately in each region.
+
+### 11.5 AP self-deflagration (monopropellant premixed) flame
+
+$$q_{AP} \;=\; K_{AP}\,(1-f_c)\,\max(0,\,T_{AP}-T_s)\,\max\!\Big(0,\ \big(\tfrac{p}{p_{dl}}\big)^{n_{AP}}-1\Big),
+\qquad p_{dl}=2\,\text{MPa},\ T_{AP}=1400\,\text{K},\ n_{AP}\in[0.77,2.5]$$
+
+A parallel near-surface heat source (`KApPremixedFactor`, $K_{AP}$, vector[23]) representing the AP
+**monopropellant self-deflagration** flame that dominates the fine-AP limit. Unlike the surface-attached
+diffusion/kinetic flames, this **premixed** flame does **not** saturate with pressure, so it de-saturates the
+4–6.5 MPa burn rate of the fine-AP-dominated composition (pure-fine Bas_3 — the entire post-WSB residual).
+The weight $(1-f_c)$ is the fine-AP surface fraction: coarse AP ($f_c=1$, Bas_4) receives **zero** (stays
+diffusion-controlled and unchanged), pure-fine AP ($f_c=0$, Bas_3) receives the full term. The
+deflagration-limit gate $\max(0,(p/p_{dl})^{n_{AP}}-1)$ vanishes at/below $p_{dl}\approx2$ MPa, so the
+already-good low-pressure burn rate is untouched and only the high-pressure tail is lifted. Two anchors are
+fixed from AP-monopropellant data: deflagration limit $p_{dl}\approx2$ MPa (Boggs 1970) and flame temperature
+$T_{AP}\approx1400$ K (Boggs; Price 1984). The gate exponent $n_{AP}$ (`KApPressureExponent`, vector[24]) is a
+**shared fitted** parameter with floor $0.77$ — the Guirao & Williams (1971) average over 20–100 atm; a steeper
+$n_{AP}$ concentrates the de-saturating lift in the high-pressure tail (6.5 MPa) where the fine-AP residual
+lives, without disturbing the mid-range, reflecting that the AP burn-rate slope is regime-dependent rather than
+a single power law (Boggs 1970; Price 1984). On this branch $T_s\le900$ K $<T_{AP}$, so $q_{AP}>0$ and the §4
+bisection root is preserved. With $K_{AP}=0$ (or $n_{AP}=0.77$ holding the Step-7 model), the term reduces to
+its predecessor exactly. Derivation and references: `docs/research/ap_monopropellant_premixed_flame.md`.
+
+**Code:** [PocketPropellantSolver.cs](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs) — shared static helper `GetApPremixedFlameHeatFlux`, added to `ToSurfaceTotalHeatFlux` in both `GetSurfaceHeatFluxesError` paths (§17.8 parity).
+**Inputs:** $f_c$ from `PropellantParams*.CoarseFraction`, $K_{AP}$ (vector[23]), $n_{AP}$ (vector[24]), $p$ from `context.Pressure`, $T_s$ the bisection variable.
+
+> **Note.** Like the WSB term, $q_{AP}$ is applied only in the pocket solver (which sets the group compositions' burn rate); the inter-pocket solver is unchanged. With $K_{AP}=0$ the two are identical.
 
 ---
 
@@ -513,7 +643,7 @@ $k_P$ is the per-evaluator `PenaltyRate` (a positive scalar constructor argument
 
 ## 15. Differential evolution optimizer
 
-The optimization layer (`GroupDifferentialEvolutionOptimizer`) wraps the external library `DotNetDifferentialEvolution` with a fitness function that converts the 32-element genome to three 18-element vectors, runs the solver on each composition, and aggregates the result.
+The optimization layer (`GroupDifferentialEvolutionOptimizer`) wraps the external library `DotNetDifferentialEvolution` with a fitness function that converts the 40-element genome to three 26-element vectors, runs the solver on each composition, and aggregates the result.
 
 | Setting | Source | Bounds & semantics |
 |---|---|---|
@@ -522,18 +652,18 @@ The optimization layer (`GroupDifferentialEvolutionOptimizer`) wraps the externa
 | `CrossoverProbability` $C_r$ | `Builder.WithCrossoverProbability` | $\in [0,1]$; current `0.9` |
 | `ProcessorsCount` | `Builder.WithProcessorsCount` | positive int; chosen so it divides population size |
 | `TerminationStrategy` | `Builder.WithTerminationStrategy` | `TimeoutTerminationStrategy` (9 h default) or `CustomStagnationStreakTerminationStrategy` |
-| `LowerBound` / `UpperBound` | `Builder.WithLowerBound/Upper` | length must equal vector dimension (32 for group, 18 for single); validated in `Builder.Build` |
+| `LowerBound` / `UpperBound` | `Builder.WithLowerBound/Upper` | length must equal vector dimension (40 for group, 26 for single); validated in `Builder.Build` |
 
 **Settings record:** [DifferentialEvolutionSettings.cs:7-198](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Optimization/Settings/DifferentialEvolutionSettings.cs#L7-L198).
 **Group optimizer:** [GroupDifferentialEvolutionOptimizer.cs:96-179](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Optimization/Optimizers/GroupDifferentialEvolutionOptimizer.cs#L96-L179).
 
 **Evaluate flow** (one DE function evaluation):
-1. Wrap the 32-vector genome with `GroupCombustionSolverParamsByDoubles.FromVector`.
-2. For each `groupIdx ∈ {0,1,2}` call `ToCompositionVector(groupIdx)` → 18-vector → `CombustionSolverParamsByDoubles.FromVector` → `_fitnessFunctionEvaluator.Visit(...)`.
+1. Wrap the 40-vector genome with `GroupCombustionSolverParamsByDoubles.FromVector`.
+2. For each `groupIdx ∈ {0,1,2}` call `ToCompositionVector(groupIdx)` → 26-vector → `CombustionSolverParamsByDoubles.FromVector` → `_fitnessFunctionEvaluator.Visit(...)`.
 3. Sum `FitnessFunctionValue + TotalEvaluatedPenalty` across all three; return $(F_0+F_1+F_2)/3 + \sum_g P_g$.
 4. If any group's fitness is `double.MaxValue`, short-circuit to `double.MaxValue`.
 
-**Final result.** After the DE loop terminates, the best 32-vector is wrapped as `GroupCombustionSolverParamsByUnits` and each composition is re-evaluated with UnitsNet types into a `OptimizationProblemByUnits`. These three contexts plus the best 32-vector are returned as `GroupOptimizationResult` ([GroupOptimizationResult.cs:9-83](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Optimization/Results/GroupOptimizationResult.cs#L9-L83)). The adapter `GroupOptimizationResultAdapter` then merges the three context matrices into a single 5-propellant matrix in the order $\{B_2, B_3, B_4, B_1, B_0\}$ for PDF reporting.
+**Final result.** After the DE loop terminates, the best 40-vector is wrapped as `GroupCombustionSolverParamsByUnits` and each composition is re-evaluated with UnitsNet types into a `OptimizationProblemByUnits`. These three contexts plus the best 40-vector are returned as `GroupOptimizationResult` ([GroupOptimizationResult.cs:9-83](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Optimization/Results/GroupOptimizationResult.cs#L9-L83)). The adapter `GroupOptimizationResultAdapter` then merges the three context matrices into a single 5-propellant matrix in the order $\{B_2, B_3, B_4, B_1, B_0\}$ for PDF reporting.
 
 **In PDF:** `DifferentialEvolutionSettingsReport` (header `Differential Evolution Algorithm`) prints population size, mutation force, crossover probability, threads/processors count, and termination strategy.
 
@@ -545,7 +675,7 @@ The optimization layer (`GroupDifferentialEvolutionOptimizer`) wraps the externa
 
 | PDF section (en-US label) | Class | Drives |
 |---|---|---|
-| Optimization Parameters | `CombustionSolverParamsReport` | the 18 best-fit values with their `[LB; UB]` bounds (one row per slot) |
+| Optimization Parameters | `CombustionSolverParamsReport` | the 26 best-fit values with their `[LB; UB]` bounds (one row per slot) |
 | Optimization Results | `FitnessFunctionEvaluatorReport` | $F$, $\sum P_k$ (§13) |
 | Functional Constraints | `ConstraintPenaltyEvaluatorReport` | active penalties + thresholds (§14) |
 | Differential Evolution Algorithm | `DifferentialEvolutionSettingsReport` | DE settings (§15) |
@@ -616,6 +746,8 @@ This section is the audit log for the model. New issues should be appended here 
 13. **Surface-temperature bounds [600, 900] K are hard-coded** as default field values in `ProblemContextByUnits` and `ProblemContextByDoubles`. For high-pressure / high-flame-temperature points these bounds may be too narrow, producing the `−1 K` failure sentinel; the failure then collapses the genome's fitness to `MaxValue` and the DE silently rejects it. Worth widening or making JSON-configurable.
 
 14. **`PressureTablesReport`'s `.en-US.resx` file has duplicate / placeholder entries** at the top of the file (`Name1`, `Color1`, `Bitmap1`, etc., visible in `grep` output) — these are Visual-Studio resource-editor scaffolding leftovers and do not appear in the rendered PDF. Cosmetic.
+
+15. **Top-of-range (6.5 MPa) under-prediction for the non-coarse compositions.** With the model at its best fit (group aggregate $0.0083$, §13), the residual error has migrated to the highest pressure: at 6.5 MPa the calculated burn rate undershoots experiment by $\approx -6\%$ for bimodal Bas_2 and pure-fine Bas_3, while pure-coarse Bas_4 stays within $\approx -2\%$. The model is marginally too flat at the top of the 1–6.5 MPa window for compositions containing a fine fraction ($f_c<1$). The dominant low-pressure pocket (bimodal Bas_2 slope) was closed by the bimodal-packing pressure decay $a_{pack}$ (§11.1.1); the fine-AP high-pressure curvature (the pure-fine Bas_3 6.5 MPa point) is the deepest remaining structural residual — the additive AP self-deflagration flux (§11.5) feeds the *saturated* surface energy balance, so it cannot fully de-saturate that single point without over-lifting the mid-range. Removing it would require routing the fine-AP monopropellant flame outside the surface $T_s$ balance (a structural change). The group RMS over all ten pressures nonetheless clears the $<\!0.01$ target. See `docs/research/bimodal_packing_pressure_decay.md` §5.
 
 ---
 

@@ -89,6 +89,90 @@ public readonly ref struct CombustionSolverParamsByDoubles
 
     public required double KCoefficientRadiationTemperature { get; init; }
 
+    /// <summary>
+    /// Diffusion-flame standoff pressure-factor coefficient C_rxn ≥ 0 (shared across compositions).
+    /// The diffusion standoff is scaled by [1 + C_rxn·f_c·(p_ref/p)^n_p] (p_ref = 7 MPa): with C_rxn = 0 it
+    /// reduces exactly to the original laminar form, while C_rxn &gt; 0 gives coarse-AP-rich compositions
+    /// (large f_c) a steeper burn-rate pressure exponent (BDP / Lengellé).
+    /// See docs/research/ap_size_pressure_exponent.md.
+    /// </summary>
+    public required double KDiffusionPressureFactor { get; init; }
+
+    /// <summary>
+    /// Diffusion-flame standoff size-exponent m ≥ 0 (shared across compositions). In the two-mode
+    /// petite-ensemble diffusion model each AP size mode has its own standoff scaled by
+    /// [1 + C_rxn·(d/d_ref)^m·(p_ref/p)^n_p] with d_ref = 100 µm: m &gt; 0 makes coarse modes more
+    /// pressure-sensitive (steeper ν) than fine modes. The exact size exponent is left free because
+    /// BDP 1970 / Lengellé 2000 give only a range. See docs/research/ap_size_pressure_exponent.md.
+    /// </summary>
+    public required double KDiffusionSizeExponent { get; init; }
+
+    /// <summary>
+    /// Bimodal-packing heat-feedback enhancement K_pack ≥ 0 (shared across compositions). The total
+    /// pocket heat flux to the surface is scaled by [1 + K_pack·f_c·(1−f_c)] (§11.1.1): the bimodality
+    /// measure f_c·(1−f_c) is zero for monomodal AP (pure coarse or pure fine) and maximal for a balanced
+    /// blend, so the factor selectively raises the burn-rate magnitude of bimodal compositions (dense
+    /// bimodal packing → more intense surface heat feedback; Miller 1982, Kubota). K_pack = 0 ⇒ no change.
+    /// See docs/research/ap_size_pressure_exponent.md.
+    /// </summary>
+    public required double KBimodalPackingFactor { get; init; }
+
+    /// <summary>
+    /// Diffusion-flame standoff pressure-exponent n_p ∈ [2,4] (shared across compositions). Each AP size
+    /// mode's standoff reaction/turbulent term scales as [1 + C_rxn·(d/d_ref)^m·(p_ref/p)^n_p]: n_p = 2
+    /// reproduces the original fixed quadratic pressure law, while n_p &gt; 2 sharpens how steeply the
+    /// standoff contracts with pressure and hence the pure-mode burn-rate pressure exponents — the
+    /// turbulent/chemical standoff exponent is regime-dependent, not universally 2 (Lengellé–Duterque–Trubert
+    /// 2000; BDP 1970). See docs/research/ap_size_pressure_exponent.md.
+    /// </summary>
+    public required double KDiffusionPressureExponent { get; init; }
+
+    /// <summary>
+    /// WSB condensed-phase reaction coefficient K_wsb ≥ 0 (shared across compositions). The condensed-phase
+    /// exothermic reaction supplies part of the sensible enthalpy, so the net surface heat demand becomes
+    /// ṁ·[c_s·(T_s−T_0)·(1−θ) + ΔH] with completeness θ = Da/(1+Da), Da = K_wsb·(p/p_ref)² and p_ref = 1 MPa:
+    /// K_wsb = 0 reproduces the original surface energy balance exactly, while K_wsb &gt; 0 lets the burn rate
+    /// keep climbing once the kinetic flames go surface-attached at high pressure (de-saturates the 4–6.5 MPa
+    /// tail). The p² Damköhler is the WSB / Zenin second-order gas-condensed coupling (Ward–Son–Brewster 1998,
+    /// Combust. Flame 114:556; Zenin 1995, J. Propul. Power 11:752). See docs/research/wsb_condensed_phase_closure.md.
+    /// </summary>
+    public required double KCondensedReactionFactor { get; init; }
+
+    /// <summary>
+    /// AP self-deflagration (monopropellant premixed-flame) conductance K_AP ≥ 0 (shared across compositions),
+    /// units W·m⁻²·K⁻¹ (lumped λ_g/δ_AP). Adds a parallel near-surface heat flux
+    /// q_AP = K_AP·(1−f_c)·max(0, T_AP−T_s)·max(0, (p/p_dl)^n_AP − 1), T_AP = 1400 K fixed, n_AP fitted (vector[24]),
+    /// p_dl = 2 MPa the fixed AP deflagration limit (Boggs 1970). Fine AP self-deflagrates as a premixed flame
+    /// that — unlike the surface-attached diffusion/kinetic flames — does NOT saturate with pressure, de-saturating
+    /// the 4–6.5 MPa burn rate of fine-AP-dominated compositions (pure-fine Bas_3). Weighted by the fine-AP surface
+    /// fraction (1−f_c): coarse AP (f_c=1) gets nothing, pure-fine (f_c=0) gets the full term. K_AP = 0 reproduces the
+    /// Step-6/8 model exactly (cannot regress). See docs/research/ap_monopropellant_premixed_flame.md §7.
+    /// </summary>
+    public required double KApPremixedFactor { get; init; }
+
+    /// <summary>
+    /// AP self-deflagration (monopropellant premixed-flame) pressure exponent n_AP ≥ 0.77 (SHARED across compositions),
+    /// dimensionless. Sets the steepness of the deflagration-limit gate max(0, (p/p_dl)^n_AP − 1) in q_AP. The floor
+    /// 0.77 is the Guirao &amp; Williams (1971) average over 20–100 atm and reproduces the fixed-exponent Step-7 model;
+    /// a larger n_AP concentrates the de-saturating heat feedback in the high-pressure tail (6.5 MPa) where the
+    /// fine-AP residual lives, without lifting the mid-range (Boggs 1970; Price 1984 — AP burn-rate slope is
+    /// regime-dependent, not a single power law). See docs/research/ap_monopropellant_premixed_flame.md.
+    /// </summary>
+    public required double KApPressureExponent { get; init; }
+
+    /// <summary>
+    /// Bimodal-packing heat-feedback pressure-decay exponent a_pack ≥ 0 (SHARED across compositions), dimensionless.
+    /// Multiplies the bimodal-packing factor by (p_ref/p)^a_pack, p_ref = 1 MPa, so the enhancement decays with
+    /// pressure: the bimodal leading-edge flame (LEF) structure feeds back heat strongly only while the diffusion
+    /// flames stand off (low pressure) and loses relative importance as they collapse to the surface at high pressure
+    /// (Beckstead–Derr–Price 1970; AP plateau / particle-size literature). This lifts the low-pressure magnitude of the
+    /// bimodal compositions (under-predicted Bas_2 at 1 MPa) and relaxes the 4 MPa over-prediction — a slope correction
+    /// the pressure-independent K_pack cannot make. a_pack = 0 reproduces the pressure-independent factor exactly
+    /// (cannot regress); the term is identically 0 for monomodal Bas_3/Bas_4 (f_c·(1−f_c)=0).
+    /// See docs/research/bimodal_packing_pressure_decay.md.
+    /// </summary>
+    public required double KBimodalPackingPressureExponent { get; init; }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static CombustionSolverParamsByDoubles FromVector(
         ReadOnlySpan<double> vector)
@@ -112,7 +196,15 @@ public readonly ref struct CombustionSolverParamsByDoubles
             KDiffusionHeight = vector[14],
             APowOrder = vector[15],
             BPowOrder = vector[16],
-            KCoefficientRadiationTemperature = vector[17]
+            KCoefficientRadiationTemperature = vector[17],
+            KDiffusionPressureFactor = vector[18],
+            KDiffusionSizeExponent = vector[19],
+            KBimodalPackingFactor = vector[20],
+            KDiffusionPressureExponent = vector[21],
+            KCondensedReactionFactor = vector[22],
+            KApPremixedFactor = vector[23],
+            KApPressureExponent = vector[24],
+            KBimodalPackingPressureExponent = vector[25]
         };
     }
 }
@@ -204,6 +296,90 @@ public readonly ref struct CombustionSolverParamsByUnits
 
     public required double KCoefficientRadiationTemperature { get; init; }
 
+    /// <summary>
+    /// Diffusion-flame standoff pressure-factor coefficient C_rxn ≥ 0 (shared across compositions).
+    /// The diffusion standoff is scaled by [1 + C_rxn·f_c·(p_ref/p)^n_p] (p_ref = 7 MPa): with C_rxn = 0 it
+    /// reduces exactly to the original laminar form, while C_rxn &gt; 0 gives coarse-AP-rich compositions
+    /// (large f_c) a steeper burn-rate pressure exponent (BDP / Lengellé).
+    /// See docs/research/ap_size_pressure_exponent.md.
+    /// </summary>
+    public required double KDiffusionPressureFactor { get; init; }
+
+    /// <summary>
+    /// Diffusion-flame standoff size-exponent m ≥ 0 (shared across compositions). In the two-mode
+    /// petite-ensemble diffusion model each AP size mode has its own standoff scaled by
+    /// [1 + C_rxn·(d/d_ref)^m·(p_ref/p)^n_p] with d_ref = 100 µm: m &gt; 0 makes coarse modes more
+    /// pressure-sensitive (steeper ν) than fine modes. The exact size exponent is left free because
+    /// BDP 1970 / Lengellé 2000 give only a range. See docs/research/ap_size_pressure_exponent.md.
+    /// </summary>
+    public required double KDiffusionSizeExponent { get; init; }
+
+    /// <summary>
+    /// Bimodal-packing heat-feedback enhancement K_pack ≥ 0 (shared across compositions). The total
+    /// pocket heat flux to the surface is scaled by [1 + K_pack·f_c·(1−f_c)] (§11.1.1): the bimodality
+    /// measure f_c·(1−f_c) is zero for monomodal AP (pure coarse or pure fine) and maximal for a balanced
+    /// blend, so the factor selectively raises the burn-rate magnitude of bimodal compositions (dense
+    /// bimodal packing → more intense surface heat feedback; Miller 1982, Kubota). K_pack = 0 ⇒ no change.
+    /// See docs/research/ap_size_pressure_exponent.md.
+    /// </summary>
+    public required double KBimodalPackingFactor { get; init; }
+
+    /// <summary>
+    /// Diffusion-flame standoff pressure-exponent n_p ∈ [2,4] (shared across compositions). Each AP size
+    /// mode's standoff reaction/turbulent term scales as [1 + C_rxn·(d/d_ref)^m·(p_ref/p)^n_p]: n_p = 2
+    /// reproduces the original fixed quadratic pressure law, while n_p &gt; 2 sharpens how steeply the
+    /// standoff contracts with pressure and hence the pure-mode burn-rate pressure exponents — the
+    /// turbulent/chemical standoff exponent is regime-dependent, not universally 2 (Lengellé–Duterque–Trubert
+    /// 2000; BDP 1970). See docs/research/ap_size_pressure_exponent.md.
+    /// </summary>
+    public required double KDiffusionPressureExponent { get; init; }
+
+    /// <summary>
+    /// WSB condensed-phase reaction coefficient K_wsb ≥ 0 (shared across compositions). The condensed-phase
+    /// exothermic reaction supplies part of the sensible enthalpy, so the net surface heat demand becomes
+    /// ṁ·[c_s·(T_s−T_0)·(1−θ) + ΔH] with completeness θ = Da/(1+Da), Da = K_wsb·(p/p_ref)² and p_ref = 1 MPa:
+    /// K_wsb = 0 reproduces the original surface energy balance exactly, while K_wsb &gt; 0 lets the burn rate
+    /// keep climbing once the kinetic flames go surface-attached at high pressure (de-saturates the 4–6.5 MPa
+    /// tail). The p² Damköhler is the WSB / Zenin second-order gas-condensed coupling (Ward–Son–Brewster 1998,
+    /// Combust. Flame 114:556; Zenin 1995, J. Propul. Power 11:752). See docs/research/wsb_condensed_phase_closure.md.
+    /// </summary>
+    public required double KCondensedReactionFactor { get; init; }
+
+    /// <summary>
+    /// AP self-deflagration (monopropellant premixed-flame) conductance K_AP ≥ 0 (shared across compositions),
+    /// units W·m⁻²·K⁻¹ (lumped λ_g/δ_AP). Adds a parallel near-surface heat flux
+    /// q_AP = K_AP·(1−f_c)·max(0, T_AP−T_s)·max(0, (p/p_dl)^n_AP − 1), T_AP = 1400 K fixed, n_AP fitted (vector[24]),
+    /// p_dl = 2 MPa the fixed AP deflagration limit (Boggs 1970). Fine AP self-deflagrates as a premixed flame
+    /// that — unlike the surface-attached diffusion/kinetic flames — does NOT saturate with pressure, de-saturating
+    /// the 4–6.5 MPa burn rate of fine-AP-dominated compositions (pure-fine Bas_3). Weighted by the fine-AP surface
+    /// fraction (1−f_c): coarse AP (f_c=1) gets nothing, pure-fine (f_c=0) gets the full term. K_AP = 0 reproduces the
+    /// Step-6/8 model exactly (cannot regress). See docs/research/ap_monopropellant_premixed_flame.md §7.
+    /// </summary>
+    public required double KApPremixedFactor { get; init; }
+
+    /// <summary>
+    /// AP self-deflagration (monopropellant premixed-flame) pressure exponent n_AP ≥ 0.77 (SHARED across compositions),
+    /// dimensionless. Sets the steepness of the deflagration-limit gate max(0, (p/p_dl)^n_AP − 1) in q_AP. The floor
+    /// 0.77 is the Guirao &amp; Williams (1971) average over 20–100 atm and reproduces the fixed-exponent Step-7 model;
+    /// a larger n_AP concentrates the de-saturating heat feedback in the high-pressure tail (6.5 MPa) where the
+    /// fine-AP residual lives, without lifting the mid-range (Boggs 1970; Price 1984 — AP burn-rate slope is
+    /// regime-dependent, not a single power law). See docs/research/ap_monopropellant_premixed_flame.md.
+    /// </summary>
+    public required double KApPressureExponent { get; init; }
+
+    /// <summary>
+    /// Bimodal-packing heat-feedback pressure-decay exponent a_pack ≥ 0 (SHARED across compositions), dimensionless.
+    /// Multiplies the bimodal-packing factor by (p_ref/p)^a_pack, p_ref = 1 MPa, so the enhancement decays with
+    /// pressure: the bimodal leading-edge flame (LEF) structure feeds back heat strongly only while the diffusion
+    /// flames stand off (low pressure) and loses relative importance as they collapse to the surface at high pressure
+    /// (Beckstead–Derr–Price 1970; AP plateau / particle-size literature). This lifts the low-pressure magnitude of the
+    /// bimodal compositions (under-predicted Bas_2 at 1 MPa) and relaxes the 4 MPa over-prediction — a slope correction
+    /// the pressure-independent K_pack cannot make. a_pack = 0 reproduces the pressure-independent factor exactly
+    /// (cannot regress); the term is identically 0 for monomodal Bas_3/Bas_4 (f_c·(1−f_c)=0).
+    /// See docs/research/bimodal_packing_pressure_decay.md.
+    /// </summary>
+    public required double KBimodalPackingPressureExponent { get; init; }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static CombustionSolverParamsByUnits FromVector(
         ReadOnlySpan<double> vector)
@@ -227,7 +403,15 @@ public readonly ref struct CombustionSolverParamsByUnits
             KDiffusionHeight = vector[14],
             APowOrder = vector[15],
             BPowOrder = vector[16],
-            KCoefficientRadiationTemperature = vector[17]
+            KCoefficientRadiationTemperature = vector[17],
+            KDiffusionPressureFactor = vector[18],
+            KDiffusionSizeExponent = vector[19],
+            KBimodalPackingFactor = vector[20],
+            KDiffusionPressureExponent = vector[21],
+            KCondensedReactionFactor = vector[22],
+            KApPremixedFactor = vector[23],
+            KApPressureExponent = vector[24],
+            KBimodalPackingPressureExponent = vector[25]
         };
     }
 }

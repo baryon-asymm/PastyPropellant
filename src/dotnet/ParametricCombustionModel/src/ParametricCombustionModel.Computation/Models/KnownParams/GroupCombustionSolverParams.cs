@@ -8,7 +8,7 @@ namespace ParametricCombustionModel.Computation.Models.KnownParams;
 
 /// <summary>
 /// Represents the extended group parameters for simultaneous optimization of three propellant compositions.
-/// Contains 32 parameters: 11 shared + 7 specific for each of 3 compositions (bas_0, bas_1, bas_2).
+/// Contains 40 parameters: 11 shared + 7 specific for each of 3 compositions (bas_0, bas_1, bas_2) + 8 appended-tail shared.
 /// 
 /// Structure:
 /// [0-10]   = 11 shared parameters
@@ -30,6 +30,54 @@ public readonly ref struct GroupCombustionSolverParamsByDoubles
     public required double APowOrder { get; init; }
     public required double BPowOrder { get; init; }
     public required double KCoefficientRadiationTemperature { get; init; }
+
+    /// <summary>
+    /// Diffusion-flame standoff pressure-factor coefficient C_rxn ≥ 0 (SHARED; appended at group vector[32]).
+    /// See CombustionSolverParamsByDoubles.KDiffusionPressureFactor and docs/research/ap_size_pressure_exponent.md.
+    /// </summary>
+    public required double KDiffusionPressureFactor { get; init; }
+
+    /// <summary>
+    /// Diffusion-flame standoff size-exponent m ≥ 0 (SHARED; appended at group vector[33]).
+    /// See CombustionSolverParamsByDoubles.KDiffusionSizeExponent and docs/research/ap_size_pressure_exponent.md.
+    /// </summary>
+    public required double KDiffusionSizeExponent { get; init; }
+
+    /// <summary>
+    /// Bimodal-packing heat-feedback enhancement K_pack ≥ 0 (SHARED; appended at group vector[34]).
+    /// See CombustionSolverParamsByDoubles.KBimodalPackingFactor and docs/research/ap_size_pressure_exponent.md.
+    /// </summary>
+    public required double KBimodalPackingFactor { get; init; }
+
+    /// <summary>
+    /// Diffusion-flame standoff pressure-exponent n_p ∈ [2,4] (SHARED; appended at group vector[35]).
+    /// See KDiffusionPressureExponent on the per-composition solver params and docs/research/ap_size_pressure_exponent.md.
+    /// </summary>
+    public required double KDiffusionPressureExponent { get; init; }
+
+    /// <summary>
+    /// WSB condensed-phase reaction coefficient K_wsb ≥ 0 (SHARED; appended at group vector[36]).
+    /// See CombustionSolverParamsByDoubles.KCondensedReactionFactor and docs/research/wsb_condensed_phase_closure.md.
+    /// </summary>
+    public required double KCondensedReactionFactor { get; init; }
+
+    /// <summary>
+    /// AP self-deflagration (monopropellant premixed-flame) conductance K_AP ≥ 0 [W·m⁻²·K⁻¹] (SHARED; appended at group vector[37]).
+    /// See CombustionSolverParams*.KApPremixedFactor and docs/research/ap_monopropellant_premixed_flame.md §7.
+    /// </summary>
+    public required double KApPremixedFactor { get; init; }
+
+    /// <summary>
+    /// AP self-deflagration (monopropellant premixed-flame) pressure exponent n_AP ≥ 0.77 (SHARED; appended at group vector[38]).
+    /// See CombustionSolverParams*.KApPressureExponent and docs/research/ap_monopropellant_premixed_flame.md.
+    /// </summary>
+    public required double KApPressureExponent { get; init; }
+
+    /// <summary>
+    /// Bimodal-packing heat-feedback pressure-decay exponent a_pack ≥ 0 (SHARED; appended at group vector[39]).
+    /// See CombustionSolverParams*.KBimodalPackingPressureExponent and docs/research/bimodal_packing_pressure_decay.md.
+    /// </summary>
+    public required double KBimodalPackingPressureExponent { get; init; }
 
     // ===== BAS_2 SPECIFIC PARAMETERS (7) =====
     public required double ADecomposeBas2 { get; init; }
@@ -59,7 +107,7 @@ public readonly ref struct GroupCombustionSolverParamsByDoubles
     public required double BMetalBurningConstantBas0 { get; init; }
 
     /// <summary>
-    /// Creates GroupCombustionSolverParamsByDoubles from a 32-element vector.
+    /// Creates GroupCombustionSolverParamsByDoubles from a 40-element vector.
     /// Vector layout:
     /// [0-10]   = shared parameters
     /// [11-17]  = bas_2 specific
@@ -69,8 +117,8 @@ public readonly ref struct GroupCombustionSolverParamsByDoubles
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static GroupCombustionSolverParamsByDoubles FromVector(ReadOnlySpan<double> vector)
     {
-        if (vector.Length != 32)
-            throw new ArgumentException("Group vector must contain exactly 32 elements", nameof(vector));
+        if (vector.Length != 40)
+            throw new ArgumentException("Group vector must contain exactly 40 elements", nameof(vector));
 
         return new GroupCombustionSolverParamsByDoubles
         {
@@ -112,12 +160,36 @@ public readonly ref struct GroupCombustionSolverParamsByDoubles
             EKineticFlamePocketSkeletonBas0 = vector[28],
             NuPocketSkeletonBas0 = vector[29],
             AMetalBurningConstantBas0 = vector[30],
-            BMetalBurningConstantBas0 = vector[31]
+            BMetalBurningConstantBas0 = vector[31],
+
+            // Shared diffusion-flame pressure-factor coefficient (appended at vector[32])
+            KDiffusionPressureFactor = vector[32],
+
+            // Shared diffusion-flame standoff size-exponent (appended at vector[33])
+            KDiffusionSizeExponent = vector[33],
+
+            // Shared bimodal-packing heat-feedback enhancement (appended at vector[34])
+            KBimodalPackingFactor = vector[34],
+
+            // Shared diffusion-flame standoff pressure-exponent (appended at vector[35])
+            KDiffusionPressureExponent = vector[35],
+
+            // Shared WSB condensed-phase reaction coefficient (appended at vector[36])
+            KCondensedReactionFactor = vector[36],
+
+            // Shared AP monopropellant premixed-flame conductance K_AP [W·m⁻²·K⁻¹] (appended at vector[37])
+            KApPremixedFactor = vector[37],
+
+            // Shared AP self-deflagration pressure exponent (appended at vector[38])
+            KApPressureExponent = vector[38],
+
+            // Shared bimodal-packing heat-feedback pressure-decay exponent a_pack (appended at vector[39])
+            KBimodalPackingPressureExponent = vector[39]
         };
     }
 
     /// <summary>
-    /// Converts group vector (32 parameters) to standard composition vector (18 parameters) for the specified composition.
+    /// Converts group vector (40 parameters) to standard composition vector (26 parameters) for the specified composition.
     /// Composition index follows the raw vector layout: 0 = Bas_2+Bas_3+Bas_4 (combined group), 1 = Bas_1, 2 = Bas_0
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -126,7 +198,7 @@ public readonly ref struct GroupCombustionSolverParamsByDoubles
         if (compositionIndex < 0 || compositionIndex > 2)
             throw new ArgumentOutOfRangeException(nameof(compositionIndex), "Composition index must be 0, 1, or 2");
 
-        var result = new double[18];
+        var result = new double[26];
 
         // Map composition-specific parameters (order matches the raw vector layout)
         var (aDecompose, eDecompose, aFlame, eFlame, nuPocket, aMetal, bMetal) = compositionIndex switch
@@ -140,7 +212,7 @@ public readonly ref struct GroupCombustionSolverParamsByDoubles
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        // Assembly according to the standard 18-parameter vector structure
+        // Assembly according to the standard 26-parameter vector structure
         result[0] = aDecompose;
         result[1] = eDecompose;
         result[2] = AKineticFlameInterPocket;
@@ -159,6 +231,14 @@ public readonly ref struct GroupCombustionSolverParamsByDoubles
         result[15] = APowOrder;
         result[16] = BPowOrder;
         result[17] = KCoefficientRadiationTemperature;
+        result[18] = KDiffusionPressureFactor;
+        result[19] = KDiffusionSizeExponent;
+        result[20] = KBimodalPackingFactor;
+        result[21] = KDiffusionPressureExponent;
+        result[22] = KCondensedReactionFactor;
+        result[23] = KApPremixedFactor;
+        result[24] = KApPressureExponent;
+        result[25] = KBimodalPackingPressureExponent;
 
         return result;
     }
@@ -170,7 +250,7 @@ public readonly ref struct GroupCombustionSolverParamsByDoubles
 
 /// <summary>
 /// Represents the extended group parameters for simultaneous optimization using UnitsNet types.
-/// Contains 32 parameters: 11 shared + 7 specific for each of 3 compositions (bas_0, bas_1, bas_2).
+/// Contains 40 parameters: 11 shared + 7 specific for each of 3 compositions (bas_0, bas_1, bas_2) + 8 appended-tail shared.
 /// </summary>
 public readonly ref struct GroupCombustionSolverParamsByUnits
 {
@@ -186,6 +266,54 @@ public readonly ref struct GroupCombustionSolverParamsByUnits
     public required double APowOrder { get; init; }
     public required double BPowOrder { get; init; }
     public required double KCoefficientRadiationTemperature { get; init; }
+
+    /// <summary>
+    /// Diffusion-flame standoff pressure-factor coefficient C_rxn ≥ 0 (SHARED; appended at group vector[32]).
+    /// See CombustionSolverParamsByUnits.KDiffusionPressureFactor and docs/research/ap_size_pressure_exponent.md.
+    /// </summary>
+    public required double KDiffusionPressureFactor { get; init; }
+
+    /// <summary>
+    /// Diffusion-flame standoff size-exponent m ≥ 0 (SHARED; appended at group vector[33]).
+    /// See CombustionSolverParamsByUnits.KDiffusionSizeExponent and docs/research/ap_size_pressure_exponent.md.
+    /// </summary>
+    public required double KDiffusionSizeExponent { get; init; }
+
+    /// <summary>
+    /// Bimodal-packing heat-feedback enhancement K_pack ≥ 0 (SHARED; appended at group vector[34]).
+    /// See CombustionSolverParamsByUnits.KBimodalPackingFactor and docs/research/ap_size_pressure_exponent.md.
+    /// </summary>
+    public required double KBimodalPackingFactor { get; init; }
+
+    /// <summary>
+    /// Diffusion-flame standoff pressure-exponent n_p ∈ [2,4] (SHARED; appended at group vector[35]).
+    /// See KDiffusionPressureExponent on the per-composition solver params and docs/research/ap_size_pressure_exponent.md.
+    /// </summary>
+    public required double KDiffusionPressureExponent { get; init; }
+
+    /// <summary>
+    /// WSB condensed-phase reaction coefficient K_wsb ≥ 0 (SHARED; appended at group vector[36]).
+    /// See CombustionSolverParamsByUnits.KCondensedReactionFactor and docs/research/wsb_condensed_phase_closure.md.
+    /// </summary>
+    public required double KCondensedReactionFactor { get; init; }
+
+    /// <summary>
+    /// AP self-deflagration (monopropellant premixed-flame) conductance K_AP ≥ 0 [W·m⁻²·K⁻¹] (SHARED; appended at group vector[37]).
+    /// See CombustionSolverParams*.KApPremixedFactor and docs/research/ap_monopropellant_premixed_flame.md §7.
+    /// </summary>
+    public required double KApPremixedFactor { get; init; }
+
+    /// <summary>
+    /// AP self-deflagration (monopropellant premixed-flame) pressure exponent n_AP ≥ 0.77 (SHARED; appended at group vector[38]).
+    /// See CombustionSolverParams*.KApPressureExponent and docs/research/ap_monopropellant_premixed_flame.md.
+    /// </summary>
+    public required double KApPressureExponent { get; init; }
+
+    /// <summary>
+    /// Bimodal-packing heat-feedback pressure-decay exponent a_pack ≥ 0 (SHARED; appended at group vector[39]).
+    /// See CombustionSolverParams*.KBimodalPackingPressureExponent and docs/research/bimodal_packing_pressure_decay.md.
+    /// </summary>
+    public required double KBimodalPackingPressureExponent { get; init; }
 
     // ===== BAS_2 SPECIFIC PARAMETERS (7) =====
     public required MassFlux ADecomposeBas2 { get; init; }
@@ -215,13 +343,13 @@ public readonly ref struct GroupCombustionSolverParamsByUnits
     public required BMetalBurningConstant BMetalBurningConstantBas0 { get; init; }
 
     /// <summary>
-    /// Creates GroupCombustionSolverParamsByUnits from a 32-element vector.
+    /// Creates GroupCombustionSolverParamsByUnits from a 40-element vector.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static GroupCombustionSolverParamsByUnits FromVector(ReadOnlySpan<double> vector)
     {
-        if (vector.Length != 32)
-            throw new ArgumentException("Group vector must contain exactly 32 elements", nameof(vector));
+        if (vector.Length != 40)
+            throw new ArgumentException("Group vector must contain exactly 40 elements", nameof(vector));
 
         return new GroupCombustionSolverParamsByUnits
         {
@@ -263,12 +391,36 @@ public readonly ref struct GroupCombustionSolverParamsByUnits
             EKineticFlamePocketSkeletonBas0 = MolarEnergy.FromJoulesPerMole(vector[28]),
             NuPocketSkeletonBas0 = vector[29],
             AMetalBurningConstantBas0 = AMetalBurningConstant.FromSquareMetersPerSecond(vector[30]),
-            BMetalBurningConstantBas0 = BMetalBurningConstant.FromCubicMetersPerSquareSecond(vector[31])
+            BMetalBurningConstantBas0 = BMetalBurningConstant.FromCubicMetersPerSquareSecond(vector[31]),
+
+            // Shared diffusion-flame pressure-factor coefficient (appended at vector[32])
+            KDiffusionPressureFactor = vector[32],
+
+            // Shared diffusion-flame standoff size-exponent (appended at vector[33])
+            KDiffusionSizeExponent = vector[33],
+
+            // Shared bimodal-packing heat-feedback enhancement (appended at vector[34])
+            KBimodalPackingFactor = vector[34],
+
+            // Shared diffusion-flame standoff pressure-exponent (appended at vector[35])
+            KDiffusionPressureExponent = vector[35],
+
+            // Shared WSB condensed-phase reaction coefficient (appended at vector[36])
+            KCondensedReactionFactor = vector[36],
+
+            // Shared AP monopropellant premixed-flame conductance K_AP [W·m⁻²·K⁻¹] (appended at vector[37])
+            KApPremixedFactor = vector[37],
+
+            // Shared AP self-deflagration pressure exponent (appended at vector[38])
+            KApPressureExponent = vector[38],
+
+            // Shared bimodal-packing heat-feedback pressure-decay exponent a_pack (appended at vector[39])
+            KBimodalPackingPressureExponent = vector[39]
         };
     }
 
     /// <summary>
-    /// Converts group vector (32 parameters) to standard composition vector (18 parameters) for the specified composition.
+    /// Converts group vector (40 parameters) to standard composition vector (26 parameters) for the specified composition.
     /// Composition index follows the raw vector layout: 0 = Bas_2+Bas_3+Bas_4 (combined group), 1 = Bas_1, 2 = Bas_0
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -277,7 +429,7 @@ public readonly ref struct GroupCombustionSolverParamsByUnits
         if (compositionIndex < 0 || compositionIndex > 2)
             throw new ArgumentOutOfRangeException(nameof(compositionIndex), "Composition index must be 0, 1, or 2");
 
-        var result = new double[18];
+        var result = new double[26];
 
         // Map composition-specific parameters (order matches the raw vector layout)
         var (aDecompose, eDecompose, aFlame, eFlame, nuPocket, aMetal, bMetal) = compositionIndex switch
@@ -294,7 +446,7 @@ public readonly ref struct GroupCombustionSolverParamsByUnits
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        // Assembly according to the standard 18-parameter vector structure
+        // Assembly according to the standard 26-parameter vector structure
         result[0] = aDecompose;
         result[1] = eDecompose;
         result[2] = AKineticFlameInterPocket.PerSecond;
@@ -313,6 +465,14 @@ public readonly ref struct GroupCombustionSolverParamsByUnits
         result[15] = APowOrder;
         result[16] = BPowOrder;
         result[17] = KCoefficientRadiationTemperature;
+        result[18] = KDiffusionPressureFactor;
+        result[19] = KDiffusionSizeExponent;
+        result[20] = KBimodalPackingFactor;
+        result[21] = KDiffusionPressureExponent;
+        result[22] = KCondensedReactionFactor;
+        result[23] = KApPremixedFactor;
+        result[24] = KApPressureExponent;
+        result[25] = KBimodalPackingPressureExponent;
 
         return result;
     }

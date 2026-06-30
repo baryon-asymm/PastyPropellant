@@ -130,6 +130,7 @@ public class ProblemContextByUnitsMatrixBuilder
         return new PropellantParamsByUnits
         {
             AverageOxidizerDiameter = Length.FromMeters(propellant.GetAverageParticlesDiameter()),
+            CoarseFraction = propellant.GetLargeParticlesFraction(),
             Density = Density.FromKilogramsPerCubicMeter(propellant.Density),
             InitialTemperature = Temperature.FromKelvins(propellant.InitialTemperature),
             SkeletonSurfaceFraction = Ratio.FromDecimalFractions(propellant.GetPocketSurfaceFraction(pressure.Pascals)),

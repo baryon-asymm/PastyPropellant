@@ -128,6 +128,7 @@ public class ProblemContextByDoublesMatrixBuilder
         return new PropellantParamsByDoubles
         {
             AverageOxidizerDiameter = propellant.GetAverageParticlesDiameter(),
+            CoarseFraction = propellant.GetLargeParticlesFraction(),
             Density = propellant.Density,
             InitialTemperature = propellant.InitialTemperature,
             SkeletonSurfaceFraction = propellant.GetPocketSurfaceFraction(pressure.Pascals),

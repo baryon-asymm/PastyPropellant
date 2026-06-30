@@ -176,6 +176,16 @@ public class GroupCombustionSolverParamsReport : ITransformable<Queue<IPdfOperat
                 $"[{_groupResult.LowerBound[10]:E3}; {_groupResult.UpperBound[10]:E3}]"),
             TextStyle.Italic));
         operations.Enqueue(new LineBreakOperation());
+
+        // Appended-tail shared diffusion/packing/condensed parameters (group indices 32-36) — see docs/math-model.md §9, §11.1.1
+        AddTailParameter(operations, "Diffusion-flame standoff pressure-factor C_rxn", groupParams.KDiffusionPressureFactor, 32);
+        AddTailParameter(operations, "Diffusion-flame standoff size-exponent m", groupParams.KDiffusionSizeExponent, 33);
+        AddTailParameter(operations, "Bimodal-packing heat-feedback K_pack", groupParams.KBimodalPackingFactor, 34);
+        AddTailParameter(operations, "Diffusion-flame standoff pressure-exponent n_p", groupParams.KDiffusionPressureExponent, 35);
+        AddTailParameter(operations, "WSB condensed-phase reaction K_wsb", groupParams.KCondensedReactionFactor, 36);
+        AddTailParameter(operations, "AP premixed-flame conductance K_AP", groupParams.KApPremixedFactor, 37);
+        AddTailParameter(operations, "AP self-deflagration pressure-exponent n_AP", groupParams.KApPressureExponent, 38);
+        AddTailParameter(operations, "Bimodal-packing pressure-decay exponent a_pack", groupParams.KBimodalPackingPressureExponent, 39);
         operations.Enqueue(new LineBreakOperation());
 
         // Composition-specific parameters (Condensed phase)
@@ -199,7 +209,19 @@ public class GroupCombustionSolverParamsReport : ITransformable<Queue<IPdfOperat
         return operations;
     }
 
-    private void AddCompositionParameters(Queue<IPdfOperation> operations, 
+    private void AddTailParameter(Queue<IPdfOperation> operations, string label, double value, int index)
+    {
+        operations.Enqueue(new PrintTextOperation($"{label} {value:G6}", TextStyle.None));
+        operations.Enqueue(new LineBreakOperation());
+        operations.Enqueue(new AddTabOperation());
+        operations.Enqueue(new PrintTextOperation(
+            string.Format(CombustionSolverParamsReportResources.ParameterBounds,
+                $"[{_groupResult.LowerBound[index]:E3}; {_groupResult.UpperBound[index]:E3}]"),
+            TextStyle.Italic));
+        operations.Enqueue(new LineBreakOperation());
+    }
+
+    private void AddCompositionParameters(Queue<IPdfOperation> operations,
         GroupCombustionSolverParamsByDoubles groupParams, int compositionIndex, int baseIndex)
     {
         // Get composition-specific parameters
