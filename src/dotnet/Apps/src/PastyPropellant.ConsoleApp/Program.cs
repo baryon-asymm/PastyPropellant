@@ -5,6 +5,7 @@ using ParametricCombustionModel.Optimization.ConstraintPenaltyEvaluators;
 using ParametricCombustionModel.Optimization.ConstraintPenaltyEvaluators.Interfaces;
 using ParametricCombustionModel.Optimization.Results;
 using ParametricCombustionModel.Optimization.Settings;
+using ParametricCombustionModel.Optimization.Utils;
 using ParametricCombustionModel.PlotRenderer.Models;
 using ParametricCombustionModel.PlotRenderer.Renderers;
 using ParametricCombustionModel.ReportMaking.Models;
@@ -322,23 +323,65 @@ double[] ReadVectorFile(string path)
         throw new FileNotFoundException($"Vector file not found: {path}");
 
     var values = new List<double>();
+    string? declaredChecksum = null;
+    int? declaredCount = null;
+
     foreach (var rawLine in File.ReadLines(path))
     {
         var commentStart = rawLine.IndexOf('#');
+        if (commentStart >= 0)
+        {
+            // Self-describing guards emitted by the report / WriteVectorFile: "# count = N", "# checksum = <hex>".
+            var directive = rawLine[(commentStart + 1)..].Trim();
+            var eq = directive.IndexOf('=');
+            if (eq > 0)
+            {
+                var key = directive[..eq].Trim();
+                var val = directive[(eq + 1)..].Trim();
+                if (key.Equals("checksum", StringComparison.OrdinalIgnoreCase))
+                    declaredChecksum = val;
+                else if (key.Equals("count", StringComparison.OrdinalIgnoreCase)
+                         && int.TryParse(val, NumberStyles.Integer, CultureInfo.InvariantCulture, out var n))
+                    declaredCount = n;
+            }
+        }
+
         var line = commentStart >= 0 ? rawLine[..commentStart] : rawLine;
 
         foreach (var token in line.Split([' ', '\t', ',', ';'], StringSplitOptions.RemoveEmptyEntries))
             values.Add(double.Parse(token, CultureInfo.InvariantCulture));
     }
 
-    return values.ToArray();
+    var genes = values.ToArray();
+
+    if (declaredCount is { } expectedCount && expectedCount != genes.Length)
+        throw new InvalidDataException(
+            $"Vector file '{path}' declares # count = {expectedCount} but contains {genes.Length} values (copy/paste truncated?).");
+
+    if (declaredChecksum is { } expectedChecksum)
+    {
+        var actualChecksum = VectorFormat.Checksum(genes);
+        if (!string.Equals(actualChecksum, expectedChecksum, StringComparison.OrdinalIgnoreCase))
+            throw new InvalidDataException(
+                $"Vector file '{path}' checksum mismatch (declared {expectedChecksum}, computed {actualChecksum}) — a value was likely mangled in transit.");
+    }
+
+    return genes;
 }
 
 // Persists a vector at round-trip ("R") precision, one value per line, so an optimization run can
 // be replayed exactly via --forward-eval (a PDF report is too lossy to recover the vector from).
 void WriteVectorFile(string path, double[] genes)
 {
-    File.WriteAllLines(path, genes.Select(g => g.ToString("R", CultureInfo.InvariantCulture)));
+    // Self-documenting guards (ignored by ReadVectorFile's parser, verified by it) so a truncated or
+    // mangled copy is caught on read; gene lines use the shared VectorFormat so they match the PDF block.
+    var lines = new List<string>
+    {
+        $"# count = {genes.Length}",
+        $"# checksum = {VectorFormat.Checksum(genes)}"
+    };
+    lines.AddRange(VectorFormat.FormatLines(genes));
+    File.WriteAllLines(path, lines);
 }
 
 // Forward-eval: solve every (fuel, pressure) context for a SINGLE supplied group vector — no DE

@@ -28,6 +28,13 @@ public class GroupCombustionSolverParamsReport : ITransformable<Queue<IPdfOperat
             TextStyle.Bold));
         operations.Enqueue(new LineBreakOperation());
 
+        // The values below are display-rounded and must NOT be copied for replay — the radiative-temperature
+        // closure amplifies rounding. Use the full-precision Reproduction Vector block for --forward-eval.
+        operations.Enqueue(new PrintTextOperation(
+            "Values below are display-rounded — not for replay; use the Reproduction Vector block.",
+            TextStyle.Italic));
+        operations.Enqueue(new LineBreakOperation());
+
         // Shared parameters (indices 0-10)
         operations.Enqueue(new PrintTextOperation(
             "Shared Parameters (All Compositions)",

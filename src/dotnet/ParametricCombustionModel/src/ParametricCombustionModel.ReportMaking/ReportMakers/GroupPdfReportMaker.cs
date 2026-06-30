@@ -67,6 +67,14 @@ public class GroupPdfReportMaker : IReportMaker, IPdfOperationVisitor
             operation.Accept(this);
         _pdfGeneratorAdapter.AddLineBreak();
 
+        // Add reproduction vector (full-precision, copy-paste replayable via --forward-eval).
+        // Sits right after the display-rounded parameter table it supersedes for replay.
+        var reproductionVectorReport = new ReproductionVectorReport(_reportContext);
+        _pdfGeneratorAdapter.AddParagraph(TextAlignment.Left);
+        foreach (var operation in reproductionVectorReport.Transform())
+            operation.Accept(this);
+        _pdfGeneratorAdapter.AddLineBreak();
+
         // Add fitness function evaluator report
         foreach (var operation in fitnessFunctionEvaluatorReport.Transform())
             operation.Accept(this);
