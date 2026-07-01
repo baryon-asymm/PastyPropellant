@@ -9,6 +9,12 @@ namespace ParametricCombustionModel.ReportMaking.Reports.Pdf;
 
 public class GroupCombustionSolverParamsReport : ITransformable<Queue<IPdfOperation>>
 {
+    // A gene sitting within this relative slack of a bound is flagged railed: the optimiser pushed
+    // it to the edge of its box, so the fit is likely bound-limited and the bound should be widened.
+    // The tolerance is scaled by max(|bound|, 1) so O(1) angles and O(1e13) pre-exponentials are
+    // judged on the same footing.
+    private const double RailRelativeTolerance = 1e-3;
+
     private readonly GroupOptimizationResult _groupResult;
 
     public GroupCombustionSolverParamsReport(GroupOptimizationResult groupResult)
@@ -34,6 +40,11 @@ public class GroupCombustionSolverParamsReport : ITransformable<Queue<IPdfOperat
             "Values below are display-rounded — not for replay; use the Reproduction Vector block.",
             TextStyle.Italic));
         operations.Enqueue(new LineBreakOperation());
+        operations.Enqueue(new PrintTextOperation(
+            "Each parameter shows its bounds and a rail flag: [RAILED@lo]/[RAILED@hi] means the gene sits "
+            + "within 0.1% of a bound (fit is bound-limited — consider widening); [interior] means it does not.",
+            TextStyle.Italic));
+        operations.Enqueue(new LineBreakOperation());
 
         // Shared parameters (indices 0-10)
         operations.Enqueue(new PrintTextOperation(
@@ -41,148 +52,28 @@ public class GroupCombustionSolverParamsReport : ITransformable<Queue<IPdfOperat
             TextStyle.Bold | TextStyle.Underline));
         operations.Enqueue(new LineBreakOperation());
 
-        // AKineticFlameInterPocket
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.AKineticFlameInterPocket,
-                groupParams.AKineticFlameInterPocket),
-            TextStyle.None));
-        operations.Enqueue(new LineBreakOperation());
-        operations.Enqueue(new AddTabOperation());
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.ParameterBounds,
-                $"[{_groupResult.LowerBound[0]:E3}; {_groupResult.UpperBound[0]:E3}]"),
-            TextStyle.Italic));
-        operations.Enqueue(new LineBreakOperation());
-
-        // EKineticFlameInterPocket
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.EKineticFlameInterPocket,
-                groupParams.EKineticFlameInterPocket),
-            TextStyle.None));
-        operations.Enqueue(new LineBreakOperation());
-        operations.Enqueue(new AddTabOperation());
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.ParameterBounds,
-                $"[{_groupResult.LowerBound[1]:E3}; {_groupResult.UpperBound[1]:E3}]"),
-            TextStyle.Italic));
-        operations.Enqueue(new LineBreakOperation());
-
-        // AKineticFlamePocketOutSkeleton
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.AKineticFlamePocketOutSkeleton,
-                groupParams.AKineticFlamePocketOutSkeleton),
-            TextStyle.None));
-        operations.Enqueue(new LineBreakOperation());
-        operations.Enqueue(new AddTabOperation());
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.ParameterBounds,
-                $"[{_groupResult.LowerBound[2]:E3}; {_groupResult.UpperBound[2]:E3}]"),
-            TextStyle.Italic));
-        operations.Enqueue(new LineBreakOperation());
-
-        // EKineticFlamePocketOutSkeleton
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.EKineticFlamePocketOutSkeleton,
-                groupParams.EKineticFlamePocketOutSkeleton),
-            TextStyle.None));
-        operations.Enqueue(new LineBreakOperation());
-        operations.Enqueue(new AddTabOperation());
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.ParameterBounds,
-                $"[{_groupResult.LowerBound[3]:E3}; {_groupResult.UpperBound[3]:E3}]"),
-            TextStyle.Italic));
-        operations.Enqueue(new LineBreakOperation());
-
-        // NuInterPocket
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.NuInterPocket,
-                groupParams.NuInterPocket),
-            TextStyle.None));
-        operations.Enqueue(new LineBreakOperation());
-        operations.Enqueue(new AddTabOperation());
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.ParameterBounds,
-                $"[{_groupResult.LowerBound[4]:E3}; {_groupResult.UpperBound[4]:E3}]"),
-            TextStyle.Italic));
-        operations.Enqueue(new LineBreakOperation());
-
-        // NuPocketOutSkeleton
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.NuPocketOutSkeleton,
-                groupParams.NuPocketOutSkeleton),
-            TextStyle.None));
-        operations.Enqueue(new LineBreakOperation());
-        operations.Enqueue(new AddTabOperation());
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.ParameterBounds,
-                $"[{_groupResult.LowerBound[5]:E3}; {_groupResult.UpperBound[5]:E3}]"),
-            TextStyle.Italic));
-        operations.Enqueue(new LineBreakOperation());
-
-        // DeltaH
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.DeltaH,
-                groupParams.DeltaH),
-            TextStyle.None));
-        operations.Enqueue(new LineBreakOperation());
-        operations.Enqueue(new AddTabOperation());
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.ParameterBounds,
-                $"[{_groupResult.LowerBound[6]:E3}; {_groupResult.UpperBound[6]:E3}]"),
-            TextStyle.Italic));
-        operations.Enqueue(new LineBreakOperation());
-
-        // KDiffusionHeight
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.KDiffusionHeight,
-                groupParams.KDiffusionHeight),
-            TextStyle.None));
-        operations.Enqueue(new LineBreakOperation());
-        operations.Enqueue(new AddTabOperation());
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.ParameterBounds,
-                $"[{_groupResult.LowerBound[7]:E3}; {_groupResult.UpperBound[7]:E3}]"),
-            TextStyle.Italic));
-        operations.Enqueue(new LineBreakOperation());
-
-        // APowOrder
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.APowOrder,
-                groupParams.APowOrder),
-            TextStyle.None));
-        operations.Enqueue(new LineBreakOperation());
-        operations.Enqueue(new AddTabOperation());
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.ParameterBounds,
-                $"[{_groupResult.LowerBound[8]:E3}; {_groupResult.UpperBound[8]:E3}]"),
-            TextStyle.Italic));
-        operations.Enqueue(new LineBreakOperation());
-
-        // BPowOrder
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.BPowOrder,
-                groupParams.BPowOrder),
-            TextStyle.None));
-        operations.Enqueue(new LineBreakOperation());
-        operations.Enqueue(new AddTabOperation());
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.ParameterBounds,
-                $"[{_groupResult.LowerBound[9]:E3}; {_groupResult.UpperBound[9]:E3}]"),
-            TextStyle.Italic));
-        operations.Enqueue(new LineBreakOperation());
-
-        // KCoefficientRadiationTemperature
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.KCoefficientRadiationTemperature,
-                groupParams.KCoefficientRadiationTemperature),
-            TextStyle.None));
-        operations.Enqueue(new LineBreakOperation());
-        operations.Enqueue(new AddTabOperation());
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.ParameterBounds,
-                $"[{_groupResult.LowerBound[10]:E3}; {_groupResult.UpperBound[10]:E3}]"),
-            TextStyle.Italic));
-        operations.Enqueue(new LineBreakOperation());
+        AddParam(operations, CombustionSolverParamsReportResources.AKineticFlameInterPocket,
+            groupParams.AKineticFlameInterPocket, 0);
+        AddParam(operations, CombustionSolverParamsReportResources.EKineticFlameInterPocket,
+            groupParams.EKineticFlameInterPocket, 1);
+        AddParam(operations, CombustionSolverParamsReportResources.AKineticFlamePocketOutSkeleton,
+            groupParams.AKineticFlamePocketOutSkeleton, 2);
+        AddParam(operations, CombustionSolverParamsReportResources.EKineticFlamePocketOutSkeleton,
+            groupParams.EKineticFlamePocketOutSkeleton, 3);
+        AddParam(operations, CombustionSolverParamsReportResources.NuInterPocket,
+            groupParams.NuInterPocket, 4);
+        AddParam(operations, CombustionSolverParamsReportResources.NuPocketOutSkeleton,
+            groupParams.NuPocketOutSkeleton, 5);
+        AddParam(operations, CombustionSolverParamsReportResources.DeltaH,
+            groupParams.DeltaH, 6);
+        AddParam(operations, CombustionSolverParamsReportResources.KDiffusionHeight,
+            groupParams.KDiffusionHeight, 7);
+        AddParam(operations, CombustionSolverParamsReportResources.APowOrder,
+            groupParams.APowOrder, 8);
+        AddParam(operations, CombustionSolverParamsReportResources.BPowOrder,
+            groupParams.BPowOrder, 9);
+        AddParam(operations, CombustionSolverParamsReportResources.KCoefficientRadiationTemperature,
+            groupParams.KCoefficientRadiationTemperature, 10);
         operations.Enqueue(new LineBreakOperation());
 
         // Composition-specific parameters (Condensed phase)
@@ -206,13 +97,13 @@ public class GroupCombustionSolverParamsReport : ITransformable<Queue<IPdfOperat
         return operations;
     }
 
-    private void AddCompositionParameters(Queue<IPdfOperation> operations, 
+    private void AddCompositionParameters(Queue<IPdfOperation> operations,
         GroupCombustionSolverParamsByDoubles groupParams, int compositionIndex, int baseIndex)
     {
         // Get composition-specific parameters
         var (aDecompose, eDecompose, aFlame, eFlame, nuPocket, aMetal, bMetal) = compositionIndex switch
         {
-            0 => (groupParams.ADecomposeBas0, groupParams.EDecomposeBas0, 
+            0 => (groupParams.ADecomposeBas0, groupParams.EDecomposeBas0,
                   groupParams.AKineticFlamePocketSkeletonBas0, groupParams.EKineticFlamePocketSkeletonBas0,
                   groupParams.NuPocketSkeletonBas0, groupParams.AMetalBurningConstantBas0, groupParams.BMetalBurningConstantBas0),
             1 => (groupParams.ADecomposeBas1, groupParams.EDecomposeBas1,
@@ -224,88 +115,49 @@ public class GroupCombustionSolverParamsReport : ITransformable<Queue<IPdfOperat
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        // ADecompose
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.ADecompose, aDecompose),
-            TextStyle.None));
-        operations.Enqueue(new LineBreakOperation());
-        operations.Enqueue(new AddTabOperation());
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.ParameterBounds,
-                $"[{_groupResult.LowerBound[baseIndex]:E3}; {_groupResult.UpperBound[baseIndex]:E3}]"),
-            TextStyle.Italic));
-        operations.Enqueue(new LineBreakOperation());
+        AddParam(operations, CombustionSolverParamsReportResources.ADecompose, aDecompose, baseIndex);
+        AddParam(operations, CombustionSolverParamsReportResources.EDecompose, eDecompose, baseIndex + 1);
+        AddParam(operations, CombustionSolverParamsReportResources.AKineticFlamePocketSkeleton, aFlame, baseIndex + 2);
+        AddParam(operations, CombustionSolverParamsReportResources.EKineticFlamePocketSkeleton, eFlame, baseIndex + 3);
+        AddParam(operations, CombustionSolverParamsReportResources.NuPocketSkeleton, nuPocket, baseIndex + 4);
+        AddParam(operations, CombustionSolverParamsReportResources.AMetalBurningConstant, aMetal, baseIndex + 5);
+        AddParam(operations, CombustionSolverParamsReportResources.BMetalBurningConstant, bMetal, baseIndex + 6);
+    }
 
-        // EDecompose
+    /// <summary>
+    /// Emits one parameter: its display-rounded value line, then an indented italic bounds line with a
+    /// rail flag. <paramref name="valueFormat"/> is a resource format string taking the value as {0};
+    /// <paramref name="index"/> selects the matching lower/upper bound from the result vector.
+    /// </summary>
+    private void AddParam(Queue<IPdfOperation> operations, string valueFormat, double value, int index)
+    {
         operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.EDecompose, eDecompose),
+            string.Format(valueFormat, value),
             TextStyle.None));
         operations.Enqueue(new LineBreakOperation());
         operations.Enqueue(new AddTabOperation());
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.ParameterBounds,
-                $"[{_groupResult.LowerBound[baseIndex + 1]:E3}; {_groupResult.UpperBound[baseIndex + 1]:E3}]"),
-            TextStyle.Italic));
-        operations.Enqueue(new LineBreakOperation());
 
-        // AKineticFlamePocketSkeleton
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.AKineticFlamePocketSkeleton, aFlame),
-            TextStyle.None));
-        operations.Enqueue(new LineBreakOperation());
-        operations.Enqueue(new AddTabOperation());
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.ParameterBounds,
-                $"[{_groupResult.LowerBound[baseIndex + 2]:E3}; {_groupResult.UpperBound[baseIndex + 2]:E3}]"),
-            TextStyle.Italic));
-        operations.Enqueue(new LineBreakOperation());
+        var lower = _groupResult.LowerBound[index];
+        var upper = _groupResult.UpperBound[index];
 
-        // EKineticFlamePocketSkeleton
+        // Bounds via the (localised) resource; the rail flag is appended outside string.Format so it
+        // stays language-independent and is unaffected by the resource's numeric format specifier.
         operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.EKineticFlamePocketSkeleton, eFlame),
-            TextStyle.None));
-        operations.Enqueue(new LineBreakOperation());
-        operations.Enqueue(new AddTabOperation());
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.ParameterBounds,
-                $"[{_groupResult.LowerBound[baseIndex + 3]:E3}; {_groupResult.UpperBound[baseIndex + 3]:E3}]"),
+            string.Format(CombustionSolverParamsReportResources.ParameterBounds, $"[{lower:E3}; {upper:E3}]")
+                + " " + RailFlag(value, lower, upper),
             TextStyle.Italic));
         operations.Enqueue(new LineBreakOperation());
+    }
 
-        // NuPocketSkeleton
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.NuPocketSkeleton, nuPocket),
-            TextStyle.None));
-        operations.Enqueue(new LineBreakOperation());
-        operations.Enqueue(new AddTabOperation());
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.ParameterBounds,
-                $"[{_groupResult.LowerBound[baseIndex + 4]:E3}; {_groupResult.UpperBound[baseIndex + 4]:E3}]"),
-            TextStyle.Italic));
-        operations.Enqueue(new LineBreakOperation());
+    private static string RailFlag(double value, double lower, double upper)
+    {
+        var lowerTolerance = RailRelativeTolerance * Math.Max(Math.Abs(lower), 1.0);
+        var upperTolerance = RailRelativeTolerance * Math.Max(Math.Abs(upper), 1.0);
 
-        // AMetalBurningConstant
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.AMetalBurningConstant, aMetal),
-            TextStyle.None));
-        operations.Enqueue(new LineBreakOperation());
-        operations.Enqueue(new AddTabOperation());
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.ParameterBounds,
-                $"[{_groupResult.LowerBound[baseIndex + 5]:E3}; {_groupResult.UpperBound[baseIndex + 5]:E3}]"),
-            TextStyle.Italic));
-        operations.Enqueue(new LineBreakOperation());
-
-        // BMetalBurningConstant
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.BMetalBurningConstant, bMetal),
-            TextStyle.None));
-        operations.Enqueue(new LineBreakOperation());
-        operations.Enqueue(new AddTabOperation());
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CombustionSolverParamsReportResources.ParameterBounds,
-                $"[{_groupResult.LowerBound[baseIndex + 6]:E3}; {_groupResult.UpperBound[baseIndex + 6]:E3}]"),
-            TextStyle.Italic));
-        operations.Enqueue(new LineBreakOperation());
+        if (value - lower <= lowerTolerance)
+            return "[RAILED@lo]";
+        if (upper - value <= upperTolerance)
+            return "[RAILED@hi]";
+        return "[interior]";
     }
 }
