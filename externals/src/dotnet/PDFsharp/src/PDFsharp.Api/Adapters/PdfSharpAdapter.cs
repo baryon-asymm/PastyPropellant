@@ -18,6 +18,10 @@ public class PdfSharpAdapter : IPdfGeneratorAdapter
 
     private readonly string _filePath;
 
+    // Files to embed as PDF attachments, resolved and attached at Generate() time so a file that is
+    // written after the AddEmbeddedFile call (e.g. best_vector.txt earlier in the same run) is picked up.
+    private readonly List<(string Path, string Name)> _embeddedFiles = new();
+
     public PdfSharpAdapter(string filePath)
     {
         if (GlobalFontSettings.FontResolver is not PTAstraSerifFontResolver)
@@ -157,6 +161,11 @@ public class PdfSharpAdapter : IPdfGeneratorAdapter
         image.Width = isPortrait ? Unit.FromCentimeter(17.0) : Unit.FromCentimeter(25.0);
     }
 
+    public void AddEmbeddedFile(string path, string? name = null)
+    {
+        _embeddedFiles.Add((path, name ?? Path.GetFileName(path)));
+    }
+
     public OperationResult Generate()
     {
         try
@@ -216,6 +225,16 @@ public class PdfSharpAdapter : IPdfGeneratorAdapter
         };
 
         pdfRenderer.RenderDocument();
+
+        // Attach registered files after the document is rendered (so the PdfDocument's object graph
+        // exists) and before it is saved. PdfSharp 6.2 exposes PdfDocument.AddEmbeddedFile(name, path);
+        // a missing file is skipped so a stale/absent sidecar never breaks report generation.
+        foreach (var (path, name) in _embeddedFiles)
+        {
+            if (File.Exists(path))
+                pdfDocument.AddEmbeddedFile(name, path);
+        }
+
         pdfRenderer.Save(_filePath);
     }
 }

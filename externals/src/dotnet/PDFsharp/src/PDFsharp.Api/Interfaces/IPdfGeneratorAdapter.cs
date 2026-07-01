@@ -33,5 +33,13 @@ public interface IPdfGeneratorAdapter
 
     public void AddImage(string filePath, bool isPortrait = true);
 
+    /// <summary>
+    /// Registers a file to be embedded as an attachment in the generated PDF (viewer "attachments"
+    /// pane). The attachment is written when <see cref="Generate"/> runs; a missing file at that point
+    /// is skipped so generation never fails on it. <paramref name="name"/> is the display name shown to
+    /// the reader and defaults to the file name of <paramref name="path"/>.
+    /// </summary>
+    public void AddEmbeddedFile(string path, string? name = null);
+
     public OperationResult Generate();
 }

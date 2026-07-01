@@ -171,6 +171,12 @@ public class GroupPdfReportMaker : IReportMaker, IPdfOperationVisitor
         _pdfGeneratorAdapter.AddFooterForLastPage(
             GetLastPageFooter());
 
+        // Embed the full-precision best vector as a real file attachment so the archived PDF is
+        // self-contained and directly replayable: extract it and run `--forward-eval best_vector.txt`.
+        // The Reproduction Vector text block prints the same numbers; this is the copy-paste-free path.
+        // Attach-time File.Exists guard (in the adapter) skips it gracefully if the sidecar is absent.
+        _pdfGeneratorAdapter.AddEmbeddedFile("best_vector.txt");
+
         var generationResult = _pdfGeneratorAdapter.Generate();
         if (generationResult.IsSuccess == false)
             throw new InvalidOperationException("PDF generation failed: " + generationResult.Exception!.ToString());
