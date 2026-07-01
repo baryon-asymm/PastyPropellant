@@ -92,6 +92,13 @@ public class GroupPdfReportMaker : IReportMaker, IPdfOperationVisitor
             operation.Accept(this);
         _pdfGeneratorAdapter.AddLineBreak();
 
+        // Add per-point / per-fuel burn-rate error breakdown of the objective just printed. Uses the
+        // grouped result directly so composition/overall values reconcile exactly with the objective.
+        var burnRateErrorReport = new BurnRateErrorReport(groupResult);
+        foreach (var operation in burnRateErrorReport.Transform())
+            operation.Accept(this);
+        _pdfGeneratorAdapter.AddLineBreak();
+
         // Add problem context report
         foreach (var operation in problemContextReport.Transform())
             operation.Accept(this);
