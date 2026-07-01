@@ -40,6 +40,14 @@ public class PlotSettings
     public bool ShowGridlines { get; set; } = true;
 
     /// <summary>
+    /// When true, both axes are rendered on a base-10 logarithmic scale instead of linear. A Vieille
+    /// power law U = A·p^v plots as a straight line in log-log space (log U = log A + v·log p), so this
+    /// makes the pressure exponent visible as a slope. Non-positive values (e.g. a non-converged burn
+    /// rate of 0) are simply not plotted by the logarithmic axis.
+    /// </summary>
+    public bool UseLogarithmicAxes { get; set; } = false;
+
+    /// <summary>
     /// Gets or sets the color of the gridlines.
     /// </summary>
     public OxyColor GridlineColor { get; set; } = OxyColors.Gray;

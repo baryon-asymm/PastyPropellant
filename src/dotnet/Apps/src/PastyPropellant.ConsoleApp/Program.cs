@@ -449,6 +449,18 @@ async Task RunForwardEvalAsync(string inputFileName, string vectorFilePath)
         Dpi = 96
     };
     new GroupBurningRatePlotRenderer().Render(result, plotSettings);
+    new GroupBurnRateLogLogPlotRenderer().Render(result, new PlotSettings
+    {
+        Title = "Burning Rates (log-log) - Forward Evaluation (All Propellants)",
+        TitleFontSize = 22,
+        XAxisMinimum = 0.9,
+        XAxisMaximum = 6.6,
+        XAxisTitle = "Pressure, MPa (log)",
+        YAxisTitle = "mm/s (log)",
+        Width = 800,
+        Height = 800,
+        Dpi = 96
+    });
 
     Console.WriteLine("Rendering Python plots...");
     var propellantPlotsRenderingHelper = new PropellantPlotsRenderingHelper(
@@ -540,6 +552,20 @@ try
     var groupPlotRenderer = new GroupBurningRatePlotRenderer();
     groupPlotRenderer.Render(groupResult, plotSettings);
     Console.WriteLine("✓ Group burning rate plot rendered\n");
+
+    new GroupBurnRateLogLogPlotRenderer().Render(groupResult, new PlotSettings
+    {
+        Title = "Burning Rates (log-log) - Group Optimization (All Propellants)",
+        TitleFontSize = 22,
+        XAxisMinimum = 0.9,
+        XAxisMaximum = 6.6,
+        XAxisTitle = "Pressure, MPa (log)",
+        YAxisTitle = "mm/s (log)",
+        Width = 800,
+        Height = 800,
+        Dpi = 96
+    });
+    Console.WriteLine("✓ Group burning rate log-log plot rendered\n");
 
     // Render Python plots
     Console.WriteLine("Rendering Python plots...");

@@ -28,29 +28,11 @@ public abstract class BasePlotRenderer : IPlotRenderer
             DefaultFontSize = 22
         };
 
-        plotModel.Axes.Add(new LinearAxis
-        {
-            Position = AxisPosition.Bottom,
-            Title = settings.XAxisTitle,
-            Minimum = settings.XAxisMinimum,
-            Maximum = settings.XAxisMaximum,
-            MajorGridlineStyle = settings.ShowGridlines ? LineStyle.Solid : LineStyle.None,
-            MajorGridlineColor = settings.GridlineColor,
-            MinorGridlineStyle = LineStyle.Dot,
-            MinorGridlineColor = settings.GridlineColor
-        });
+        plotModel.Axes.Add(CreateAxis(
+            settings, AxisPosition.Bottom, settings.XAxisTitle, settings.XAxisMinimum, settings.XAxisMaximum));
 
-        plotModel.Axes.Add(new LinearAxis
-        {
-            Position = AxisPosition.Left,
-            Title = settings.YAxisTitle,
-            Minimum = settings.YAxisMinimum,
-            Maximum = settings.YAxisMaximum,
-            MajorGridlineStyle = settings.ShowGridlines ? LineStyle.Solid : LineStyle.None,
-            MajorGridlineColor = settings.GridlineColor,
-            MinorGridlineStyle = LineStyle.Dot,
-            MinorGridlineColor = settings.GridlineColor
-        });
+        plotModel.Axes.Add(CreateAxis(
+            settings, AxisPosition.Left, settings.YAxisTitle, settings.YAxisMinimum, settings.YAxisMaximum));
 
         plotModel.Legends.Add(new Legend
         {
@@ -60,6 +42,31 @@ public abstract class BasePlotRenderer : IPlotRenderer
         });
 
         return plotModel;
+    }
+
+    // Builds one axis honouring PlotSettings.UseLogarithmicAxes; both LinearAxis and LogarithmicAxis
+    // derive from Axis and share the title / range / gridline surface used here.
+    private static Axis CreateAxis(
+        PlotSettings settings,
+        AxisPosition position,
+        string title,
+        double minimum,
+        double maximum)
+    {
+        Axis axis = settings.UseLogarithmicAxes
+            ? new LogarithmicAxis { Base = 10 }
+            : new LinearAxis();
+
+        axis.Position = position;
+        axis.Title = title;
+        axis.Minimum = minimum;
+        axis.Maximum = maximum;
+        axis.MajorGridlineStyle = settings.ShowGridlines ? LineStyle.Solid : LineStyle.None;
+        axis.MajorGridlineColor = settings.GridlineColor;
+        axis.MinorGridlineStyle = LineStyle.Dot;
+        axis.MinorGridlineColor = settings.GridlineColor;
+
+        return axis;
     }
 
     protected void AddLineSeries(

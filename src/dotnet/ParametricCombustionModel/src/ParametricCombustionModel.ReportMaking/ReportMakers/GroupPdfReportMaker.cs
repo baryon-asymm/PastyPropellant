@@ -126,6 +126,13 @@ public class GroupPdfReportMaker : IReportMaker, IPdfOperationVisitor
 
         // Add burning rate plot
         _pdfGeneratorAdapter.AddImage("group_burning_rate_plot.jpg");
+
+        // Add log-log burning rate plot (log r vs log p). A Vieille power law U = A*p^v is a straight line
+        // in log-log space, so the model/experiment pressure-exponent (slope) mismatch this report also
+        // prints numerically as dv is visible here. Guarded so a missing render degrades gracefully.
+        if (File.Exists("group_burning_rate_loglog_plot.jpg"))
+            _pdfGeneratorAdapter.AddImage("group_burning_rate_loglog_plot.jpg");
+
         _pdfGeneratorAdapter.AddParagraph(TextAlignment.Left);
 
         // Add propellant report
