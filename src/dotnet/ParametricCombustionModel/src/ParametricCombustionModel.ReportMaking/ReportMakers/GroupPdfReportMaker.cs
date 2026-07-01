@@ -40,9 +40,13 @@ public class GroupPdfReportMaker : IReportMaker, IPdfOperationVisitor
         var groupCombustionSolverParamsReport = new GroupCombustionSolverParamsReport(groupResult);
         var fitnessFunctionEvaluatorReport = new FitnessFunctionEvaluatorReport(mergedOptimizationResult);
         var pressurePointCount = mergedOptimizationResult.OptimizedContext.ProblemContextMatrix.GetLength(1);
+        // Report every pressure point, not just the 3 anchors (low / mid / high). Fitness uses all 10
+        // points, so printing only 3 hid 7/10 of the fit; each pressure is its own table/text block
+        // (width is set by propellant count, not pressure count), so this only lengthens the PDF.
+        var allPressureIndexes = Enumerable.Range(0, pressurePointCount).ToArray();
         var problemContextReport =
-            new ProblemContextReport([0, pressurePointCount / 2, pressurePointCount - 1], mergedOptimizationResult);
-        var pressureTablesReport = new PressureTablesReport([0, pressurePointCount / 2, pressurePointCount - 1], mergedOptimizationResult);
+            new ProblemContextReport(allPressureIndexes, mergedOptimizationResult);
+        var pressureTablesReport = new PressureTablesReport(allPressureIndexes, mergedOptimizationResult);
         var propellantReport = new PropellantReport(mergedOptimizationResult);
         var performanceReport = new GroupPerformanceMeterReport(_reportContext);
 
