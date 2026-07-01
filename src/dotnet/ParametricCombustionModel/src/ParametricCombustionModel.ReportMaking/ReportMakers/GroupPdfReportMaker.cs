@@ -107,6 +107,14 @@ public class GroupPdfReportMaker : IReportMaker, IPdfOperationVisitor
             operation.Accept(this);
         _pdfGeneratorAdapter.AddLineBreak();
 
+        // Add flame-structure / heat-flux decomposition per point: which competing flame (out-skeleton
+        // kinetic / skeleton / diffusion) dominates the surface heat feedback, plus flame heights and
+        // surface/metal temperatures. Reads the same solver outputs SkeletonLayerPlotsHelper plots.
+        var flameStructureReport = new FlameStructureReport(groupResult);
+        foreach (var operation in flameStructureReport.Transform())
+            operation.Accept(this);
+        _pdfGeneratorAdapter.AddLineBreak();
+
         // Add problem context report
         foreach (var operation in problemContextReport.Transform())
             operation.Accept(this);
