@@ -1,11 +1,15 @@
 """
 Skeleton-layer plots for the competing-flames pocket model.
 
-Renders per-fuel, per-pressure SOLVER OUTPUTS (heat-flux decomposition, flame
-heights, skeleton-layer geometry, exit temperatures) from the machine-readable
-sidecar `skeleton_layer.json` that the .NET console host writes next to the
-report. Style mirrors the thermodynamic plots in main.py: a 2-column grid of
-per-fuel sub-plots with major/minor gridlines.
+Renders per-characteristic, per-pressure SOLVER OUTPUTS (heat-flux decomposition,
+flame heights, skeleton-layer geometry, exit temperatures) from the machine-readable
+sidecar `skeleton_layer.json` that the .NET console host writes next to the report.
+
+Layout: one sub-plot per physical characteristic (a heat-flux term, a flame height, a
+geometry field, a temperature) and every fuel is a curve inside that sub-plot. The
+sub-plot count is therefore fixed by the model (the series lists below), so the number
+of fuels only changes how many lines each panel carries -- the figure never grows a
+panel per fuel. Style mirrors the thermodynamic plots in main.py.
 
 Unlike main.py (which reads the INPUT propellants JSON and therefore shows the
 same equilibrium thermodynamics for every run), this script consumes the FITTED
@@ -22,7 +26,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
 
-# (key in frame['heat_flux'], legend label, marker)
+# (key in frame['heat_flux'], sub-plot title, marker)
 HEAT_FLUX_SERIES = [
     ('skeleton', 'Skeleton kinetic', 'o'),
     ('out_skeleton', 'Out-skeleton kinetic', '*'),
@@ -68,17 +72,17 @@ def _pressures_mpa(fuel):
     return [frame['pressure'] / 1e6 for frame in fuel['pressure_frames']]
 
 
-def _make_grid(data, suptitle):
-    num_fuels = len(data)
-    rows = (num_fuels + 1) // 2
-    fig, axs = plt.subplots(rows, 2, figsize=(16, 6 * rows))
+def _make_grid(num_panels, suptitle):
+    """A 2-column grid sized by the (fixed) number of characteristic panels, not by
+    the number of fuels. squeeze=False keeps axs 2-D so .flatten() works for any count."""
+    rows = (num_panels + 1) // 2
+    fig, axs = plt.subplots(rows, 2, figsize=(16, 6 * rows), squeeze=False)
     fig.suptitle(suptitle, fontsize=16)
-    axs = axs.flatten()  # 2 columns => subplots always returns an array
-    return fig, axs, num_fuels
+    return fig, axs.flatten()
 
 
-def _finish_grid(fig, axs, num_fuels, output_filename):
-    for j in range(num_fuels, len(axs)):
+def _finish_grid(fig, axs, num_panels, output_filename):
+    for j in range(num_panels, len(axs)):
         axs[j].axis('off')
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.savefig(output_filename, dpi=300, bbox_inches='tight')
@@ -88,52 +92,53 @@ def _finish_grid(fig, axs, num_fuels, output_filename):
 
 def plot_nested(data, group_key, series, suptitle, ylabel, output_filename,
                 ylog=False):
-    """Plot a dict-valued sub-block (heat_flux / flame_heights / skeleton_layer)."""
-    fig, axs, num_fuels = _make_grid(data, suptitle)
+    """One sub-plot per series (a dict-valued sub-block: heat_flux / flame_heights /
+    skeleton_layer); every fuel is drawn as a curve inside the panel. The panel count
+    is the length of `series`, so an unknown number of fuels only adds lines."""
+    fig, axs = _make_grid(len(series), suptitle)
 
-    for i, fuel in enumerate(data):
+    for i, (key, series_label, marker) in enumerate(series):
         ax = axs[i]
-        pressures = _pressures_mpa(fuel)
-        for key, label, marker in series:
-            values = []
-            for frame in fuel['pressure_frames']:
-                block = frame.get(group_key, {})
-                values.append(block.get(key))
+        for fuel in data:
+            pressures = _pressures_mpa(fuel)
+            values = [frame.get(group_key, {}).get(key)
+                      for frame in fuel['pressure_frames']]
             if any(v is not None for v in values):
-                ax.plot(pressures, values, label=label, marker=marker,
+                ax.plot(pressures, values, label=fuel['name'], marker=marker,
                         markersize=6, linewidth=2)
 
         if ylog:
             ax.set_yscale('log')
         _style_axes(ax, ylog=ylog)
-        ax.set_title(fuel['name'], fontsize=14)
+        ax.set_title(series_label, fontsize=14)
         ax.set_xlabel('Pressure, MPa', fontsize=12)
         ax.set_ylabel(ylabel, fontsize=12)
         ax.legend(fontsize=10)
 
-    _finish_grid(fig, axs, num_fuels, output_filename)
+    _finish_grid(fig, axs, len(series), output_filename)
 
 
 def plot_flat(data, series, suptitle, ylabel, output_filename):
-    """Plot frame-level scalar fields (the exit temperatures)."""
-    fig, axs, num_fuels = _make_grid(data, suptitle)
+    """One sub-plot per frame-level scalar field (the exit temperatures); every fuel
+    is a curve inside the panel."""
+    fig, axs = _make_grid(len(series), suptitle)
 
-    for i, fuel in enumerate(data):
+    for i, (key, series_label, marker) in enumerate(series):
         ax = axs[i]
-        pressures = _pressures_mpa(fuel)
-        for key, label, marker in series:
+        for fuel in data:
+            pressures = _pressures_mpa(fuel)
             values = [frame.get(key) for frame in fuel['pressure_frames']]
             if any(v is not None for v in values):
-                ax.plot(pressures, values, label=label, marker=marker,
+                ax.plot(pressures, values, label=fuel['name'], marker=marker,
                         markersize=6, linewidth=2)
 
         _style_axes(ax)
-        ax.set_title(fuel['name'], fontsize=14)
+        ax.set_title(series_label, fontsize=14)
         ax.set_xlabel('Pressure, MPa', fontsize=12)
         ax.set_ylabel(ylabel, fontsize=12)
         ax.legend(fontsize=10)
 
-    _finish_grid(fig, axs, num_fuels, output_filename)
+    _finish_grid(fig, axs, len(series), output_filename)
 
 
 def render_all(data):
