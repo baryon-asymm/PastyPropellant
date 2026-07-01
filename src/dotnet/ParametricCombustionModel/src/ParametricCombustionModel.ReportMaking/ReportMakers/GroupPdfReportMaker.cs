@@ -99,6 +99,14 @@ public class GroupPdfReportMaker : IReportMaker, IPdfOperationVisitor
             operation.Accept(this);
         _pdfGeneratorAdapter.AddLineBreak();
 
+        // Add Vieille power-law fit (A/v exp vs calc) per fuel: exp coefficients are supplied exactly,
+        // calc coefficients are a log-log OLS fit of the model burn rates, so dv summarises the model's
+        // pressure-exponent error that the per-point breakdown above does not.
+        var burnRateVieilleFitReport = new BurnRateVieilleFitReport(groupResult);
+        foreach (var operation in burnRateVieilleFitReport.Transform())
+            operation.Accept(this);
+        _pdfGeneratorAdapter.AddLineBreak();
+
         // Add problem context report
         foreach (var operation in problemContextReport.Transform())
             operation.Accept(this);
