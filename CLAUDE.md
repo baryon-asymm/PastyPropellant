@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-PastyPropellant is a multi-language toolkit for analysing, optimising, and reporting on **liquid (pasty) propellant performance**. The primary runtime is a .NET console host that drives parametric combustion-model optimisation campaigns and farms CPU-intensive work to external worker executables over named-pipe IPC. Python and C++ components supply auxiliary numerical kernels and plot generation.
+PastyPropellant is a multi-language toolkit for analysing, optimising, and reporting on **liquid (pasty) propellant performance**. The primary runtime is a single .NET console host that runs one parametric combustion-model optimisation **in-process**, thread-parallel across the machine's cores, then renders plots and a PDF report. Python scripts (invoked as child processes) supply plot generation and auxiliary numerical kernels.
 
-A more verbose human-oriented overview lives in [QWEN.md](QWEN.md) and [docs/architecture.md](docs/architecture.md); prefer this file for day-to-day operating instructions and treat QWEN.md as background reading.
+⚠ [QWEN.md](QWEN.md) and [docs/architecture.md](docs/architecture.md) still describe a superseded multi-process / named-pipe worker architecture (`Initializer`, `OptimizationController`, `worker_path` tickets, C++ workers). None of that exists in the current tree — treat those two documents as historical background only, and prefer this file. [docs/math-model.md](docs/math-model.md) is current and is the reference for the physics.
 
 ## Build, test, run
 
@@ -24,15 +24,21 @@ dotnet test src/dotnet/ParametricCombustionModel/tests/ParametricCombustionModel
 dotnet test --filter "FullyQualifiedName~SomeTestClass.SomeMethod"
 ```
 
-Run the console host (it loads tickets from `data/optimization_tickets.json`):
+Run the console host. It takes no configuration file: the input propellants file, bounds, DE strategy and penalty thresholds are all hardcoded literals in `Program.cs` (see *Runtime data* below).
+
 ```bash
+# Full optimisation run (hours; 9 h safety timeout)
 dotnet run --project src/dotnet/Apps/src/PastyPropellant.ConsoleApp
+
+# Forward-eval: score + report ONE supplied 32-parameter vector, no DE search (seconds)
+dotnet run --project src/dotnet/Apps/src/PastyPropellant.ConsoleApp -- --forward-eval best_vector.txt
 ```
 
-Run the computation benchmark:
-```bash
-dotnet run -c Release --project benchmarks/ParametricCombustionModel/ParametricCombustionModel.Computation.Benchmark
-```
+`--forward-eval <vector-file>` is the only command-line argument `Program.cs` parses; anything else is ignored and the full optimisation runs.
+
+The host resolves `propellants.01234.json` **relative to the process working directory** and throws `FileNotFoundException` if it is missing. The checked-in copy lives at `data/propellants.01234.json`, which is not where `dotnet run` starts, so make the file reachable from the working directory before running (the sibling Python script paths are hardcoded relative to the ConsoleApp project directory, so that is the working directory the relative paths assume).
+
+⚠ The computation benchmark under `benchmarks/ParametricCombustionModel/ParametricCombustionModel.Computation.Benchmark` **does not build**: its `ProjectReference` points at `src/ParametricCombustionModel/ParametricCombustionModel.Computation/`, a path that no longer contains a project (the real one is under `src/dotnet/…`). The benchmark is also not a member of `PastyPropellant.sln`, so `dotnet build` on the solution does not surface the breakage. Fix the reference before relying on it.
 
 Python helpers (e.g. plot rendering):
 ```bash
@@ -45,15 +51,21 @@ The repository uses a git submodule at [externals/src/python/AerospacePropellant
 
 **Solution layout** — the .NET tree is grouped by *role*, not by deployable, so a single feature usually touches several projects:
 
-- [src/dotnet/Apps/src/PastyPropellant.ConsoleApp](src/dotnet/Apps/src/PastyPropellant.ConsoleApp/) — the only entry-point executable. `Program.cs` → `Initializer` → `OptimizationControllerBuilder` → `OptimizationController`.
-- [src/dotnet/ParametricCombustionModel/src/](src/dotnet/ParametricCombustionModel/src/) — split into `Core` (DTOs/contracts), `Computation` (numerical kernels + worker `Program.cs`), `Optimization` (DE optimiser, controller, task fan-out), `PlotRenderer`, `ReportMaking`, `Telemetry`.
-- [src/dotnet/Common/src/PastyPropellant.Core](src/dotnet/Common/src/PastyPropellant.Core/) — shared primitives, notably `EventBus<TEvent>`.
-- [src/dotnet/Common/src/PastyPropellant.ProcessHandling](src/dotnet/Common/src/PastyPropellant.ProcessHandling/) — child-process lifecycle / pipe wiring used by the controller.
+- [src/dotnet/Apps/src/PastyPropellant.ConsoleApp](src/dotnet/Apps/src/PastyPropellant.ConsoleApp/) — the only entry-point executable (`OutputType>Exe`). `Program.cs` is a ~600-line top-level-statements file: local functions build the bounds and penalty set, then `GroupDifferentialEvolutionScenario` runs the campaign. Also holds the termination strategies (`CustomStagnationStreakTerminationStrategy`, `TimeoutTerminationStrategy`, `OrTerminationStrategy`) and the `Helpers/` that shell out to Python.
+- [src/dotnet/ParametricCombustionModel/src/](src/dotnet/ParametricCombustionModel/src/) — all **class libraries**, split into `Core` (DTOs/contracts), `Computation` (numerical kernels, problem contexts, `MixedPropellantSolver` — library only, it has no `Program.cs` and is not an executable), `Optimization` (DE/NM optimisers, fitness + penalty evaluators, result adapters), `PlotRenderer`, `ReportMaking`, `Telemetry`.
+- [src/dotnet/Common/src/PastyPropellant.Core](src/dotnet/Common/src/PastyPropellant.Core/) — shared primitives, notably `EventBus<TEvent>` and `OperationResult<T>`.
+- [src/dotnet/Common/src/PastyPropellant.ProcessHandling](src/dotnet/Common/src/PastyPropellant.ProcessHandling/) — a thin `ProcessHandler` plus two log-event records. Its only consumers are the `Tools/` libraries and the ConsoleApp helpers that launch **Python** scripts; there is no IPC layer and no optimisation worker.
 - [src/dotnet/Tools/](src/dotnet/Tools/) — independent utility libraries (`RegionMapper`, `Thermodynamics`, `PorosityCalculation`, `PropellantsPlotRendering`) with their own tests; they don't depend on the optimiser.
 
-**Process model.** Optimisation work is *not* run in-process. `OptimizationController` launches one worker process per task from a configurable pool, hands it a named-pipe identifier, serialises the `OptimizationContext` as JSON over the pipe, and consumes streamed log messages plus a final `OptimizationResult`. Workers are normally the `ParametricCombustionModel.Computation` executable but can be any binary honouring the pipe contract (C++ workers are supported). The `worker_path` field in each ticket is what gets executed — when changing the worker contract, both the controller (`Optimization`) and the worker entry point (`Computation/Program.cs`) must move together.
+**Execution model — everything is in-process.** There is no worker process, no IPC, and no job queue. `Program.cs` builds a `DifferentialEvolutionScenarioSettings` (population, bounds, strategy, termination, penalty evaluators, processor count, Nelder–Mead settings), hands it to `GroupDifferentialEvolutionScenario`, and that constructs a `GroupDifferentialEvolutionOptimizer`. The optimiser implements `IFitnessFunctionEvaluator` and passes *itself* to `DifferentialEvolutionBuilder.ForFunction(this)` from the **`DotNetDifferentialEvolution` 4.0.0** NuGet package (with `DotNetNelderMead` / `DotNetNelderMead.DifferentialEvolution` for refinement). `UseProcessors(n)` makes the DE library run `n` in-process workers.
 
-**Event bus.** `EventBus<TEvent>` is a *static, process-wide* pub/sub keyed by event type. Components publish typed events (`LogEvent`, `InfoLogEvent`, …) and the console host plus the optional Telegram relay both subscribe during `Initializer` startup. Because subscriptions are static, tests that exercise the bus must clean up handlers, and adding a new event type is the canonical way to surface new lifecycle information — don't add ad-hoc logger interfaces.
+**Parallelism is by pre-allocated per-worker context.** The concurrency contract lives in the shape of one array. `GroupDifferentialEvolutionScenario` builds `OptimizationProblemByDoubles[processorCount, 3]`, giving **every worker its own freshly built copy** of each group's problem-context matrix — the contexts are mutated during a solve, so sharing them across threads would corrupt results. `GroupDifferentialEvolutionOptimizer.Evaluate(int workerIndex, ReadOnlySpan<double> genes)` indexes `_compositionProblems[workerIndex, groupIdx]`, which is what keeps the threads from colliding. **Any new mutable per-solve state must be added to that matrix, not to a field on the optimiser.**
+
+**Fitness aggregation.** One evaluation splits the 32-vector into three 18-parameter composition vectors via `GroupCombustionSolverParamsByDoubles.ToCompositionVector(groupIdx)`, solves each group, and returns `mean(fitness over the 3 groups) + total penalty`. If any group returns `double.MaxValue` the whole evaluation short-circuits to `double.MaxValue`. Five penalty evaluators are applied (pocket heat-flux ratio competition, inter-pocket faster burn, kinetic-flame heat flux, pore diameter, large oxidiser particle size); `BuildGroupPenaltyEvaluators()` is single-sourced so the optimisation and forward-eval paths report identical penalties.
+
+**Final evaluation and forward-eval share one code path.** After DE converges (and the optional final Nelder–Mead polish, which is guarded to keep the DE solution unless the refined fitness is at least as good), the optimiser calls `EvaluateVector(bestGenes)` — the same public method `--forward-eval` uses. It replays the vector through the UnitsNet contexts (`OptimizationProblemByUnits[3]`) and returns the fully populated `GroupOptimizationResult`. Keep it that way: a reported optimisation result and a forward-eval of the same vector must be bit-identical.
+
+**Event bus.** `EventBus<TEvent>` is a *static, process-wide* pub/sub keyed by event type, constrained to `struct` events. Components publish typed events (`InfoLogEvent`, `ProcessInfoLogEvent`, …); `Program.cs` subscribes a console writer for `InfoLogEvent` at startup. Because subscriptions are static and the handler list is unsynchronised, tests that exercise the bus must clean up handlers. Adding a new event type is the canonical way to surface new lifecycle information — don't add ad-hoc logger interfaces.
 
 **Group optimisation parameter layout.** When several propellant compositions share an optimisation run, the parameter vector is laid out as a single 32-element array:
 
@@ -68,25 +80,32 @@ The same ordering is used for `compositionIndex` everywhere downstream — `Grou
 
 `Bas_2`, `Bas_3`, and `Bas_4` are always optimised together as one group sharing the same composition-specific parameters — that is the load-bearing reason for the grouped 32-parameter formulation.
 
-## Runtime data and tickets
+## Runtime data and run configuration
 
-`data/` is consumed at runtime, not just at build time. Key files:
+**There is no job/ticket file.** The run is configured entirely by hardcoded literals in `ConsoleApp/Program.cs`, so every experiment variation currently needs a recompile:
 
-| File | Purpose |
-|------|---------|
-| `data/propellants*.json` | Propellant component definitions; the suffix (`0`, `1`, `234`, `01234`) selects which set is loaded. |
-| `data/optimization_tickets.json` | Job list — each ticket is a `ParametricModelOptimizationTicket` (name, propellants_file, worker_path, pressures, lower_bound, upper_bound, optional iteration / target-function / surface-temperature settings). |
-| `data/telegram_settings.json` | Credentials for the optional Telegram notification relay. |
-| `data/thermodynamic_params.json`, `data/thermodynamic_substances.json`, `data/chemical_elements.json` | Inputs to the thermodynamics tooling. |
+| Setting | Where |
+|---------|-------|
+| Input propellants file (`"propellants.01234.json"`) | passed to `WithPropellantsFromFile(...)`, hardcoded at both the optimisation and forward-eval call sites |
+| 18-element lower/upper bounds | `GetLowerBound()` / `GetUpperBound()`, with per-slot comments naming each physical parameter and unit |
+| 32-element group bounds | `GetGroupLowerBound()` / `GetGroupUpperBound()`, derived from the 18-element ones by index maps — shared slots from `[2,3,4,5,8,9,13,14,15,16,17]`, per-composition slots from `[0,1,6,7,10,11,12]` repeated for all three groups |
+| DE strategy, population, processors, termination | inline in `RunGroupOptimizationAsync` (currently jDE, population `32×12 = 384`, processors `ProcessorCount−1` reduced until it divides the population evenly, stagnation-streak OR 9 h timeout) |
+| Penalty thresholds | `BuildGroupPenaltyEvaluators()` |
+| Nelder–Mead refinement | `NelderMeadRefinementSettings` literal (currently final-polish on, in-loop memetic off) |
 
-Telegram notifications are gated on the `RELEASE` compile symbol — Debug builds will not post even with credentials present.
+The only file `data/` genuinely supplies to the live entry point is the propellants set. `data/propellants*.json` holds propellant definitions; the suffix (`0`, `1`, `234`, `01234`) selects which set is loaded, and the entry point always asks for `01234`. It is deserialised as a `List<Propellant>` (case-insensitive) and the scenario then partitions it by name into `Bas_0`, `Bas_1`, and `Bas_2`/`Bas_3`/`Bas_4` — **a propellants file missing any of those names will throw**, since the scenario uses `First(...)`.
+
+The other files in `data/` (`telegram_settings.json`, `thermodynamic_params.json`, `thermodynamic_substances.json`, `chemical_elements.json`, `substances_file.json`, `propellant_components.json`, `clients.json`, `TAB.dat`) are **not referenced by any C# or Python source in this repository** — they are leftovers from earlier tooling. Don't assume editing them changes a run. In particular there is no Telegram integration in the current tree: the `TelegramBot.Api` project lives under `externals/`, is not in `PastyPropellant.sln`, and nothing in `src/dotnet` references it or reads `telegram_settings.json`.
+
+**Outputs** are written to the process working directory: `best_vector.txt` (the converged 32-vector at round-trip precision, with self-verifying `# count` / `# checksum` header lines so `--forward-eval` can replay the exact run), the rendered burn-rate plots (linear and log-log), the Python and skeleton-layer plots, and `propellants.group_optimization.report.en.pdf`.
 
 ## Conventions
 
 - `<Nullable>enable</Nullable>` and `<ImplicitUsings>enable</ImplicitUsings>` are on solution-wide.
 - Dimensional quantities (`Pressure`, `HeatFlux`, …) come from **UnitsNet**; do not introduce raw `double` for quantities the rest of the codebase models with UnitsNet.
-- Test layout mirrors source layout: `src/dotnet/<Area>/tests/<Project>.Tests/` next to `src/dotnet/<Area>/src/<Project>/`. The legacy `tests/` directory at the repo root holds integration tests and the shared `ParametricCombustionModel.Test.Share` project — integration tests there require worker executables to be built first.
-- The current working branch is `global_opt_by_groups`; the main branch is `master`.
+- Test layout mirrors source layout: `src/dotnet/<Area>/tests/<Project>.Tests/` next to `src/dotnet/<Area>/src/<Project>/`. These six test projects are the ones in `PastyPropellant.sln`, so they are what `dotnet test PastyPropellant.sln` actually runs.
+- The `tests/` directory at the repo root (and the legacy `src/` subtrees outside `src/dotnet/`) are **not members of the solution** and are not built or run by the standard commands. Treat them as legacy unless you have verified otherwise — `tests/ParametricCombustionModel/ParametricCombustionModel.Test.Share` still exists there and is what the broken benchmark project references.
+- Don't hardcode the working branch here — it moves. Run `git rev-parse --abbrev-ref HEAD` to see it; the main branch is `master`. Work happens on topic branches (typically `experiment/…`) that are cut from and merged back toward `master`.
 
 ## Utility scripts (root-level)
 
