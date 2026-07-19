@@ -97,6 +97,8 @@ The only file `data/` genuinely supplies to the live entry point is the propella
 
 The other files in `data/` (`telegram_settings.json`, `thermodynamic_params.json`, `thermodynamic_substances.json`, `chemical_elements.json`, `substances_file.json`, `propellant_components.json`, `clients.json`, `TAB.dat`) are **not referenced by any C# or Python source in this repository** — they are leftovers from earlier tooling. Don't assume editing them changes a run. In particular there is no Telegram integration in the current tree: the `TelegramBot.Api` project lives under `externals/`, is not in `PastyPropellant.sln`, and nothing in `src/dotnet` references it or reads `telegram_settings.json`.
 
+Per-file detail for everything in `data/` — format, consumer (including the one live test that reads `data/propellants.json`), and whether a run needs it — is in [docs/data-manifest.md](docs/data-manifest.md).
+
 **Outputs** are written to the process working directory: `best_vector.txt` (the converged 32-vector at round-trip precision, with self-verifying `# count` / `# checksum` header lines so `--forward-eval` can replay the exact run), the rendered burn-rate plots (linear and log-log), the Python and skeleton-layer plots, and `propellants.group_optimization.report.en.pdf`.
 
 ## Conventions
