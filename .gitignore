@@ -344,3 +344,24 @@ MigrationBackup/
 
 # VS Code cache
 .vscode/
+
+## ---------------------------------------------------------------------------
+## Project-specific rules
+## ---------------------------------------------------------------------------
+
+# Local secrets / environment overrides.
+# Never commit these: API keys, tokens, credentials.
+# Commit a redacted `.env.example` instead if a template is needed.
+.env
+.env.*
+!.env.example
+
+# OS-generated cruft
+.DS_Store
+Thumbs.db
+
+# Generated analysis outputs (see CLAUDE.md: "outputs, not inputs").
+# Written to the repo root by checker.py / projecthandler.py.
+/out.txt
+/combined_analysis_report_*.json
+/unitsnet_analysis_report_*.json
