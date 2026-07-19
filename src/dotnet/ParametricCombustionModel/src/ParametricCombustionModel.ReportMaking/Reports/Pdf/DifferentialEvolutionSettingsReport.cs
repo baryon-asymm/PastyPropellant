@@ -11,12 +11,13 @@ namespace ParametricCombustionModel.ReportMaking.Reports.Pdf;
 public class DifferentialEvolutionSettingsReport : ITransformable<Queue<IPdfOperation>>
 {
     private readonly DifferentialEvolutionSettings? _settings;
-    private readonly OptimizationResult? _optimizationResult;
 
     public DifferentialEvolutionSettingsReport(ReportContextDto reportContext)
     {
+        if (reportContext.OptimizationResult is null)
+            throw new ArgumentNullException(nameof(reportContext.OptimizationResult));
+
         _settings = reportContext.DifferentialEvolutionSettings;
-        _optimizationResult = reportContext.OptimizationResult ?? throw new ArgumentNullException(nameof(reportContext.OptimizationResult));
     }
 
     public DifferentialEvolutionSettingsReport(DifferentialEvolutionSettings? settings)
