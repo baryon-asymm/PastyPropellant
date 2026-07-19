@@ -38,7 +38,7 @@ dotnet run --project src/dotnet/Apps/src/PastyPropellant.ConsoleApp -- --forward
 
 The host resolves `propellants.01234.json` **relative to the process working directory** and throws `FileNotFoundException` if it is missing. The checked-in copy lives at `data/propellants.01234.json`, which is not where `dotnet run` starts, so make the file reachable from the working directory before running (the sibling Python script paths are hardcoded relative to the ConsoleApp project directory, so that is the working directory the relative paths assume).
 
-⚠ The computation benchmark under `benchmarks/ParametricCombustionModel/ParametricCombustionModel.Computation.Benchmark` **does not build**: its `ProjectReference` points at `src/ParametricCombustionModel/ParametricCombustionModel.Computation/`, a path that no longer contains a project (the real one is under `src/dotnet/…`). The benchmark is also not a member of `PastyPropellant.sln`, so `dotnet build` on the solution does not surface the breakage. Fix the reference before relying on it.
+There is currently no benchmark project; the former `benchmarks/` tree was unbuildable and has been removed.
 
 Python helpers (e.g. plot rendering):
 ```bash
@@ -105,8 +105,8 @@ Per-file detail for everything in `data/` — format, consumer (including the on
 
 - `<Nullable>enable</Nullable>` and `<ImplicitUsings>enable</ImplicitUsings>` are on solution-wide.
 - Dimensional quantities (`Pressure`, `HeatFlux`, …) come from **UnitsNet**; do not introduce raw `double` for quantities the rest of the codebase models with UnitsNet.
-- Test layout mirrors source layout: `src/dotnet/<Area>/tests/<Project>.Tests/` next to `src/dotnet/<Area>/src/<Project>/`. These six test projects are the ones in `PastyPropellant.sln`, so they are what `dotnet test PastyPropellant.sln` actually runs.
-- The `tests/` directory at the repo root (and the legacy `src/` subtrees outside `src/dotnet/`) are **not members of the solution** and are not built or run by the standard commands. Treat them as legacy unless you have verified otherwise — `tests/ParametricCombustionModel/ParametricCombustionModel.Test.Share` still exists there and is what the broken benchmark project references.
+- Test layout mirrors source layout: `src/dotnet/<Area>/tests/<Project>.Tests/` next to `src/dotnet/<Area>/src/<Project>/`. Seven test projects are in `PastyPropellant.sln`, so they are what `dotnet test PastyPropellant.sln` actually runs. `ParametricCombustionModel.PlotRenderer.Tests` exists on disk but is **not** in the solution, so it never runs.
+- The legacy `src/` subtrees outside `src/dotnet/` are **not members of the solution** and are not built or run by the standard commands; they retain only stale `bin/obj` artefacts. Treat them as legacy unless you have verified otherwise.
 - Don't hardcode the working branch here — it moves. Run `git rev-parse --abbrev-ref HEAD` to see it; the main branch is `master`. Work happens on topic branches (typically `experiment/…`) that are cut from and merged back toward `master`.
 
 ## Utility scripts (root-level)
