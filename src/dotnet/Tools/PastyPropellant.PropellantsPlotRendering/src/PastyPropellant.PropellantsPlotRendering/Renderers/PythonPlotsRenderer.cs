@@ -1,5 +1,5 @@
 using PastyPropellant.Core.Utils;
-using PastyPropellant.ProcessHandling.ProcessHandlers;
+using PastyPropellant.Interop;
 using PastyPropellant.PropellantsPlotRendering.Interfaces;
 using PastyPropellant.PropellantsPlotRendering.Models;
 
@@ -7,7 +7,8 @@ namespace PastyPropellant.PropellantsPlotRendering.Renderers;
 
 public class PythonPlotsRenderer : IPlotsRenderer
 {
-    public const string PythonPath = "python3";
+    /// <summary>The interpreter that will be launched; see <see cref="PythonRuntime.InterpreterPath"/>.</summary>
+    public static string PythonPath => PythonRuntime.InterpreterPath;
 
     public string ScriptPath { get; init; }
 
@@ -39,12 +40,10 @@ public class PythonPlotsRenderer : IPlotsRenderer
         return new OperationResult<PlotsResult>(GetPlotsResult());
     }
 
-    private async Task<OperationResult> ExecutePythonScriptAsync(
+    private Task<OperationResult> ExecutePythonScriptAsync(
         string propellantsFilePath)
     {
-        var command = $"{PythonPath}";
-        var arguments = $"{ScriptPath} {propellantsFilePath}";
-        return await ProcessHandler.RunProcessAsync(command, arguments);
+        return PythonRuntime.RunScriptAsync(ScriptPath, propellantsFilePath);
     }
 
     private PlotsResult GetPlotsResult()

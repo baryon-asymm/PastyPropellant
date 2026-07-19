@@ -2,7 +2,7 @@ using System.Text.Json;
 using ParametricCombustionModel.Optimization.Models;
 using PastyPropellant.Core.Models.Events.Logs;
 using PastyPropellant.Core.Utils;
-using PastyPropellant.ProcessHandling.ProcessHandlers;
+using PastyPropellant.Interop;
 
 namespace PastyPropellant.ConsoleApp.Helpers;
 
@@ -15,7 +15,6 @@ namespace PastyPropellant.ConsoleApp.Helpers;
 /// </summary>
 public static class SkeletonLayerPlotsHelper
 {
-    private const string PythonPath = "python3";
     private const string SidecarFileName = "skeleton_layer.json";
 
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -101,7 +100,7 @@ public static class SkeletonLayerPlotsHelper
                 nameof(SkeletonLayerPlotsHelper)));
 
             var sidecarPath = WriteSidecar(result);
-            return await ProcessHandler.RunProcessAsync(PythonPath, $"{scriptPath} {sidecarPath}");
+            return await PythonRuntime.RunScriptAsync(scriptPath, sidecarPath);
         }
         catch (Exception ex)
         {

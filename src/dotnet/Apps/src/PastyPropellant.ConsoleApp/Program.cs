@@ -17,6 +17,7 @@ using PastyPropellant.ConsoleApp.Scenarios;
 using PastyPropellant.ConsoleApp.Scenarios.Settings;
 using PastyPropellant.Core.Models.Events.Logs;
 using PastyPropellant.Core.Utils;
+using PastyPropellant.Interop;
 using PDFsharp.Api.Adapters;
 using UnitsNet;
 
@@ -464,13 +465,13 @@ async Task RunForwardEvalAsync(string inputFileName, string vectorFilePath)
 
     Console.WriteLine("Rendering Python plots...");
     var propellantPlotsRenderingHelper = new PropellantPlotsRenderingHelper(
-        "../../../../../src/python/PropellantsPlotRendering/src/main.py");
+        PythonRuntime.ScriptPath("PropellantsPlotRendering/src/main.py"));
     await propellantPlotsRenderingHelper.RenderPlotsAsync(inputFileName);
 
     Console.WriteLine("Rendering skeleton-layer plots...");
     var skeletonPlotsResult = await SkeletonLayerPlotsHelper.RenderPlotsAsync(
         result.ToOptimizationResult(),
-        "../../../../../src/python/PropellantsPlotRendering/src/skeleton_layer_plots.py");
+        PythonRuntime.ScriptPath("PropellantsPlotRendering/src/skeleton_layer_plots.py"));
     if (!skeletonPlotsResult.IsSuccess)
         Console.WriteLine($"⚠ Skeleton-layer plots failed: {skeletonPlotsResult.Exception?.Message}");
 
@@ -570,7 +571,7 @@ try
     // Render Python plots
     Console.WriteLine("Rendering Python plots...");
     var propellantPlotsRenderingHelper = new PropellantPlotsRenderingHelper(
-        "../../../../../src/python/PropellantsPlotRendering/src/main.py");
+        PythonRuntime.ScriptPath("PropellantsPlotRendering/src/main.py"));
     await propellantPlotsRenderingHelper.RenderPlotsAsync("propellants.01234.json");
     Console.WriteLine("✓ Python plots rendered\n");
 
@@ -578,7 +579,7 @@ try
     Console.WriteLine("Rendering skeleton-layer plots...");
     var skeletonPlotsResult = await SkeletonLayerPlotsHelper.RenderPlotsAsync(
         groupResult!.ToOptimizationResult(),
-        "../../../../../src/python/PropellantsPlotRendering/src/skeleton_layer_plots.py");
+        PythonRuntime.ScriptPath("PropellantsPlotRendering/src/skeleton_layer_plots.py"));
     if (skeletonPlotsResult.IsSuccess)
         Console.WriteLine("✓ Skeleton-layer plots rendered\n");
     else

@@ -19,4 +19,10 @@
     <ProjectReference Include="..\..\..\Tools\PastyPropellant.Thermodynamics\src\PastyPropellant.Thermodynamics\PastyPropellant.Thermodynamics.csproj" />
   </ItemGroup>
 
+  <!-- Shared Python-invocation helper, compile-linked rather than referenced. The type is
+       internal, so this copy does not collide with the copies inside the Tools libraries. -->
+  <ItemGroup>
+    <Compile Include="..\..\..\Shared\PythonRuntime.cs" Link="Shared\PythonRuntime.cs" />
+  </ItemGroup>
+
 </Project>

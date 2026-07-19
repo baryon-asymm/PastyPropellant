@@ -10,4 +10,10 @@
     <ProjectReference Include="..\..\..\..\Common\src\PastyPropellant.ProcessHandling\PastyPropellant.ProcessHandling.csproj" />
   </ItemGroup>
 
+  <!-- Shared Python-invocation helper, compile-linked rather than referenced so this library
+       stays standalone. The type is internal, so each consuming assembly gets its own copy. -->
+  <ItemGroup>
+    <Compile Include="..\..\..\..\Shared\PythonRuntime.cs" Link="Shared\PythonRuntime.cs" />
+  </ItemGroup>
+
 </Project>

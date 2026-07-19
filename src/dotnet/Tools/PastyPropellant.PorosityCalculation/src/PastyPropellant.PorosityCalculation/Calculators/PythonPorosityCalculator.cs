@@ -1,13 +1,14 @@
 using PastyPropellant.Core.Utils;
+using PastyPropellant.Interop;
 using PastyPropellant.PorosityCalculation.Interfaces;
 using PastyPropellant.PorosityCalculation.Models;
-using PastyPropellant.ProcessHandling.ProcessHandlers;
 
 namespace PastyPropellant.PorosityCalculation.Calculators;
 
 public class PythonPorosityCalculator : IPorosityCalculator
 {
-    public const string PythonPath = "python3";
+    /// <summary>The interpreter that will be launched; see <see cref="PythonRuntime.InterpreterPath"/>.</summary>
+    public static string PythonPath => PythonRuntime.InterpreterPath;
 
     public string ScriptPath { get; init; }
 
@@ -40,12 +41,14 @@ public class PythonPorosityCalculator : IPorosityCalculator
         return GetPorosityPropellant(propellantName, regionFilePath);
     }
 
-    private async Task<OperationResult> ExecutePythonScriptAsync(
+    private Task<OperationResult> ExecutePythonScriptAsync(
         string propellantsFilePath, string propellantName, string regionFilePath)
     {
-        var command = $"{PythonPath}";
-        var arguments = $"{ScriptPath} --propellants-file {propellantsFilePath} --propellant-name {propellantName} --region-file {regionFilePath}";
-        return await ProcessHandler.RunProcessAsync(command, arguments);
+        return PythonRuntime.RunScriptAsync(
+            ScriptPath,
+            "--propellants-file", propellantsFilePath,
+            "--propellant-name", propellantName,
+            "--region-file", regionFilePath);
     }
 
     private OperationResult<PorosityPropellant> GetPorosityPropellant(string propellantName, string regionFilePath)

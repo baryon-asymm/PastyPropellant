@@ -1,5 +1,5 @@
 using PastyPropellant.Core.Utils;
-using PastyPropellant.ProcessHandling.ProcessHandlers;
+using PastyPropellant.Interop;
 using PastyPropellant.Thermodynamics.Interfaces;
 using PastyPropellant.Thermodynamics.Models;
 using UnitsNet;
@@ -8,7 +8,8 @@ namespace PastyPropellant.Thermodynamics.Calculators;
 
 public class PythonThermodynamicsCalculator : IThermodynamicsCalculator
 {
-    public const string PythonPath = "python3";
+    /// <summary>The interpreter that will be launched; see <see cref="PythonRuntime.InterpreterPath"/>.</summary>
+    public static string PythonPath => PythonRuntime.InterpreterPath;
 
     public const string OutputFileExtension = ".tdc.json";
 
@@ -46,8 +47,11 @@ public class PythonThermodynamicsCalculator : IThermodynamicsCalculator
     private Task<OperationResult> ExecutePythonScriptAsync(
         string propellantFilePath, string combustionProductsFilePath, Pressure pressure, string outputFilePath)
     {
-        var command = $"{PythonPath}";
-        var arguments = $"{ScriptPath} --propellant {propellantFilePath} --combustion-products {combustionProductsFilePath} --pressure {pressure.Pascals} --output-json {outputFilePath}";
-        return ProcessHandler.RunProcessAsync(command, arguments);
+        return PythonRuntime.RunScriptAsync(
+            ScriptPath,
+            "--propellant", propellantFilePath,
+            "--combustion-products", combustionProductsFilePath,
+            "--pressure", pressure.Pascals.ToString(),
+            "--output-json", outputFilePath);
     }
 }

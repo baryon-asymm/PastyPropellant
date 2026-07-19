@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Text.Json;
 using PastyPropellant.Core.Utils;
-using PastyPropellant.ProcessHandling.ProcessHandlers;
+using PastyPropellant.Interop;
 using PastyPropellant.RegionMapper.Interfaces;
 using PastyPropellant.RegionMapper.Models;
 using UnitsNet;
@@ -10,7 +10,8 @@ namespace PastyPropellant.RegionMapper.Mappers;
 
 public class PythonRegionMapper : IRegionMapper
 {
-    public const string PythonPath = "python3";
+    /// <summary>The interpreter that will be launched; see <see cref="PythonRuntime.InterpreterPath"/>.</summary>
+    public static string PythonPath => PythonRuntime.InterpreterPath;
 
     public string ScriptPath { get; init; }
 
@@ -55,10 +56,13 @@ public class PythonRegionMapper : IRegionMapper
     {
         foreach (var pressure in Pressures)
         {
-            var command = $"{PythonPath}";
             var outputDirectoryPath = Path.Combine(OutputDirectoryPath, pressure.Pascals.ToString());
-            var arguments = $"{ScriptPath} --propellants {propellantsFilePath} --components {componentsFilePath} --pressure {pressure.Pascals} --output-dir {outputDirectoryPath}";
-            var operationResult = await ProcessHandler.RunProcessAsync(command, arguments);
+            var operationResult = await PythonRuntime.RunScriptAsync(
+                ScriptPath,
+                "--propellants", propellantsFilePath,
+                "--components", componentsFilePath,
+                "--pressure", pressure.Pascals.ToString(),
+                "--output-dir", outputDirectoryPath);
             if (operationResult.IsSuccess == false)
             {
                 return operationResult;
