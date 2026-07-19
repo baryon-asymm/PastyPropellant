@@ -282,6 +282,137 @@ public class BurnRateIsFoundParityTests
 
 #endregion
 
+#region Field-by-field parity
+
+    /// <summary>
+    /// Compares every computed field of the units-based and doubles-based paths, not just the
+    /// <c>BurnRateIsFound</c> flag.
+    /// <para>
+    /// Ported from <c>MixedPropellantSolverTester.TestProblemContextComparison</c>, which lived in the legacy
+    /// root <c>tests/</c> tree. That tree was never a member of the solution and had not compiled since a
+    /// repository restructure, so this assertion had not run in a long time. The <c>ByDoubles</c>/<c>ByUnits</c>
+    /// pair is a first-class convention in this codebase, and the flag-only check is too narrow to protect it:
+    /// the two paths can agree on "a solution was found" while disagreeing on the numbers.
+    /// </para>
+    /// <para>
+    /// The original tolerance of 1e-6 is kept. It is absolute, so it is loose for heat fluxes (order 1e6-1e9
+    /// W/m²) and tight for burn rates (order 1e-3 m/s) — worth tightening to a relative comparison if this ever
+    /// needs to catch small proportional drift.
+    /// </para>
+    /// </summary>
+    [Fact]
+    public void MixedSolver_ConvergingCase_EveryComputedFieldAgrees()
+    {
+        var (units, doubles) = BuildMatrices();
+        var solver = new MixedPropellantSolver();
+
+        for (var j = 0; j < units.GetLength(1); j++)
+        {
+            units[0, j].Accept(CombustionSolverParamsByUnits.FromVector(ConvergingVector), solver);
+            doubles[0, j].Accept(CombustionSolverParamsByDoubles.FromVector(ConvergingVector), solver);
+
+            CompareMixed(units[0, j].MixedCombustionParams, doubles[0, j].MixedCombustionParams, j);
+            CompareInterPocket(units[0, j].InterPocketCombustionParams,
+                               doubles[0, j].InterPocketCombustionParams, j);
+
+            // The original harness defined this comparison but never called it, so the pocket side has never
+            // had parity coverage. It is wired in here.
+            ComparePocket(units[0, j].PocketCombustionParams, doubles[0, j].PocketCombustionParams, j);
+        }
+    }
+
+    private const double Tolerance = 1e-6;
+
+    private static void Close(double units, double doubles, string field, int pressureIndex) =>
+        Assert.True(Math.Abs(units - doubles) < Tolerance,
+                    $"{field} mismatch at pressure index {pressureIndex}: units={units}, doubles={doubles}.");
+
+    private static void CompareMixed(
+        Models.ComputedParams.MixedCombustionParams units,
+        Models.ComputedParams.MixedCombustionParamsByDoubles doubles,
+        int j)
+    {
+        Assert.True(units.BurnRateIsFound == doubles.BurnRateIsFound, $"BurnRateIsFound mismatch at index {j}.");
+        Close(units.BurnRate.MetersPerSecond, doubles.BurnRate, "Mixed.BurnRate", j);
+    }
+
+    private static void CompareInterPocket(
+        Models.ComputedParams.InterPocketCombustionParams units,
+        Models.ComputedParams.InterPocketCombustionParamsByDoubles doubles,
+        int j)
+    {
+        Assert.True(units.BurnRateIsFound == doubles.BurnRateIsFound,
+                    $"InterPocket.BurnRateIsFound mismatch at index {j}.");
+        Close(units.SurfaceTemperature.Kelvins, doubles.SurfaceTemperature, "InterPocket.SurfaceTemperature", j);
+        Close(units.BurnRate.MetersPerSecond, doubles.BurnRate, "InterPocket.BurnRate", j);
+        Close(units.DecomposeRate.KilogramsPerSecondPerSquareMeter, doubles.DecomposeRate,
+              "InterPocket.DecomposeRate", j);
+        Close(units.SublimationHeatFlux.WattsPerSquareMeter, doubles.SublimationHeatFlux,
+              "InterPocket.SublimationHeatFlux", j);
+        Close(units.SurfaceHeatFluxesError.WattsPerSquareMeter, doubles.SurfaceHeatFluxesError,
+              "InterPocket.SurfaceHeatFluxesError", j);
+
+        CompareKineticFlame(units.KineticFlameCombustionParams, doubles.KineticFlameCombustionParams,
+                            "InterPocket", j);
+    }
+
+    private static void ComparePocket(
+        Models.ComputedParams.PocketCombustionParams units,
+        Models.ComputedParams.PocketCombustionParamsByDoubles doubles,
+        int j)
+    {
+        Assert.True(units.BurnRateIsFound == doubles.BurnRateIsFound,
+                    $"Pocket.BurnRateIsFound mismatch at index {j}.");
+        Close(units.SurfaceTemperature.Kelvins, doubles.SurfaceTemperature, "Pocket.SurfaceTemperature", j);
+        Close(units.BurnRate.MetersPerSecond, doubles.BurnRate, "Pocket.BurnRate", j);
+        Close(units.DecomposeRate.KilogramsPerSecondPerSquareMeter, doubles.DecomposeRate,
+              "Pocket.DecomposeRate", j);
+
+        CompareKineticFlame(units.OutSkeletonKineticFlameCombustionParams,
+                            doubles.OutSkeletonKineticFlameCombustionParams, "Pocket.OutSkeleton", j);
+        CompareKineticFlame(units.SkeletonKineticFlameCombustionParams,
+                            doubles.SkeletonKineticFlameCombustionParams, "Pocket.Skeleton", j);
+
+        // Both sides are currently pinned to zero by the solver (see DEAD-4 in docs/tech-debt.md), so this
+        // passes trivially today. It is kept deliberately: if the metal-burning temperature is ever wired back
+        // in, this is what catches one path being updated without the other.
+        Close(units.AverageMetalBurningTemperature.Kelvins, doubles.AverageMetalBurningTemperature,
+              "Pocket.AverageMetalBurningTemperature", j);
+        Close(units.MetalBurningHeatFlux.WattsPerSquareMeter, doubles.MetalBurningHeatFlux,
+              "Pocket.MetalBurningHeatFlux", j);
+
+        Close(units.DiffusionFlameHeight.Meters, doubles.DiffusionFlameHeight, "Pocket.DiffusionFlameHeight", j);
+        Close(units.DiffusionFlameHeatFlux.WattsPerSquareMeter, doubles.DiffusionFlameHeatFlux,
+              "Pocket.DiffusionFlameHeatFlux", j);
+
+        Close(units.OutSkeletonHeatFlux.WattsPerSquareMeter, doubles.OutSkeletonHeatFlux,
+              "Pocket.OutSkeletonHeatFlux", j);
+        Close(units.SkeletonHeatFlux.WattsPerSquareMeter, doubles.SkeletonHeatFlux, "Pocket.SkeletonHeatFlux", j);
+        Close(units.ToSurfaceTotalHeatFlux.WattsPerSquareMeter, doubles.ToSurfaceTotalHeatFlux,
+              "Pocket.ToSurfaceTotalHeatFlux", j);
+        Close(units.SublimationHeatFlux.WattsPerSquareMeter, doubles.SublimationHeatFlux,
+              "Pocket.SublimationHeatFlux", j);
+        Close(units.SurfaceHeatFluxesError.WattsPerSquareMeter, doubles.SurfaceHeatFluxesError,
+              "Pocket.SurfaceHeatFluxesError", j);
+    }
+
+    private static void CompareKineticFlame(
+        Models.ComputedParams.KineticFlameCombustionParams units,
+        Models.ComputedParams.KineticFlameCombustionParamsByDoubles doubles,
+        string region,
+        int j)
+    {
+        Close(units.KineticFlameHeight.Meters, doubles.KineticFlameHeight, $"{region}.KineticFlameHeight", j);
+        Close(units.AverageKineticFlameDensity.KilogramsPerCubicMeter, doubles.AverageKineticFlameDensity,
+              $"{region}.AverageKineticFlameDensity", j);
+        Close(units.AverageKineticFlameTemperature.Kelvins, doubles.AverageKineticFlameTemperature,
+              $"{region}.AverageKineticFlameTemperature", j);
+        Close(units.KineticFlameHeatFlux.WattsPerSquareMeter, doubles.KineticFlameHeatFlux,
+              $"{region}.KineticFlameHeatFlux", j);
+    }
+
+#endregion
+
 #region Fixture
 
     /// <summary>
