@@ -93,15 +93,17 @@ public class ProblemContextByDoubles : IComputationVisitable
     /// The minimum surface temperature for the propellant combustion process.
     /// This property is used as the lower bound in binary search algorithms for solving the transcendental equation
     /// to find the surface temperature of the propellant (condensed phase).
+    /// The value and its provenance live in <see cref="SurfaceTemperatureSearchBounds"/>.
     /// </summary>
-    public double MinSurfaceTemperature = 600;
+    public double MinSurfaceTemperature = SurfaceTemperatureSearchBounds.MinKelvins;
 
     /// <summary>
     /// The maximum surface temperature for the propellant combustion process.
     /// This property is used as the upper bound in binary search algorithms for solving the transcendental equation
     /// to find the surface temperature of the propellant (condensed phase).
+    /// The value and its provenance live in <see cref="SurfaceTemperatureSearchBounds"/>.
     /// </summary>
-    public double MaxSurfaceTemperature = 900;
+    public double MaxSurfaceTemperature = SurfaceTemperatureSearchBounds.MaxKelvins;
 
 #endregion
 

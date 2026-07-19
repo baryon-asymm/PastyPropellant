@@ -26,31 +26,7 @@ public static class PropellantExtensions
     public static double GetInterPocketAreaVolumeFraction(
         this Propellant propellant)
     {
-        var al = propellant.Components.OfType<Aluminum>().FirstOrDefault()
-                 ?? throw new ArgumentNullException(nameof(Aluminum));
-        var cb = propellant.Components.OfType<CombustibleBinder>().FirstOrDefault()
-                 ?? throw new ArgumentNullException(nameof(CombustibleBinder));
-        var ap = propellant.Components.OfType<AmmoniumPerchlorate>().FirstOrDefault()
-                 ?? throw new ArgumentNullException(nameof(AmmoniumPerchlorate));
-
-        var cmf = GetCompoundMassFraction(propellant);
-        var ip_cmf = (1.0 - propellant.PocketMassFraction) * cmf;
-
-        var apsf = ap.MassFraction * ap.SmallParticlesFraction;
-
-        var c_almf = al.MassFraction / cmf;
-        var c_cbmf = cb.MassFraction / cmf;
-        var c_apsf = apsf / cmf;
-
-        var ip_almf = ip_cmf * c_almf;
-        var ip_cbmf = ip_cmf * c_cbmf;
-        var ip_apsf = ip_cmf * c_apsf;
-
-        var ip_alvf = GetComponentVolumeFraction(propellant, ip_almf, al.Density);
-        var ip_cbvf = GetComponentVolumeFraction(propellant, ip_cbmf, cb.Density);
-        var ip_apvf = GetComponentVolumeFraction(propellant, ip_apsf, ap.Density);
-
-        return ip_alvf + ip_cbvf + ip_apvf;
+        return GetAreaVolumeFraction(propellant, 1.0 - propellant.PocketMassFraction);
     }
 
     /// <summary>
@@ -68,31 +44,7 @@ public static class PropellantExtensions
     public static double GetPocketAreaVolumeFraction(
         this Propellant propellant)
     {
-        var al = propellant.Components.OfType<Aluminum>().FirstOrDefault()
-                 ?? throw new ArgumentNullException(nameof(Aluminum));
-        var cb = propellant.Components.OfType<CombustibleBinder>().FirstOrDefault()
-                 ?? throw new ArgumentNullException(nameof(CombustibleBinder));
-        var ap = propellant.Components.OfType<AmmoniumPerchlorate>().FirstOrDefault()
-                 ?? throw new ArgumentNullException(nameof(AmmoniumPerchlorate));
-
-        var cmf = GetCompoundMassFraction(propellant);
-        var p_cmf = propellant.PocketMassFraction * cmf;
-
-        var apsf = ap.MassFraction * ap.SmallParticlesFraction;
-
-        var c_almf = al.MassFraction / cmf;
-        var c_cbmf = cb.MassFraction / cmf;
-        var c_apsf = apsf / cmf;
-
-        var p_almf = p_cmf * c_almf;
-        var p_cbmf = p_cmf * c_cbmf;
-        var p_apsf = p_cmf * c_apsf;
-
-        var p_alvf = GetComponentVolumeFraction(propellant, p_almf, al.Density);
-        var p_cbvf = GetComponentVolumeFraction(propellant, p_cbmf, cb.Density);
-        var p_apvf = GetComponentVolumeFraction(propellant, p_apsf, ap.Density);
-
-        return p_alvf + p_cbvf + p_apvf;
+        return GetAreaVolumeFraction(propellant, propellant.PocketMassFraction);
     }
 
     /// <summary>
@@ -140,18 +92,36 @@ public static class PropellantExtensions
     }
 
     /// <summary>
+    /// The metal (aluminum) melting temperature used by the model, in Kelvins.
+    /// <para>
+    /// PROVENANCE — this is a deliberate experimental setting of the current line of work, not a handbook
+    /// constant and not a fitted parameter. The published value for this model is 2300 K; the 1300 K value
+    /// used here is the setting that reconciles the model with the particle-size constraint on this branch.
+    /// It is intentionally uniform across all compositions: the model currently assumes a single metal
+    /// (aluminum) skeleton, so there is no composition-dependent melting temperature to resolve.
+    /// </para>
+    /// <para>
+    /// Changing this value changes every computed result. Do not "correct" it to 2300 K without the
+    /// model owner's approval.
+    /// </para>
+    /// </summary>
+    public const double MetalMeltingTemperatureKelvins = 1300;
+
+    /// <summary>
     /// Gets the metal melting temperature in Kelvins.
     /// </summary>
-    /// <param name="propellant">
-    /// The <see cref="Propellant"/> instance for which the melting temperature is retrieved.
-    /// </param>
+    /// <remarks>
+    /// The value is composition-independent by design — see <see cref="MetalMeltingTemperatureKelvins"/>
+    /// for the provenance. This method deliberately takes no <see cref="Propellant"/>: the previous
+    /// extension-method signature accepted one and ignored it, which suggested a per-composition lookup
+    /// that does not exist.
+    /// </remarks>
     /// <returns>
     /// The melting temperature of the metal in Kelvins.
     /// </returns>
-    public static double GetMetalMeltingTemperature(
-        this Propellant propellant)
+    public static double GetMetalMeltingTemperature()
     {
-        return 1300;
+        return MetalMeltingTemperatureKelvins;
     }
 
     /// <summary>
@@ -191,6 +161,61 @@ public static class PropellantExtensions
 #endregion
 
 #region Private Methods
+
+    /// <summary>
+    /// Calculates the area volume fraction of one of the two mutually exclusive regions of the propellant
+    /// (the pocket region or the inter-pocket region).
+    /// <para>
+    /// Both regions are built from the same compound (aluminum + combustible binder + the small-particle
+    /// fraction of ammonium perchlorate) and differ only in how much of that compound they hold: the pocket
+    /// region takes <c>PocketMassFraction</c> of it and the inter-pocket region takes the complementary
+    /// <c>1 - PocketMassFraction</c>. The compound is assumed to keep the same internal component proportions
+    /// in both regions, so the per-component mass fractions are simply scaled by the region's share.
+    /// </para>
+    /// </summary>
+    /// <param name="propellant">
+    /// The <see cref="Propellant"/> instance for which the calculation is performed.
+    /// </param>
+    /// <param name="regionCompoundMassShare">
+    /// The share of the compound belonging to the region: <c>PocketMassFraction</c> for the pocket region,
+    /// <c>1 - PocketMassFraction</c> for the inter-pocket region.
+    /// </param>
+    /// <returns>
+    /// The area volume fraction of the requested region.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when a required component (Aluminum, CombustibleBinder, or AmmoniumPerchlorate) is not found in the propellant.
+    /// </exception>
+    private static double GetAreaVolumeFraction(
+        Propellant propellant,
+        double regionCompoundMassShare)
+    {
+        var al = propellant.Components.OfType<Aluminum>().FirstOrDefault()
+                 ?? throw new ArgumentNullException(nameof(Aluminum));
+        var cb = propellant.Components.OfType<CombustibleBinder>().FirstOrDefault()
+                 ?? throw new ArgumentNullException(nameof(CombustibleBinder));
+        var ap = propellant.Components.OfType<AmmoniumPerchlorate>().FirstOrDefault()
+                 ?? throw new ArgumentNullException(nameof(AmmoniumPerchlorate));
+
+        var cmf = GetCompoundMassFraction(propellant);
+        var r_cmf = regionCompoundMassShare * cmf;
+
+        var apsf = ap.MassFraction * ap.SmallParticlesFraction;
+
+        var c_almf = al.MassFraction / cmf;
+        var c_cbmf = cb.MassFraction / cmf;
+        var c_apsf = apsf / cmf;
+
+        var r_almf = r_cmf * c_almf;
+        var r_cbmf = r_cmf * c_cbmf;
+        var r_apsf = r_cmf * c_apsf;
+
+        var r_alvf = GetComponentVolumeFraction(propellant, r_almf, al.Density);
+        var r_cbvf = GetComponentVolumeFraction(propellant, r_cbmf, cb.Density);
+        var r_apvf = GetComponentVolumeFraction(propellant, r_apsf, ap.Density);
+
+        return r_alvf + r_cbvf + r_apvf;
+    }
 
     /// <summary>
     /// Calculates the volume fraction of a component in the propellant based on its mass fraction and density.

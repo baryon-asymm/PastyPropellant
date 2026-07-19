@@ -246,7 +246,7 @@ public class ProblemContextByDoublesMatrixBuilder
         return new MetalCombustionParamsByDoubles
         {
             MetalBoilingTemperature = propellant.GetMetalBoilingTemperature(pressure.Pascals),
-            MetalMeltingTemperature = propellant.GetMetalMeltingTemperature()
+            MetalMeltingTemperature = PropellantExtensions.GetMetalMeltingTemperature()
         };
     }
 
