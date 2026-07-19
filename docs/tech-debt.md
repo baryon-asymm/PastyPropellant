@@ -14,6 +14,47 @@
 
 ---
 
+## Resolution log
+
+Items closed on `dev`, newest last. Each was independently re-verified against the code before the fix landed — where the audit turned out to be wrong, that is recorded too.
+
+| ID | Commit | Note |
+|----|--------|------|
+| [BUG-1](#bug-1) | `9062392` | Confirmed exactly as described. Pressure tables now emit 17 rows, not 16. |
+| [BUG-2](#bug-2) | `9ca6a18` | Confirmed: zero subscribers. stderr is now buffered (50 lines / 8192 chars, tail kept) into the failure exception; the event is still published. |
+| [BUILD-2](#build-2), BUILD-4, [DEAD-7](#dead-7) | `2454091` | **Audit was wrong on the key point:** all six files were *tracked*, so ignoring alone would have been inert — git never ignores a tracked file. Files untracked and left on disk. `.env` held only a placeholder, never a live key. |
+| [DOC-1](#doc-1), [DOC-2](#doc-2) | `91593f7` | Every fictional element confirmed absent. `data/optimization_tickets.json` does not merely go unused — **it does not exist**. |
+| [COR-1](#cor-1) | `aa49396` | Confirmed, and worse than described: **three** concurrent publishers, not one. The cited `Parallel.ForEach` is the least dangerous — it holds a local lock. Fixed by copy-on-write. |
+| [COR-5](#cor-5) | `e13be7b` | Confirmed. Optional token + timeout, defaults preserve wait-forever, all call sites unchanged. |
+| [DEAD-3](#dead-3) | `f85dbcd` | All three renderers confirmed unreferenced repo-wide. |
+| [DEAD-5](#dead-5) | `2cd2456` | Confirmed *except* the Python line — see NEW-2 below. |
+| [DEAD-6](#dead-6) | `de45bd8` | Partially closed: `GroupReportContextDto.Propellants` is a required ctor parameter supplied by `Program.cs`, so removing it is an API change — deferred to the [ARCH-8](#arch-8) pass. |
+
+## 🔴 New findings (not in the original audit)
+
+<a id="new-1"></a>**NEW-1 · High · —** — **Live Telegram bot token committed since `Initial commit`.**
+`data/telegram_settings.json` is tracked and its `token` field matches the Telegram bot-token shape exactly (`\d{8,12}:[A-Za-z0-9_-]{35}`), alongside a numeric `chat_id`. It has been in git since `5802f0d`, i.e. in every clone and every history snapshot, on a repository that is public. [BUILD-2](#build-2) pointed at `.env` as *the* secrets hazard and aimed at the wrong file — `.env` holds an inert placeholder. → **Revoke and reissue the bot token via BotFather.** History rewriting is pointless while the token is live. Note nothing in `src/dotnet` actually reads this file (see [DOC-1](#doc-1)), so untracking it costs nothing functionally.
+
+<a id="new-2"></a>**NEW-2 · — · —** — **[DEAD-5](#dead-5) was wrong about the Python line.**
+`PorosityCalculation/src/calculators.py:8` is not dead code: `# ALUMINUM_TEMPERATURE_FACTOR = 0.6 # Unused: Previously considered 40% density reduction at 2300 K`. The trailing prose records a *rejected physical assumption* and names the exact metal temperature under active investigation elsewhere in the project. That is modelling provenance. Kept deliberately; do not re-flag.
+
+<a id="new-3"></a>**NEW-3 · Med · S** — Reports read `BurnRate` with no convergence guard.
+Every report (`PressureTablesReport`, `BurnRateErrorReport`, `BurnRateVieilleFitReport`, `ProblemContextReport`, `SkeletonLayerPlotsHelper`) reads `MixedCombustionParams.BurnRate` **unconditionally** — none checks `BurnRateIsFound`. A non-converged context reaching a report prints a stale or sentinel burn rate silently. Distinct from [COR-2](#cor-2).
+
+<a id="new-4"></a>**NEW-4 · Low · S** — `rightValue` is a write-once dead local in all four bisection loops.
+Computed for the initial bracket sign-check, then never read again — the loops test only `leftValue`. The algorithm is correct; the variable is vestigial. Surfaced while removing the commented-out `// rightValue = middleValue;` mirrors in `2cd2456`.
+
+<a id="new-5"></a>**NEW-5 · Med · —** — `checker.py` structurally cannot catch solver parity defects.
+It pairs files by name (`(.*)(ByDoubles|ByUnits)(.*)\.cs$`), but the solvers carry **both** overloads inside a single file, so every solver is invisible to it. [COR-2](#cor-2) is exactly the class of defect it was built to find, and it cannot see it. Do not treat a clean `checker.py` run as parity evidence for the solvers.
+
+<a id="new-6"></a>**NEW-6 · Low · S** — Comment/resource mismatch in `PressureTablesReport`.
+The comment at `PressureTablesReport.cs:146` reads "Add pocket kinetic flame heat flux" while the block below it uses the `SkeletonKineticFlameHeatFlux` resources. Cosmetic, but it is what made [BUG-1](#bug-1) hard to spot by eye.
+
+<a id="new-7"></a>**NEW-7 · Med · —** — The parity test harness is in the dead tree.
+`MixedPropellantSolverTester.cs` already asserts `unitsParams.BurnRateIsFound == doublesParams.BurnRateIsFound` — exactly the [COR-2](#cor-2) invariant — but it lives in `tests/ParametricCombustionModel/…`, which is not in the solution and does not compile ([DEAD-1](#dead-1)). It has never run since the restructure. Its `ComparePocketCombustionParams` is additionally defined but never called. Any test written to cover a solver fix must go to a **live** project, which for `Computation` does not yet exist ([TEST-1](#test-1)).
+
+---
+
 ## ⭐ Most consequential (act on these first)
 
 | ID | What | Sev |
