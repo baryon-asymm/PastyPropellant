@@ -1,10 +1,35 @@
+"""
+Render per-characteristic thermodynamic plots for a set of propellants.
+
+Reads the INPUT propellants JSON (the same file the .NET host feeds the solver) and
+writes one PNG per characteristic, with every fuel drawn as a curve inside each panel.
+
+Usage:
+    python main.py <path/to/propellants.json> [--output-dir DIR]
+
+`--output-dir` defaults to the current working directory, which is the historical
+behaviour the .NET `PythonPlotsRenderer` relies on: it passes only the JSON path and
+then reads the PNGs back from `Directory.GetCurrentDirectory()`.
+"""
+
+import argparse
 import json
+import os
 import sys
 
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
 from typing import List
+
+PLOT_PARAMETERS = [
+    'lambda_gas',
+    'average_molar_mass',
+    'c_volume',
+    'temperatures',
+    'agglomeration_fraction',
+    'skeleton_surface_fraction',
+]
 
 PARAMETER_LABELS = {
     'lambda_gas': 'Thermal Conductivity (λ), W/(m·K)',
@@ -45,8 +70,19 @@ def _calculate_agglomeration_fraction(coefficients: List[float], pressure: float
     """
     Calculate agglomeration fraction using polynomial coefficients.
 
-    Note: This implementation clamps the result to [0, 100] (percentage range).
-    This differs from RegionMapper's implementation which returns raw values.
+    Same polynomial as RegionMapper's `_calculate_agglomeration_fraction`
+    (evaluated in MPa). The quantity is a mass FRACTION in [0, 1], not a
+    percentage: the shipped propellants fit to 0.086..0.296 over the 1..6.5 MPa
+    fitted range.
+
+    The `min(100, ...)` upper bound is therefore on the wrong scale and is inert
+    — nothing approaches 100 — and it is kept only so this plot's numbers stay
+    bit-identical to what has been published. The `max(0, ...)` lower bound is
+    the meaningful one: it keeps the plotted curve off a negative axis if the
+    fit is ever extrapolated past the pressure range it was fitted on.
+
+    Over the fitted range this returns exactly the same values as RegionMapper's
+    unclamped version for every shipped propellant, because neither bound binds.
     """
     normalized_pressure = pressure / 1e6
     fraction = sum(coeff * (normalized_pressure)**i for i, coeff in enumerate(coefficients))
@@ -167,12 +203,49 @@ def plot_parameter(data, parameter_name, output_filename):
     _plot_phase_grid(data, phases, PARAMETER_LABELS[parameter_name],
                      PARAMETER_LABELS[parameter_name], output_filename)
 
-if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python script.py <path/to/propellants.json>")
-        sys.exit(1)
+def parse_args():
+    """Parse command-line arguments.
 
-    file_path = sys.argv[1]
+    The propellants JSON stays a bare positional argument so the existing
+    single-argument invocation (`python main.py propellants.json`) keeps working
+    unchanged -- that is the contract the .NET PythonPlotsRenderer depends on.
+    """
+    parser = argparse.ArgumentParser(
+        description="Render thermodynamic plots for a set of propellants."
+    )
+    parser.add_argument(
+        "propellants",
+        help="Path to the propellant JSON file (e.g., propellants.json)."
+    )
+    parser.add_argument(
+        "--output-dir",
+        default=None,
+        help="Directory to write the PNG plots into. Defaults to the current "
+             "working directory, matching the historical behaviour."
+    )
+    return parser.parse_args()
+
+
+def resolve_output_path(output_dir, filename):
+    """Return the path to write `filename` to, creating `output_dir` if needed.
+
+    With no --output-dir the bare filename is returned verbatim, so the files land
+    in the process working directory exactly as they always have.
+    """
+    if not output_dir:
+        return filename
+
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+        print(f"Created directory: {output_dir}")
+
+    return os.path.join(output_dir, filename)
+
+
+if __name__ == "__main__":
+    args = parse_args()
+
+    file_path = args.propellants
     try:
         data = read_json(file_path)
     except FileNotFoundError:
@@ -182,15 +255,6 @@ if __name__ == "__main__":
         print(f"Error: Invalid JSON format in '{file_path}'")
         sys.exit(1)
 
-    parameters = [
-        'lambda_gas',
-        'average_molar_mass',
-        'c_volume',
-        'temperatures',
-        'agglomeration_fraction',
-        'skeleton_surface_fraction'
-    ]
-
-    for param in parameters:
-        output_name = f"{param}_plot.png"
-        plot_parameter(data, param, output_name)
+    for param in PLOT_PARAMETERS:
+        output_path = resolve_output_path(args.output_dir, f"{param}_plot.png")
+        plot_parameter(data, param, output_path)

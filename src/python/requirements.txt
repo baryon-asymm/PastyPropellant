@@ -1,0 +1,31 @@
+# Third-party Python dependencies for the PastyPropellant Python tooling.
+#
+# Derived by scanning the actual `import` statements under src/python/ plus the two
+# root-level utility scripts (checker.py, projecthandler.py). Everything else those
+# modules import is either the standard library (json, os, sys, argparse, dataclasses,
+# typing, re, time, collections, pathlib) or a sibling module inside the same package.
+#
+# Install:
+#     python3 -m pip install -r src/python/requirements.txt
+#
+# Per-package breakdown -- most of the tree needs nothing at all:
+#
+#   src/python/RegionMapper            stdlib only, no third-party dependencies
+#   src/python/PorosityCalculation     stdlib only, no third-party dependencies
+#   src/python/PropellantsPlotRendering  matplotlib   (main.py, skeleton_layer_plots.py)
+#   checker.py                         requests
+#   projecthandler.py                  requests
+#
+# Version floors are set to the versions these scripts are known to run against in
+# this environment (matplotlib 3.6.3, requests 2.31.0). They are floors rather than
+# exact pins because none of the code uses recently-added or deprecated APIs -- only
+# pyplot/ticker basics and requests.post -- so newer releases are expected to work.
+#
+# Note: the git submodule under externals/src/python/AerospacePropellantThermodynamics
+# carries its own dependencies and is deliberately not covered here.
+
+# Plot rendering (PropellantsPlotRendering). Pulls in numpy transitively.
+matplotlib>=3.6.3
+
+# HTTP calls to the local Ollama API (checker.py, projecthandler.py).
+requests>=2.31.0

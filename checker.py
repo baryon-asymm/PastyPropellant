@@ -6,9 +6,15 @@ from typing import List, Dict, Optional, Tuple
 import time
 from collections import defaultdict
 
+# Настройки Ollama. Переопределяются переменными окружения, чтобы скрипт можно было
+# направить на удалённый хост или другую модель без правки кода.
+DEFAULT_OLLAMA_BASE_URL = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
+DEFAULT_OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "gemma3:12b")
+
+
 class OllamaAnalyzer:
-    def __init__(self, base_url: str = "http://localhost:11434"):
-        self.base_url = base_url
+    def __init__(self, base_url: Optional[str] = None):
+        self.base_url = (base_url or DEFAULT_OLLAMA_BASE_URL).rstrip("/")
     
     def generate(self, model: str, prompt: str, format: str = "json") -> Optional[Dict]:
         """Отправляет запрос к Ollama API и возвращает JSON ответ"""
@@ -35,6 +41,43 @@ class OllamaAnalyzer:
         except requests.exceptions.RequestException as e:
             print(f"Ошибка при запросе к Ollama: {str(e)}")
             return None
+
+def _parse_ollama_payload(response: object, context: str) -> Optional[Dict]:
+    """Извлекает JSON-объект из ответа Ollama, не прерывая пакетный анализ.
+
+    Модель может вернуть что угодно: не-dict конверт, отсутствующее поле
+    "response", невалидный JSON или валидный JSON, который не является объектом
+    (список, строка, число). Любой из этих случаев пропускает ОДИН файл и
+    возвращает None, вместо того чтобы уронить весь прогон.
+    """
+    if not isinstance(response, dict):
+        print(f"Ollama вернула не объект ({type(response).__name__}) для {context}")
+        return None
+
+    payload = response.get("response")
+    if payload is None:
+        print(f"В ответе Ollama нет поля 'response' для {context}")
+        return None
+
+    if isinstance(payload, dict):
+        return dict(payload)
+
+    if not isinstance(payload, str):
+        print(f"Поле 'response' имеет тип {type(payload).__name__} для {context}")
+        return None
+
+    try:
+        result = json.loads(payload)
+    except json.JSONDecodeError:
+        print(f"Неверный JSON ответ от Ollama для {context}")
+        return None
+
+    if not isinstance(result, dict):
+        print(f"Ollama вернула JSON типа {type(result).__name__}, ожидался объект, для {context}")
+        return None
+
+    return result
+
 
 def find_csharp_files(directory: str) -> Tuple[List[str], List[Tuple[str, str]]]:
     """Находит все файлы .cs и пары ByDoubles/ByUnits"""
@@ -103,14 +146,13 @@ def analyze_single_file(analyzer: OllamaAnalyzer, file_path: str, model: str) ->
     response = analyzer.generate(model, prompt)
     if not response:
         return None
-    
-    try:
-        result = json.loads(response.get("response", "{}"))
-        result["file"] = file_path
-        return result
-    except json.JSONDecodeError:
-        print(f"Неверный JSON ответ от Ollama для файла {file_path}")
+
+    result = _parse_ollama_payload(response, f"файла {file_path}")
+    if result is None:
         return None
+
+    result["file"] = file_path
+    return result
 
 def analyze_file_pair(analyzer: OllamaAnalyzer, file1: str, file2: str, model: str) -> Optional[Dict]:
     """Сравнивает пару файлов ByDoubles/ByUnits"""
@@ -156,19 +198,19 @@ def analyze_file_pair(analyzer: OllamaAnalyzer, file1: str, file2: str, model: s
     response = analyzer.generate(model, prompt)
     if not response:
         return None
-    
-    try:
-        result = json.loads(response.get("response", "{}"))
-        result["file1"] = file1
-        result["file2"] = file2
-        return result
-    except json.JSONDecodeError:
-        print(f"Неверный JSON ответ от Ollama для пары {file1} и {file2}")
+
+    result = _parse_ollama_payload(response, f"пары {file1} и {file2}")
+    if result is None:
         return None
 
-def analyze_directory(directory: str, model: str = "codellama:7b-instruct"):
+    result["file1"] = file1
+    result["file2"] = file2
+    return result
+
+def analyze_directory(directory: str, model: Optional[str] = None, base_url: Optional[str] = None):
     """Анализирует все файлы в директории"""
-    analyzer = OllamaAnalyzer()
+    model = model or DEFAULT_OLLAMA_MODEL
+    analyzer = OllamaAnalyzer(base_url)
     single_files, file_pairs = find_csharp_files(directory)
     results = {
         "single_files": [],
@@ -189,10 +231,16 @@ def analyze_directory(directory: str, model: str = "codellama:7b-instruct"):
             analysis["analysis_time"] = round(elapsed, 2)
             results["single_files"].append(analysis)
             
-            if analysis.get("problems"):
+            problems = analysis.get("problems")
+            if problems:
                 print("Найдены проблемы:")
-                for problem in analysis["problems"]:
-                    print(f" - {problem['method']}: {problem['issue']}")
+                for problem in problems if isinstance(problems, list) else []:
+                    if not isinstance(problem, dict):
+                        print(f" - (нераспознанная запись: {problem!r})")
+                        continue
+                    method = problem.get("method", "<без имени>")
+                    issue = problem.get("issue", "<без описания>")
+                    print(f" - {method}: {issue}")
             else:
                 print("Проблем не обнаружено")
         
@@ -214,10 +262,20 @@ def analyze_directory(directory: str, model: str = "codellama:7b-instruct"):
             
             if not comparison.get("equivalent", True):
                 print("Найдены различия:")
-                for diff in comparison.get("differences", []):
-                    print(f" - {diff['description']}")
-                for missing in comparison.get("missing_methods", []):
-                    print(f" - Отсутствует метод {missing['method']} в {missing['in_file']}")
+                differences = comparison.get("differences") or []
+                for diff in differences if isinstance(differences, list) else []:
+                    if isinstance(diff, dict):
+                        print(f" - {diff.get('description', '<без описания>')}")
+                    else:
+                        print(f" - (нераспознанная запись: {diff!r})")
+
+                missing_methods = comparison.get("missing_methods") or []
+                for missing in missing_methods if isinstance(missing_methods, list) else []:
+                    if isinstance(missing, dict):
+                        print(f" - Отсутствует метод {missing.get('method', '<без имени>')} "
+                              f"в {missing.get('in_file', '<неизвестный файл>')}")
+                    else:
+                        print(f" - (нераспознанная запись: {missing!r})")
             else:
                 print("Файлы семантически эквивалентны")
         
@@ -245,15 +303,22 @@ if __name__ == "__main__":
     )
     parser.add_argument("directory", help="Директория с файлами .cs для анализа")
     parser.add_argument(
-        "--model", 
-        default="gemma3:12b",
-        help="Модель Ollama (по умолчанию: codellama:7b-instruct)"
+        "--model",
+        default=DEFAULT_OLLAMA_MODEL,
+        help="Модель Ollama (переменная окружения OLLAMA_MODEL; "
+             "по умолчанию: %(default)s)"
     )
-    
+    parser.add_argument(
+        "--base-url",
+        default=DEFAULT_OLLAMA_BASE_URL,
+        help="Базовый URL Ollama API (переменная окружения OLLAMA_BASE_URL; "
+             "по умолчанию: %(default)s)"
+    )
+
     args = parser.parse_args()
-    
+
     if not os.path.isdir(args.directory):
         print(f"Ошибка: {args.directory} не является директорией")
         exit(1)
-    
-    analyze_directory(args.directory, args.model)
+
+    analyze_directory(args.directory, args.model, args.base_url)

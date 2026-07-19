@@ -60,10 +60,51 @@ class BaseMapper:
         Raises:
             ValueError: If the component is invalid or missing.
         """
+        if component is None:
+            raise ValueError(
+                f"Missing component '{name}': it is not present in the propellant definition."
+            )
+        if component.mass_fraction is None:
+            raise ValueError(f"Missing 'mass_fraction' for component '{name}'")
         if component.mass_fraction < 0 or component.mass_fraction > 1:
             raise ValueError(f"Invalid mass fraction for component '{name}': {component.mass_fraction}")
         if component.mass_fraction == 0:
             raise ValueError(f"Missing or zero mass fraction for component '{name}'")
+
+    @staticmethod
+    def _require_large_particles_fraction(component: PropellantComponent, name: str) -> float:
+        """
+        Return the component's large-particles fraction, failing loudly if it is absent.
+
+        `large_particles_fraction` is optional on PropellantComponent, but the
+        pocket-region mappers need it to split large from small particles. It is a
+        measured physical quantity, so a missing value must NOT be defaulted to 0
+        (that would silently claim "no large particles" and inflate the small-particle
+        mass) — it is an error in the input data.
+
+        Args:
+            component (PropellantComponent): The component to read.
+            name (str): The name of the component.
+
+        Returns:
+            float: The large-particles fraction, in [0, 1].
+
+        Raises:
+            ValueError: If the fraction is missing or outside [0, 1].
+        """
+        fraction = component.large_particles_fraction
+        if fraction is None:
+            raise ValueError(
+                f"Missing 'large_particles_fraction' for component '{name}'. "
+                f"It is required to split large from small particles and has no "
+                f"safe default; add it to the propellant JSON."
+            )
+        if fraction < 0 or fraction > 1:
+            raise ValueError(
+                f"Invalid 'large_particles_fraction' for component '{name}': {fraction} "
+                f"(expected a fraction in [0, 1])."
+            )
+        return fraction
 
 class InterPocketRegionMapper(BaseMapper):
     """
@@ -144,8 +185,11 @@ class PocketRegionWithoutSkeletonMapper(BaseMapper):
         propellant_mass = 1.0
 
         # Convert mass fractions to masses
+        ap_large_particles_fraction = self._require_large_particles_fraction(
+            ap, "AmmoniumPerchlorate")
+
         binder_mass = binder.mass_fraction * propellant_mass
-        ap_mass = ap.mass_fraction * (1 - ap.large_particles_fraction) * propellant_mass
+        ap_mass = ap.mass_fraction * (1 - ap_large_particles_fraction) * propellant_mass
         al_mass = al.mass_fraction * propellant_mass
 
         # Calculate homogeneous mixture mass (exclude large particles AP)
@@ -201,8 +245,11 @@ class PocketRegionWithSkeletonMapper(BaseMapper):
         propellant_mass = 1.0
 
         # Convert mass fractions to masses
+        ap_large_particles_fraction = self._require_large_particles_fraction(
+            ap, "AmmoniumPerchlorate")
+
         binder_mass = binder.mass_fraction * propellant_mass
-        ap_mass = ap.mass_fraction * (1 - ap.large_particles_fraction) * propellant_mass
+        ap_mass = ap.mass_fraction * (1 - ap_large_particles_fraction) * propellant_mass
 
         # Calculate skeleton region mass (only binder and small fractions AP)
         skeleton_mass = binder_mass + ap_mass
@@ -292,22 +339,47 @@ class DiffusionRegionMapper(BaseMapper):
 
         Returns:
             float: Mass of non-agglomerated Aluminum.
+
+        Raises:
+            ValueError: If the agglomeration coefficients are missing or empty.
         """
+        if not al.agglomeration_coefficients:
+            raise ValueError(
+                "Missing 'agglomeration_coefficients' for component 'Aluminum'. "
+                "They are required to evaluate the pressure-dependent agglomeration "
+                "fraction and have no safe default; add them to the propellant JSON."
+            )
+
         agglomeration_fraction = self._calculate_agglomeration_fraction(al.agglomeration_coefficients, pressure)
         return al.mass_fraction * (1 - agglomeration_fraction)
 
     def _calculate_agglomeration_fraction(self, coefficients: List[float], pressure: float) -> float:
         """
         Calculate agglomeration fraction using polynomial coefficients.
-        
-        Note: This implementation returns raw values without clamping.
-        This differs from PropellantsPlotRendering which clamps to [0, 100].
+
+        The polynomial is evaluated in pressure expressed in MPa and returns a
+        mass FRACTION in [0, 1] (not a percentage) — it is consumed by
+        `_calculate_non_agglomerated_Aluminum` as `1 - fraction`, so the [0, 1]
+        scale is load-bearing. For the shipped propellants the fit yields
+        0.086..0.296 over the 1..6.5 MPa fitted range.
+
+        No clamping is applied here, deliberately. PropellantsPlotRendering
+        applies a `max(0, min(100, ...))` clamp for its plot axis; over the
+        fitted 1..6.5 MPa range the two agree exactly for every shipped
+        propellant, because the clamp never binds there.
+
+        Caveat: the coefficients are a fit valid only over the fitted pressure
+        range. Extrapolated well above it the polynomial can go negative
+        (Bas_1 above ~11.5 MPa, Bas_3 above ~10.2 MPa), which would make
+        `1 - fraction > 1` and yield more non-agglomerated Aluminum than there
+        is Aluminum. `--pressure` is not bounded above, so callers are
+        responsible for staying inside the fitted range.
 
         Args:
-            coefficients (List[float]): Polynomial coefficients.
+            coefficients (List[float]): Polynomial coefficients, ascending order.
             pressure (float): Pressure in Pascals.
 
         Returns:
-            float: Agglomeration fraction.
+            float: Agglomeration mass fraction (nominally [0, 1]).
         """
         return sum(coeff * (pressure / 1e6) ** i for i, coeff in enumerate(coefficients))

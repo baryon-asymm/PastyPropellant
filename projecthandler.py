@@ -4,9 +4,14 @@ import json
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 
-# Configuration
-OLLAMA_API_URL = "http://localhost:11434/api/generate"
-MODEL_NAME = "gemma3:12b"
+# Configuration.
+# Both the endpoint and the model can be overridden from the environment so the
+# script can be pointed at a remote Ollama host without editing the source.
+# OLLAMA_BASE_URL is the host root (e.g. http://gpu-box:11434); OLLAMA_API_URL may
+# be set instead to override the full generate endpoint outright.
+OLLAMA_BASE_URL = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
+OLLAMA_API_URL = os.environ.get("OLLAMA_API_URL", f"{OLLAMA_BASE_URL}/api/generate")
+MODEL_NAME = os.environ.get("OLLAMA_MODEL", "gemma3:12b")
 SYSTEM_PROMPT = """You are an experienced systems analyst and technical writer.
 Your task is to analyze file contents and create concise yet informative descriptions in English.
 
@@ -185,11 +190,20 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='File analyzer with Ollama')
     parser.add_argument('directory', help='Directory to scan')
     parser.add_argument('output', help='Output file for results')
-    parser.add_argument('--exclude', nargs='+', default=[], 
+    parser.add_argument('--exclude', nargs='+', default=[],
                        help='Additional directories to exclude')
-    
+    parser.add_argument('--model', default=MODEL_NAME,
+                       help='Ollama model (env OLLAMA_MODEL; default: %(default)s)')
+    parser.add_argument('--api-url', default=OLLAMA_API_URL,
+                       help='Ollama generate endpoint (env OLLAMA_BASE_URL / '
+                            'OLLAMA_API_URL; default: %(default)s)')
+
     args = parser.parse_args()
-    
+
+    # Command-line flags win over the environment defaults resolved at import time.
+    MODEL_NAME = args.model
+    OLLAMA_API_URL = args.api_url
+
     # Add command line excluded directories to the set
     EXCLUDE_DIRS.update(args.exclude)
     
