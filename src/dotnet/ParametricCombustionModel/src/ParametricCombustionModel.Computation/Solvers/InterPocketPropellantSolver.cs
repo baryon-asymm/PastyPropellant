@@ -37,6 +37,8 @@ public sealed class InterPocketPropellantSolver : BaseKineticPropellantSolver
                                                                           context);
             // Get the burn rate using the updated context bags
             contextBag.BurnRate = GetBurnRate(contextBag.DecomposeRate, context.PropellantParamsByUnits);
+
+            contextBag.BurnRateIsFound = contextBag.BurnRate > Speed.Zero;
         }
     }
 

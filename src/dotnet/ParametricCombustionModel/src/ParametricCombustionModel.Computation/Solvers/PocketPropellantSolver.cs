@@ -409,6 +409,8 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
                                                                           context);
             // Get the burn rate using the updated context bags
             contextBag.BurnRate = GetBurnRate(contextBag.DecomposeRate, context.PropellantParamsByUnits);
+
+            contextBag.BurnRateIsFound = contextBag.BurnRate > Speed.Zero;
         }
     }
 
@@ -780,6 +782,8 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
                                                                           context);
             // Get the burn rate using the updated context bags
             contextBag.BurnRate = GetBurnRate(contextBag.DecomposeRate, context.PropellantParams);
+
+            contextBag.BurnRateIsFound = contextBag.BurnRate > 0.0;
         }
     }
 
