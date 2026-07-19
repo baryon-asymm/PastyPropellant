@@ -24,56 +24,31 @@ namespace ParametricCombustionModel.ReportMaking.Reports.Pdf;
 /// Works on the grouped result directly so it uses the same composition ordering as the rest of the group
 /// report.
 /// </summary>
-public class FlameStructureReport : ITransformable<Queue<IPdfOperation>>
+public class FlameStructureReport : PerCompositionPerFuelPdfReport
 {
     // Same composition ordering / naming as GroupCombustionSolverParamsReport / BurnRateErrorReport.
-    private static readonly string[] CompositionNames =
+    private static readonly string[] CompositionNamesValue =
         ["Bas_2 (includes Bas_3, Bas_4)", "Bas_1", "Bas_0"];
 
-    private readonly GroupOptimizationResult _groupResult;
-
-    public FlameStructureReport(GroupOptimizationResult groupResult)
+    public FlameStructureReport(GroupOptimizationResult groupResult) : base(groupResult)
     {
-        _groupResult = groupResult ?? throw new ArgumentNullException(nameof(groupResult));
     }
 
-    public Queue<IPdfOperation> Transform()
-    {
-        var operations = new Queue<IPdfOperation>();
+    protected override IReadOnlyList<string> CompositionNames => CompositionNamesValue;
 
-        operations.Enqueue(new PrintTextOperation(
-            "Flame Structure & Heat-Flux Decomposition", TextStyle.Bold | TextStyle.Underline));
-        operations.Enqueue(new LineBreakOperation());
+    protected override string Title => "Flame Structure & Heat-Flux Decomposition";
 
-        operations.Enqueue(new PrintTextOperation(
-            "q = total heat feedback to the surface (MW/m2). It splits exactly into three competing-flame "
-            + "pathways whose shares sum to 100%: out-kin = out-of-skeleton kinetic flame; skeleton = "
-            + "surface-weighted (metal burning + skeleton kinetic flame in the pores); diff = diffusion "
-            + "flame. h = flame heights (um). Ts_p / Ts_i = pocket / inter-pocket surface temperature "
-            + "(the two-temperature surface). Mean shares are the pressure-average per fuel. Numbers below "
-            + "reflect this report's input vector.",
-            TextStyle.Italic));
-        operations.Enqueue(new LineBreakOperation());
+    protected override string Introduction =>
+        "q = total heat feedback to the surface (MW/m2). It splits exactly into three competing-flame "
+        + "pathways whose shares sum to 100%: out-kin = out-of-skeleton kinetic flame; skeleton = "
+        + "surface-weighted (metal burning + skeleton kinetic flame in the pores); diff = diffusion "
+        + "flame. h = flame heights (um). Ts_p / Ts_i = pocket / inter-pocket surface temperature "
+        + "(the two-temperature surface). Mean shares are the pressure-average per fuel. Numbers below "
+        + "reflect this report's input vector.";
 
-        for (var comp = 0; comp < CompositionNames.Length; comp++)
-        {
-            var context = _groupResult.CompositionContexts[comp];
+    protected override string CompositionSectionSuffix => "Flame Structure";
 
-            operations.Enqueue(new LineBreakOperation());
-            operations.Enqueue(new PrintTextOperation(
-                $"{CompositionNames[comp]} - Flame Structure", TextStyle.Bold | TextStyle.Underline));
-            operations.Enqueue(new LineBreakOperation());
-
-            for (var fuel = 0; fuel < context.PropellantCount; fuel++)
-            {
-                AppendFuel(operations, context, fuel);
-            }
-        }
-
-        return operations;
-    }
-
-    private static void AppendFuel(
+    protected override void AppendFuel(
         Queue<IPdfOperation> operations,
         Optimization.Models.OptimizationProblemByUnits context,
         int fuel)

@@ -19,10 +19,10 @@ namespace ParametricCombustionModel.ReportMaking.Reports.Pdf;
 /// collective 1/3 weight in the aggregate — a naive mean over the 5 merged fuels would not reconcile with
 /// the objective.
 /// </summary>
-public class BurnRateErrorReport : ITransformable<Queue<IPdfOperation>>
+public class BurnRateErrorReport : PerCompositionPerFuelPdfReport
 {
     // Same composition ordering / naming as GroupCombustionSolverParamsReport (raw 32-vector layout order).
-    private static readonly string[] CompositionNames =
+    private static readonly string[] CompositionNamesValue =
         ["Bas_2 (includes Bas_3, Bas_4)", "Bas_1", "Bas_0"];
 
     // The fitness evaluator returns double.MaxValue for a composition in which any fuel's burn rate was not
@@ -30,57 +30,42 @@ public class BurnRateErrorReport : ITransformable<Queue<IPdfOperation>>
     // sentinel and is rendered as a message rather than a ~1e308 number.
     private const double NonConvergedObjective = 1e6;
 
-    private readonly GroupOptimizationResult _groupResult;
-
-    public BurnRateErrorReport(GroupOptimizationResult groupResult)
+    public BurnRateErrorReport(GroupOptimizationResult groupResult) : base(groupResult)
     {
-        _groupResult = groupResult ?? throw new ArgumentNullException(nameof(groupResult));
     }
 
-    public Queue<IPdfOperation> Transform()
+    protected override IReadOnlyList<string> CompositionNames => CompositionNamesValue;
+
+    protected override string Title => "Burn-Rate Error Breakdown";
+
+    protected override string Introduction =>
+        "Per-point relative error e = (calc/exp - 1)*100%. A fuel's RMS is its contribution to the "
+        + "objective (sqrt of the mean squared fractional error over all pressures); a composition "
+        + "objective is the mean of its per-fuel RMS, and the overall objective is the mean of the three "
+        + "compositions. Numbers below reflect this report's input vector.";
+
+    protected override string CompositionSectionSuffix => "Burn-Rate Errors";
+
+    protected override void AppendCompositionFooter(
+        Queue<IPdfOperation> operations,
+        Optimization.Models.OptimizationProblemByUnits context,
+        int compositionIndex)
     {
-        var operations = new Queue<IPdfOperation>();
-
         operations.Enqueue(new PrintTextOperation(
-            "Burn-Rate Error Breakdown", TextStyle.Bold | TextStyle.Underline));
+            "Composition objective (mean per-fuel RMS) = " + FormatObjective(context.FitnessFunctionValue),
+            TextStyle.Bold));
         operations.Enqueue(new LineBreakOperation());
+    }
 
-        operations.Enqueue(new PrintTextOperation(
-            "Per-point relative error e = (calc/exp - 1)*100%. A fuel's RMS is its contribution to the "
-            + "objective (sqrt of the mean squared fractional error over all pressures); a composition "
-            + "objective is the mean of its per-fuel RMS, and the overall objective is the mean of the three "
-            + "compositions. Numbers below reflect this report's input vector.",
-            TextStyle.Italic));
-        operations.Enqueue(new LineBreakOperation());
-
-        for (var comp = 0; comp < CompositionNames.Length; comp++)
-        {
-            var context = _groupResult.CompositionContexts[comp];
-
-            operations.Enqueue(new LineBreakOperation());
-            operations.Enqueue(new PrintTextOperation(
-                $"{CompositionNames[comp]} - Burn-Rate Errors", TextStyle.Bold | TextStyle.Underline));
-            operations.Enqueue(new LineBreakOperation());
-
-            for (var fuel = 0; fuel < context.PropellantCount; fuel++)
-            {
-                AppendFuel(operations, context, fuel);
-            }
-
-            operations.Enqueue(new PrintTextOperation(
-                "Composition objective (mean per-fuel RMS) = " + FormatObjective(context.FitnessFunctionValue),
-                TextStyle.Bold));
-            operations.Enqueue(new LineBreakOperation());
-        }
-
+    protected override void AppendReportFooter(
+        Queue<IPdfOperation> operations)
+    {
         operations.Enqueue(new LineBreakOperation());
         operations.Enqueue(new PrintTextOperation(
             "Overall objective (mean of the three compositions) = "
-            + FormatObjective(_groupResult.AggregatedFitness),
+            + FormatObjective(GroupResult.AggregatedFitness),
             TextStyle.Bold));
         operations.Enqueue(new LineBreakOperation());
-
-        return operations;
     }
 
     private static string FormatObjective(double value)
@@ -91,7 +76,7 @@ public class BurnRateErrorReport : ITransformable<Queue<IPdfOperation>>
         return string.Format(CultureInfo.InvariantCulture, "{0:0.0000} ({1:0.00}%)", value, value * 100.0);
     }
 
-    private static void AppendFuel(
+    protected override void AppendFuel(
         Queue<IPdfOperation> operations,
         Optimization.Models.OptimizationProblemByUnits context,
         int fuel)

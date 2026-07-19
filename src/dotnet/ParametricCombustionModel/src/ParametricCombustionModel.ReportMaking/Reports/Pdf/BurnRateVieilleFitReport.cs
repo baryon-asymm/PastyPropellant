@@ -22,55 +22,30 @@ namespace ParametricCombustionModel.ReportMaking.Reports.Pdf;
 /// Works on the grouped result directly so it uses the same composition ordering as the rest of the group
 /// report.
 /// </summary>
-public class BurnRateVieilleFitReport : ITransformable<Queue<IPdfOperation>>
+public class BurnRateVieilleFitReport : PerCompositionPerFuelPdfReport
 {
     // Same composition ordering / naming as GroupCombustionSolverParamsReport / BurnRateErrorReport.
-    private static readonly string[] CompositionNames =
+    private static readonly string[] CompositionNamesValue =
         ["Bas_2 (includes Bas_3, Bas_4)", "Bas_1", "Bas_0"];
 
-    private readonly GroupOptimizationResult _groupResult;
-
-    public BurnRateVieilleFitReport(GroupOptimizationResult groupResult)
+    public BurnRateVieilleFitReport(GroupOptimizationResult groupResult) : base(groupResult)
     {
-        _groupResult = groupResult ?? throw new ArgumentNullException(nameof(groupResult));
     }
 
-    public Queue<IPdfOperation> Transform()
-    {
-        var operations = new Queue<IPdfOperation>();
+    protected override IReadOnlyList<string> CompositionNames => CompositionNamesValue;
 
-        operations.Enqueue(new PrintTextOperation(
-            "Vieille Power-Law Fit (U = A*p^v, U in m/s, p in Pa)", TextStyle.Bold | TextStyle.Underline));
-        operations.Enqueue(new LineBreakOperation());
+    protected override string Title => "Vieille Power-Law Fit (U = A*p^v, U in m/s, p in Pa)";
 
-        operations.Enqueue(new PrintTextOperation(
-            "Experimental A/v are the supplied Vieille coefficients (the experimental burn rate is defined as "
-            + "exactly A*p^v, so they are exact, not re-fitted). Calculated A/v are an ordinary-least-squares "
-            + "fit of the model burn rates in log-log space; R2 shows how power-law-like the model curve is, "
-            + "and dv = v_calc - v_exp is the model's error in the pressure exponent. Numbers below reflect "
-            + "this report's input vector.",
-            TextStyle.Italic));
-        operations.Enqueue(new LineBreakOperation());
+    protected override string Introduction =>
+        "Experimental A/v are the supplied Vieille coefficients (the experimental burn rate is defined as "
+        + "exactly A*p^v, so they are exact, not re-fitted). Calculated A/v are an ordinary-least-squares "
+        + "fit of the model burn rates in log-log space; R2 shows how power-law-like the model curve is, "
+        + "and dv = v_calc - v_exp is the model's error in the pressure exponent. Numbers below reflect "
+        + "this report's input vector.";
 
-        for (var comp = 0; comp < CompositionNames.Length; comp++)
-        {
-            var context = _groupResult.CompositionContexts[comp];
+    protected override string CompositionSectionSuffix => "Vieille Coefficients";
 
-            operations.Enqueue(new LineBreakOperation());
-            operations.Enqueue(new PrintTextOperation(
-                $"{CompositionNames[comp]} - Vieille Coefficients", TextStyle.Bold | TextStyle.Underline));
-            operations.Enqueue(new LineBreakOperation());
-
-            for (var fuel = 0; fuel < context.PropellantCount; fuel++)
-            {
-                AppendFuel(operations, context, fuel);
-            }
-        }
-
-        return operations;
-    }
-
-    private static void AppendFuel(
+    protected override void AppendFuel(
         Queue<IPdfOperation> operations,
         Optimization.Models.OptimizationProblemByUnits context,
         int fuel)

@@ -12,14 +12,6 @@ public class DifferentialEvolutionSettingsReport : ITransformable<Queue<IPdfOper
 {
     private readonly DifferentialEvolutionSettings? _settings;
 
-    public DifferentialEvolutionSettingsReport(ReportContextDto reportContext)
-    {
-        if (reportContext.OptimizationResult is null)
-            throw new ArgumentNullException(nameof(reportContext.OptimizationResult));
-
-        _settings = reportContext.DifferentialEvolutionSettings;
-    }
-
     public DifferentialEvolutionSettingsReport(DifferentialEvolutionSettings? settings)
     {
         _settings = settings;
