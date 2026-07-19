@@ -624,7 +624,6 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
             if (middleValue * leftValue < 0.0)
             {
                 rightThermalConductivity = meanConductiveThermalConductivity;
-                // rightValue = middleValue;
             }
             else
             {
@@ -981,7 +980,6 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
             if (middleValue * leftValue < 0.0)
             {
                 rightThermalConductivity = meanConductiveThermalConductivityDouble;
-                // rightValue = middleValue;
             }
             else
             {

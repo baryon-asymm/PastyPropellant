@@ -105,7 +105,6 @@ public class DifferentialEvolutionOptimizer : IParametricCombustionModelOptimize
         var context = _optimizationContexts[workerIndex];
 
         context.Accept(solverParams, FitnessFunctionSolver);
-        // FitnessFunctionSolver.Visit(solverParams, context);
 
         if (context.FitnessFunctionValue == double.MaxValue)
             return double.MaxValue;

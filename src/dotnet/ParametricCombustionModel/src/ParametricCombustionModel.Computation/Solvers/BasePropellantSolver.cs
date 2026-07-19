@@ -217,7 +217,6 @@ public abstract class BasePropellantSolver : ISolverVisitor
             if (middleValue.WattsPerSquareMeter * leftValue.WattsPerSquareMeter < 0.0)
             {
                 rightTemperature = meanTemperature;
-                // rightValue = middleValue;
             }
             else
             {
@@ -370,7 +369,6 @@ public abstract class BasePropellantSolver : ISolverVisitor
             if (middleValue * leftValue < 0.0)
             {
                 rightTemperature = meanTemperature;
-                // rightValue = middleValue;
             }
             else
             {
