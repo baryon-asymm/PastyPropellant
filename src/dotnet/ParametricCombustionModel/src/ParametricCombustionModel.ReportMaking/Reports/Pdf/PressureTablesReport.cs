@@ -142,6 +142,7 @@ public class PressureTablesReport : BaseReport, ITransformable<ReadOnlyCollectio
             row.Add(optimizedContext.ProblemContextMatrix[i, pressurePointIndex].InterPocketCombustionParams.KineticFlameCombustionParams.KineticFlameHeight.ToUnit(LengthUnit.Micrometer).ToString());
             row.Add(string.Empty);
         }
+        rows.Add(row.ToList());
 
         // Add pocket kinetic flame heat flux
         row = new List<string>();
