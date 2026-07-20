@@ -1,21 +1,20 @@
 ﻿using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Legends;
-using OxyPlot.Series;
 using OxyPlot.SkiaSharp;
-using ParametricCombustionModel.Optimization.Models;
 using ParametricCombustionModel.PlotRenderer.Extensions;
 using ParametricCombustionModel.PlotRenderer.Interfaces;
 using ParametricCombustionModel.PlotRenderer.Models;
 
 namespace ParametricCombustionModel.PlotRenderer.Renderers;
 
+/// <summary>
+/// Plot-model construction and image export shared by all renderers. Intentionally result-agnostic:
+/// the <c>Render</c> entry point is declared by <see cref="ISingleResultPlotRenderer"/> or
+/// <see cref="IGroupPlotRenderer"/> instead, so a renderer only ever declares the overload it supports.
+/// </summary>
 public abstract class BasePlotRenderer : IPlotRenderer
 {
-    public abstract void Render(
-        OptimizationResult result,
-        PlotSettings settings);
-
     protected PlotModel CreatePlotModel(
         PlotSettings settings)
     {
@@ -67,21 +66,6 @@ public abstract class BasePlotRenderer : IPlotRenderer
         axis.MinorGridlineColor = settings.GridlineColor;
 
         return axis;
-    }
-
-    protected void AddLineSeries(
-        PlotModel plotModel,
-        IEnumerable<DataPoint> data,
-        string seriesTitle)
-    {
-        var series = new LineSeries
-        {
-            Title = seriesTitle,
-            ItemsSource = data,
-            LineStyle = LineStyle.Solid
-        };
-
-        plotModel.Series.Add(series);
     }
 
     public void SavePlotToFile(

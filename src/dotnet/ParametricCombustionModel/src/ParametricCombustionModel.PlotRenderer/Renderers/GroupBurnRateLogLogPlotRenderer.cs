@@ -1,6 +1,4 @@
 using OxyPlot;
-using OxyPlot.Series;
-using ParametricCombustionModel.Optimization.Models;
 using ParametricCombustionModel.Optimization.Results;
 using ParametricCombustionModel.PlotRenderer.Models;
 
@@ -16,42 +14,16 @@ namespace ParametricCombustionModel.PlotRenderer.Renderers;
 ///
 /// Confidence-interval whiskers are intentionally omitted: the drawer used on the linear plot lays them out
 /// with an absolute (linear) size, which is meaningless on a logarithmic axis.
+///
+/// The colour / marker assignment comes from the shared collection walk in <see cref="GroupPlotRendererBase"/>,
+/// which is what keeps a fuel's identity consistent with the linear plot.
 /// </summary>
-public class GroupBurnRateLogLogPlotRenderer : BasePlotRenderer
+public class GroupBurnRateLogLogPlotRenderer : GroupPlotRendererBase
 {
-    // Same colour / marker assignment order as GroupBurningRatePlotRenderer so a fuel keeps its identity
-    // across the linear and log-log plots.
-    private static readonly OxyColor[] Colors =
-    [
-        OxyColors.Blue,
-        OxyColors.Green,
-        OxyColors.Red,
-        OxyColors.Violet,
-        OxyColors.Orange
-    ];
-
-    private static readonly MarkerType[] MarkerTypes =
-    [
-        MarkerType.Circle,
-        MarkerType.Triangle,
-        MarkerType.Plus,
-        MarkerType.Square,
-        MarkerType.Diamond
-    ];
-
-    /// <summary>
-    /// Not used for group optimization; use the <see cref="Render(GroupOptimizationResult, PlotSettings)"/>
-    /// overload instead.
-    /// </summary>
-    public override void Render(OptimizationResult result, PlotSettings settings)
-    {
-        throw new NotSupportedException("Use the Render(GroupOptimizationResult, PlotSettings) overload instead.");
-    }
-
     /// <summary>
     /// Renders the unified log-log burning rate plot for a group optimization result.
     /// </summary>
-    public void Render(
+    public override void Render(
         GroupOptimizationResult groupResult,
         PlotSettings settings)
     {
@@ -61,76 +33,25 @@ public class GroupBurnRateLogLogPlotRenderer : BasePlotRenderer
 
         var plotModel = CreatePlotModel(settings);
 
-        var colorIndex = 0;
-        for (var groupIdx = 0; groupIdx < 3; groupIdx++)
+        foreach (var fuel in CollectSeriesData(groupResult))
         {
-            var compositionContext = groupResult.CompositionContexts[groupIdx];
+            AddLineSeries(
+                plotModel,
+                fuel.CalculatedPoints,
+                $"{fuel.PropellantName} (Calculated)",
+                fuel.Color,
+                fuel.MarkerType,
+                lineStyle: LineStyle.Solid);
 
-            for (var i = 0; i < compositionContext.PropellantCount; i++)
-            {
-                var propellantName = compositionContext.ProblemContextMatrix[i, 0].Propellant.Name;
-                if (propellantName.Equals("Bas_21") || propellantName.Equals("Bas_22"))
-                    continue;
-
-                var color = Colors[colorIndex % Colors.Length];
-                var markerType = MarkerTypes[colorIndex % MarkerTypes.Length];
-
-                var calculatedDataPoints = new List<DataPoint>();
-                var experimentalDataPoints = new List<DataPoint>();
-
-                for (var j = 0; j < compositionContext.PressureCount; j++)
-                {
-                    var context = compositionContext.ProblemContextMatrix[i, j];
-
-                    calculatedDataPoints.Add(new DataPoint(
-                        context.Pressure.Megapascals,
-                        context.MixedCombustionParams.BurnRate.MillimetersPerSecond));
-
-                    experimentalDataPoints.Add(new DataPoint(
-                        context.Pressure.Megapascals,
-                        compositionContext.ExperimentalBurnRates[i, j].MillimetersPerSecond));
-                }
-
-                AddLineSeries(
-                    plotModel,
-                    calculatedDataPoints,
-                    $"{propellantName} (Calculated)",
-                    color,
-                    markerType,
-                    lineStyle: LineStyle.Solid);
-
-                AddLineSeries(
-                    plotModel,
-                    experimentalDataPoints,
-                    $"{propellantName} (Experimental)",
-                    color,
-                    markerType,
-                    lineStyle: LineStyle.Dash);
-
-                colorIndex++;
-            }
+            AddLineSeries(
+                plotModel,
+                fuel.ExperimentalPoints,
+                $"{fuel.PropellantName} (Experimental)",
+                fuel.Color,
+                fuel.MarkerType,
+                lineStyle: LineStyle.Dash);
         }
 
         SavePlotToFile(plotModel, "group_burning_rate_loglog_plot.jpg", settings);
-    }
-
-    private static void AddLineSeries(
-        PlotModel plotModel,
-        IEnumerable<DataPoint> data,
-        string seriesTitle,
-        OxyColor color,
-        MarkerType markerType,
-        LineStyle lineStyle)
-    {
-        plotModel.Series.Add(new LineSeries
-        {
-            Title = seriesTitle,
-            ItemsSource = data,
-            Color = color,
-            LineStyle = lineStyle,
-            RenderInLegend = true,
-            MarkerType = markerType,
-            MarkerSize = 4
-        });
     }
 }

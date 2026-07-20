@@ -1,7 +1,6 @@
 using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Series;
-using ParametricCombustionModel.Optimization.Models;
 using ParametricCombustionModel.PlotRenderer.Models;
 using ParametricCombustionModel.PlotRenderer.Renderers;
 
@@ -9,11 +8,10 @@ namespace ParametricCombustionModel.PlotRenderer.Tests;
 
 public class BasePlotRendererErrorSurfacingTest
 {
+    // BasePlotRenderer no longer declares a Render entry point — that lives on the result-specific
+    // interfaces — so this probe only has to expose the protected export path under test.
     private sealed class TestablePlotRenderer : BasePlotRenderer
     {
-        public override void Render(OptimizationResult result, PlotSettings settings) =>
-            throw new NotSupportedException();
-
         public void Save(PlotModel m, string p, PlotSettings s) => SavePlotToFile(m, p, s);
     }
 

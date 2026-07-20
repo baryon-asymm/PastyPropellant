@@ -15,7 +15,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\ParametricCombustionModel.ReportMaking\ParametricCombustionModel.ReportMaking.csproj" />
+      <!-- The renderers consume OptimizationResult / GroupOptimizationResult directly. This used to be
+           picked up transitively through a ProjectReference to ReportMaking, of which not one type was
+           actually used; the dependency is declared where it belongs now. -->
+      <ProjectReference Include="..\ParametricCombustionModel.Optimization\ParametricCombustionModel.Optimization.csproj" />
     </ItemGroup>
 
 </Project>

@@ -1,18 +1,16 @@
-﻿using OxyPlot;
-using ParametricCombustionModel.Optimization.Models;
+using OxyPlot;
 using ParametricCombustionModel.PlotRenderer.Models;
 
 namespace ParametricCombustionModel.PlotRenderer.Interfaces;
 
+/// <summary>
+/// Export surface shared by every renderer, regardless of the shape of the result it plots.
+/// The <c>Render</c> entry point deliberately lives on the result-specific interfaces
+/// (<see cref="ISingleResultPlotRenderer"/> / <see cref="IGroupPlotRenderer"/>) so that a renderer
+/// never has to declare — and stub out — a Render overload for a result type it cannot plot.
+/// </summary>
 public interface IPlotRenderer
 {
-    /// <summary>
-    /// Renders the plot based on the provided result and settings.
-    /// </summary>
-    /// <param name="result">The result containing the data for the plot.</param>
-    /// <param name="settings">Settings for the plot such as titles, axis labels, and other parameters.</param>
-    void Render(OptimizationResult result, PlotSettings settings);
-
     /// <summary>
     /// Saves the rendered plot to a file.
     /// </summary>
