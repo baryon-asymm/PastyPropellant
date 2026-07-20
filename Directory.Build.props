@@ -1,4 +1,17 @@
 <Project>
+    <!--
+      Repository-wide defaults. Every project in the tree targeted net10.0 with
+      nullable reference types and implicit usings enabled, declared identically in
+      all 23 project files, so the three properties live here instead. A project that
+      genuinely needs to differ can still override them locally — MSBuild evaluates
+      this file before the project body.
+    -->
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
     <PropertyGroup>
         <OutputPath>$(MSBuildThisFileDirectory)artifacts/bin/$(MSBuildProjectName)/$(Configuration)/</OutputPath>
         <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)artifacts/obj/$(MSBuildProjectName)/$(Configuration)/</BaseIntermediateOutputPath>
