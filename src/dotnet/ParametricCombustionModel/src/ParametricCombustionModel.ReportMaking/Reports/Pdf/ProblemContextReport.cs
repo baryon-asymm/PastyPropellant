@@ -78,8 +78,7 @@ public class ProblemContextReport : BaseReport, ITransformable<Queue<IPdfOperati
         operations.Enqueue(new AddTabOperation());
         operations.Enqueue(new AddTabOperation());
         operations.Enqueue(new PrintTextOperation(
-                               problemContext.MixedCombustionParams.BurnRate
-                                             .ToUnit(SpeedUnit.MillimeterPerSecond).ToString(),
+                               BurnRateConvergence.FormatMixedBurnRate(problemContext.MixedCombustionParams),
                                TextStyle.None));
         operations.Enqueue(new LineBreakOperation());
 

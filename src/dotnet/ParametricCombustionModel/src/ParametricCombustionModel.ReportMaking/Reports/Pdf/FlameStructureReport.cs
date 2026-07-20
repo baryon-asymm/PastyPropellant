@@ -3,7 +3,6 @@ using ParametricCombustionModel.Optimization.Results;
 using ParametricCombustionModel.ReportMaking.Enums;
 using ParametricCombustionModel.ReportMaking.Interfaces;
 using ParametricCombustionModel.ReportMaking.PdfOperations;
-using PastyPropellant.Core.Models;
 
 namespace ParametricCombustionModel.ReportMaking.Reports.Pdf;
 
@@ -30,9 +29,6 @@ public class FlameStructureReport : PerCompositionPerFuelPdfReport
     public FlameStructureReport(GroupOptimizationResult groupResult) : base(groupResult)
     {
     }
-
-    // Raw 32-vector layout order; verbose form, shared with the other PDF reports.
-    protected override IReadOnlyList<string> CompositionNames => CompositionGroups.ReportNames;
 
     protected override string Title => "Flame Structure & Heat-Flux Decomposition";
 

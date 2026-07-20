@@ -76,20 +76,26 @@ public class PressureTablesReport : BaseReport, ITransformable<ReadOnlyCollectio
         row.Add(PressureTablesReportResources.CalculatedBurningRate);
         for (int i = 0; i < propellantCount; i++)
         {
-            row.Add(optimizedContext.ProblemContextMatrix[i, pressurePointIndex].MixedCombustionParams.BurnRate.ToUnit(SpeedUnit.MillimeterPerSecond).ToString());
+            row.Add(BurnRateConvergence.FormatMixedBurnRate(
+                        optimizedContext.ProblemContextMatrix[i, pressurePointIndex].MixedCombustionParams));
             row.Add(string.Empty);
         }
         rows.Add(row.ToList());
 
-        // Add difference between experimental and calculated burning rates
+        // Add difference between experimental and calculated burning rates. The difference is only meaningful
+        // when the calculated side converged; otherwise it would be a difference against a stale burn rate.
         row = new List<string>();
         row.Add(PressureTablesReportResources.Difference);
         for (int i = 0; i < propellantCount; i++)
         {
-            row.Add((
-                optimizedContext.ExperimentalBurnRates[i, pressurePointIndex]
-                - optimizedContext.ProblemContextMatrix[i, pressurePointIndex].MixedCombustionParams.BurnRate
-                ).ToUnit(SpeedUnit.MillimeterPerSecond).ToString());
+            var mixedCombustionParams =
+                optimizedContext.ProblemContextMatrix[i, pressurePointIndex].MixedCombustionParams;
+            row.Add(mixedCombustionParams.BurnRateIsFound
+                        ? (
+                            optimizedContext.ExperimentalBurnRates[i, pressurePointIndex]
+                            - mixedCombustionParams.BurnRate
+                          ).ToUnit(SpeedUnit.MillimeterPerSecond).ToString()
+                        : BurnRateConvergence.NotConvergedMarker);
             row.Add(string.Empty);
         }
         rows.Add(row.ToList());
@@ -144,7 +150,7 @@ public class PressureTablesReport : BaseReport, ITransformable<ReadOnlyCollectio
         }
         rows.Add(row.ToList());
 
-        // Add pocket kinetic flame heat flux
+        // Add skeleton kinetic flame heat flux (the flame inside the pocket skeleton's pores)
         row = new List<string>();
         row.Add(PressureTablesReportResources.SkeletonKineticFlameHeatFlux);
         for (int i = 0; i < propellantCount; i++)
@@ -154,7 +160,7 @@ public class PressureTablesReport : BaseReport, ITransformable<ReadOnlyCollectio
         }
         rows.Add(row.ToList());
 
-        // Add pocket kinetic flame height
+        // Add skeleton kinetic flame height (the flame inside the pocket skeleton's pores)
         row = new List<string>();
         row.Add(PressureTablesReportResources.SkeletonKineticFlameHeight);
         for (int i = 0; i < propellantCount; i++)
@@ -164,7 +170,7 @@ public class PressureTablesReport : BaseReport, ITransformable<ReadOnlyCollectio
         }
         rows.Add(row.ToList());
 
-        // Add out-pocket kinetic flame heat flux
+        // Add out-of-skeleton kinetic flame heat flux
         row = new List<string>();
         row.Add(PressureTablesReportResources.OutSkeletonKineticFlameHeatFlux);
         for (int i = 0; i < propellantCount; i++)
@@ -174,7 +180,7 @@ public class PressureTablesReport : BaseReport, ITransformable<ReadOnlyCollectio
         }
         rows.Add(row.ToList());
 
-        // Add out-pocket kinetic flame height
+        // Add out-of-skeleton kinetic flame height
         row = new List<string>();
         row.Add(PressureTablesReportResources.OutSkeletonKineticFlameHeight);
         for (int i = 0; i < propellantCount; i++)

@@ -3,6 +3,7 @@ using ParametricCombustionModel.Optimization.Results;
 using ParametricCombustionModel.ReportMaking.Enums;
 using ParametricCombustionModel.ReportMaking.Interfaces;
 using ParametricCombustionModel.ReportMaking.PdfOperations;
+using PastyPropellant.Core.Models;
 
 namespace ParametricCombustionModel.ReportMaking.Reports.Pdf;
 
@@ -41,10 +42,12 @@ public abstract class PerCompositionPerFuelPdfReport : ITransformable<Queue<IPdf
     protected abstract string CompositionSectionSuffix { get; }
 
     /// <summary>
-    /// Composition display names, in the raw 32-vector layout order. Each derived report still declares its
-    /// own array; consolidating them repo-wide is tracked separately (ARCH-8).
+    /// Composition display names, in the raw 32-vector layout order, taken from the single repo-wide source
+    /// (<see cref="CompositionGroups.ReportNames"/>). Every section of the group report must walk the
+    /// compositions in the same order as the vector layout, so this is deliberately not a derived-report
+    /// choice.
     /// </summary>
-    protected abstract IReadOnlyList<string> CompositionNames { get; }
+    protected static IReadOnlyList<string> CompositionNames => CompositionGroups.ReportNames;
 
     public Queue<IPdfOperation> Transform()
     {

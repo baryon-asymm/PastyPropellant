@@ -3,7 +3,6 @@ using ParametricCombustionModel.Optimization.Results;
 using ParametricCombustionModel.ReportMaking.Enums;
 using ParametricCombustionModel.ReportMaking.Interfaces;
 using ParametricCombustionModel.ReportMaking.PdfOperations;
-using PastyPropellant.Core.Models;
 using UnitsNet.Units;
 
 namespace ParametricCombustionModel.ReportMaking.Reports.Pdf;
@@ -30,9 +29,6 @@ public class BurnRateErrorReport : PerCompositionPerFuelPdfReport
     public BurnRateErrorReport(GroupOptimizationResult groupResult) : base(groupResult)
     {
     }
-
-    // Raw 32-vector layout order; verbose form, shared with the other PDF reports.
-    protected override IReadOnlyList<string> CompositionNames => CompositionGroups.ReportNames;
 
     protected override string Title => "Burn-Rate Error Breakdown";
 
@@ -84,17 +80,35 @@ public class BurnRateErrorReport : PerCompositionPerFuelPdfReport
         operations.Enqueue(new LineBreakOperation());
 
         var sumSquaredFraction = 0.0;
+        var nonConvergedPointCount = 0;
         for (var pressure = 0; pressure < context.PressureCount; pressure++)
         {
             var problemContext = context.ProblemContextMatrix[fuel, pressure];
-            var calc = problemContext.MixedCombustionParams.BurnRate.As(SpeedUnit.MillimeterPerSecond);
+            var mixedCombustionParams = problemContext.MixedCombustionParams;
             var exp = context.ExperimentalBurnRates[fuel, pressure].As(SpeedUnit.MillimeterPerSecond);
             var pressureMpa = problemContext.Pressure.As(PressureUnit.Megapascal);
+
+            operations.Enqueue(new AddTabOperation());
+
+            // No converged burn rate => there is no error to quote. Printing one would compare the
+            // experiment against a stale number (see BurnRateConvergence).
+            if (mixedCombustionParams.BurnRateIsFound == false)
+            {
+                nonConvergedPointCount++;
+                operations.Enqueue(new PrintTextOperation(
+                    string.Format(CultureInfo.InvariantCulture,
+                        "p = {0:0.###} MPa: exp {1:0.0000} mm/s, calc {2} -> no error",
+                        pressureMpa, exp, BurnRateConvergence.NotConvergedMarker),
+                    TextStyle.None));
+                operations.Enqueue(new LineBreakOperation());
+                continue;
+            }
+
+            var calc = mixedCombustionParams.BurnRate.As(SpeedUnit.MillimeterPerSecond);
 
             var fraction = (calc - exp) / exp;
             sumSquaredFraction += fraction * fraction;
 
-            operations.Enqueue(new AddTabOperation());
             operations.Enqueue(new PrintTextOperation(
                 string.Format(CultureInfo.InvariantCulture,
                     "p = {0:0.###} MPa: exp {1:0.0000}, calc {2:0.0000} mm/s -> err {3:+0.00;-0.00;0.00}%",
@@ -103,13 +117,28 @@ public class BurnRateErrorReport : PerCompositionPerFuelPdfReport
             operations.Enqueue(new LineBreakOperation());
         }
 
-        // RMS of the fractional errors over the fuel's pressures — the same quantity the objective sums.
-        var rmsFraction = Math.Sqrt(sumSquaredFraction / context.PressureCount);
         operations.Enqueue(new AddTabOperation());
-        operations.Enqueue(new PrintTextOperation(
-            string.Format(CultureInfo.InvariantCulture,
-                "Per-fuel RMS = {0:0.0000} ({1:0.00}%)", rmsFraction, rmsFraction * 100.0),
-            TextStyle.Bold));
+        if (nonConvergedPointCount > 0)
+        {
+            // The objective is undefined for this fuel: the fitness evaluator short-circuits the whole
+            // composition to double.MaxValue as soon as one point fails, so an RMS over the surviving points
+            // would understate the failure rather than describe it.
+            operations.Enqueue(new PrintTextOperation(
+                string.Format(CultureInfo.InvariantCulture,
+                    "Per-fuel RMS = {0} ({1} of {2} pressure points had no burn rate)",
+                    BurnRateConvergence.NotConvergedMarker, nonConvergedPointCount, context.PressureCount),
+                TextStyle.Bold));
+        }
+        else
+        {
+            // RMS of the fractional errors over the fuel's pressures — the same quantity the objective sums.
+            var rmsFraction = Math.Sqrt(sumSquaredFraction / context.PressureCount);
+            operations.Enqueue(new PrintTextOperation(
+                string.Format(CultureInfo.InvariantCulture,
+                    "Per-fuel RMS = {0:0.0000} ({1:0.00}%)", rmsFraction, rmsFraction * 100.0),
+                TextStyle.Bold));
+        }
+
         operations.Enqueue(new LineBreakOperation());
     }
 }

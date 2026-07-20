@@ -3,7 +3,6 @@ using ParametricCombustionModel.Optimization.Results;
 using ParametricCombustionModel.ReportMaking.Enums;
 using ParametricCombustionModel.ReportMaking.Interfaces;
 using ParametricCombustionModel.ReportMaking.PdfOperations;
-using PastyPropellant.Core.Models;
 using UnitsNet.Units;
 
 namespace ParametricCombustionModel.ReportMaking.Reports.Pdf;
@@ -28,9 +27,6 @@ public class BurnRateVieilleFitReport : PerCompositionPerFuelPdfReport
     public BurnRateVieilleFitReport(GroupOptimizationResult groupResult) : base(groupResult)
     {
     }
-
-    // Raw 32-vector layout order; verbose form, shared with the other PDF reports.
-    protected override IReadOnlyList<string> CompositionNames => CompositionGroups.ReportNames;
 
     protected override string Title => "Vieille Power-Law Fit (U = A*p^v, U in m/s, p in Pa)";
 
@@ -67,27 +63,43 @@ public class BurnRateVieilleFitReport : PerCompositionPerFuelPdfReport
         if (fit is null)
         {
             operations.Enqueue(new PrintTextOperation(
-                "calc: non-fittable (fewer than two positive model burn rates)", TextStyle.None));
+                "calc: non-fittable (fewer than two converged model burn rates)", TextStyle.None));
             operations.Enqueue(new LineBreakOperation());
             return;
         }
 
-        var (aCalc, nuCalc, rSquared) = fit.Value;
+        var (aCalc, nuCalc, rSquared, usedPointCount) = fit.Value;
         operations.Enqueue(new PrintTextOperation(
             string.Format(CultureInfo.InvariantCulture,
                 "calc: A = {0:E4}, v = {1:0.0000} (R2 = {2:0.0000}); dv = {3:+0.0000;-0.0000;0.0000}",
                 aCalc, nuCalc, rSquared, nuCalc - propellant.Nu),
             TextStyle.Bold));
         operations.Enqueue(new LineBreakOperation());
+
+        // A fit over a subset is not the fit the header implies, so say so rather than let the coefficients
+        // stand as if every pressure had contributed.
+        if (usedPointCount < context.PressureCount)
+        {
+            operations.Enqueue(new AddTabOperation());
+            operations.Enqueue(new PrintTextOperation(
+                string.Format(CultureInfo.InvariantCulture,
+                    "      fitted on {0} of {1} pressure points; the rest were {2}",
+                    usedPointCount, context.PressureCount, BurnRateConvergence.NotConvergedMarker),
+                TextStyle.None));
+            operations.Enqueue(new LineBreakOperation());
+        }
     }
 
     /// <summary>
     /// Ordinary least squares of ln(U_calc) = ln(A) + v·ln(p) over the fuel's pressures, in the native
-    /// (m/s, Pa) convention so A is directly comparable to <c>Propellant.A</c>. Points with a non-positive or
-    /// non-finite model burn rate are dropped (e.g. a non-converged fuel whose burn rate is 0); returns null
-    /// if fewer than two usable points remain or the pressures do not vary.
+    /// (m/s, Pa) convention so A is directly comparable to <c>Propellant.A</c>. Points whose mixed solve did
+    /// not converge are dropped on the <c>BurnRateIsFound</c> flag rather than on the burn rate's sign — a
+    /// non-converged context can still hold a positive stale value that would otherwise be fitted as if it
+    /// were a result. Non-positive or non-finite burn rates are dropped as well; returns null if fewer than
+    /// two usable points remain or the pressures do not vary. The count of points that survived is returned
+    /// so the caller can disclose a partial fit.
     /// </summary>
-    private static (double A, double Nu, double RSquared)? FitCalculated(
+    private static (double A, double Nu, double RSquared, int UsedPointCount)? FitCalculated(
         Optimization.Models.OptimizationProblemByUnits context, int fuel)
     {
         var xs = new List<double>(context.PressureCount);
@@ -96,10 +108,11 @@ public class BurnRateVieilleFitReport : PerCompositionPerFuelPdfReport
         for (var pressure = 0; pressure < context.PressureCount; pressure++)
         {
             var problemContext = context.ProblemContextMatrix[fuel, pressure];
-            var calc = problemContext.MixedCombustionParams.BurnRate.As(SpeedUnit.MeterPerSecond);
+            var mixedCombustionParams = problemContext.MixedCombustionParams;
+            var calc = mixedCombustionParams.BurnRate.As(SpeedUnit.MeterPerSecond);
             var pascals = problemContext.Pressure.As(PressureUnit.Pascal);
 
-            if (calc > 0.0 && double.IsFinite(calc) && pascals > 0.0)
+            if (mixedCombustionParams.BurnRateIsFound && calc > 0.0 && double.IsFinite(calc) && pascals > 0.0)
             {
                 xs.Add(Math.Log(pascals));
                 ys.Add(Math.Log(calc));
@@ -137,6 +150,6 @@ public class BurnRateVieilleFitReport : PerCompositionPerFuelPdfReport
         // line fits perfectly, so R² is 1 by convention.
         var rSquared = syy > 0.0 ? (sxy * sxy) / (sxx * syy) : 1.0;
 
-        return (a, nu, rSquared);
+        return (a, nu, rSquared, n);
     }
 }
