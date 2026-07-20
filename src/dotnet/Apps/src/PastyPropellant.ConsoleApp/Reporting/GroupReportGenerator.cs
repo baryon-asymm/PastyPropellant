@@ -4,6 +4,7 @@ using ParametricCombustionModel.Optimization.Settings;
 using ParametricCombustionModel.ReportMaking.Models;
 using ParametricCombustionModel.ReportMaking.ReportMakers;
 using ParametricCombustionModel.Telemetry;
+using PastyPropellant.ConsoleApp.Configuration;
 using PDFsharp.Api.Adapters;
 
 namespace PastyPropellant.ConsoleApp.Reporting;
@@ -26,13 +27,18 @@ public static class GroupReportGenerator
     /// <param name="reportSuffix">Suffix embedded in the output file name (e.g. <c>en</c>).</param>
     /// <param name="settings">DE settings to document; omitted for runs that had none.</param>
     /// <param name="meter">Performance meter whose timings the report includes.</param>
+    /// <param name="resolvedRun">
+    /// Provenance record of the run. When supplied, the report opens with a fully-resolved
+    /// run-configuration block — the human-readable counterpart of the JSON sidecar.
+    /// </param>
     public static void Generate(
         GroupOptimizationResult groupOptimizationResult,
         string inputFileName,
         string cultureName,
         string reportSuffix,
         DifferentialEvolutionSettings? settings = null,
-        PerformanceMeter? meter = null)
+        PerformanceMeter? meter = null,
+        ResolvedRunRecord? resolvedRun = null)
     {
         // Set culture for localization
         var culture = new CultureInfo(cultureName);
@@ -47,7 +53,8 @@ public static class GroupReportGenerator
             groupOptimizationResult,
             inputFileName,
             settings,
-            meter);
+            meter,
+            resolvedRun == null ? null : RunConfigurationSummaryFactory.Create(resolvedRun));
 
         var pdfReportMaker = new GroupPdfReportMaker(reportContextDto, pdfGeneratorAdapter);
         pdfReportMaker.MakeReport();

@@ -15,11 +15,18 @@ public record GroupReportContextDto
 
     public PerformanceMeter? Meter { get; init; }
 
+    /// <summary>
+    /// Pre-formatted summary of the run configuration this result was produced under, or null for a
+    /// caller that has none. Printed by <c>RunConfigurationReport</c> as the report's provenance block.
+    /// </summary>
+    public IReadOnlyList<RunConfigurationSection>? RunConfiguration { get; init; }
+
     public GroupReportContextDto(
         GroupOptimizationResult groupOptimizationResult,
         string propellantsFilePath,
         DifferentialEvolutionSettings? differentialEvolutionSettings = null,
-        PerformanceMeter? meter = null)
+        PerformanceMeter? meter = null,
+        IReadOnlyList<RunConfigurationSection>? runConfiguration = null)
     {
         GroupOptimizationResult = groupOptimizationResult ?? throw new ArgumentNullException(nameof(groupOptimizationResult));
         PropellantsFilePath = propellantsFilePath ?? throw new ArgumentNullException(nameof(propellantsFilePath));
@@ -29,5 +36,6 @@ public record GroupReportContextDto
 
         DifferentialEvolutionSettings = differentialEvolutionSettings;
         Meter = meter;
+        RunConfiguration = runConfiguration;
     }
 }

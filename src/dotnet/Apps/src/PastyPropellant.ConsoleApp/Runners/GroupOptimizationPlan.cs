@@ -1,5 +1,6 @@
 using ParametricCombustionModel.Optimization.Settings;
 using ParametricCombustionModel.Telemetry;
+using PastyPropellant.ConsoleApp.Configuration;
 using PastyPropellant.ConsoleApp.Scenarios;
 using PastyPropellant.ConsoleApp.Scenarios.Settings;
 
@@ -46,4 +47,10 @@ public sealed record GroupOptimizationPlan
 
     /// <summary>Nelder–Mead refinement configuration layered on the DE search.</summary>
     public required NelderMeadRefinementSettings NelderMeadRefinement { get; init; }
+
+    /// <summary>
+    /// Provenance record of this run: the resolved configuration plus the effective values derived from
+    /// it. Written to the sidecar and summarised in the PDF report.
+    /// </summary>
+    public required ResolvedRunRecord Resolved { get; init; }
 }

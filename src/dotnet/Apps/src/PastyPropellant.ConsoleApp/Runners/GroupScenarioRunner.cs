@@ -25,30 +25,41 @@ namespace PastyPropellant.ConsoleApp.Runners;
 public static class GroupScenarioRunner
 {
     /// <summary>
-    /// Builds the production optimisation run: bounds, penalties, strategy, population, termination and
-    /// Nelder–Mead refinement, plus the scenario itself.
+    /// Builds the production optimisation run from the run configuration: bounds, penalties, strategy,
+    /// population, termination and Nelder–Mead refinement, plus the scenario itself.
     /// </summary>
-    /// <param name="inputFileName">Propellants file to optimise against.</param>
-    public static GroupOptimizationPlan CreateOptimizationPlan(string inputFileName)
+    /// <param name="loadedConfiguration">
+    /// The resolved run configuration and its provenance. Pass
+    /// <see cref="RunConfigurationLoader.Load"/>'s result; the defaults reproduce the historical run.
+    /// </param>
+    public static GroupOptimizationPlan CreateOptimizationPlan(LoadedRunConfiguration loadedConfiguration)
     {
+        ArgumentNullException.ThrowIfNull(loadedConfiguration);
+
+        var configuration = loadedConfiguration.Configuration;
+        var deConfiguration = configuration.DifferentialEvolution;
+        var inputFileName = configuration.InputFileName;
+
         var meter = new PerformanceMeter();
 
-        var penaltyEvaluators = GroupPenaltyEvaluatorFactory.Build();
+        var penaltyEvaluators = GroupPenaltyEvaluatorFactory.Build(configuration.Penalties);
 
-        var groupLowerBound = BoundsProvider.GetGroupLowerBound();
-        var groupUpperBound = BoundsProvider.GetGroupUpperBound();
+        var groupLowerBound = configuration.Bounds.ToGroupLowerBound();
+        var groupUpperBound = configuration.Bounds.ToGroupUpperBound();
         var dimensions = groupLowerBound.Length; // 32
 
-        // jDE (self-adaptive rand/1) is the winning strategy on this branch: its exploration reaches the
-        // clean basin (obj 0.157 / penalty 0), whereas current-to-pbest variants either trap in a penalized
-        // degenerate corner (SHADE/L-SHADE → 0.92) or converge prematurely to a worse optimum (JADE → 0.42).
-        var strategy = DifferentialEvolutionStrategy.Jde;
+        // jDE (self-adaptive rand/1) is the winning strategy on this branch and remains the configured
+        // default: its exploration reaches the clean basin (obj 0.157 / penalty 0), whereas current-to-pbest
+        // variants either trap in a penalized degenerate corner (SHADE/L-SHADE → 0.92) or converge
+        // prematurely to a worse optimum (JADE → 0.42).
+        var strategy = deConfiguration.Strategy;
         var maxAvailableProcessors = Math.Max(1, Environment.ProcessorCount - 1);
-        var safetyTimeout = new TimeoutTerminationStrategy(TimeSpan.FromHours(9));
+        var safetyTimeout = new TimeoutTerminationStrategy(TimeSpan.FromHours(deConfiguration.SafetyTimeoutHours));
 
         int populationSize;
         int processorsCount;
         OrTerminationStrategy terminationStrategy;
+        string terminationDescription;
         long? maxEvaluationNumber = null;
         // L-SHADE control parameters (left null for the fixed-population variants, which ignore them).
         double? pBestRate = null;
@@ -62,55 +73,50 @@ public static class GroupScenarioRunner
             // Size it to what is actually achievable so the 576→4 schedule completes — a huge budget just
             // back-loads convergence (the 9 h timeout would fire long before LPSR reaches the floor).
             // NOTE: the memetic Nelder–Mead evaluations count toward this same budget.
-            populationSize = dimensions * 18; // 32 * 18 = 576
+            var lShade = deConfiguration.LShade;
+            populationSize = dimensions * lShade.PopulationSizeMultiplier; // 32 * 18 = 576
             processorsCount = maxAvailableProcessors; // population shrinks, so the divisibility heuristic does not apply
-            maxEvaluationNumber = 5_000_000;
+            maxEvaluationNumber = lShade.MaxEvaluationNumber;
             // Canonical L-SHADE control parameters (Tanabe & Fukunaga 2014): p-best 0.11, archive rate 2.6, memory 6.
-            pBestRate = 0.11;
-            archiveSizeRate = 2.6;
-            memorySize = 6;
+            pBestRate = lShade.PBestRate;
+            archiveSizeRate = lShade.ArchiveSizeRate;
+            memorySize = lShade.MemorySize;
             terminationStrategy = new OrTerminationStrategy(
                 new LimitEvaluationNumberTerminationStrategy(maxEvaluationNumber.Value),
                 safetyTimeout);
+            terminationDescription =
+                $"evaluation budget {maxEvaluationNumber.Value:N0} OR {deConfiguration.SafetyTimeoutHours:0.###} h safety timeout";
         }
         else
         {
             // Fixed-population variants (Classic / jDE / JADE / SHADE): keep the stagnation+timeout
             // run control and pick a worker count that divides the population evenly for balanced load.
-            populationSize = dimensions * 12; // 32 * 12 = 384 (jDE production population — reaches obj 0.157 / penalty 0)
+            var fixedPopulation = deConfiguration.FixedPopulation;
+            populationSize = dimensions * fixedPopulation.PopulationSizeMultiplier; // 32 * 12 = 384 (jDE production population — reaches obj 0.157 / penalty 0)
             processorsCount = maxAvailableProcessors;
-            for (; processorsCount >= 14; processorsCount--)
+            for (; processorsCount >= fixedPopulation.MinProcessorsCount; processorsCount--)
                 if (populationSize % processorsCount == 0)
                     break;
             terminationStrategy = new OrTerminationStrategy(
                 new CustomStagnationStreakTerminationStrategy(
-                    maxStagnationStreak: 5_000,
-                    relativeStagnationThreshold: 1e-6),
+                    maxStagnationStreak: fixedPopulation.MaxStagnationStreak,
+                    relativeStagnationThreshold: fixedPopulation.RelativeStagnationThreshold),
                 safetyTimeout);
+            terminationDescription =
+                $"stagnation streak {fixedPopulation.MaxStagnationStreak:N0} @ rel {fixedPopulation.RelativeStagnationThreshold:G3} " +
+                $"OR {deConfiguration.SafetyTimeoutHours:0.###} h safety timeout";
         }
 
         // Nelder–Mead refinement layered on top of the DE search (DotNetNelderMead.DifferentialEvolution):
         // an in-loop memetic refiner every N generations plus a final sequential polish of the converged best.
-        // Surfaced here like `strategy`; set Enabled = false to fall back to plain DE.
-        var nelderMeadRefinement = new NelderMeadRefinementSettings
-        {
-            Enabled = true, // final-polish-only (memetic stays off); guarded, so it can only improve the jDE best
-            // Memetic in-loop NM is OFF. Tested with jDE (2026-06-04): it does NOT collapse — jDE stays in the
-            // clean penalty-0 basin, so the memetic polish reached 0.15742 / penalty 0, basically the same point
-            // as final-polish-only (0.15721) but a hair worse and ~138k generations earlier (it trims diversity
-            // and accelerates stagnation for no gain). The earlier SHADE/L-SHADE memetic collapse (0.921099 /
-            // penalty 0.5) was current-to-pbest already sitting in the penalized corner, not an intrinsic flaw.
-            MemeticInLoop = false,
-            EveryNGenerations = 50,
-            MemeticMaxEvaluationsPerCall = 200,
-            // Final polish runs once after L-SHADE converges (outside the budget) — give it room.
-            FinalPolish = true,
-            FinalPolishMaxEvaluations = 100_000,
-            AdaptiveCoefficients = true,
-            DomainTolerance = 1e-8,
-            FunctionTolerance = 1e-8,
-            Restarts = 2,
-        };
+        // The configured default is final-polish-only (memetic stays off); guarded, so it can only improve
+        // the jDE best. Memetic in-loop NM tested with jDE (2026-06-04): it does NOT collapse — jDE stays in
+        // the clean penalty-0 basin, so the memetic polish reached 0.15742 / penalty 0, basically the same
+        // point as final-polish-only (0.15721) but a hair worse and ~138k generations earlier (it trims
+        // diversity and accelerates stagnation for no gain). The earlier SHADE/L-SHADE memetic collapse
+        // (0.921099 / penalty 0.5) was current-to-pbest already sitting in the penalized corner, not an
+        // intrinsic flaw.
+        var nelderMeadRefinement = configuration.NelderMead.ToRefinementSettings();
 
         var settingsBuilder = DifferentialEvolutionScenarioSettings
                         .CreateBuilder()
@@ -121,8 +127,8 @@ public static class GroupScenarioRunner
                         .WithUpperBound(groupUpperBound)
                         .WithStrategy(strategy)
                         // F/CR below are only consumed by the Classic and jDE strategies; the adaptive variants self-tune them.
-                        .WithMutationForce(0.5)
-                        .WithCrossoverProbability(0.9)
+                        .WithMutationForce(deConfiguration.MutationForce)
+                        .WithCrossoverProbability(deConfiguration.CrossoverProbability)
                         .WithTerminationStrategy(terminationStrategy)
                         .AddPenaltyEvaluators(penaltyEvaluators)
                         .WithProcessorsCount(processorsCount)
@@ -136,6 +142,31 @@ public static class GroupScenarioRunner
 
         var settings = settingsBuilder.Build();
 
+        // Provenance: record the values the run is ACTUALLY using — population and worker count after the
+        // strategy branch and the divisibility-reduction rule, and the expanded 32-element bounds — not the
+        // values the configuration file requested.
+        var resolved = new ResolvedRunRecord
+        {
+            Mode = "optimization",
+            ConfigurationSource = loadedConfiguration.SourceDescription,
+            WorkingDirectory = Directory.GetCurrentDirectory(),
+            Configuration = configuration,
+            Effective = new EffectiveRunValues
+            {
+                PopulationSize = populationSize,
+                ProcessorsCount = processorsCount,
+                MachineProcessorCount = Environment.ProcessorCount,
+                Dimensions = dimensions,
+                TerminationStrategy = terminationDescription,
+                MaxEvaluationNumber = maxEvaluationNumber,
+                PBestRate = pBestRate,
+                ArchiveSizeRate = archiveSizeRate,
+                MemorySize = memorySize,
+                GroupLowerBound = groupLowerBound,
+                GroupUpperBound = groupUpperBound
+            }
+        };
+
         return new GroupOptimizationPlan
         {
             Scenario = new GroupDifferentialEvolutionScenario(settings),
@@ -147,7 +178,8 @@ public static class GroupScenarioRunner
             PBestRate = pBestRate,
             ArchiveSizeRate = archiveSizeRate,
             MemorySize = memorySize,
-            NelderMeadRefinement = nelderMeadRefinement
+            NelderMeadRefinement = nelderMeadRefinement,
+            Resolved = resolved
         };
     }
 
@@ -162,32 +194,62 @@ public static class GroupScenarioRunner
 
     /// <summary>
     /// Builds a scenario that solves one supplied vector rather than searching for one.
+    ///
+    /// <para>The configuration matters here even though no search runs: the penalty thresholds are part
+    /// of the score, so a replay must be evaluated under the same configuration that produced the
+    /// vector. The search-only settings (population, strategy, termination) are builder-required
+    /// placeholders that no evaluation reads, which is why they are fixed rather than configured.</para>
     /// </summary>
-    /// <param name="inputFileName">Propellants file to evaluate against.</param>
-    public static ForwardEvalPlan CreateForwardEvalPlan(string inputFileName)
+    /// <param name="loadedConfiguration">The resolved run configuration and its provenance.</param>
+    public static ForwardEvalPlan CreateForwardEvalPlan(LoadedRunConfiguration loadedConfiguration)
     {
-        var groupLowerBound = BoundsProvider.GetGroupLowerBound();
+        ArgumentNullException.ThrowIfNull(loadedConfiguration);
+
+        var configuration = loadedConfiguration.Configuration;
+        var groupLowerBound = configuration.Bounds.ToGroupLowerBound();
+        var groupUpperBound = configuration.Bounds.ToGroupUpperBound();
 
         var meter = new PerformanceMeter();
         var settings = DifferentialEvolutionScenarioSettings.CreateBuilder()
             .WithMeter(meter)
-            .WithPropellantsFromFile(inputFileName)
+            .WithPropellantsFromFile(configuration.InputFileName)
             .WithPopulationSize(groupLowerBound.Length) // unused (no DE run), but the builder requires a positive value
             .WithLowerBound(groupLowerBound)
-            .WithUpperBound(BoundsProvider.GetGroupUpperBound())
+            .WithUpperBound(groupUpperBound)
             .WithStrategy(DifferentialEvolutionStrategy.Jde)
             .WithMutationForce(0.5)
             .WithCrossoverProbability(0.9)
             .WithTerminationStrategy(new TimeoutTerminationStrategy(TimeSpan.FromMinutes(1)))
-            .AddPenaltyEvaluators(GroupPenaltyEvaluatorFactory.Build())
+            .AddPenaltyEvaluators(GroupPenaltyEvaluatorFactory.Build(configuration.Penalties))
             .WithProcessorsCount(1)
             .Build();
+
+        var resolved = new ResolvedRunRecord
+        {
+            Mode = "forward-eval",
+            ConfigurationSource = loadedConfiguration.SourceDescription,
+            WorkingDirectory = Directory.GetCurrentDirectory(),
+            Configuration = configuration,
+            Effective = new EffectiveRunValues
+            {
+                // A forward eval is one single-threaded point evaluation; the recorded values are what it
+                // genuinely used, so they must not be confused with the search sizing in the configuration.
+                PopulationSize = 1,
+                ProcessorsCount = 1,
+                MachineProcessorCount = Environment.ProcessorCount,
+                Dimensions = groupLowerBound.Length,
+                TerminationStrategy = "not applicable (single point evaluation, no search)",
+                GroupLowerBound = groupLowerBound,
+                GroupUpperBound = groupUpperBound
+            }
+        };
 
         return new ForwardEvalPlan
         {
             Scenario = new GroupDifferentialEvolutionScenario(settings),
             Settings = settings,
-            Meter = meter
+            Meter = meter,
+            Resolved = resolved
         };
     }
 

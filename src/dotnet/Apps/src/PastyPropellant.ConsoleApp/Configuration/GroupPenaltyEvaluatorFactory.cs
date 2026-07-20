@@ -14,7 +14,10 @@ namespace PastyPropellant.ConsoleApp.Configuration;
 /// like a solver bug rather than a configuration split. Both paths call <see cref="Build"/>; neither
 /// constructs an evaluator itself.</para>
 ///
-/// <para>The thresholds here are model configuration, not tuning knobs to be varied per run.</para>
+/// <para>The thresholds are model configuration, not tuning knobs to be varied per run. They are
+/// nonetheless overridable through <see cref="PenaltyConfiguration"/> so that an experiment does not
+/// require a recompile — the defaults on that record are the historical literals, and whatever a run
+/// actually used is recorded in the resolved-run sidecar and the PDF report.</para>
 /// </summary>
 public static class GroupPenaltyEvaluatorFactory
 {
@@ -23,16 +26,25 @@ public static class GroupPenaltyEvaluatorFactory
     /// pocket heat-flux ratio competition, inter-pocket faster burn, kinetic-flame heat flux,
     /// pore diameter, and large oxidiser particle size.
     /// </summary>
-    public static IPenaltyEvaluator[] Build()
+    /// <param name="configuration">
+    /// Thresholds to apply. Omit for the built-in defaults, which are the values that were previously
+    /// hardcoded here.
+    /// </param>
+    public static IPenaltyEvaluator[] Build(PenaltyConfiguration? configuration = null)
     {
-        const double penaltyRate = 0.01;
-        const double heatFluxRatioThreshold = 100.0;
-        const double poreDiameterThreshold = 3.0;
-        const double largeOxidizerParticleSizeThreshold = 1.0;
+        var penalties = configuration ?? new PenaltyConfiguration();
 
-        var maxInterPocketKineticFlameHeatFlux = HeatFlux.FromWattsPerSquareMeter(1e9);
-        var maxSkeletonKineticFlameHeatFlux = HeatFlux.FromWattsPerSquareMeter(1e8);
-        var maxOutSkeletonKineticFlameHeatFlux = HeatFlux.FromWattsPerSquareMeter(1e8);
+        var penaltyRate = penalties.PenaltyRate;
+        var heatFluxRatioThreshold = penalties.HeatFluxRatioThreshold;
+        var poreDiameterThreshold = penalties.PoreDiameterThreshold;
+        var largeOxidizerParticleSizeThreshold = penalties.LargeOxidizerParticleSizeThreshold;
+
+        var maxInterPocketKineticFlameHeatFlux = HeatFlux.FromWattsPerSquareMeter(
+            penalties.MaxInterPocketKineticFlameHeatFluxWattsPerSquareMeter);
+        var maxSkeletonKineticFlameHeatFlux = HeatFlux.FromWattsPerSquareMeter(
+            penalties.MaxSkeletonKineticFlameHeatFluxWattsPerSquareMeter);
+        var maxOutSkeletonKineticFlameHeatFlux = HeatFlux.FromWattsPerSquareMeter(
+            penalties.MaxOutSkeletonKineticFlameHeatFluxWattsPerSquareMeter);
 
         return [
             new PocketHeatFluxRatioCompetitionPenaltyEvaluator(penaltyRate, heatFluxRatioThreshold),

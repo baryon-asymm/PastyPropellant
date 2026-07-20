@@ -1,3 +1,4 @@
+using PastyPropellant.ConsoleApp.Configuration;
 using PastyPropellant.ConsoleApp.Io;
 using PastyPropellant.ConsoleApp.Reporting;
 using PastyPropellant.ConsoleApp.Runners;
@@ -20,15 +21,24 @@ public static class GroupOptimizationWorkflow
     /// <summary>File the winning 32-vector is persisted to, and the argument <c>--forward-eval</c> replays.</summary>
     public const string BestVectorFileName = "best_vector.txt";
 
-    /// <summary>Runs the campaign end to end against <paramref name="inputFileName"/>.</summary>
-    public static async Task RunAsync(string inputFileName)
+    /// <summary>Runs the campaign end to end under <paramref name="loadedConfiguration"/>.</summary>
+    public static async Task RunAsync(LoadedRunConfiguration loadedConfiguration)
     {
+        ArgumentNullException.ThrowIfNull(loadedConfiguration);
+
+        var inputFileName = loadedConfiguration.Configuration.InputFileName;
+
         Console.WriteLine(new string('=', 90));
         Console.WriteLine("GROUP OPTIMIZATION: BAS_0, BAS_1, BAS_2+BAS_3+BAS_4 (SIMULTANEOUS)");
         Console.WriteLine(new string('=', 90) + "\n");
 
-        var plan = GroupScenarioRunner.CreateOptimizationPlan(inputFileName);
+        var plan = GroupScenarioRunner.CreateOptimizationPlan(loadedConfiguration);
         WriteRunBanner(plan, inputFileName);
+
+        // Written before the search starts, so a run that is killed or times out still leaves a record
+        // of the configuration it was attempting.
+        var resolvedPath = ResolvedRunRecordService.Write(plan.Resolved);
+        Console.WriteLine($"- Resolved configuration recorded in {resolvedPath}\n");
 
         var operationResult = await GroupScenarioRunner.RunAsync(plan);
 
@@ -86,7 +96,7 @@ public static class GroupOptimizationWorkflow
         // Generate PDF report
         Console.WriteLine("Generating PDF report...");
         GroupReportGenerator.Generate(groupResult, inputFileName, "en-US", "en",
-            plan.Settings.DifferentialEvolutionSettings, plan.Meter);
+            plan.Settings.DifferentialEvolutionSettings, plan.Meter, plan.Resolved);
         Console.WriteLine("✓ PDF report generated\n");
 
         WriteSummary();
@@ -96,6 +106,7 @@ public static class GroupOptimizationWorkflow
     private static void WriteRunBanner(GroupOptimizationPlan plan, string inputFileName)
     {
         Console.WriteLine("Starting group optimization (Bas_0, Bas_1, Bas_2+Bas_3+Bas_4):");
+        Console.WriteLine($"- Configuration: {plan.Resolved.ConfigurationSource}");
         Console.WriteLine($"- Input file: {inputFileName}");
         Console.WriteLine($"- Algorithm: {plan.Settings.DifferentialEvolutionSettings.Strategy}");
         Console.WriteLine($"- Population size: {plan.PopulationSize}");

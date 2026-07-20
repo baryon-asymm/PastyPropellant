@@ -19,9 +19,13 @@ namespace PastyPropellant.ConsoleApp.Workflows;
 /// </summary>
 public static class ForwardEvalWorkflow
 {
-    /// <summary>Replays <paramref name="vectorFilePath"/> against <paramref name="inputFileName"/>.</summary>
-    public static async Task RunAsync(string inputFileName, string vectorFilePath)
+    /// <summary>Replays <paramref name="vectorFilePath"/> under <paramref name="loadedConfiguration"/>.</summary>
+    public static async Task RunAsync(LoadedRunConfiguration loadedConfiguration, string vectorFilePath)
     {
+        ArgumentNullException.ThrowIfNull(loadedConfiguration);
+
+        var inputFileName = loadedConfiguration.Configuration.InputFileName;
+
         Console.WriteLine(new string('=', 90));
         Console.WriteLine("FORWARD EVALUATION (single parameter vector — no optimization)");
         Console.WriteLine(new string('=', 90) + "\n");
@@ -31,10 +35,15 @@ public static class ForwardEvalWorkflow
             throw new ArgumentException(
                 $"Vector file '{vectorFilePath}' has {genes.Length} values; expected {BoundsProvider.GroupVectorLength} (group vector).");
 
-        var plan = GroupScenarioRunner.CreateForwardEvalPlan(inputFileName);
+        var plan = GroupScenarioRunner.CreateForwardEvalPlan(loadedConfiguration);
 
+        Console.WriteLine($"- Configuration: {plan.Resolved.ConfigurationSource}");
         Console.WriteLine($"- Input file: {inputFileName}");
         Console.WriteLine($"- Vector file: {vectorFilePath} ({genes.Length} parameters)\n");
+
+        // A replay is scored under the penalty thresholds in force at replay time, so it records its own
+        // configuration for the same reason an optimisation run does.
+        ResolvedRunRecordService.Write(plan.Resolved);
 
         var result = GroupScenarioRunner.EvaluateVector(plan, genes);
 
@@ -67,7 +76,7 @@ public static class ForwardEvalWorkflow
 
         Console.WriteLine("Generating PDF report...");
         GroupReportGenerator.Generate(result, inputFileName, "en-US", "en",
-            plan.Settings.DifferentialEvolutionSettings, plan.Meter);
+            plan.Settings.DifferentialEvolutionSettings, plan.Meter, plan.Resolved);
 
         Console.WriteLine("\n✓ Forward-evaluation report generated\n");
     }

@@ -34,7 +34,7 @@ Historically these tests appeared to finish in ~110 ms — but only because thei
 `../../../../../` paths, broken by the centralised `artifacts/` output layout, made them fail before
 launching anything. They now resolve the repository root via `PythonRuntime` and genuinely execute.
 
-Run the console host. It takes no configuration file: the input propellants file, bounds, DE strategy and penalty thresholds are all hardcoded literals in `Program.cs` (see *Runtime data* below).
+Run the console host. A run configuration file is **optional**: with none present the host runs the built-in defaults, which are the values that used to be hardcoded (see *Runtime data* below).
 
 ```bash
 # Full optimisation run (hours; 9 h safety timeout)
@@ -44,7 +44,9 @@ dotnet run --project src/dotnet/Apps/src/PastyPropellant.ConsoleApp
 dotnet run --project src/dotnet/Apps/src/PastyPropellant.ConsoleApp -- --forward-eval best_vector.txt
 ```
 
-`--forward-eval <vector-file>` is the only command-line argument `Program.cs` parses; anything else is ignored and the full optimisation runs.
+`Program.cs` parses two arguments: `--forward-eval <vector-file>` and `--config <path>`. Anything else is ignored and the full optimisation runs.
+
+Every run writes `run_configuration.resolved.json` recording the configuration it **actually used** — effective values after defaults are applied and after the processor-count reduction runs, not what the file requested. It is written *before* the search starts, so a killed or timed-out run still leaves the record. The same content appears as a block at the top of the PDF. That record is the reason a config file is acceptable here at all: hardcoding made every run traceable through git, and the resolved record is what replaces that guarantee.
 
 The host resolves `propellants.01234.json` **relative to the process working directory** and throws `FileNotFoundException` if it is missing. The checked-in copy lives at `data/propellants.01234.json`, which is not where `dotnet run` starts, so make the file reachable from the working directory before running (the sibling Python script paths are hardcoded relative to the ConsoleApp project directory, so that is the working directory the relative paths assume).
 
@@ -92,16 +94,22 @@ The same ordering is used for `compositionIndex` everywhere downstream — `Grou
 
 ## Runtime data and run configuration
 
-**There is no job/ticket file.** The run is configured entirely by hardcoded literals in `ConsoleApp/Program.cs`, so every experiment variation currently needs a recompile:
+**There is still no job/ticket file** — in particular `data/optimization_tickets.json` does not exist and never did. What does exist is an optional run configuration read from `run-config.json` in the process working directory, or from `--config <path>`.
 
-| Setting | Where |
-|---------|-------|
-| Input propellants file (`"propellants.01234.json"`) | passed to `WithPropellantsFromFile(...)`, hardcoded at both the optimisation and forward-eval call sites |
-| 18-element lower/upper bounds | `GetLowerBound()` / `GetUpperBound()`, with per-slot comments naming each physical parameter and unit |
-| 32-element group bounds | `GetGroupLowerBound()` / `GetGroupUpperBound()`, derived from the 18-element ones by index maps — shared slots from `[2,3,4,5,8,9,13,14,15,16,17]`, per-composition slots from `[0,1,6,7,10,11,12]` repeated for all three groups |
-| DE strategy, population, processors, termination | inline in `RunGroupOptimizationAsync` (currently jDE, population `32×12 = 384`, processors `ProcessorCount−1` reduced until it divides the population evenly, stagnation-streak OR 9 h timeout) |
-| Penalty thresholds | `BuildGroupPenaltyEvaluators()` |
-| Nelder–Mead refinement | `NelderMeadRefinementSettings` literal (currently final-polish on, in-loop memetic off) |
+The built-in defaults *are* the historical hardcoded configuration: `new RunConfiguration()` has every former literal as a property initialiser, and a file only overrides members of that object. "No config file" is therefore not a fallback branch — it is the same object with nothing overridden, which is why absence cannot drift from the documented behaviour. An annotated template is checked in at `ConsoleApp/run-config.example.json`; it is deliberately not copied to the build output so it cannot become an active config by accident.
+
+Configs may be partial — override one threshold and inherit the rest. Validation is loud and up-front: an unknown JSON member, an unknown bound name, an inverted or out-of-range bound, or a missing `--config` path throws at startup before anything is constructed. Nothing silently falls back to a default.
+
+| Setting | Where the default lives | Config key |
+|---------|------------------------|------------|
+| Input propellants file (`"propellants.01234.json"`) | `RunConfiguration` | input file |
+| 18-element lower/upper bounds | `Configuration/BoundsProvider.cs`, per-slot comments naming each physical parameter and unit | `bounds`, keyed **by parameter name** (not index), validated against `BoundsProvider.BaseParameterNames` |
+| 32-element group bounds | derived from the 18-element ones by index maps — shared slots from `[2,3,4,5,8,9,13,14,15,16,17]`, per-composition slots from `[0,1,6,7,10,11,12]` repeated for all three groups | derived, not configurable directly |
+| DE strategy, population, processors, termination | `Runners/GroupScenarioRunner.cs` (jDE, population `32×12 = 384`, processors `ProcessorCount−1` reduced until it divides the population evenly, stagnation-streak OR 9 h timeout) | `strategy`, and `fixedPopulation` / `lShade` as separate sub-records — only the branch matching `strategy` is used, but **both are validated**, so a broken setting cannot lie dormant until someone switches strategy |
+| Penalty thresholds | `Configuration/GroupPenaltyEvaluatorFactory.cs` | `penalties` |
+| Nelder–Mead refinement | `RunConfiguration` (final-polish on, in-loop memetic off) | Nelder–Mead section |
+
+Not configurable, and deliberately so: the λ thermal-conductivity coefficients in `Helpers/ConstructPropellantJsonHelper.cs` are propellant *material data*, not run configuration — they belong with the propellants input under `data/`.
 
 The only file `data/` genuinely supplies to the live entry point is the propellants set. `data/propellants*.json` holds propellant definitions; the suffix (`0`, `1`, `234`, `01234`) selects which set is loaded, and the entry point always asks for `01234`. It is deserialised as a `List<Propellant>` (case-insensitive) and the scenario then partitions it by name into `Bas_0`, `Bas_1`, and `Bas_2`/`Bas_3`/`Bas_4` — **a propellants file missing any of those names will throw**, since the scenario uses `First(...)`.
 

@@ -1,4 +1,5 @@
 using ParametricCombustionModel.Telemetry;
+using PastyPropellant.ConsoleApp.Configuration;
 using PastyPropellant.ConsoleApp.Scenarios;
 using PastyPropellant.ConsoleApp.Scenarios.Settings;
 
@@ -18,4 +19,10 @@ public sealed record ForwardEvalPlan
 
     /// <summary>Meter that times the evaluation and feeds the report's performance section.</summary>
     public required PerformanceMeter Meter { get; init; }
+
+    /// <summary>
+    /// Provenance record of this replay: the resolved configuration the vector was scored under.
+    /// Written to the sidecar and summarised in the PDF report, exactly as for an optimisation run.
+    /// </summary>
+    public required ResolvedRunRecord Resolved { get; init; }
 }

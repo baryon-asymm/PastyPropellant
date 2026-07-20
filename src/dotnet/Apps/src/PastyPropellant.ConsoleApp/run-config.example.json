@@ -1,0 +1,121 @@
+{
+  // EXAMPLE run configuration for the PastyPropellant console host. Not read by anything: copy it to
+  // `run-config.json` in the directory you run from, or pass it with `--config <path>`.
+  //
+  // The file is OPTIONAL and PARTIAL. Every setting below already has a built-in default equal to the
+  // value that used to be hardcoded in the host, so a run with no configuration file behaves exactly as
+  // it did before this file existed. Delete any key you do not want to change; only what remains is
+  // overridden. An unknown key, an unknown parameter name, or a value that would produce an invalid run
+  // is a hard startup error, never a silent fallback.
+  //
+  // Paths (this file, the propellants file, every output) resolve against the PROCESS WORKING DIRECTORY.
+  //
+  // Whatever a run resolves is written to `run_configuration.resolved.json` next to the outputs and
+  // summarised at the top of the PDF report — including the values derived at run time, such as the
+  // worker count after the divisibility-reduction rule. That record is what makes a run traceable now
+  // that changing an experiment no longer requires a recompile.
+
+  "inputFileName": "propellants.01234.json",
+
+  // The 18 physical parameters, by name. Any parameter you omit keeps its default bound, and the two
+  // sides are independent — naming only `upper.ADecompose` leaves `lower.ADecompose` alone.
+  "bounds": {
+    "lower": {
+      "ADecompose": 1.0,
+      "EDecompose": 5e4,
+      "AKineticFlameInterPocket": 1e5,
+      "EKineticFlameInterPocket": 5e4,
+      "AKineticFlamePocketOutSkeleton": 1e5,
+      "EKineticFlamePocketOutSkeleton": 5e4,
+      "AKineticFlamePocketSkeleton": 1e5,
+      "EKineticFlamePocketSkeleton": 5e4,
+      "NuInterPocket": 0.0,
+      "NuPocketOutSkeleton": 0.0,
+      "NuPocketSkeleton": 0.0,
+      "AMetalBurningConstant": 1e-10,
+      "BMetalBurningConstant": 1e-12,
+      "DeltaH": -1e7,
+      "KDiffusionHeight": 1e-3,
+      "APowOrder": 0.0,
+      "BPowOrder": 0.0,
+      "KCoefficientRadiationTemperature": 0.0
+    },
+    "upper": {
+      "ADecompose": 1e13,
+      "EDecompose": 3e5,
+      "AKineticFlameInterPocket": 1e13,
+      "EKineticFlameInterPocket": 2.5e5,
+      "AKineticFlamePocketOutSkeleton": 1e13,
+      "EKineticFlamePocketOutSkeleton": 2.5e5,
+      "AKineticFlamePocketSkeleton": 1e13,
+      "EKineticFlamePocketSkeleton": 2.5e5,
+      "NuInterPocket": 2.5,
+      "NuPocketOutSkeleton": 2.5,
+      "NuPocketSkeleton": 2.5,
+      "AMetalBurningConstant": 1e-3,
+      "BMetalBurningConstant": 1e-5,
+      "DeltaH": 1e7,
+      "KDiffusionHeight": 1e1,
+      "APowOrder": 3.0,
+      "BPowOrder": 3.0,
+      "KCoefficientRadiationTemperature": 1.0
+    }
+  },
+
+  // Thresholds of the five constraint-penalty evaluators. These are part of the score, so they apply to
+  // `--forward-eval` replays too: a vector replayed under different thresholds is a different number.
+  "penalties": {
+    "penaltyRate": 0.01,
+    "heatFluxRatioThreshold": 100.0,
+    "poreDiameterThreshold": 3.0,
+    "largeOxidizerParticleSizeThreshold": 1.0,
+    "maxInterPocketKineticFlameHeatFluxWattsPerSquareMeter": 1e9,
+    "maxSkeletonKineticFlameHeatFluxWattsPerSquareMeter": 1e8,
+    "maxOutSkeletonKineticFlameHeatFluxWattsPerSquareMeter": 1e8
+  },
+
+  "differentialEvolution": {
+    // Classic | Jde | Jade | Shade | LShade. Only the sub-section matching the selected strategy is
+    // read, but both are validated, so a broken setting cannot lie dormant until someone switches.
+    "strategy": "Jde",
+    // F and CR are consumed only by Classic and Jde; the adaptive variants self-tune them.
+    "mutationForce": 0.5,
+    "crossoverProbability": 0.9,
+    "safetyTimeoutHours": 9.0,
+
+    // Classic / Jde / Jade / Shade: fixed population, stagnation-driven termination.
+    "fixedPopulation": {
+      // Population = 32 (the group vector length) x this multiplier. 32 x 12 = 384.
+      "populationSizeMultiplier": 12,
+      // Worker count starts at (machine cores - 1) and walks down while it does not divide the
+      // population evenly, stopping here. Lower it on a machine with few cores.
+      "minProcessorsCount": 14,
+      "maxStagnationStreak": 5000,
+      "relativeStagnationThreshold": 1e-6
+    },
+
+    // LShade only: budget-driven, with a population that shrinks linearly across the budget.
+    "lShade": {
+      "populationSizeMultiplier": 18,
+      "maxEvaluationNumber": 5000000,
+      "pBestRate": 0.11,
+      "archiveSizeRate": 2.6,
+      "memorySize": 6
+    }
+  },
+
+  // Local refinement layered on the DE search. The final polish is guarded: it can only improve on the
+  // DE best, never replace it with something worse.
+  "nelderMead": {
+    "enabled": true,
+    "memeticInLoop": false,
+    "everyNGenerations": 50,
+    "memeticMaxEvaluationsPerCall": 200,
+    "finalPolish": true,
+    "finalPolishMaxEvaluations": 100000,
+    "adaptiveCoefficients": true,
+    "domainTolerance": 1e-8,
+    "functionTolerance": 1e-8,
+    "restarts": 2
+  }
+}

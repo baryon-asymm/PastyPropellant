@@ -59,6 +59,18 @@ public class GroupPdfReportMaker : IReportMaker, IPdfOperationVisitor
             operation.Accept(this);
         _pdfGeneratorAdapter.AddLineBreak();
 
+        // Add the resolved run configuration directly under the header. The settings it prints used to be
+        // compiled into the host, so a run was traceable to a commit; now that they can come from an
+        // optional configuration file, the report has to state what this run actually used. Skipped when
+        // the caller supplied no summary, so callers with no configuration surface are unaffected.
+        if (_reportContext.RunConfiguration is { Count: > 0 } runConfigurationSections)
+        {
+            var runConfigurationReport = new RunConfigurationReport(runConfigurationSections);
+            foreach (var operation in runConfigurationReport.Transform())
+                operation.Accept(this);
+            _pdfGeneratorAdapter.AddLineBreak();
+        }
+
         // Add penalty evaluators report
         foreach (var operation in penaltyEvaluatorsReport.Transform())
             operation.Accept(this);

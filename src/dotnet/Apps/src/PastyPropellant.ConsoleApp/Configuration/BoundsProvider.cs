@@ -45,6 +45,33 @@ public static class BoundsProvider
         SharedParameterCount + CompositionParameterCount * CompositionGroups.Count;
 
     /// <summary>
+    /// Names of the 18 base parameters, in base-vector order. These are the keys a run-configuration
+    /// file uses to override a single bound by name rather than by position — the whole point being
+    /// that "widen ADecompose" cannot silently land on slot 0 of the wrong vector.
+    /// </summary>
+    public static IReadOnlyList<string> BaseParameterNames { get; } =
+    [
+        "ADecompose",
+        "EDecompose",
+        "AKineticFlameInterPocket",
+        "EKineticFlameInterPocket",
+        "AKineticFlamePocketOutSkeleton",
+        "EKineticFlamePocketOutSkeleton",
+        "AKineticFlamePocketSkeleton",
+        "EKineticFlamePocketSkeleton",
+        "NuInterPocket",
+        "NuPocketOutSkeleton",
+        "NuPocketSkeleton",
+        "AMetalBurningConstant",
+        "BMetalBurningConstant",
+        "DeltaH",
+        "KDiffusionHeight",
+        "APowOrder",
+        "BPowOrder",
+        "KCoefficientRadiationTemperature"
+    ];
+
+    /// <summary>
     /// Base-vector slots whose value is shared by all three compositions, in the order they occupy
     /// group slots <c>[0..10]</c>.
     /// </summary>
@@ -113,6 +140,57 @@ public static class BoundsProvider
 
     /// <summary>Upper bound of the 32-element group vector, derived from <see cref="GetBaseUpperBound"/>.</summary>
     public static double[] GetGroupUpperBound() => ExpandToGroupVector(GetBaseUpperBound());
+
+    /// <summary>
+    /// Projects a positional base bound onto a name-keyed map, in <see cref="BaseParameterNames"/>
+    /// order. This is the form a configuration file and the resolved-run sidecar both use.
+    /// </summary>
+    /// <exception cref="ArgumentException"><paramref name="baseBound"/> is not 18 elements long.</exception>
+    public static Dictionary<string, double> ToNamedBound(IReadOnlyList<double> baseBound)
+    {
+        ArgumentNullException.ThrowIfNull(baseBound);
+
+        if (baseBound.Count != BaseVectorLength)
+            throw new ArgumentException(
+                $"Base bound must have {BaseVectorLength} elements but has {baseBound.Count}.",
+                nameof(baseBound));
+
+        var named = new Dictionary<string, double>(BaseVectorLength, StringComparer.Ordinal);
+        for (int i = 0; i < BaseVectorLength; i++)
+            named[BaseParameterNames[i]] = baseBound[i];
+
+        return named;
+    }
+
+    /// <summary>
+    /// Projects a name-keyed bound back onto the positional base vector. Every one of the 18 names
+    /// must be present and no unrecognised name may appear — a typo'd parameter name is a
+    /// configuration error, not a value to ignore.
+    /// </summary>
+    /// <exception cref="ArgumentException">A name is missing or unrecognised.</exception>
+    public static double[] ToBaseVector(IReadOnlyDictionary<string, double> namedBound)
+    {
+        ArgumentNullException.ThrowIfNull(namedBound);
+
+        var unknown = namedBound.Keys.Where(key => !BaseParameterNames.Contains(key)).ToList();
+        if (unknown.Count > 0)
+            throw new ArgumentException(
+                $"Unrecognised bound parameter name(s): {string.Join(", ", unknown)}. " +
+                $"Valid names are: {string.Join(", ", BaseParameterNames)}.",
+                nameof(namedBound));
+
+        var baseBound = new double[BaseVectorLength];
+        for (int i = 0; i < BaseVectorLength; i++)
+        {
+            if (!namedBound.TryGetValue(BaseParameterNames[i], out var value))
+                throw new ArgumentException(
+                    $"Missing bound for parameter '{BaseParameterNames[i]}'.", nameof(namedBound));
+
+            baseBound[i] = value;
+        }
+
+        return baseBound;
+    }
 
     /// <summary>
     /// Projects an 18-element base bound onto the 32-element group layout: the shared slots once,
