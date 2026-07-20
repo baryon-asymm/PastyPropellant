@@ -283,7 +283,7 @@ public record DifferentialEvolutionScenarioSettings
                 EventBus<InfoLogEvent>.Publish(
                     new InfoLogEvent(
                         $"Generation: {population.GenerationNumber}, Best individual: {population.IndividualCursor.FitnessFunctionValue}",
-                        nameof(DifferentialEvolutionOptimizer)
+                        nameof(GroupDifferentialEvolutionOptimizer)
                     )
                 );
             }
