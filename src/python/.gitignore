@@ -1,0 +1,3 @@
+# pytest's run cache. __pycache__/ and *.pyc are already ignored repo-wide;
+# .pytest_cache is not, and it appears here because pytest.ini lives in this directory.
+.pytest_cache/

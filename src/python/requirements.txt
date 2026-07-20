@@ -23,6 +23,9 @@
 #
 # Note: the git submodule under externals/src/python/AerospacePropellantThermodynamics
 # carries its own dependencies and is deliberately not covered here.
+#
+# Test-only dependencies live in requirements-dev.txt -- nothing here imports pytest at
+# runtime, so running the helpers does not require it.
 
 # Plot rendering (PropellantsPlotRendering). Pulls in numpy transitively.
 matplotlib>=3.6.3

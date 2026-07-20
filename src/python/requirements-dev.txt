@@ -1,0 +1,20 @@
+# Development-only Python dependencies: what you need to RUN the tests, on top of
+# requirements.txt (which covers what you need to run the code itself).
+#
+# Kept separate from requirements.txt on purpose. Nothing under src/python/ imports
+# pytest at runtime, so a deployment that only executes the helper scripts should not
+# have to install it.
+#
+# Install:
+#     python3 -m pip install -r src/python/requirements-dev.txt
+#
+# Run the suite from the repository root (pytest.ini lives in src/python/, so pointing
+# pytest at that directory picks the configuration up automatically):
+#     python3 -m pytest src/python
+#
+# Version floor is the version the tests were written and verified against in this
+# environment (pytest 7.4.4). A floor rather than an exact pin because the tests use
+# only fixtures, parametrize and raises -- no plugin APIs and nothing deprecated -- so
+# newer releases are expected to work.
+
+pytest>=7.4.4
