@@ -20,7 +20,9 @@ Items closed on `dev`, newest last. Each was independently re-verified against t
 
 **Standing verification for anything touching the model or the report:** `--forward-eval best_vector.txt` must keep printing `5.9923E+307` / `5.5810E+002` and the three per-group pairs `9.7426E-002`/`4.8878E+002`, `1.7977E+308`/`0`, `2.5025E-002`/`6.9316E+001`. Every commit in this campaign that could have moved a number was checked against it. (That vector is from the `b5007df` reconstruction model, which is *why* Bas_1 does not converge — it is a useful property, not a defect: it exercises the non-convergence paths.)
 
-**A pattern worth carrying forward:** of the items closed so far, six had a materially wrong premise in the audit — the "verbatim" duplicate that was not verbatim ([ARCH-8](#arch-8)), the "pure reuse" inheritance that was a template method ([ARCH-3](#arch-3)), the duplication whose fix was deletion ([DUP-4](#dup-4)), the ignore rules that would have been inert ([BUILD-2](#build-2)), the already-resolved item ([DUP-6](#dup-6)), and the wrong-comment-not-wrong-code item ([NEW-6](#new-6)). Read the code before acting on any remaining entry here.
+**A pattern worth carrying forward:** of the items closed so far, **seven** had a materially wrong premise — the "verbatim" duplicate that was not verbatim ([ARCH-8](#arch-8)), the "pure reuse" inheritance that was a template method ([ARCH-3](#arch-3)), the duplication whose fix was deletion ([DUP-4](#dup-4)), the ignore rules that would have been inert ([BUILD-2](#build-2)), the already-resolved item ([DUP-6](#dup-6)), the wrong-comment-not-wrong-code item ([NEW-6](#new-6)), and the "dead local" that is read by a sign-check ([NEW-4](#new-4)). One more, [ARCH-7](#arch-7), prescribes sourcing config from a file that does not exist.
+
+The errors are not random. The audit was read-only — no builds, no runs, no `git` — so it was reliable on *static* structure and systematically wrong wherever the answer required a dynamic fact: who constructs what, what is tracked, where a virtual call dispatches, whether a variable is read two lines later. Read the code, and run it, before acting on any remaining entry here.
 
 | ID | Commit | Note |
 |----|--------|------|
@@ -50,6 +52,9 @@ Items closed on `dev`, newest last. Each was independently re-verified against t
 | [NEW-3](#new-3), [DUP-6](#dup-6), [NEW-6](#new-6) | `c0a0df1` | NEW-3 is worse than recorded — the stale value is a *previous candidate's* burn rate, not a sentinel, because per-worker contexts are reused. On the campaign vector the old report published `Per-fuel RMS = 179.19%` computed entirely from non-existent points. **DUP-6 was already resolved** before this pass; only three identical `CompositionNames` overrides remained. **NEW-6: the comment was wrong, the code was right** — and the same mismatch appeared three more times in the file. |
 | [TEST-2](#test-2) | `71b2a61` | 30 tests. Isolation against the process-wide static bus is structural (one event type per test) rather than disciplinary. Found [NEW-10](#new-10). |
 | [NEW-10](#new-10) | `1f6cae3` | Disposal regression introduced by the COR-5 fix, found by the TEST-2 tests. |
+| [ARCH-1](#arch-1), [NEW-12](#new-12) | `763f8c7` | `Program.cs` 609 → 41 lines over ten types. **Deviated from the suggested split on purpose:** one `ScenarioRunner` would have mixed console narration with numerical configuration, so the runner holds no console output at all and the workflows narrate — that is what makes the extraction buy testability. The two artefact pipelines were deliberately *not* merged, since the optimisation path interleaves progress lines forward-eval does not print; that remains duplication rather than something claimed as clean. |
+| [TEST-3](#test-3), [TEST-6](#test-6) | `303eddf` | 48 report tests; `PlotRenderer.Tests` wired into the solution for the first time. Suite: 11 projects / 113 tests. **Verified by mutation** — reintroducing [BUG-1](#bug-1) fails four tests, restoring it returns to green. |
+| [NEW-4](#new-4) | — | Closed with no change: the finding was wrong, `rightValue` is read by the bracket sign-check. See below. |
 
 ## 🔴 New findings (not in the original audit)
 
@@ -62,8 +67,10 @@ Items closed on `dev`, newest last. Each was independently re-verified against t
 <a id="new-3"></a>**NEW-3 · Med · S** — Reports read `BurnRate` with no convergence guard.
 Every report (`PressureTablesReport`, `BurnRateErrorReport`, `BurnRateVieilleFitReport`, `ProblemContextReport`, `SkeletonLayerPlotsHelper`) reads `MixedCombustionParams.BurnRate` **unconditionally** — none checks `BurnRateIsFound`. A non-converged context reaching a report prints a stale or sentinel burn rate silently. Distinct from [COR-2](#cor-2).
 
-<a id="new-4"></a>**NEW-4 · Low · S** — `rightValue` is a write-once dead local in all four bisection loops.
-Computed for the initial bracket sign-check, then never read again — the loops test only `leftValue`. The algorithm is correct; the variable is vestigial. Surfaced while removing the commented-out `// rightValue = middleValue;` mirrors in `2cd2456`.
+<a id="new-4"></a>**NEW-4 · — · — — NOT A DEFECT, closed with no change.**
+The claim was that `rightValue` is a write-once dead local in all four bisection loops. It is not dead: in every one of the four (`BasePropellantSolver.cs:204,357`, `PocketPropellantSolver.cs:586,945`) it is assigned and then **read** in the bracket sign-check on the very next lines (`:208`, `:361`, `:593`, `:952`), which is what rejects an interval that does not bracket a root. Removing it would delete that check.
+
+What the finding actually observed is that `rightValue` is not *updated* inside the loop. That is correct for this formulation: the loop maintains its invariant through `leftValue` alone, so refreshing `rightValue` would be dead work, not a fix. No action available.
 
 <a id="new-5"></a>**NEW-5 · Med · —** — `checker.py` structurally cannot catch solver parity defects.
 It pairs files by name (`(.*)(ByDoubles|ByUnits)(.*)\.cs$`), but the solvers carry **both** overloads inside a single file, so every solver is invisible to it. [COR-2](#cor-2) is exactly the class of defect it was built to find, and it cannot see it. Do not treat a clean `checker.py` run as parity evidence for the solvers.
