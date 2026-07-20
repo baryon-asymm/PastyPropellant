@@ -15,6 +15,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Compile-linked (not referenced) for the same reason the Tools libraries link it:
+         the type is internal so each assembly gets its own copy and they cannot collide.
+         The tests need it to locate the repository root instead of guessing with a
+         relative path, which the centralised artifacts/ output layout invalidated. -->
+    <Compile Include="../../../../Shared/PythonRuntime.cs" Link="Shared/PythonRuntime.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="../../src/PastyPropellant.RegionMapper/PastyPropellant.RegionMapper.csproj" />
   </ItemGroup>
 

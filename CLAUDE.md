@@ -24,6 +24,16 @@ dotnet test src/dotnet/ParametricCombustionModel/tests/ParametricCombustionModel
 dotnet test --filter "FullyQualifiedName~SomeTestClass.SomeMethod"
 ```
 
+⚠ **A plain `dotnet test PastyPropellant.sln` takes tens of minutes.** Several Tools tests shell out
+to the real Python helpers, and `PythonThermodynamicsCalculatorTest` (marked
+`[Trait("Category", "LongRunning")]`) runs a full thermodynamics solve. For a fast signal use:
+```bash
+dotnet test PastyPropellant.sln --filter "Category!=LongRunning"
+```
+Historically these tests appeared to finish in ~110 ms — but only because their hardcoded
+`../../../../../` paths, broken by the centralised `artifacts/` output layout, made them fail before
+launching anything. They now resolve the repository root via `PythonRuntime` and genuinely execute.
+
 Run the console host. It takes no configuration file: the input propellants file, bounds, DE strategy and penalty thresholds are all hardcoded literals in `Program.cs` (see *Runtime data* below).
 
 ```bash

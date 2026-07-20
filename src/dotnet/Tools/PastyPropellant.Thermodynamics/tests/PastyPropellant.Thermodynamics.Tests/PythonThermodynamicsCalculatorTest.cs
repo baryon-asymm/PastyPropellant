@@ -1,3 +1,4 @@
+using PastyPropellant.Interop;
 using PastyPropellant.Thermodynamics.Calculators;
 using UnitsNet;
 
@@ -5,8 +6,11 @@ namespace PastyPropellant.Thermodynamics.Tests;
 
 public class PythonThermodynamicsCalculatorTest
 {
-    public const string PyCalculatorDirectoryPath = "../../../../../externals/src/python/AerospacePropellantThermodynamics";
-    public const string PyCalculatorScriptPath = PyCalculatorDirectoryPath + "/src/main.py";
+    public static readonly string PyCalculatorDirectoryPath =
+        PythonRuntime.ResolveRepositoryPath("externals/src/python/AerospacePropellantThermodynamics");
+
+    public static readonly string PyCalculatorScriptPath =
+        Path.Combine(PyCalculatorDirectoryPath, "src", "main.py");
 
     private readonly PythonThermodynamicsCalculator _pythonThermodynamicsCalculator;
 

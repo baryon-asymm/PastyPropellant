@@ -1,3 +1,4 @@
+using PastyPropellant.Interop;
 using PastyPropellant.RegionMapper.Mappers;
 using UnitsNet;
 
@@ -5,8 +6,12 @@ namespace PastyPropellant.RegionMapper.Tests;
 
 public class PythonRegionMapperTest
 {
-    public const string PyMapperDirectoryPath = "../../../../../src/python/RegionMapper";
-    public const string PyMapperScriptPath = PyMapperDirectoryPath + "/src/main.py";
+    public static readonly string PyMapperDirectoryPath =
+        PythonRuntime.ResolveRepositoryPath("src/python/RegionMapper");
+
+    public static readonly string PyMapperScriptPath =
+        Path.Combine(PyMapperDirectoryPath, "src", "main.py");
+
     public const string PyMapperOutputDirectoryPath = "output";
 
     private readonly PythonRegionMapper _pythonRegionMapper;
@@ -20,8 +25,8 @@ public class PythonRegionMapperTest
     [Fact]
     public async Task MapRegionAsync_ShouldReturnSuccessOperationResult()
     {
-        var propellantsFilePath = PyMapperDirectoryPath + "/data/propellants.json";
-        var componentsFilePath = PyMapperDirectoryPath + "/data/components.json";
+        var propellantsFilePath = Path.Combine(PyMapperDirectoryPath, "data", "propellants.json");
+        var componentsFilePath = Path.Combine(PyMapperDirectoryPath, "data", "components.json");
 
         var result = await _pythonRegionMapper.MapRegionAsync(propellantsFilePath, componentsFilePath);
 
@@ -31,8 +36,8 @@ public class PythonRegionMapperTest
     [Fact]
     public async Task MapRegionAsync_ShouldReturnExceptionOperationResult()
     {
-        var propellantsFilePath = PyMapperDirectoryPath + "/fake/propellants.json";
-        var componentsFilePath = PyMapperDirectoryPath + "/fake/components.json";
+        var propellantsFilePath = Path.Combine(PyMapperDirectoryPath, "fake", "propellants.json");
+        var componentsFilePath = Path.Combine(PyMapperDirectoryPath, "fake", "components.json");
 
         var result = await _pythonRegionMapper.MapRegionAsync(propellantsFilePath, componentsFilePath);
 

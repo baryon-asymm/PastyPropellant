@@ -1,11 +1,15 @@
+using PastyPropellant.Interop;
 using PastyPropellant.PorosityCalculation.Calculators;
 
 namespace PastyPropellant.PorosityCalculation.Tests;
 
 public class PythonPorosityCalculatorTest
 {
-    public const string PyCalculatorDirectoryPath = "../../../../../src/python/PorosityCalculation";
-    public const string PyCalculatorScriptPath = PyCalculatorDirectoryPath + "/src/main.py";
+    public static readonly string PyCalculatorDirectoryPath =
+        PythonRuntime.ResolveRepositoryPath("src/python/PorosityCalculation");
+
+    public static readonly string PyCalculatorScriptPath =
+        Path.Combine(PyCalculatorDirectoryPath, "src", "main.py");
 
     private readonly PythonPorosityCalculator _calculator;
 
