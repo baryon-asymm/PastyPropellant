@@ -18,6 +18,10 @@
 
 Items closed on `dev`, newest last. Each was independently re-verified against the code before the fix landed — where the audit turned out to be wrong, that is recorded too.
 
+**Standing verification for anything touching the model or the report:** `--forward-eval best_vector.txt` must keep printing `5.9923E+307` / `5.5810E+002` and the three per-group pairs `9.7426E-002`/`4.8878E+002`, `1.7977E+308`/`0`, `2.5025E-002`/`6.9316E+001`. Every commit in this campaign that could have moved a number was checked against it. (That vector is from the `b5007df` reconstruction model, which is *why* Bas_1 does not converge — it is a useful property, not a defect: it exercises the non-convergence paths.)
+
+**A pattern worth carrying forward:** of the items closed so far, six had a materially wrong premise in the audit — the "verbatim" duplicate that was not verbatim ([ARCH-8](#arch-8)), the "pure reuse" inheritance that was a template method ([ARCH-3](#arch-3)), the duplication whose fix was deletion ([DUP-4](#dup-4)), the ignore rules that would have been inert ([BUILD-2](#build-2)), the already-resolved item ([DUP-6](#dup-6)), and the wrong-comment-not-wrong-code item ([NEW-6](#new-6)). Read the code before acting on any remaining entry here.
+
 | ID | Commit | Note |
 |----|--------|------|
 | [BUG-1](#bug-1) | `9062392` | Confirmed exactly as described. Pressure tables now emit 17 rows, not 16. |
@@ -25,10 +29,27 @@ Items closed on `dev`, newest last. Each was independently re-verified against t
 | [BUILD-2](#build-2), BUILD-4, [DEAD-7](#dead-7) | `2454091` | **Audit was wrong on the key point:** all six files were *tracked*, so ignoring alone would have been inert — git never ignores a tracked file. Files untracked and left on disk. `.env` held only a placeholder, never a live key. |
 | [DOC-1](#doc-1), [DOC-2](#doc-2) | `91593f7` | Every fictional element confirmed absent. `data/optimization_tickets.json` does not merely go unused — **it does not exist**. |
 | [COR-1](#cor-1) | `aa49396` | Confirmed, and worse than described: **three** concurrent publishers, not one. The cited `Parallel.ForEach` is the least dangerous — it holds a local lock. Fixed by copy-on-write. |
-| [COR-5](#cor-5) | `e13be7b` | Confirmed. Optional token + timeout, defaults preserve wait-forever, all call sites unchanged. |
+| [COR-5](#cor-5) | `e13be7b` | Confirmed. Optional token + timeout, defaults preserve wait-forever, all call sites unchanged. **This fix introduced a disposal defect — see [NEW-10](#new-10).** |
 | [DEAD-3](#dead-3) | `f85dbcd` | All three renderers confirmed unreferenced repo-wide. |
 | [DEAD-5](#dead-5) | `2cd2456` | Confirmed *except* the Python line — see NEW-2 below. |
-| [DEAD-6](#dead-6) | `de45bd8` | Partially closed: `GroupReportContextDto.Propellants` is a required ctor parameter supplied by `Program.cs`, so removing it is an API change — deferred to the [ARCH-8](#arch-8) pass. |
+| [DEAD-6](#dead-6) | `de45bd8`, `32dd10b` | Closed in two steps. `GroupReportContextDto.Propellants` was a required ctor parameter supplied by `Program.cs`; removing it made its whole feeding chain dead, which was unwound at the same time rather than left threading a parameter three levels deep to nowhere. |
+| [ARCH-5](#arch-5), [ARCH-6](#arch-6), [DUP-5](#dup-5) | `9862751` | One compile-linked `PythonRuntime` replaces the 5-level relative paths, the hardcoded `python3`, and the ×4 invocation boilerplate. Linked rather than referenced so the four Tools libraries stay mutually independent. |
+| [COR-2](#cor-2) | `0edfaf6` | Confirmed. All four `Visit` variants aligned. Note [NEW-5](#new-5): `checker.py` structurally cannot catch this class of defect. |
+| [COR-3](#cor-3), [COR-4](#cor-4), [DUP-8](#dup-8) | `2980a82` | Hardcoded constants given provenance blocks; the two 29-line fraction copies collapsed with operation order preserved, so results stay IEEE-754 identical. |
+| [DOC-3](#doc-3), [DOC-6](#doc-6) | `9629ad6` | `data/` manifest added; per-file consumer recorded. |
+| [DEAD-2](#dead-2), [DUP-1](#dup-1) | `368fb04` | **1,526 LOC, not the estimated ~1200.** The duplicate `PerformanceMeterReport` went with the dead stack, so no shared OS-probe helper was needed. |
+| [DEAD-1](#dead-1), [TEST-1](#test-1) | `d2b7a2d`, `07c3c65` | **Ten** dead test projects, not nine, and one of them compiled. The wide `ByDoubles`/`ByUnits` parity sweep was ported into a new live `Computation.Tests` project *before* deletion — see [NEW-7](#new-7). |
+| [COR-6](#cor-6), [ARCH-9](#arch-9), [ARCH-10](#arch-10), [DUP-9](#dup-9), BUILD-3, [DOC-4](#doc-4), [DOC-5](#doc-5) | `d032e0c` | Python guards, env overrides, `--output-dir`, `requirements.txt`, READMEs. The agglomeration polynomial evaluates pressure in **MPa**, not Pa. |
+| [ARCH-3](#arch-3) | `25d1cc0` | **Register was wrong:** the base `GetKineticFlameHeatFlux` is a *template method* dispatching back into the derived `ExtractKineticBurnParams`, so the inheritance carried real behaviour. Simply dropping the stubs would have broken the calculation. Math extracted into `KineticFlameCalculator` instead. |
+| [ARCH-4](#arch-4), [DUP-7](#dup-7) | `67a9f4c` | Abstraction split into single-result vs group variants. Verified by byte-comparing both rendered plots — MD5 identical. Also removed a false `PlotRenderer → ReportMaking` project reference. |
+| [NEW-8](#new-8) | `3e45139`, `4f8c3e0` | Root cause was [ARCH-5](#arch-5) left unfixed in the *test* projects: `../../../../../` assumed `bin/<config>/<tfm>` and misses by one level from `artifacts/bin/<Project>/<tfm>`. They failed in ~110 ms, before any process started, and the sibling "should fail" test passed for the wrong reason. |
+| [DUP-4](#dup-4) | `f621731` | **Register proposed the wrong fix.** `DifferentialEvolutionScenario` is never constructed — no direct use, no reflection, no DI. The duplication is removed by deleting the dead half, not by sharing code with a caller that does not exist. |
+| [ARCH-8](#arch-8) | `32dd10b` | **The six copies are not verbatim:** four report sites render `"Bas_2 (includes Bas_3, Bas_4)"`, two console sites `"Bas_2+Bas_3+Bas_4"`. A single constant would have silently rewritten published output, so `CompositionGroups` keeps both display forms over one shared ordering. |
+| [ARCH-2](#arch-2) | `2bae0f6` (partial) | Half dissolved rather than fixed: deleting the dead scenario orphaned `DifferentialEvolutionOptimizer` and `IParametricCombustionModelOptimizer`, so the "non-polymorphic interface" complaint no longer has an interface. What remains of ARCH-2 is a question about the surviving group optimiser alone. |
+| [DUP-10](#dup-10), [BUILD-1](#build-1) | `50a1c60` | All 23 project files declared the three properties identically, so no project needed an exemption. Changing `Directory.Build.props` invalidates everything: the next build is a full rebuild (~19 min here). |
+| [NEW-3](#new-3), [DUP-6](#dup-6), [NEW-6](#new-6) | `c0a0df1` | NEW-3 is worse than recorded — the stale value is a *previous candidate's* burn rate, not a sentinel, because per-worker contexts are reused. On the campaign vector the old report published `Per-fuel RMS = 179.19%` computed entirely from non-existent points. **DUP-6 was already resolved** before this pass; only three identical `CompositionNames` overrides remained. **NEW-6: the comment was wrong, the code was right** — and the same mismatch appeared three more times in the file. |
+| [TEST-2](#test-2) | `71b2a61` | 30 tests. Isolation against the process-wide static bus is structural (one event type per test) rather than disciplinary. Found [NEW-10](#new-10). |
+| [NEW-10](#new-10) | `1f6cae3` | Disposal regression introduced by the COR-5 fix, found by the TEST-2 tests. |
 
 ## 🔴 New findings (not in the original audit)
 
@@ -49,6 +70,21 @@ It pairs files by name (`(.*)(ByDoubles|ByUnits)(.*)\.cs$`), but the solvers car
 
 <a id="new-6"></a>**NEW-6 · Low · S** — Comment/resource mismatch in `PressureTablesReport`.
 The comment at `PressureTablesReport.cs:146` reads "Add pocket kinetic flame heat flux" while the block below it uses the `SkeletonKineticFlameHeatFlux` resources. Cosmetic, but it is what made [BUG-1](#bug-1) hard to spot by eye.
+
+<a id="new-9"></a>**NEW-9 · Low · S — CLOSED in `67a9f4c`** — `PlotRenderer` carried a `ProjectReference` to `ReportMaking` it did not need.
+It compiled only because `OptimizationResult` reached it transitively through that reference. Recorded because it is the general hazard: a reference that looks decorative may still be carrying a type. "Nobody calls it" is not the same as "nothing depends on it" — worth remembering before acting on [DUP-2](#dup-2).
+
+<a id="new-10"></a>**NEW-10 · Med · S — CLOSED in `1f6cae3`** — The [COR-5](#cor-5) fix leaked a cancellation registration.
+`process.Start()` runs before the block that creates the linked token source and registers the cancellation callback. A fast-exiting child fires `Exited` on a pool thread → `Complete()` disposes both fields while they still hold their default values → the real ones, assigned immediately afterwards, are never released. Leaks a `CancellationTokenSource` holding a live `CancelAfter` timer plus a registration on the *caller's* token, once per call. Correctness was unaffected (the single-completion gate covers the late kill path); disposal was not. Latent until someone uses the COR-5 parameters, since no current call site passes a token or timeout. **Found by the [TEST-2](#test-2) tests — this is the campaign's own regression, not inherited debt.**
+
+<a id="new-11"></a>**NEW-11 · Low · S** — `DifferentialEvolutionScenarioSettings.PropellantsFilePath` is assigned and never read.
+Surfaced while closing [DUP-4](#dup-4), but predates it — the deleted scenario used `.Propellants`, not the path. The `PropellantsFilePath` hits in `ReportMaking/` are on the unrelated `GroupReportContextDto`.
+
+<a id="new-12"></a>**NEW-12 · Med · S** — `SkeletonLayerPlotsHelper` reads `BurnRate` unguarded.
+The reporting half of [NEW-3](#new-3) was fixed in `c0a0df1`, but `Helpers/SkeletonLayerPlotsHelper.cs` (ConsoleApp) has the same unguarded read and serialises `skeleton_layer.json` for the Python plots. A non-converged point is therefore still *plotted* as a stale burn rate with no indication.
+
+<a id="new-13"></a>**NEW-13 · — · —** — The suite is only fast under a filter.
+Fixing [NEW-8](#new-8) made the Python-backed tests genuinely execute, which exposed that `PythonThermodynamicsCalculatorTest` is a real thermodynamics solve exceeding ten minutes. `dotnet test PastyPropellant.sln` is no longer a quick check; use `--filter "Category!=LongRunning"`. Recorded in CLAUDE.md. This is not a regression — the test was previously "passing" in ~110 ms only because it was broken.
 
 <a id="new-7"></a>**NEW-7 · Med · —** — The parity test harness is in the dead tree.
 `MixedPropellantSolverTester.cs` already asserts `unitsParams.BurnRateIsFound == doublesParams.BurnRateIsFound` — exactly the [COR-2](#cor-2) invariant — but it lives in `tests/ParametricCombustionModel/…`, which is not in the solution and does not compile ([DEAD-1](#dead-1)). It has never run since the restructure. Its `ComparePocketCombustionParams` is additionally defined but never called. Any test written to cover a solver fix must go to a **live** project, which for `Computation` does not yet exist ([TEST-1](#test-1)).
