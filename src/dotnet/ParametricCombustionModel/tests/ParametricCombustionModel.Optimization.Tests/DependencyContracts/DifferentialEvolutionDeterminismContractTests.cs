@@ -1,6 +1,9 @@
 using System.Reflection;
 using DotNetDifferentialEvolution;
+using DotNetDifferentialEvolution.Algorithms.Jde;
+using DotNetDifferentialEvolution.ControlParameterProviders;
 using DotNetDifferentialEvolution.Interfaces;
+using DotNetDifferentialEvolution.MutationStrategies;
 using DotNetDifferentialEvolution.TerminationStrategies;
 using DotNetOptimization.Abstractions;
 
@@ -10,11 +13,24 @@ namespace ParametricCombustionModel.Optimization.Tests.DependencyContracts;
 /// Characterises what <b>DotNetDifferentialEvolution 4.0.0</b> guarantees about search quality and
 /// reproducibility.
 ///
-/// The headline finding, recorded here so it is not rediscovered by accident: <b>the library exposes
-/// no seed control.</b> There is no <c>WithSeed</c>, no way to inject a <c>BaseRandomProvider</c>
-/// through the builder, and <c>RandomProvider</c> has only a parameterless constructor. A DE run is
-/// therefore <b>not reproducible</b>, and any claim comparing strategies (jDE vs JADE vs SHADE) on
-/// single runs is confounded by seed variation. See <see cref="Library_ExposesNoSeedControl"/>.
+/// <b>Seed control exists</b>, contrary to what an earlier version of this file asserted. The seam is not
+/// named "Seed" and is not on the builder: <c>MutationStrategy</c> takes a <see cref="BaseRandomProvider"/>
+/// as its last constructor parameter, <see cref="BaseRandomProvider"/> is abstract, and
+/// <c>IControlParameterProvider.GetControlParameters</c> receives the provider as a parameter rather than
+/// owning one — so a seeded subclass determines the mutation draws <i>and</i> jDE's F/CR adaptation.
+/// Initial population is separately fixable via <c>WithPopulationSampling</c>.
+///
+/// The practical catch, which is why this matters less than it first appears: <b>reproducibility holds only
+/// at <c>UseProcessors(1)</c></b>. With several workers the same seed does not reproduce, because workers
+/// draw from the shared provider in whatever order they interleave. The real group run uses
+/// <c>ProcessorCount − 1</c>, so production runs remain irreproducible in practice. Both halves are pinned
+/// below, since either could change on an upgrade and they have opposite implications.
+///
+/// Note also that production reaches jDE through <c>WithJde(F, CR)</c>, which bypasses
+/// <c>WithMutationStrategy</c> entirely and so has no injection point. Seeding requires reconstructing jDE
+/// as <c>WithMutationStrategy(new MutationStrategy(…, provider), new JdeStrategy(…))</c>, and
+/// <c>JdeStrategy</c> takes five parameters that <c>WithJde</c> fills with internal defaults — those
+/// defaults are not public, so an equivalent reconstruction is not guaranteed without checking them.
 /// </summary>
 public class DifferentialEvolutionDeterminismContractTests
 {
@@ -24,8 +40,9 @@ public class DifferentialEvolutionDeterminismContractTests
 
     /// <summary>
     /// The library does actually minimise: on a sphere function with the optimum at the origin,
-    /// a short jDE run gets close. Deliberately loose (1e-3) because without seed control the
-    /// result varies run to run — this pins "the optimiser works", not "the optimiser is exact".
+    /// a short jDE run gets close. Deliberately loose (1e-3) because this run is multi-worker and
+    /// unseeded — the configuration production actually uses — so the result varies run to run.
+    /// This pins "the optimiser works", not "the optimiser is exact".
     /// </summary>
     [Fact]
     public async Task Jde_MinimisesASphereFunctionTowardsItsKnownOptimum()
@@ -49,60 +66,109 @@ public class DifferentialEvolutionDeterminismContractTests
     }
 
     /// <summary>
-    /// Tripwire, not a behavioural requirement. Asserts that the library still has no seed API.
+    /// The randomness seam, pinned. <c>MutationStrategy</c> has a public constructor whose last
+    /// parameter is a <see cref="BaseRandomProvider"/>, and <see cref="BaseRandomProvider"/> is abstract
+    /// with just <c>Next(int)</c> and <c>NextDouble()</c> — so a seeded subclass can be injected.
     ///
-    /// If this test FAILS, that is good news: an upgrade has added seed control, and the project
-    /// should now build the fixed-seed harness it has never had — which would let optimiser-comparison
-    /// claims (jDE beating SHADE/JADE on the group run) rest on controlled repeats instead of single
-    /// unseeded runs. Delete this test and write that harness.
+    /// This is the seam an earlier version of this file missed, by searching only for members *named*
+    /// "Seed" and only on builder-stage types. The mechanism is neither: it is a constructor parameter
+    /// on a strategy. Recorded explicitly so the same search is not repeated.
     /// </summary>
     [Fact]
-    public void Library_ExposesNoSeedControl()
+    public void MutationStrategy_AcceptsAnInjectedRandomProvider()
     {
-        var deAssembly = typeof(DifferentialEvolutionBuilder).Assembly;
-        var abstractionsAssembly = typeof(BaseRandomProvider).Assembly;
-
-        var seedMembers = new[] { deAssembly, abstractionsAssembly }
-            .SelectMany(a => a.GetExportedTypes())
-            .SelectMany(t => t.GetMembers(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static))
-            .Where(m => m.Name.Contains("Seed", StringComparison.OrdinalIgnoreCase))
-            .Select(m => $"{m.DeclaringType?.FullName}.{m.Name}")
-            .Distinct()
-            .ToArray();
+        var seamConstructor = typeof(MutationStrategy)
+            .GetConstructors()
+            .SingleOrDefault(c => c.GetParameters()
+                .Any(p => typeof(BaseRandomProvider).IsAssignableFrom(p.ParameterType)));
 
         Assert.True(
-            seedMembers.Length == 0,
-            "DotNetDifferentialEvolution now exposes seed-related member(s): "
-            + string.Join(", ", seedMembers)
-            + ".\n\nThis test failing is GOOD NEWS. Until now the library had no seed control, so DE runs were "
-            + "irreproducible and strategy-comparison results could not be separated from seed luck. Replace this "
-            + "tripwire with a real fixed-seed harness: same seed -> identical best genes and fitness across runs.");
-
-        // The concrete provider is unseedable: parameterless constructor only.
-        var providerConstructors = typeof(RandomProvider).GetConstructors();
-        Assert.True(
-            providerConstructors.All(c => c.GetParameters().Length == 0),
-            "DotNetOptimization.Abstractions.RandomProvider gained a parameterised constructor — most likely a "
-            + "seed. See the note above: build the fixed-seed harness.");
-
-        // And there is no builder stage that accepts a random provider.
-        var builderStages = deAssembly.GetExportedTypes()
-            .Where(t => t.Name.Contains("Builder", StringComparison.Ordinal)
-                        || (t.IsInterface && t.Name.EndsWith("Required", StringComparison.Ordinal)));
-
-        var providerInjectionPoints = builderStages
-            .SelectMany(t => t.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static))
-            .Where(m => m.GetParameters().Any(p => typeof(BaseRandomProvider).IsAssignableFrom(p.ParameterType)))
-            .Select(m => $"{m.DeclaringType?.Name}.{m.Name}")
-            .Distinct()
-            .ToArray();
+            seamConstructor is not null,
+            "MutationStrategy no longer has a public constructor accepting a BaseRandomProvider. That "
+            + "constructor is the only supported way to make a DE run reproducible — without it, seeding is "
+            + "impossible and every strategy-comparison claim reverts to being confounded by seed luck.");
 
         Assert.True(
-            providerInjectionPoints.Length == 0,
-            "The DE builder now accepts a BaseRandomProvider via: "
-            + string.Join(", ", providerInjectionPoints)
-            + ". A custom provider can carry a seed, so reproducible runs are now possible — build the fixed-seed "
-            + "harness described above.");
+            typeof(BaseRandomProvider).IsAbstract,
+            "BaseRandomProvider is no longer abstract, so a seeded subclass may no longer be substitutable.");
+    }
+
+    /// <summary>
+    /// The reason the seam reaches jDE's own adaptation and not merely the mutation draw:
+    /// <c>IControlParameterProvider.GetControlParameters</c> takes the provider as a <b>parameter</b>.
+    /// The adaptive strategies do not own their randomness — they are handed it — so injecting a seeded
+    /// provider into the mutation strategy also determines the F/CR adaptation sequence.
+    ///
+    /// This is what makes seeding meaningful rather than partial, so it is pinned separately: an upgrade
+    /// that gave the adaptive strategies their own internal provider would silently reintroduce
+    /// irreproducibility while leaving <see cref="MutationStrategy_AcceptsAnInjectedRandomProvider"/> green.
+    /// </summary>
+    [Fact]
+    public void AdaptiveStrategies_ReceiveTheirRandomProviderExternally()
+    {
+        var getControlParameters = typeof(IControlParameterProvider).GetMethod("GetControlParameters");
+
+        Assert.True(
+            getControlParameters is not null
+            && getControlParameters.GetParameters()
+                .Any(p => typeof(BaseRandomProvider).IsAssignableFrom(p.ParameterType)),
+            "IControlParameterProvider.GetControlParameters no longer receives a BaseRandomProvider. If the "
+            + "adaptive strategies now own their randomness internally, seeding the mutation strategy no longer "
+            + "makes jDE's F/CR adaptation reproducible, and fixed-seed runs are only partially deterministic.");
+    }
+
+    /// <summary>
+    /// The contract that actually matters, verified end to end rather than by reflection: with a seeded
+    /// provider and a deterministic initial-population sampler, a single-worker jDE run is reproducible —
+    /// the same seed gives a bit-identical best fitness, and a different seed does not.
+    ///
+    /// The second half is what stops this being vacuous. A test that only asserted "same seed, same answer"
+    /// would also pass if the run ignored the seed entirely and converged to a constant.
+    /// </summary>
+    [Fact]
+    public async Task SeededSingleWorkerRun_IsReproducible()
+    {
+        var first = await RunSeededSphereAsync(seed: 42, workerCount: 1);
+        var second = await RunSeededSphereAsync(seed: 42, workerCount: 1);
+        var different = await RunSeededSphereAsync(seed: 99, workerCount: 1);
+
+        Assert.True(
+            first.Fitness.Equals(second.Fitness),
+            $"Two single-worker runs with seed 42 disagreed ({first.Fitness:R} vs {second.Fitness:R}). Seeding "
+            + "via an injected BaseRandomProvider no longer makes a run reproducible, which removes the only "
+            + "basis this project has for controlled optimiser comparisons.");
+
+        Assert.False(
+            first.Fitness.Equals(different.Fitness),
+            $"Seeds 42 and 99 produced the identical fitness {first.Fitness:R}. The run is not actually consuming "
+            + "the injected provider, so the reproducibility above is meaningless — it would hold even if the "
+            + "seed were ignored.");
+    }
+
+    /// <summary>
+    /// The limitation, pinned deliberately: seeding buys reproducibility only at <c>UseProcessors(1)</c>.
+    ///
+    /// With several workers the same seed does <b>not</b> reproduce, because the workers draw from the shared
+    /// provider in whatever order they interleave. This is the practically important half for this project:
+    /// the real group run uses <c>ProcessorCount − 1</c> workers, so production runs stay irreproducible even
+    /// though the seam exists. Anyone wanting reproducible campaign results must either drop to one worker
+    /// (far slower) or partition randomness per worker, which the library does not offer.
+    ///
+    /// If this test starts failing, the library has made multi-worker runs deterministic — good news worth
+    /// acting on, since it would make full-speed reproducible campaigns possible for the first time.
+    /// </summary>
+    [Fact]
+    public async Task SeededMultiWorkerRun_IsNotReproducible()
+    {
+        var results = new List<double>();
+        for (var i = 0; i < 3; i++)
+            results.Add((await RunSeededSphereAsync(seed: 42, workerCount: 4)).Fitness);
+
+        Assert.True(
+            results.Distinct().Count() > 1,
+            $"Three 4-worker runs with seed 42 all returned {results[0]:R}. Multi-worker runs have become "
+            + "deterministic under a seeded provider. That is an improvement, not a defect: update this test "
+            + "and note that reproducible full-speed campaigns are now possible.");
     }
 
     /// <summary>
@@ -168,6 +234,92 @@ public class DifferentialEvolutionDeterminismContractTests
 
         return (population.IndividualCursor.FitnessFunctionValue,
                 population.IndividualCursor.Genes.ToArray());
+    }
+
+    /// <summary>
+    /// A jDE run with every randomness source pinned: a seeded provider driving the mutation strategy (and,
+    /// through it, jDE's control-parameter adaptation), plus a seeded initial-population sampler.
+    ///
+    /// jDE is reconstructed manually rather than via <c>WithJde</c>, because that shortcut skips
+    /// <c>WithMutationStrategy</c> and therefore offers nowhere to inject the provider. The
+    /// <c>JdeStrategy</c> arguments here are this test's own, not a claim about what <c>WithJde</c> uses
+    /// internally — these tests characterise the seam, not an equivalence with the shortcut.
+    /// </summary>
+    private static async Task<(double Fitness, double[] Genes)> RunSeededSphereAsync(int seed, int workerCount)
+    {
+        var lowerBound = Enumerable.Repeat(-5.0, GenomeSize).ToArray();
+        var upperBound = Enumerable.Repeat(5.0, GenomeSize).ToArray();
+
+        var mutationStrategy = new MutationStrategy(
+            mutationForce: 0.5,
+            crossoverProbability: 0.9,
+            populationSize: PopulationSize,
+            lowerBound: lowerBound,
+            upperBound: upperBound,
+            randomProvider: new SeededRandomProvider(seed));
+
+        var jde = new JdeStrategy(
+            populationSize: PopulationSize,
+            initialMutationForce: 0.5,
+            initialCrossoverProbability: 0.9,
+            fAdaptationProbability: 0.1,
+            crAdaptationProbability: 0.1,
+            minMutationForce: 0.1,
+            mutationForceRange: 0.9);
+
+        using var de = DifferentialEvolutionBuilder
+            .ForFunction(new RecordingSphereEvaluator())
+            .WithBounds(lowerBound, upperBound)
+            .WithPopulationSize(PopulationSize)
+            .WithPopulationSampling(new SeededPopulationSampler(seed, -5.0, 5.0))
+            .WithMutationStrategy(mutationStrategy, jde)
+            .WithDefaultSelectionStrategy()
+            .WithTerminationCondition(new LimitGenerationNumberTerminationStrategy(Generations))
+            .UseProcessors(workerCount)
+            .Build();
+
+        var population = await de.RunAsync();
+        population.MoveCursorToBestIndividual();
+
+        return (population.IndividualCursor.FitnessFunctionValue,
+                population.IndividualCursor.Genes.ToArray());
+    }
+
+    /// <summary>
+    /// A <see cref="BaseRandomProvider"/> backed by a seeded <see cref="Random"/>. Locked because the
+    /// library shares one provider across workers — without the lock, multi-worker runs would corrupt
+    /// <see cref="Random"/>'s internal state rather than merely being non-reproducible, which would confuse
+    /// the limitation this file pins with an outright defect.
+    /// </summary>
+    private sealed class SeededRandomProvider(int seed) : BaseRandomProvider
+    {
+        private readonly Random _random = new(seed);
+
+        public override int Next(int maxValue)
+        {
+            lock (_random) return _random.Next(maxValue);
+        }
+
+        public override double NextDouble()
+        {
+            lock (_random) return _random.NextDouble();
+        }
+    }
+
+    /// <summary>Fills the initial population from a seeded generator, so it is not a second uncontrolled source.</summary>
+    private sealed class SeededPopulationSampler(int seed, double lowerBound, double upperBound)
+        : IPopulationSamplingMaker
+    {
+        private readonly Random _random = new(seed);
+
+        public void SamplePopulation(Span<double> population)
+        {
+            lock (_random)
+            {
+                for (var i = 0; i < population.Length; i++)
+                    population[i] = lowerBound + _random.NextDouble() * (upperBound - lowerBound);
+            }
+        }
     }
 
     private sealed class RecordingSphereEvaluator : IFitnessFunctionEvaluator
