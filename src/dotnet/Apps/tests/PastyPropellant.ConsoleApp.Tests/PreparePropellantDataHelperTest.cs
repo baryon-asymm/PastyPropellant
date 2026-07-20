@@ -5,16 +5,17 @@ using MigraDoc.Rendering;
 using PDFsharp.Api.Adapters;
 using PDFsharp.Api.FontResolvers;
 using PastyPropellant.ConsoleApp.Helpers;
+using PastyPropellant.Interop;
 using UnitsNet;
 
 namespace PastyPropellant.ConsoleApp.Tests;
 
 public class PreparePropellantDataHelperTest
 {
-    public const string ArtifactDirectoryPath = "../../../../../artifacts/output_prepare";
-    public const string PyMapperScriptPath = "../../../../../src/python/RegionMapper/src/main.py";
-    public const string PyThermodynamicsScriptPath = "../../../../../externals/src/python/AerospacePropellantThermodynamics/src/main.py";
-    public const string PyPorosityScriptPath = "../../../../../src/python/PorosityCalculation/src/main.py";
+    public static readonly string ArtifactDirectoryPath = PythonRuntime.ResolveRepositoryPath("artifacts/output_prepare");
+    public static readonly string PyMapperScriptPath = PythonRuntime.ResolveRepositoryPath("src/python/RegionMapper/src/main.py");
+    public static readonly string PyThermodynamicsScriptPath = PythonRuntime.ResolveRepositoryPath("externals/src/python/AerospacePropellantThermodynamics/src/main.py");
+    public static readonly string PyPorosityScriptPath = PythonRuntime.ResolveRepositoryPath("src/python/PorosityCalculation/src/main.py");
 
     // Very long running test
     [Fact]
@@ -26,9 +27,9 @@ public class PreparePropellantDataHelperTest
         var preparePropellantHelper = new PreparePropellantDataHelper(
             ArtifactDirectoryPath, PyMapperScriptPath, PyThermodynamicsScriptPath, PyPorosityScriptPath, pressures);
 
-        var propellantsFilePath = "../../../../../src/python/RegionMapper/data/propellants.json";
-        var componentsFilePath = "../../../../../src/python/RegionMapper/data/components.json";
-        var combustionProductsFilePath = "../../../../../externals/src/python/AerospacePropellantThermodynamics/data/combustion_products.json";
+        var propellantsFilePath = PythonRuntime.ResolveRepositoryPath("src/python/RegionMapper/data/propellants.json");
+        var componentsFilePath = PythonRuntime.ResolveRepositoryPath("src/python/RegionMapper/data/components.json");
+        var combustionProductsFilePath = PythonRuntime.ResolveRepositoryPath("externals/src/python/AerospacePropellantThermodynamics/data/combustion_products.json");
 
         // Act
         var result = await preparePropellantHelper.PrepareAsync(
@@ -46,9 +47,9 @@ public class PreparePropellantDataHelperTest
         var preparePropellantHelper = new PreparePropellantDataHelper(
             ArtifactDirectoryPath, PyMapperScriptPath, PyThermodynamicsScriptPath, PyPorosityScriptPath, pressures);
 
-        var propellantsFilePath = "../../../../../src/python/RegionMapper/fake/propellants.json";
-        var componentsFilePath = "../../../../../src/python/RegionMapper/fake/components.json";
-        var combustionProductsFilePath = "../../../../../externals/src/python/AerospacePropellantThermodynamics/fake/combustion_products.json";
+        var propellantsFilePath = PythonRuntime.ResolveRepositoryPath("src/python/RegionMapper/fake/propellants.json");
+        var componentsFilePath = PythonRuntime.ResolveRepositoryPath("src/python/RegionMapper/fake/components.json");
+        var combustionProductsFilePath = PythonRuntime.ResolveRepositoryPath("externals/src/python/AerospacePropellantThermodynamics/fake/combustion_products.json");
 
         // Act
         var result = await preparePropellantHelper.PrepareAsync(

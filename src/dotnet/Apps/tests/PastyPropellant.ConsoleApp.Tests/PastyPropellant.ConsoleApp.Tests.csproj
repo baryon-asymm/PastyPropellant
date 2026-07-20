@@ -15,6 +15,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Compile-linked, not referenced: PythonRuntime is internal, so the copy inside
+         the ConsoleApp assembly is not visible here. The tests need its repo-root
+         resolver to locate scripts and data, which the centralised artifacts/ output
+         layout broke for the old relative paths. -->
+    <Compile Include="..\..\..\Shared\PythonRuntime.cs" Link="Shared\PythonRuntime.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\PastyPropellant.ConsoleApp\PastyPropellant.ConsoleApp.csproj" />
   </ItemGroup>
 
