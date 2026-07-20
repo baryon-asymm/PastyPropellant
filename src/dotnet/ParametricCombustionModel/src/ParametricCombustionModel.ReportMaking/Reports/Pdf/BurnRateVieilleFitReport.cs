@@ -3,6 +3,7 @@ using ParametricCombustionModel.Optimization.Results;
 using ParametricCombustionModel.ReportMaking.Enums;
 using ParametricCombustionModel.ReportMaking.Interfaces;
 using ParametricCombustionModel.ReportMaking.PdfOperations;
+using PastyPropellant.Core.Models;
 using UnitsNet.Units;
 
 namespace ParametricCombustionModel.ReportMaking.Reports.Pdf;
@@ -24,15 +25,12 @@ namespace ParametricCombustionModel.ReportMaking.Reports.Pdf;
 /// </summary>
 public class BurnRateVieilleFitReport : PerCompositionPerFuelPdfReport
 {
-    // Same composition ordering / naming as GroupCombustionSolverParamsReport / BurnRateErrorReport.
-    private static readonly string[] CompositionNamesValue =
-        ["Bas_2 (includes Bas_3, Bas_4)", "Bas_1", "Bas_0"];
-
     public BurnRateVieilleFitReport(GroupOptimizationResult groupResult) : base(groupResult)
     {
     }
 
-    protected override IReadOnlyList<string> CompositionNames => CompositionNamesValue;
+    // Raw 32-vector layout order; verbose form, shared with the other PDF reports.
+    protected override IReadOnlyList<string> CompositionNames => CompositionGroups.ReportNames;
 
     protected override string Title => "Vieille Power-Law Fit (U = A*p^v, U in m/s, p in Pa)";
 

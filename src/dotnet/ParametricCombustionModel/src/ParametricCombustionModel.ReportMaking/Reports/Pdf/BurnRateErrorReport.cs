@@ -3,6 +3,7 @@ using ParametricCombustionModel.Optimization.Results;
 using ParametricCombustionModel.ReportMaking.Enums;
 using ParametricCombustionModel.ReportMaking.Interfaces;
 using ParametricCombustionModel.ReportMaking.PdfOperations;
+using PastyPropellant.Core.Models;
 using UnitsNet.Units;
 
 namespace ParametricCombustionModel.ReportMaking.Reports.Pdf;
@@ -21,10 +22,6 @@ namespace ParametricCombustionModel.ReportMaking.Reports.Pdf;
 /// </summary>
 public class BurnRateErrorReport : PerCompositionPerFuelPdfReport
 {
-    // Same composition ordering / naming as GroupCombustionSolverParamsReport (raw 32-vector layout order).
-    private static readonly string[] CompositionNamesValue =
-        ["Bas_2 (includes Bas_3, Bas_4)", "Bas_1", "Bas_0"];
-
     // The fitness evaluator returns double.MaxValue for a composition in which any fuel's burn rate was not
     // found. A legitimate objective is O(0.01-1), so anything above this threshold (or non-finite) is that
     // sentinel and is rendered as a message rather than a ~1e308 number.
@@ -34,7 +31,8 @@ public class BurnRateErrorReport : PerCompositionPerFuelPdfReport
     {
     }
 
-    protected override IReadOnlyList<string> CompositionNames => CompositionNamesValue;
+    // Raw 32-vector layout order; verbose form, shared with the other PDF reports.
+    protected override IReadOnlyList<string> CompositionNames => CompositionGroups.ReportNames;
 
     protected override string Title => "Burn-Rate Error Breakdown";
 

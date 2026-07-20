@@ -15,6 +15,7 @@ using PastyPropellant.ConsoleApp;
 using PastyPropellant.ConsoleApp.Helpers;
 using PastyPropellant.ConsoleApp.Scenarios;
 using PastyPropellant.ConsoleApp.Scenarios.Settings;
+using PastyPropellant.Core.Models;
 using PastyPropellant.Core.Models.Events.Logs;
 using PastyPropellant.Core.Utils;
 using PastyPropellant.Interop;
@@ -26,7 +27,6 @@ void GenerateGroupReport(
     string inputFileName,
     string cultureName,
     string reportSuffix,
-    System.Collections.ObjectModel.ReadOnlyCollection<Propellant> propellants,
     DifferentialEvolutionSettings? settings = null,
     PerformanceMeter? meter = null)
 {
@@ -42,7 +42,6 @@ void GenerateGroupReport(
     var reportContextDto = new GroupReportContextDto(
         groupOptimizationResult,
         inputFileName,
-        propellants,
         settings,
         meter);
     
@@ -172,7 +171,7 @@ IPenaltyEvaluator[] BuildGroupPenaltyEvaluators()
     ];
 }
 
-async Task<(OperationResult<GroupOptimizationResult>? result, PerformanceMeter meter, DifferentialEvolutionSettings? deSettings, System.Collections.ObjectModel.ReadOnlyCollection<Propellant> propellants)> RunGroupOptimizationAsync(string inputFileName)
+async Task<(OperationResult<GroupOptimizationResult>? result, PerformanceMeter meter, DifferentialEvolutionSettings? deSettings)> RunGroupOptimizationAsync(string inputFileName)
 {
     var meter = new PerformanceMeter();
 
@@ -313,7 +312,7 @@ async Task<(OperationResult<GroupOptimizationResult>? result, PerformanceMeter m
         operationResult = await scenario.RunAsync();
     }
 
-    return (operationResult, meter, settings.DifferentialEvolutionSettings, settings.Propellants);
+    return (operationResult, meter, settings.DifferentialEvolutionSettings);
 }
 
 // Reads a list of doubles (invariant culture) from a file: whitespace/comma/semicolon separated,
@@ -426,9 +425,9 @@ async Task RunForwardEvalAsync(string inputFileName, string vectorFilePath)
     Console.WriteLine($"  Aggregated fitness: {result.AggregatedFitness:E4}");
     Console.WriteLine($"  Total aggregated penalty: {result.TotalAggregatedPenalty:E4}\n");
 
-    var compositionNames = new[] { "Bas_2+Bas_3+Bas_4", "Bas_1", "Bas_0" };
+    var compositionNames = CompositionGroups.ConsoleNames;
     Console.WriteLine("Individual Results:");
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < CompositionGroups.Count; i++)
     {
         Console.WriteLine($"  {compositionNames[i]}:");
         Console.WriteLine($"    - Fitness: {result.IndividualFitnesses[i]:E4}");
@@ -477,7 +476,7 @@ async Task RunForwardEvalAsync(string inputFileName, string vectorFilePath)
 
     Console.WriteLine("Generating PDF report...");
     GenerateGroupReport(result, inputFileName, "en-US", "en",
-        settings.Propellants, settings.DifferentialEvolutionSettings, meter);
+        settings.DifferentialEvolutionSettings, meter);
 
     Console.WriteLine("\n✓ Forward-evaluation report generated\n");
 }
@@ -505,7 +504,7 @@ try
     Console.WriteLine("GROUP OPTIMIZATION: BAS_0, BAS_1, BAS_2+BAS_3+BAS_4 (SIMULTANEOUS)");
     Console.WriteLine(new string('=', 90) + "\n");
 
-    var (operationResult, meter, deSettings, propellants) = await RunGroupOptimizationAsync("propellants.01234.json");
+    var (operationResult, meter, deSettings) = await RunGroupOptimizationAsync("propellants.01234.json");
 
     if (operationResult == null || !operationResult.IsSuccess)
     {
@@ -522,9 +521,9 @@ try
     Console.WriteLine($"  Total aggregated penalty: {groupResult.TotalAggregatedPenalty:E4}\n");
 
     // Display results for each composition (order matches the raw 32-vector layout)
-    var compositionNames = new[] { "Bas_2+Bas_3+Bas_4", "Bas_1", "Bas_0" };
+    var compositionNames = CompositionGroups.ConsoleNames;
     Console.WriteLine("Individual Results:");
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < CompositionGroups.Count; i++)
     {
         Console.WriteLine($"  {compositionNames[i]}:");
         Console.WriteLine($"    - Fitness: {groupResult.IndividualFitnesses[i]:E4}");
@@ -587,7 +586,7 @@ try
 
     // Generate PDF report
     Console.WriteLine("Generating PDF report...");
-    GenerateGroupReport(groupResult!, "propellants.01234.json", "en-US", "en", propellants, deSettings, meter);
+    GenerateGroupReport(groupResult!, "propellants.01234.json", "en-US", "en", deSettings, meter);
     Console.WriteLine("✓ PDF report generated\n");
 
     Console.WriteLine(new string('=', 90));

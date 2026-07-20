@@ -4,6 +4,7 @@ using ParametricCombustionModel.ReportMaking.Enums;
 using ParametricCombustionModel.ReportMaking.Interfaces;
 using ParametricCombustionModel.ReportMaking.PdfOperations;
 using ParametricCombustionModel.ReportMaking.Resources;
+using PastyPropellant.Core.Models;
 
 namespace ParametricCombustionModel.ReportMaking.Reports.Pdf;
 
@@ -78,10 +79,10 @@ public class GroupCombustionSolverParamsReport : ITransformable<Queue<IPdfOperat
 
         // Composition-specific parameters (Condensed phase)
         // Note: Order is inverted compared to optimizer internals (0=Bas_2, 1=Bas_1, 2=Bas_0)
-        string[] compositionNames = ["Bas_2 (includes Bas_3, Bas_4)", "Bas_1", "Bas_0"];
+        var compositionNames = CompositionGroups.ReportNames;
         int[] blockStarts = [11, 18, 25];
 
-        for (int comp = 0; comp < 3; comp++)
+        for (int comp = 0; comp < CompositionGroups.Count; comp++)
         {
             operations.Enqueue(new PrintTextOperation(
                 $"{compositionNames[comp]} - Condensed Phase Parameters",
