@@ -20,8 +20,6 @@ public record DifferentialEvolutionScenarioSettings
 
     public PerformanceMeter Meter { get; init; }
 
-    public string PropellantsFilePath { get; init; }
-
     public ReadOnlyCollection<Propellant> Propellants { get; init; }
 
     public ReadOnlyCollection<IPenaltyEvaluator> PenaltyEvaluators { get; init; }
@@ -29,13 +27,11 @@ public record DifferentialEvolutionScenarioSettings
     private DifferentialEvolutionScenarioSettings(
         DifferentialEvolutionSettings differentialEvolutionSettings,
         PerformanceMeter meter,
-        string propellantsFilePath,
         ReadOnlyCollection<Propellant> propellants,
         ReadOnlyCollection<IPenaltyEvaluator> penaltyEvaluators)
     {
         DifferentialEvolutionSettings = differentialEvolutionSettings;
         Meter = meter;
-        PropellantsFilePath = propellantsFilePath;
         Propellants = propellants;
         PenaltyEvaluators = penaltyEvaluators;
     }
@@ -46,7 +42,6 @@ public record DifferentialEvolutionScenarioSettings
     {
         private int? _populationSize;
         private PerformanceMeter? _meter;
-        private string? _propellantsFilePath;
         private ReadOnlyCollection<Propellant>? _propellants;
         private ReadOnlyCollection<double>? _lowerBound;
         private ReadOnlyCollection<double>? _upperBound;
@@ -170,7 +165,6 @@ public record DifferentialEvolutionScenarioSettings
                 if (propellants == null || propellants.Count == 0)
                     throw new ArgumentException("Propellants file must contain at least one propellant.", nameof(propellantsFilePath));
 
-                _propellantsFilePath = propellantsFilePath;
                 _propellants = new ReadOnlyCollection<Propellant>(propellants);
             }
             catch (JsonException ex)
@@ -261,7 +255,6 @@ public record DifferentialEvolutionScenarioSettings
             return new DifferentialEvolutionScenarioSettings(
                 baseSettings,
                 _meter!,
-                _propellantsFilePath!,
                 _propellants!,
                 new ReadOnlyCollection<IPenaltyEvaluator>(_penaltyEvaluators));
         }
@@ -305,9 +298,6 @@ public record DifferentialEvolutionScenarioSettings
 
             if (!_processorsCount.HasValue)
                 throw new InvalidOperationException("Processors count must be set.");
-
-            if (string.IsNullOrWhiteSpace(_propellantsFilePath))
-                throw new InvalidOperationException("Propellants file path must be set.");
 
             if (_propellants == null)
                 throw new InvalidOperationException("Propellants must be loaded from file.");
