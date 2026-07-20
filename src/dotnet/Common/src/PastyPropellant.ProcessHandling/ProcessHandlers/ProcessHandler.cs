@@ -175,6 +175,19 @@ public static class ProcessHandler
 
                 // Register() fires synchronously if the token was already cancelled, so the race
                 // where the process exits before registration is covered by Complete()'s gate.
+
+                // That gate protects correctness, not disposal. A short-lived child can exit and run
+                // Complete() on a pool thread before either field above is assigned, in which case
+                // Complete() disposed a default registration and a null source, and the real ones
+                // just assigned here would never be released — leaking a CancellationTokenSource
+                // that still holds a live CancelAfter timer, plus a registration on the *caller's*
+                // token, once per call. Re-check and release them here. Disposing twice is safe, so
+                // a Complete() racing this check is harmless either way.
+                if (Volatile.Read(ref completed) != 0)
+                {
+                    registration.Dispose();
+                    linkedCts?.Dispose();
+                }
             }
         }
         catch (Exception ex)
