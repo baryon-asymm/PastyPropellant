@@ -249,6 +249,22 @@ The 600 K / 900 K binary-search bounds are duplicated record-field initializers 
 
 **TEST-6 · Low · —** — `PlotRenderer.Tests` covers only JPEG-export plumbing (not the Bas_21/22-skip data selection); `PropellantsPlotRendering` is the only Tools project with no tests.
 
+<a id="test-7"></a>**TEST-7 · Med · M** — No dependency-contract tests: nothing pins the behaviour we rely on from any third-party library. **Not from the original audit — raised by the user during the cleanup campaign.**
+
+All live tests exercise our own code. No test asserts what an external package does, so an upgrade is currently a blind change.
+
+Scope the urgency correctly first: every `PackageReference` is an exact version and there are no floating (`*`) ranges, so nothing drifts on its own. The risk materialises **only when someone deliberately bumps a version**. These tests are not a monitor — they are what makes that bump safe. Priority is therefore "before the next upgrade", not "now".
+
+Ranked by what an upgrade could break silently:
+
+1. **`DotNetDifferentialEvolution` 4.0.0 / `DotNetNelderMead` 1.0.0 — zero coverage.** No test project references `ParametricCombustionModel.Optimization` at all, and that is the single place our code meets a third-party API (`ForFunction(this)`, `UseProcessors(n)`, `WithStrategy`, `ITerminationStrategy`). The load-bearing contract is **behavioural, not signature-level**: `UseProcessors(n)` must invoke `Evaluate(workerIndex, …)` such that concurrent callers never share a `workerIndex`. The whole `OptimizationProblemByDoubles[processorCount, 3]` scheme rests on it — the contexts are mutated in place, so if a future version reuses or collides indices, **the code still compiles, nothing throws, and results silently corrupt**. A signature change is caught free by the compiler; this one is not caught by anything.
+2. **`UnitsNet 6.0.0-pre011` is a prerelease** — the one dependency with no semver obligation, and it is pervasive (~15 factory methods; 28 call sites of `Temperature.FromKelvins` alone). Beyond the API, reports depend on `ToUnit(...).ToString()`, whose output is culture- and rounding-sensitive. Coverage here exists but is incidental: [PressureTablesReportTests.cs:149](../src/dotnet/ParametricCombustionModel/tests/ParametricCombustionModel.ReportMaking.Tests/PressureTablesReportTests.cs#L149) asserts the substring `"7.77"`, which is de facto a UnitsNet formatting test written for another purpose.
+3. **No `packages.lock.json`.** Direct versions are exact but transitive resolution is unpinned, so `restore` is not strictly reproducible.
+
+Partial existing cover: the standing `--forward-eval` check would catch a gross numerical change, but it is manual and exercises only the forward path — never the DE search itself.
+
+→ Add (a) a worker-index contract test: a stub `IFitnessFunctionEvaluator` under `UseProcessors(n)`, asserting indices are within `[0,n)` and never concurrently shared; (b) a determinism test on a trivial objective (sphere) with a fixed seed reaching a known optimum — this also finally supplies the fixed-seed harness item 7.1 never got, which currently weakens the jDE/JADE/SHADE attribution; (c) invariant-culture formatting pins for the UnitsNet quantities the report prints. Plus `dotnet restore --use-lock-file` for (3).
+
 ---
 
 ## E. Build / tooling / config
