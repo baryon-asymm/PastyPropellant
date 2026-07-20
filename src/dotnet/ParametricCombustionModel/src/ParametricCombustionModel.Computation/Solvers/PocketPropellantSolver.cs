@@ -14,7 +14,7 @@ namespace ParametricCombustionModel.Computation.Solvers;
 /// within the "Skeleton" layer of the propellant combustion model. This class handles the computation of heat flux errors at the propellant surface
 /// and the extraction of kinetic flame parameters specific to the Skeleton layer.
 /// </summary>
-public sealed class KineticSkeletonHelper : BaseKineticPropellantSolver
+public sealed class KineticSkeletonHelper
 {
 #region Publics
 
@@ -43,19 +43,25 @@ public sealed class KineticSkeletonHelper : BaseKineticPropellantSolver
     /// The calculated kinetic flame heat flux as a <see cref="HeatFlux"/> object.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public new HeatFlux GetKineticFlameHeatFlux(
+    public HeatFlux GetKineticFlameHeatFlux(
         in Pressure pressure,
         in Temperature surfaceTemperature,
         in MassFlux decomposeRate,
         in CombustionSolverParamsByUnits solverParamsByUnits,
         in KineticFlameParamsByUnits kineticFlameParamsByUnits,
-        ref KineticFlameCombustionParams contextBag) =>
-        base.GetKineticFlameHeatFlux(pressure,
-                                     surfaceTemperature,
-                                     decomposeRate,
-                                     solverParamsByUnits,
-                                     kineticFlameParamsByUnits,
-                                     ref contextBag);
+        ref KineticFlameCombustionParams contextBag)
+    {
+        ExtractKineticBurnParams(solverParamsByUnits, out var aKineticFlame, out var eKineticFlame, out var nu);
+
+        return KineticFlameCalculator.GetKineticFlameHeatFlux(pressure,
+                                                              surfaceTemperature,
+                                                              decomposeRate,
+                                                              aKineticFlame,
+                                                              eKineticFlame,
+                                                              nu,
+                                                              kineticFlameParamsByUnits,
+                                                              ref contextBag);
+    }
 
     /// <summary>
     /// Computes the kinetic flame heat flux based on provided combustion parameters and context bag, specifically for the "Skeleton" layer.
@@ -82,34 +88,29 @@ public sealed class KineticSkeletonHelper : BaseKineticPropellantSolver
     /// The calculated kinetic flame heat flux as a <see cref="double"/> value.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public new double GetKineticFlameHeatFlux(
+    public double GetKineticFlameHeatFlux(
         double pressure,
         double surfaceTemperature,
         double decomposeRate,
         in CombustionSolverParamsByDoubles solverParams,
         in KineticFlameParamsByDoubles kineticFlameParams,
-        ref KineticFlameCombustionParamsByDoubles contextBag) =>
-        base.GetKineticFlameHeatFlux(pressure,
-                                     surfaceTemperature,
-                                     decomposeRate,
-                                     solverParams,
-                                     kineticFlameParams,
-                                     ref contextBag);
+        ref KineticFlameCombustionParamsByDoubles contextBag)
+    {
+        ExtractKineticBurnParams(solverParams, out var aKineticFlame, out var eKineticFlame, out var nu);
+
+        return KineticFlameCalculator.GetKineticFlameHeatFlux(pressure,
+                                                              surfaceTemperature,
+                                                              decomposeRate,
+                                                              aKineticFlame,
+                                                              eKineticFlame,
+                                                              nu,
+                                                              kineticFlameParams,
+                                                              ref contextBag);
+    }
 
 #endregion
 
 #region Overridden Methods
-
-    public override void Visit(
-        in CombustionSolverParamsByUnits solverParamsByUnits,
-        ProblemContextByUnits context) =>
-        throw new NotImplementedException();
-
-    protected override HeatFlux GetSurfaceHeatFluxesError(
-        in Temperature surfaceTemperature,
-        in CombustionSolverParamsByUnits solverParamsByUnits,
-        ProblemContextByUnits context) =>
-        throw new NotImplementedException();
 
     /// <summary>
     /// Extracts the kinetic burn parameters specific to the Skeleton layer from the provided burn parameters.
@@ -125,7 +126,7 @@ public sealed class KineticSkeletonHelper : BaseKineticPropellantSolver
     /// The activation energy for the kinetic flame, returned as a <see cref="MolarEnergy"/> object.
     /// </param>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    protected override void ExtractKineticBurnParams(
+    private static void ExtractKineticBurnParams(
         in CombustionSolverParamsByUnits solverParamsByUnits,
         out Frequency aKineticFlame,
         out MolarEnergy eKineticFlame,
@@ -139,17 +140,6 @@ public sealed class KineticSkeletonHelper : BaseKineticPropellantSolver
 #endregion
 
 #region Overridden Methods with Double Parameters
-
-    public override void Visit(
-        in CombustionSolverParamsByDoubles solverParams,
-        ProblemContextByDoubles context) =>
-        throw new NotImplementedException();
-
-    protected override double GetSurfaceHeatFluxesError(
-        double surfaceTemperature,
-        in CombustionSolverParamsByDoubles solverParams,
-        ProblemContextByDoubles context) =>
-        throw new NotImplementedException();
 
     /// <summary>
     /// Extracts the kinetic burn parameters specific to the Skeleton layer from the provided burn parameters.
@@ -165,7 +155,7 @@ public sealed class KineticSkeletonHelper : BaseKineticPropellantSolver
     /// The activation energy for the kinetic flame, returned as a <see cref="double"/> value.
     /// </param>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    protected override void ExtractKineticBurnParams(
+    private static void ExtractKineticBurnParams(
         in CombustionSolverParamsByDoubles solverParams,
         out double aKineticFlame,
         out double eKineticFlame,
@@ -184,7 +174,7 @@ public sealed class KineticSkeletonHelper : BaseKineticPropellantSolver
 /// in the "OutSkeleton" region of the propellant combustion model. This class handles the computation of heat flux errors at the propellant surface
 /// and the extraction of kinetic flame parameters specific to the region outside the Skeleton layer but within the Pocket region.
 /// </summary>
-public sealed class KineticOutSkeletonHelper : BaseKineticPropellantSolver
+public sealed class KineticOutSkeletonHelper
 {
 #region Publics
 
@@ -213,19 +203,25 @@ public sealed class KineticOutSkeletonHelper : BaseKineticPropellantSolver
     /// The calculated kinetic flame heat flux as a <see cref="HeatFlux"/> object.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public new HeatFlux GetKineticFlameHeatFlux(
+    public HeatFlux GetKineticFlameHeatFlux(
         in Pressure pressure,
         in Temperature surfaceTemperature,
         in MassFlux decomposeRate,
         in CombustionSolverParamsByUnits solverParamsByUnits,
         in KineticFlameParamsByUnits kineticFlameParamsByUnits,
-        ref KineticFlameCombustionParams contextBag) =>
-        base.GetKineticFlameHeatFlux(pressure,
-                                     surfaceTemperature,
-                                     decomposeRate,
-                                     solverParamsByUnits,
-                                     kineticFlameParamsByUnits,
-                                     ref contextBag);
+        ref KineticFlameCombustionParams contextBag)
+    {
+        ExtractKineticBurnParams(solverParamsByUnits, out var aKineticFlame, out var eKineticFlame, out var nu);
+
+        return KineticFlameCalculator.GetKineticFlameHeatFlux(pressure,
+                                                              surfaceTemperature,
+                                                              decomposeRate,
+                                                              aKineticFlame,
+                                                              eKineticFlame,
+                                                              nu,
+                                                              kineticFlameParamsByUnits,
+                                                              ref contextBag);
+    }
 
     /// <summary>
     /// Computes the kinetic flame heat flux based on provided combustion parameters and context bag, specifically for the "OutSkeleton" region.
@@ -252,34 +248,29 @@ public sealed class KineticOutSkeletonHelper : BaseKineticPropellantSolver
     /// The calculated kinetic flame heat flux as a <see cref="double"/> value.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public new double GetKineticFlameHeatFlux(
+    public double GetKineticFlameHeatFlux(
         double pressure,
         double surfaceTemperature,
         double decomposeRate,
         in CombustionSolverParamsByDoubles solverParams,
         in KineticFlameParamsByDoubles kineticFlameParams,
-        ref KineticFlameCombustionParamsByDoubles contextBag) =>
-        base.GetKineticFlameHeatFlux(pressure,
-                                     surfaceTemperature,
-                                     decomposeRate,
-                                     solverParams,
-                                     kineticFlameParams,
-                                     ref contextBag);
+        ref KineticFlameCombustionParamsByDoubles contextBag)
+    {
+        ExtractKineticBurnParams(solverParams, out var aKineticFlame, out var eKineticFlame, out var nu);
+
+        return KineticFlameCalculator.GetKineticFlameHeatFlux(pressure,
+                                                              surfaceTemperature,
+                                                              decomposeRate,
+                                                              aKineticFlame,
+                                                              eKineticFlame,
+                                                              nu,
+                                                              kineticFlameParams,
+                                                              ref contextBag);
+    }
 
 #endregion
 
 #region Overridden Methods
-
-    public override void Visit(
-        in CombustionSolverParamsByUnits solverParamsByUnits,
-        ProblemContextByUnits context) =>
-        throw new NotImplementedException();
-
-    protected override HeatFlux GetSurfaceHeatFluxesError(
-        in Temperature surfaceTemperature,
-        in CombustionSolverParamsByUnits solverParamsByUnits,
-        ProblemContextByUnits context) =>
-        throw new NotImplementedException();
 
     /// <summary>
     /// Extracts the kinetic burn parameters specific to the "OutSkeleton" region from the provided burn parameters.
@@ -295,7 +286,7 @@ public sealed class KineticOutSkeletonHelper : BaseKineticPropellantSolver
     /// The activation energy for the kinetic flame, returned as a <see cref="MolarEnergy"/> object.
     /// </param>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    protected override void ExtractKineticBurnParams(
+    private static void ExtractKineticBurnParams(
         in CombustionSolverParamsByUnits solverParamsByUnits,
         out Frequency aKineticFlame,
         out MolarEnergy eKineticFlame,
@@ -309,17 +300,6 @@ public sealed class KineticOutSkeletonHelper : BaseKineticPropellantSolver
 #endregion
 
 #region Overridden Methods with Double Parameters
-
-    public override void Visit(
-        in CombustionSolverParamsByDoubles solverParams,
-        ProblemContextByDoubles context) =>
-        throw new NotImplementedException();
-
-    protected override double GetSurfaceHeatFluxesError(
-        double surfaceTemperature,
-        in CombustionSolverParamsByDoubles solverParams,
-        ProblemContextByDoubles context) =>
-        throw new NotImplementedException();
 
     /// <summary>
     /// Extracts the kinetic burn parameters specific to the "OutSkeleton" region from the provided burn parameters.
@@ -335,7 +315,7 @@ public sealed class KineticOutSkeletonHelper : BaseKineticPropellantSolver
     /// The activation energy for the kinetic flame, returned as a <see cref="double"/> value.
     /// </param>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    protected override void ExtractKineticBurnParams(
+    private static void ExtractKineticBurnParams(
         in CombustionSolverParamsByDoubles solverParams,
         out double aKineticFlame,
         out double eKineticFlame,
