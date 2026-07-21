@@ -100,6 +100,13 @@ The reporting half of [NEW-3](#new-3) was fixed in `c0a0df1`, but `Helpers/Skele
 <a id="new-13"></a>**NEW-13 · — · —** — The suite is only fast under a filter.
 Fixing [NEW-8](#new-8) made the Python-backed tests genuinely execute, which exposed that `PythonThermodynamicsCalculatorTest` is a real thermodynamics solve exceeding ten minutes. `dotnet test PastyPropellant.sln` is no longer a quick check; use `--filter "Category!=LongRunning"`. Recorded in CLAUDE.md. This is not a regression — the test was previously "passing" in ~110 ms only because it was broken.
 
+<a id="new-22"></a>**NEW-22 · Low · S** — The final Nelder–Mead polish reports "improved" when it improved nothing.
+[GroupDifferentialEvolutionOptimizer.cs:188-193](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Optimization/Optimizers/GroupDifferentialEvolutionOptimizer.cs#L188): the accept branch is `refined.Best.FitnessFunctionValue <= deBestFitness`, so **equality falls into it**, yet the message it publishes reads `Final Nelder–Mead polish improved best: X -> Y`. When the polish returns the point it started from — the common case, since it starts *at* the DE best — the log claims an improvement that did not occur.
+
+The guard itself is right: accepting a not-worse result is correct, and NM may legitimately land on a different point of equal fitness. Only the wording is wrong, and it is wrong in the direction that flatters the algorithm. It matters because these lines are what a campaign operator reads to judge whether the polish is earning its cost; "did nothing" currently hides behind "improved".
+
+Found by an end-to-end pipeline run, which printed `improved best: 0.324494 -> 0.324494`. Note the values are formatted `G6`, so that single line does **not** prove exact equality — a difference below six significant figures would look identical. The defect is established from the code (the branch covers `<=`), not from the log. Same family as [NEW-6](#new-6): the code is right, the text describing it is not. → Split the branch: report "improved" only on `<`, and something like "found an equal-fitness alternative" on `==`.
+
 <a id="new-21"></a>**NEW-21 · Med · S** — `PreparePropellantDataHelper.TryPrepareAsync` leaks an `EventBus` subscription on every failure.
 [PreparePropellantDataHelper.cs:81-87](../src/dotnet/Apps/src/PastyPropellant.ConsoleApp/Helpers/PreparePropellantDataHelper.cs#L81): it subscribes `RegionMapperProcessInfoLogEventHandler`, early-returns on failure at :85, and unsubscribes at :87 — one line *after* the return, with no `try`/`finally`, so on the failure path the unsubscribe never runs. Identical shape on the porosity branch at :90-97. Verified by reading the code, not inferred.
 
