@@ -76,9 +76,6 @@
         <value>Область КС</value>
     </data>
 
-    <data name="AverageMetalBurningTemperature" xml:space="preserve">
-        <value>Средняя температура горения металла {0}</value>
-    </data>
     <data name="MetalBurningHeatFlux" xml:space="preserve">
         <value>Плотность теплового потока, обусловленного сгоранием металла, {0}</value>
     </data>

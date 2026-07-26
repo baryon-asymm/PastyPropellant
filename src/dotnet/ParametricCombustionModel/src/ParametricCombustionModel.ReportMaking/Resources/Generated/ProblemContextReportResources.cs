@@ -79,15 +79,6 @@ namespace ParametricCombustionModel.ReportMaking.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Средняя температура горения металла {0}.
-        /// </summary>
-        internal static string AverageMetalBurningTemperature {
-            get {
-                return ResourceManager.GetString("AverageMetalBurningTemperature", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Расчетная скорость горения.
         /// </summary>
         internal static string ComputedBurnRate {

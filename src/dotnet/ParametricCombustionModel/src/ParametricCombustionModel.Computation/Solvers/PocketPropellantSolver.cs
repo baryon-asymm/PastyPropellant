@@ -440,8 +440,6 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
                                                        ref outSkeletonKineticFlameParams);
 
         contextBag.BurnRate = GetBurnRate(contextBag.DecomposeRate, context.PropellantParamsByUnits);
-        contextBag.AverageMetalBurningTemperature = Temperature.Zero;
-        //    GetAverageMetalBurningTemperature(surfaceTemperature, context.PocketMetalCombustionParamsByUnits);
         contextBag.SkeletonLayerThickness = GetSkeletonLayerThickness(contextBag.BurnRate, solverParamsByUnits);
         contextBag.PoreDiameter = GetPoreDiameter(contextBag.BurnRate, solverParamsByUnits);
         var averageRadiativeTemperatureDouble = solverParamsByUnits.KCoefficientRadiationTemperature * surfaceTemperature.Kelvins +
@@ -499,28 +497,6 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
 
 #region Computation Methods
 
-    /// <summary>
-    /// Calculates the average metal burning temperature based on the melting and boiling temperatures of the metal skeleton.
-    /// </summary>
-    /// <param name="metalCombustionParamsByUnits">
-    /// The parameters related to metal combustion, including melting and boiling temperatures.
-    /// </param>
-    /// <returns>
-    /// The average metal burning temperature as a <see cref="Temperature"/> object.
-    /// </returns>
-    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    private Temperature GetAverageMetalBurningTemperature(
-        in Temperature surfaceTemperature,
-        in MetalCombustionParamsByUnits metalCombustionParamsByUnits)
-    {
-        var metalMeltingTemperatureDouble = metalCombustionParamsByUnits.MetalMeltingTemperature.Kelvins;
-
-        var averageMetalBurningTemperature = Temperature.FromKelvins(
-            0.5 * (metalMeltingTemperatureDouble - surfaceTemperature.Kelvins));
-
-        return averageMetalBurningTemperature;
-    }
-
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private Length GetSkeletonLayerThickness(
         Speed burnRate,
@@ -547,7 +523,7 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private ThermalConductivity GetRadiativeThermalConductivity(
-        in Temperature averageMetalBurningTemperature,
+        in Temperature averageRadiativeTemperature,
         in Length poreDiameter,
         in SkeletonLayerParamsByUnits skeletonLayerParamsByUnits)
     {
@@ -561,7 +537,7 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
         // where φ is porosity and d_p is the pore/particle diameter.
         var beta = 3.0 * (1.0 - skeletonLayerParamsByUnits.Porosity.DecimalFractions) / poreDiameter.Meters;
         var radiativeThermalConductivityDouble = 16.0 * stefanBoltzmannConstant
-                                                 * Math.Pow(averageMetalBurningTemperature.Kelvins, 3)
+                                                 * Math.Pow(averageRadiativeTemperature.Kelvins, 3)
                                                  / (3.0 * beta);
 
         return ThermalConductivity.FromWattsPerMeterKelvin(radiativeThermalConductivityDouble);
@@ -813,8 +789,6 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
                                                        ref outSkeletonKineticFlameParams);
 
         contextBag.BurnRate = GetBurnRate(contextBag.DecomposeRate, context.PropellantParams);
-        contextBag.AverageMetalBurningTemperature = Temperature.Zero.Kelvins;
-        //    GetAverageMetalBurningTemperature(surfaceTemperature, context.PocketMetalCombustionParams);
         contextBag.SkeletonLayerThickness = GetSkeletonLayerThickness(contextBag.BurnRate, solverParams);
         contextBag.PoreDiameter = GetPoreDiameter(contextBag.BurnRate, solverParams);
         var averageRadiativeTemperatureDouble = solverParams.KCoefficientRadiationTemperature * surfaceTemperature +
@@ -873,18 +847,6 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
 #region Computation Methods with Double Parameters
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    private double GetAverageMetalBurningTemperature(
-        double surfaceTemperature,
-        in MetalCombustionParamsByDoubles metalCombustionParams)
-    {
-        var metalMeltingTemperatureDouble = metalCombustionParams.MetalMeltingTemperature;
-
-        var averageMetalBurningTemperature = 0.5 * (metalMeltingTemperatureDouble - surfaceTemperature);
-
-        return averageMetalBurningTemperature;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private double GetSkeletonLayerThickness(
         double burnRate,
         CombustionSolverParamsByDoubles solverParamsByDoubles)
@@ -906,7 +868,7 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private double GetRadiativeThermalConductivity(
-        double averageMetalBurningTemperature,
+        double averageRadiativeTemperature,
         double poreDiameter,
         in SkeletonLayerParamsByDoubles skeletonLayerParamsByDoubles)
     {
@@ -920,7 +882,7 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
         // where φ is porosity and d_p is the pore/particle diameter.
         var beta = 3.0 * (1.0 - skeletonLayerParamsByDoubles.Porosity) / poreDiameter;
         var radiativeThermalConductivity = 16.0 * stefanBoltzmannConstant
-                                                 * Math.Pow(averageMetalBurningTemperature, 3)
+                                                 * Math.Pow(averageRadiativeTemperature, 3)
                                                  / (3.0 * beta);
 
         return radiativeThermalConductivity;

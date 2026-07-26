@@ -45,12 +45,6 @@ public struct PocketCombustionParamsByDoubles
 
 #region Inside Skeleton Metal Burning Parameters
 
-    /// <summary>
-    /// Gets or sets the average temperature of metal burning.
-    /// Measured in Kelvin (K).
-    /// </summary>
-    public double AverageMetalBurningTemperature;
-
     public double EffectiveThermalConductivity;
 
     public double ConductiveThermalConductivity;
@@ -162,12 +156,6 @@ public struct PocketCombustionParams
     public KineticFlameCombustionParams SkeletonKineticFlameCombustionParams;
 
 #region Inside Skeleton Metal Burning Parameters
-
-    /// <summary>
-    /// Gets or sets the average temperature of metal burning.
-    /// Measured using <see cref="UnitsNet.Temperature"/> in Kelvin (K).
-    /// </summary>
-    public Temperature AverageMetalBurningTemperature;
 
     public ThermalConductivity EffectiveThermalConductivity;
 

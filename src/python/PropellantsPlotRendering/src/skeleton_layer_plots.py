@@ -50,7 +50,6 @@ SKELETON_LAYER_SERIES = [
 TEMPERATURE_SERIES = [
     ('surface_temperature_pocket', 'Surface T (pocket)', 'o'),
     ('surface_temperature_inter_pocket', 'Surface T (inter-pocket)', 's'),
-    ('average_metal_burning_temperature', 'Metal burning T (avg)', '^'),
 ]
 
 

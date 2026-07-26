@@ -373,11 +373,6 @@ public class BurnRateIsFoundParityTests
         CompareKineticFlame(units.SkeletonKineticFlameCombustionParams,
                             doubles.SkeletonKineticFlameCombustionParams, "Pocket.Skeleton", j);
 
-        // Both sides are currently pinned to zero by the solver (see DEAD-4 in docs/tech-debt.md), so this
-        // passes trivially today. It is kept deliberately: if the metal-burning temperature is ever wired back
-        // in, this is what catches one path being updated without the other.
-        Close(units.AverageMetalBurningTemperature.Kelvins, doubles.AverageMetalBurningTemperature,
-              "Pocket.AverageMetalBurningTemperature", j);
         Close(units.MetalBurningHeatFlux.WattsPerSquareMeter, doubles.MetalBurningHeatFlux,
               "Pocket.MetalBurningHeatFlux", j);
 

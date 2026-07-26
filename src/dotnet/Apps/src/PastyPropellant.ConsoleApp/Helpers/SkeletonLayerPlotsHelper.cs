@@ -47,7 +47,6 @@ public static class SkeletonLayerPlotsHelper
                     CalculatedBurnRate = ConvergedBurnRate(ctx.MixedCombustionParams),
                     SurfaceTemperaturePocket = F(pocket.SurfaceTemperature.Kelvins),
                     SurfaceTemperatureInterPocket = F(ctx.InterPocketCombustionParams.SurfaceTemperature.Kelvins),
-                    AverageMetalBurningTemperature = F(pocket.AverageMetalBurningTemperature.Kelvins),
                     HeatFlux = new
                     {
                         Skeleton = F(pocket.SkeletonHeatFlux.WattsPerSquareMeter),

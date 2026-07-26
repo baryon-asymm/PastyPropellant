@@ -76,9 +76,6 @@
         <value>Skeleton Structure Region</value>
     </data>
 
-    <data name="AverageMetalBurningTemperature" xml:space="preserve">
-        <value>Average metal combustion temperature {0}</value>
-    </data>
     <data name="MetalBurningHeatFlux" xml:space="preserve">
         <value>Heat flux density due to metal combustion, {0}</value>
     </data>

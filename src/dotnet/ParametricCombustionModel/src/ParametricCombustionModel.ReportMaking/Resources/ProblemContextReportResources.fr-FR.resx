@@ -66,9 +66,6 @@
     <value>Région structure squelette</value>
   </data>
 
-  <data name="AverageMetalBurningTemperature" xml:space="preserve">
-    <value>Température moyenne de combustion métallique {0}</value>
-  </data>
   <data name="MetalBurningHeatFlux" xml:space="preserve">
     <value>Densité de flux de chaleur de combustion métallique {0}</value>
   </data>
