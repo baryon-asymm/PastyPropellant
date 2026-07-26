@@ -104,12 +104,12 @@ These quantities are precomputed once per propellant/pressure pair by `ProblemCo
 
 | Quantity | Symbol | Source | Code |
 |---|---|---|---|
-| Pocket / skeleton surface fraction | $f_s$ | polynomial in $p$ (see §12.1) | [PropellantExtensions.cs:135-144](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L135-L144) |
-| Average oxidizer (large AP) diameter | $d_{ox}$ | `components.AmmoniumPerchlorate.average_particles_diameter` | [PropellantExtensions.cs:114-121](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L114-L121) |
-| Metal melting temperature | $T_{melt}$ | hard-coded **1300 K** | [PropellantExtensions.cs:155-159](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L155-L159) |
-| Metal boiling temperature | $T_{boil}(p)$ | 6th-order polynomial in $p\,[\text{MPa}]$ | [PropellantExtensions.cs:173-193](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L173-L193) |
-| Inter-pocket volume fraction | $f_{V,inter}$ | mass-fraction sum / density mix | [PropellantExtensions.cs:26-54](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L26-L54) |
-| Pocket volume fraction | $f_{V,pocket}$ | same | [PropellantExtensions.cs:72-100](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L72-L100) |
+| Pocket / skeleton surface fraction | $f_s$ | polynomial in $p$ (see §12.1) | [PropellantExtensions.cs:83-92](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L83-L92) |
+| Average oxidizer (large AP) diameter | $d_{ox}$ | `components.AmmoniumPerchlorate.average_particles_diameter` | [PropellantExtensions.cs:62-69](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L62-L69) |
+| Metal melting temperature | $T_{melt}$ | hard-coded **1300 K** | [PropellantExtensions.cs:95-125](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L95-L125) |
+| Metal boiling temperature | $T_{boil}(p)$ | 6th-order polynomial in $p\,[\text{MPa}]$ | [PropellantExtensions.cs:139-159](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L139-L159) |
+| Inter-pocket volume fraction | $f_{V,inter}$ | mass-fraction sum / density mix | [PropellantExtensions.cs:26-30](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L26-L30) |
+| Pocket volume fraction | $f_{V,pocket}$ | same | [PropellantExtensions.cs:44-48](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L44-L48) |
 
 ### 3.3 Experimental burn rate (Vieille's law)
 
@@ -142,7 +142,7 @@ These five structs bundle the inputs that the solver receives every iteration. T
 
 ### 3.5 The 18-element optimization vector (single composition)
 
-[CombustionSolverParamsByUnits.cs:93-117](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Models/KnownParams/CombustionSolverParamsByUnits.cs#L93-L117), [CombustionSolverParamsByUnits.cs:207-232](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Models/KnownParams/CombustionSolverParamsByUnits.cs#L207-L232).
+[CombustionSolverParamsByUnits.cs:133-205](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Models/KnownParams/CombustionSolverParamsByUnits.cs#L133-L205), [CombustionSolverParamsByUnits.cs:207-232](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Models/KnownParams/CombustionSolverParamsByUnits.cs#L207-L232).
 
 | idx | Field | Symbol | Unit | Role |
 |---:|---|---|---|---|
@@ -165,7 +165,7 @@ These five structs bundle the inputs that the solver receives every iteration. T
 | 16 | `BPowOrder` | $p_B$ | — | exponent in $d_p = B_m / v_b^{p_B}$ |
 | 17 | `KCoefficientRadiationTemperature` | $k_{rT}$ | — | convex combination weight in $\bar T_r$ (§7.1) |
 
-Bounds for the DE optimizer are defined inline at [Program.cs:53-61](../src/dotnet/Apps/src/PastyPropellant.ConsoleApp/Program.cs#L53-L61).
+Bounds for the DE optimizer are defined in [BoundsProvider.cs:89-136](../src/dotnet/Apps/src/PastyPropellant.ConsoleApp/Configuration/BoundsProvider.cs#L89-L136).
 
 ### 3.6 The 32-element group vector (joint optimization)
 
@@ -205,7 +205,7 @@ When several compositions are optimized at once, the DE vector has 32 elements. 
 
 with $g \in \{0,1,2\}$ for Bas_2-group, Bas_1, Bas_0.
 
-The reverse remapping (18-bounds → 32-bounds), used to construct the DE search box, lives in [Program.cs:65-107](../src/dotnet/Apps/src/PastyPropellant.ConsoleApp/Program.cs#L65-L107).
+The reverse remapping (18-bounds → 32-bounds), used to construct the DE search box, lives in [BoundsProvider.cs:201-225](../src/dotnet/Apps/src/PastyPropellant.ConsoleApp/Configuration/BoundsProvider.cs#L201-L225).
 
 Bas_2, Bas_3, Bas_4 share the same 7 composition-specific values — that is the load-bearing reason for the 32-parameter formulation.
 
@@ -221,14 +221,14 @@ where $q_{\text{total}}$ collects every incoming heat flux contribution (kinetic
 
 | Parameter | Value | Source |
 |---|---|---|
-| $T_s^{\min}$ | 600 K (default) | [ProblemContextByUnits.cs:98](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Models/ProblemContexts/ProblemContextByUnits.cs#L98) |
-| $T_s^{\max}$ | 900 K (default) | [ProblemContextByUnits.cs:105](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Models/ProblemContexts/ProblemContextByUnits.cs#L105) |
-| tolerance | $10^{-8}$ K | [BasePropellantSolver.cs:113](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/BasePropellantSolver.cs#L113), [BasePropellantSolver.cs:267](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/BasePropellantSolver.cs#L267) |
+| $T_s^{\min}$ | 600 K (default) | [SurfaceTemperatureSearchBounds.cs:29](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Models/ProblemContexts/SurfaceTemperatureSearchBounds.cs#L29) |
+| $T_s^{\max}$ | 900 K (default) | [SurfaceTemperatureSearchBounds.cs:34](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Models/ProblemContexts/SurfaceTemperatureSearchBounds.cs#L34) |
+| tolerance | $10^{-8}$ K | [BasePropellantSolver.cs:113](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/BasePropellantSolver.cs#L113), [BasePropellantSolver.cs:266](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/BasePropellantSolver.cs#L266) |
 | failure sentinel | $T_s = -1$ K | [BasePropellantSolver.cs:207-209](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/BasePropellantSolver.cs#L207-L209) |
 
 **Algorithm.** Standard bisection. If $F(T_s^{\min}) \cdot F(T_s^{\max}) > 0$ no root is bracketed and the sentinel is returned; the upstream code then sets `BurnRateIsFound = false` and the fitness function for that genome returns `double.MaxValue`.
 
-**Code:** [BasePropellantSolver.cs:193-233](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/BasePropellantSolver.cs#L193-L233) (ByUnits), [BasePropellantSolver.cs:347-385](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/BasePropellantSolver.cs#L347-L385) (ByDoubles).
+**Code:** [BasePropellantSolver.cs:193-233](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/BasePropellantSolver.cs#L193-L233) (ByUnits), [BasePropellantSolver.cs:346-383](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/BasePropellantSolver.cs#L346-L383) (ByDoubles).
 
 **In PDF:** the resulting $T_s$ is printed per region under `ProblemContextReport` (`SurfaceTemperature`); the configured bounds appear in `ParametricConstraintReport` (`MinSurfaceTemperature`, `MaxSurfaceTemperature`).
 
@@ -240,7 +240,7 @@ where $q_{\text{total}}$ collects every incoming heat flux contribution (kinetic
 
 $$\dot m_d(T_s) \;=\; A_d \,\exp\!\Big(-\frac{E_d}{R\,T_s}\Big)$$
 
-**Code:** [BasePropellantSolver.cs:149-161](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/BasePropellantSolver.cs#L149-L161), [BasePropellantSolver.cs:303-315](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/BasePropellantSolver.cs#L303-L315).
+**Code:** [BasePropellantSolver.cs:149-161](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/BasePropellantSolver.cs#L149-L161), [BasePropellantSolver.cs:302-314](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/BasePropellantSolver.cs#L302-L314).
 **Inputs:** $A_d$ (vector[0]), $E_d$ (vector[1]), $T_s$ (§4), $R$ (§2).
 **In PDF:** `ProblemContextReport` key `DecomposeRate` ("Mass decomposition rate"); `CombustionSolverParamsReport` keys `ADecompose`, `EDecompose`.
 
@@ -248,7 +248,7 @@ $$\dot m_d(T_s) \;=\; A_d \,\exp\!\Big(-\frac{E_d}{R\,T_s}\Big)$$
 
 $$v_b \;=\; \dot m_d / \rho$$
 
-**Code:** [BasePropellantSolver.cs:133-137](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/BasePropellantSolver.cs#L133-L137), [BasePropellantSolver.cs:287-291](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/BasePropellantSolver.cs#L287-L291).
+**Code:** [BasePropellantSolver.cs:133-137](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/BasePropellantSolver.cs#L133-L137), [BasePropellantSolver.cs:286-290](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/BasePropellantSolver.cs#L286-L290).
 **Inputs:** $\dot m_d$ (§5.1); $\rho$ from `PropellantParamsByUnits.Density` (JSON `density`).
 **In PDF:** `ProblemContextReport` key `LinearBurnRate`, `PressureTablesReport` rows `LinearBurningRate`, `CalculatedBurningRate`.
 
@@ -262,7 +262,7 @@ These two power laws set the geometric scale of the burning metal skeleton insid
 
 $$\delta_s \;=\; \frac{A_m}{v_b^{\,p_A}}$$
 
-**Code:** [PocketPropellantSolver.cs:543-551](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L543-L551), [PocketPropellantSolver.cs:904-912](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L904-L912).
+**Code:** [PocketPropellantSolver.cs:500-509](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L500-L509), [PocketPropellantSolver.cs:849-857](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L849-L857).
 **Inputs:** $A_m$ (vector[11]), $p_A$ (vector[15]), $v_b$ (§5.2).
 **In PDF:** `ProblemContextReport` key `SkeletonLayerThickness`.
 
@@ -270,7 +270,7 @@ $$\delta_s \;=\; \frac{A_m}{v_b^{\,p_A}}$$
 
 $$d_p \;=\; \frac{B_m}{v_b^{\,p_B}}$$
 
-**Code:** [PocketPropellantSolver.cs:553-564](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L553-L564), [PocketPropellantSolver.cs:914-922](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L914-L922).
+**Code:** [PocketPropellantSolver.cs:511-522](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L511-L522), [PocketPropellantSolver.cs:859-867](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L859-L867).
 **Inputs:** $B_m$ (vector[12]), $p_B$ (vector[16]), $v_b$ (§5.2).
 **In PDF:** `ProblemContextReport` key `PoreDiameter`.
 
@@ -284,7 +284,7 @@ The radiative conductivity (§7.2) is evaluated at a temperature that is a conve
 
 $$\bar T_r \;=\; k_{rT}\,T_s \;+\; (1 - k_{rT})\,T_f^{(S)}$$
 
-**Code:** [PocketPropellantSolver.cs:465-466](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L465-L466), [PocketPropellantSolver.cs:837-838](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L837-L838).
+**Code:** [PocketPropellantSolver.cs:445-446](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L445-L446), [PocketPropellantSolver.cs:794-795](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L794-L795).
 **Inputs:** $k_{rT}$ (vector[17]), $T_s$ (§4), $T_f^{(S)}$ = skeleton kinetic-flame final temperature (JSON `pocket_gas_phase.skeleton_gas_phase.T_kinetic_flame`).
 **Note.** This is a phenomenological closure, not a derived quantity. With $k_{rT} = 0$ the radiative temperature equals $T_f^{(S)}$.
 
@@ -294,7 +294,7 @@ $$\lambda_r \;=\; \frac{16\,\sigma\,\bar T_r^{3}}{3\,\beta},\qquad \beta \;=\; \
 
 $\beta$ is the **Rosseland mean extinction coefficient** for a packed bed of opaque particles (Goldsmith–Larkin; Modest, *Radiative Heat Transfer*; Kuo, *Principles of Combustion*).
 
-**Code:** [PocketPropellantSolver.cs:566-586](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L566-L586), [PocketPropellantSolver.cs:924-944](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L924-L944).
+**Code:** [PocketPropellantSolver.cs:524-544](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L524-L544), [PocketPropellantSolver.cs:869-889](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L869-L889).
 **Inputs:** $\bar T_r$ (§7.1), $d_p$ (§6.2), $\varphi$ (JSON `porosity_within_skeleton`), $\sigma$ (§2).
 **In PDF:** `ProblemContextReport` key `RadiativeThermalConductivity`.
 
@@ -310,14 +310,14 @@ where $\lambda_g$ is the gas-phase thermal conductivity (`DiffusionFlameParamsBy
 
 **Algorithm:** bisection on $\lambda_c \in [0, 10^5]\,\mathrm{W/(m\cdot K)}$, tolerance $10^{-6}\,\mathrm{W/(m\cdot K)}$. Failure sentinel: $\lambda_c = 0$.
 
-**Code:** root finder [PocketPropellantSolver.cs:588-641](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L588-L641), residual [PocketPropellantSolver.cs:643-664](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L643-L664). ByDoubles: [PocketPropellantSolver.cs:946-1019](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L946-L1019).
+**Code:** root finder [PocketPropellantSolver.cs:546-598](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L546-L598), residual [PocketPropellantSolver.cs:600-621](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L600-L621). ByDoubles: [PocketPropellantSolver.cs:891-963](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L891-L963).
 **In PDF:** `ProblemContextReport` key `ConductiveThermalConductivity` (and `ConductiveThermalConductivityBalanceError`).
 
 ### 7.4 Effective conductivity
 
 $$\lambda_{\text{eff}} \;=\; \lambda_r \;+\; \lambda_c$$
 
-**Code:** [PocketPropellantSolver.cs:483](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L483), [PocketPropellantSolver.cs:855](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L855).
+**Code:** [PocketPropellantSolver.cs:463](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L463), [PocketPropellantSolver.cs:812](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L812).
 **Used by:** §10 (metal heat flux).
 
 ---
@@ -330,7 +330,7 @@ The same closure applies to all three kinetic flames (`InterPocket`, `PocketSkel
 
 $$\bar T_k \;=\; \tfrac12\,(T_f + T_s)$$
 
-**Code:** [BaseKineticPropellantSolver.cs:150-162](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/BaseKineticPropellantSolver.cs#L150-L162), [BaseKineticPropellantSolver.cs:308-319](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/BaseKineticPropellantSolver.cs#L308-L319).
+**Code:** [KineticFlameCalculator.cs:96-108](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/KineticFlameCalculator.cs#L96-L108), [KineticFlameCalculator.cs:263-274](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/KineticFlameCalculator.cs#L263-L274).
 **Inputs:** $T_f$ from the appropriate `KineticFlameParamsByUnits.FinalTemperature`; $T_s$ from §4.
 **In PDF:** `ProblemContextReport` key `AverageKineticFlameTemperature`.
 
@@ -338,7 +338,7 @@ $$\bar T_k \;=\; \tfrac12\,(T_f + T_s)$$
 
 $$\bar\rho_k \;=\; \frac{p \, M}{R\,\bar T_k}$$
 
-**Code:** [BaseKineticPropellantSolver.cs:180-195](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/BaseKineticPropellantSolver.cs#L180-L195), [BaseKineticPropellantSolver.cs:337-352](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/BaseKineticPropellantSolver.cs#L337-L352).
+**Code:** [KineticFlameCalculator.cs:126-141](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/KineticFlameCalculator.cs#L126-L141), [KineticFlameCalculator.cs:292-307](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/KineticFlameCalculator.cs#L292-L307).
 **Inputs:** $p$ (JSON `pressure`), $M$ (gas-phase `average_molar_mass`), $R$.
 **In PDF:** `ProblemContextReport` key `AverageKineticFlameDensity`.
 
@@ -346,7 +346,7 @@ $$\bar\rho_k \;=\; \frac{p \, M}{R\,\bar T_k}$$
 
 $$h_k \;=\; \frac{\dot m_d}{A_k \,\bar\rho_k^{\,\nu}\,\exp(-E_k / (R\,\bar T_k))}$$
 
-**Code:** [BaseKineticPropellantSolver.cs:216-237](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/BaseKineticPropellantSolver.cs#L216-L237), [BaseKineticPropellantSolver.cs:373-393](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/BaseKineticPropellantSolver.cs#L373-L393).
+**Code:** [KineticFlameCalculator.cs:164-186](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/KineticFlameCalculator.cs#L164-L186), [KineticFlameCalculator.cs:330-351](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/KineticFlameCalculator.cs#L330-L351).
 **Inputs:** $\dot m_d$ (§5.1), $\bar\rho_k$ (§8.2), $\bar T_k$ (§8.1), $A_k$ from the appropriate `Frequency` slot of the 18-vector, $E_k$ from the matching `MolarEnergy` slot, $\nu$ from the matching reaction-order slot. The choice of which slot depends on the region; see the dispatcher table below.
 **In PDF:** `ProblemContextReport` key `KineticFlameHeight`, `PressureTablesReport` rows `InterPocketKineticFlameHeight`, `SkeletonKineticFlameHeight`, `OutSkeletonKineticFlameHeight`.
 
@@ -354,7 +354,7 @@ $$h_k \;=\; \frac{\dot m_d}{A_k \,\bar\rho_k^{\,\nu}\,\exp(-E_k / (R\,\bar T_k))
 
 $$q_k \;=\; \lambda_g \,\frac{T_f - T_s}{h_k}$$
 
-**Code:** [BaseKineticPropellantSolver.cs:102-134](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/BaseKineticPropellantSolver.cs#L102-L134), [BaseKineticPropellantSolver.cs:262-292](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/BaseKineticPropellantSolver.cs#L262-L292).
+**Code:** [KineticFlameCalculator.cs:44-80](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/KineticFlameCalculator.cs#L44-L80), [KineticFlameCalculator.cs:213-247](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/KineticFlameCalculator.cs#L213-L247).
 **In PDF:** `ProblemContextReport` key `KineticFlameHeatFlux`; `PressureTablesReport` rows `InterPocketKineticFlameHeatFlux`, `SkeletonKineticFlameHeatFlux`, `OutSkeletonKineticFlameHeatFlux`.
 
 ### 8.5 Region dispatcher
@@ -363,9 +363,9 @@ Each region implements `ExtractKineticBurnParams` to pick the triple from the 18
 
 | Solver | $A_k$ slot | $E_k$ slot | $\nu$ slot | Code |
 |---|---|---|---|---|
-| `InterPocketPropellantSolver` | `AKineticFlameInterPocket` (vector[2]) | `EKineticFlameInterPocket` (vector[3]) | `NuInterPocket` (vector[8]) | [InterPocketPropellantSolver.cs:93-103](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/InterPocketPropellantSolver.cs#L93-L103) |
-| `KineticSkeletonHelper` | `AKineticFlamePocketSkeleton` (vector[6]) | `EKineticFlamePocketSkeleton` (vector[7]) | `NuPocketSkeleton` (vector[10]) | [PocketPropellantSolver.cs:127-137](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L127-L137) |
-| `KineticOutSkeletonHelper` | `AKineticFlamePocketOutSkeleton` (vector[4]) | `EKineticFlamePocketOutSkeleton` (vector[5]) | `NuPocketOutSkeleton` (vector[9]) | [PocketPropellantSolver.cs:297-307](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L297-L307) |
+| `InterPocketPropellantSolver` | `AKineticFlameInterPocket` (vector[2]) | `EKineticFlameInterPocket` (vector[3]) | `NuInterPocket` (vector[8]) | [InterPocketPropellantSolver.cs:95-105](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/InterPocketPropellantSolver.cs#L95-L105) |
+| `KineticSkeletonHelper` | `AKineticFlamePocketSkeleton` (vector[6]) | `EKineticFlamePocketSkeleton` (vector[7]) | `NuPocketSkeleton` (vector[10]) | [PocketPropellantSolver.cs:128-138](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L128-L138) |
+| `KineticOutSkeletonHelper` | `AKineticFlamePocketOutSkeleton` (vector[4]) | `EKineticFlamePocketOutSkeleton` (vector[5]) | `NuPocketOutSkeleton` (vector[9]) | [PocketPropellantSolver.cs:288-298](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L288-L298) |
 
 ---
 
@@ -377,7 +377,7 @@ $$h_{\text{diff}} \;=\; K_h \;\dot m_d \,d_{ox}^{\,2} \,\frac{c_{p,V}}{\lambda_g
 
 > **Reading the code carefully.** The C# uses `volumetricSpecificHeatCapacity.JoulesPerKilogramKelvin` even though the field stores a *volumetric* heat capacity in $\mathrm{J/(m^{3}\cdot K)}$. This is an UnitsNet accessor name only — the numerical value is the volumetric one (`c_volume` in JSON). See [§17](#17-known-limitations--open-questions).
 
-**Code:** [PocketPropellantSolver.cs:701-720](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L701-L720), [PocketPropellantSolver.cs:1056-1074](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L1056-L1074).
+**Code:** [PocketPropellantSolver.cs:658-677](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L658-L677), [PocketPropellantSolver.cs:1000-1018](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L1000-L1018).
 **Inputs:** $K_h$ (vector[14]), $\dot m_d$ (§5.1), $d_{ox}$ from `PropellantParamsByUnits.AverageOxidizerDiameter` (JSON `components.AmmoniumPerchlorate.average_particles_diameter`), $c_{p,V}$ from `DiffusionFlameParamsByUnits.VolumetricSpecificHeatCapacity` (JSON `pocket_gas_phase.c_volume`), $\lambda_g$ from `DiffusionFlameParamsByUnits.ThermalConductivity` (JSON `pocket_gas_phase.lambda_gas`).
 **In PDF:** `PressureTablesReport` row `DiffusionFlameHeight`.
 
@@ -385,7 +385,7 @@ $$h_{\text{diff}} \;=\; K_h \;\dot m_d \,d_{ox}^{\,2} \,\frac{c_{p,V}}{\lambda_g
 
 $$q_{\text{diff}} \;=\; \lambda_g \,\frac{T_{f,\text{diff}} - T_s}{h_{\text{diff}}}$$
 
-**Code:** [PocketPropellantSolver.cs:737-751](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L737-L751), [PocketPropellantSolver.cs:1092-1106](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L1092-L1106).
+**Code:** [PocketPropellantSolver.cs:694-708](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L694-L708), [PocketPropellantSolver.cs:1036-1050](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L1036-L1050).
 **Inputs:** $T_{f,\text{diff}}$ from `DiffusionFlameParamsByUnits.FinalTemperature` (JSON `pocket_gas_phase.T_diffusion_flame`); the rest as in §9.1.
 **In PDF:** `PressureTablesReport` row `DiffusionFlameHeatFlux`.
 
@@ -397,7 +397,7 @@ Fourier conduction through the skeleton layer between the melting front $T_{melt
 
 $$q_{\text{metal}} \;=\; \lambda_{\text{eff}}\,\frac{T_{melt} - T_s}{\delta_s}$$
 
-**Code:** [PocketPropellantSolver.cs:666-681](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L666-L681), [PocketPropellantSolver.cs:1021-1035](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L1021-L1035).
+**Code:** [PocketPropellantSolver.cs:623-638](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L623-L638), [PocketPropellantSolver.cs:965-979](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L965-L979).
 **Inputs:** $T_{melt}$ from `MetalCombustionParamsByUnits.MetalMeltingTemperature` (hard-coded 1300 K), $\delta_s$ (§6.1), $\lambda_{\text{eff}}$ (§7.4).
 **In PDF:** `PressureTablesReport` row `MetalHeatFlux`.
 
@@ -413,19 +413,19 @@ Components are weighted by the surface fractions of the skeleton ($f_s$) vs out-
 
 $$q_{\text{total}}^{(P)} \;=\; (1-f_s)\,q_k^{(OS)} \;+\; f_s\big(q_{\text{metal}} + q_k^{(S)}\big) \;+\; q_{\text{diff}}$$
 
-**Code:** [PocketPropellantSolver.cs:495-504](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L495-L504), [PocketPropellantSolver.cs:867-876](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L867-L876).
+**Code:** [PocketPropellantSolver.cs:475-484](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L475-L484), [PocketPropellantSolver.cs:824-833](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L824-L833).
 
 ### 11.2 Inter-pocket region (single kinetic flame only)
 
 $$q_{\text{total}}^{(IP)} \;=\; q_k^{(IP)}$$
 
-**Code:** [InterPocketPropellantSolver.cs:55-84](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/InterPocketPropellantSolver.cs#L55-L84), [InterPocketPropellantSolver.cs:148-178](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/InterPocketPropellantSolver.cs#L148-L178).
+**Code:** [InterPocketPropellantSolver.cs:56-86](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/InterPocketPropellantSolver.cs#L56-L86), [InterPocketPropellantSolver.cs:150-180](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/InterPocketPropellantSolver.cs#L150-L180).
 
 ### 11.3 Sublimation / decomposition heat flux
 
 $$q_{\text{sub}} \;=\; \dot m_d \,\Big(\,c_p\,(T_s - T_0) \;+\; \Delta H\,\Big)$$
 
-**Code:** [PocketPropellantSolver.cs:506-511](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L506-L511), [PocketPropellantSolver.cs:878-883](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L878-L883), [InterPocketPropellantSolver.cs:76-82](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/InterPocketPropellantSolver.cs#L76-L82), [InterPocketPropellantSolver.cs:170-176](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/InterPocketPropellantSolver.cs#L170-L176).
+**Code:** [PocketPropellantSolver.cs:486-491](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L486-L491), [PocketPropellantSolver.cs:835-840](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L835-L840), [InterPocketPropellantSolver.cs:78-84](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/InterPocketPropellantSolver.cs#L78-L84), [InterPocketPropellantSolver.cs:172-177](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/InterPocketPropellantSolver.cs#L172-L177).
 **Inputs:** $c_p$ from `PropellantParamsByUnits.SpecificHeatCapacity` (JSON `specific_heat_capacity`), $T_0$ from `InitialTemperature` (JSON `initial_temperature`), $\Delta H$ (vector[13]).
 **In PDF:** `ProblemContextReport` key `SublimationHeatFlux`.
 
@@ -445,7 +445,7 @@ $$f_s(p) \;=\; \frac{1}{\phi_{\text{pm}}} \sum_{i=0}^{N-1} c_i \,\Big(\frac{p}{1
 
 where $c_i$ comes from JSON `pocket_surface_fraction_coefficients` and $\phi_{\text{pm}}$ from `pocket_mass_fraction`.
 
-**Code:** [PropellantExtensions.cs:135-144](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L135-L144).
+**Code:** [PropellantExtensions.cs:83-92](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L83-L92).
 
 > **Naming gotcha.** The C# field is named `PropellantParamsByUnits.SkeletonSurfaceFraction`, but it stores the *pocket* surface fraction returned by `GetPocketSurfaceFraction(...)`. See [§17](#17-known-limitations--open-questions).
 
@@ -488,7 +488,7 @@ The group optimizer averages the three composition fitnesses and adds their pool
 
 $$\tilde F_{\text{group}} \;=\; \frac{1}{3}\sum_{g=0}^{2} F_g \;+\; \sum_{g=0}^{2} \sum_{k} P_{k,g}$$
 
-**Code:** [GroupDifferentialEvolutionOptimizer.cs:149-179](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Optimization/Optimizers/GroupDifferentialEvolutionOptimizer.cs#L149-L179).
+**Code:** [GroupDifferentialEvolutionOptimizer.cs:233-262](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Optimization/Optimizers/GroupDifferentialEvolutionOptimizer.cs#L233-L262).
 
 ---
 
@@ -503,11 +503,11 @@ All six penalty evaluators inherit from `BaseConstraintPenaltyEvaluator` (`Penal
 | 3 | `KineticFlameHeatFluxPenaltyEvaluator` | Each of $q_k^{(IP)}$, $q_k^{(S)}$, $q_k^{(OS)}$ must not exceed its prescribed maximum | $P_3 = k_P \sum_{r \in \{IP,S,OS\}} (q_k^{(r)} / q_{\max}^{(r)})$ over violating zones | [KineticFlameHeatFluxPenaltyEvaluator.cs:65-131](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Optimization/ConstraintPenaltyEvaluators/KineticFlameHeatFluxPenaltyEvaluator.cs#L65-L131) |
 | 4 | `PoreDiameterPenaltyEvaluator` | $\delta_s \ge \alpha\,d_p$ — skeleton layer must be thicker than a multiple of pore diameter | $P_4 = k_P \cdot \alpha\,d_p / \delta_s$ if $\delta_s < \alpha\,d_p$ | [PoreDiameterPenaltyEvaluator.cs:21-45](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Optimization/ConstraintPenaltyEvaluators/PoreDiameterPenaltyEvaluator.cs#L21-L45) |
 | 5 | `LargeOxidizerParticleSizePenaltyEvaluator` | $\delta_s \le \alpha\,d_{ox}$ — skeleton layer must be thinner than a multiple of the large AP particle diameter | $P_5 = k_P \cdot \delta_s / (\alpha\,d_{ox})$ if violated | [LargeOxidizerParticleSizePenaltyEvaluator.cs:21-45](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Optimization/ConstraintPenaltyEvaluators/LargeOxidizerParticleSizePenaltyEvaluator.cs#L21-L45) |
-| 6 | `RadiativeThermalConductivityPenaltyEvaluator` | $\lambda_r \ge \lambda_c$ — radiative pathway must dominate conduction | $P_6 = k_P \cdot \lambda_c / \lambda_r$ if $\lambda_r < \lambda_c$ | [RadiativeThermalConductivityPenaltyEvaluator.cs:13-34](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Optimization/ConstraintPenaltyEvaluators/RadiativeThermalConductivityPenaltyEvaluator.cs#L13-L34) |
+| 6 | `RadiativeThermalConductivityPenaltyEvaluator` | $\lambda_r \ge \lambda_c$ — radiative pathway must dominate conduction | $P_6 = k_P \cdot \lambda_c / \lambda_r$ if $\lambda_r < \lambda_c$ | [RadiativeThermalConductivityPenaltyEvaluator.cs:12-34](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Optimization/ConstraintPenaltyEvaluators/RadiativeThermalConductivityPenaltyEvaluator.cs#L12-L34) |
 
-$k_P$ is the per-evaluator `PenaltyRate` (a positive scalar constructor argument). $\alpha$ is the threshold scaling factor; in the current configuration $\alpha = 3$ (pore) and $\alpha = 1$ (large particle), set in [Program.cs:111-132](../src/dotnet/Apps/src/PastyPropellant.ConsoleApp/Program.cs#L111-L132). Note that `LargeOxidizerParticleSizePenaltyEvaluator` is currently commented out of the active penalty set.
+$k_P$ is the per-evaluator `PenaltyRate` (a positive scalar constructor argument). $\alpha$ is the threshold scaling factor; in the current configuration $\alpha = 3$ (pore) and $\alpha = 1$ (large particle). The active set is built by [GroupPenaltyEvaluatorFactory.cs:33-61](../src/dotnet/Apps/src/PastyPropellant.ConsoleApp/Configuration/GroupPenaltyEvaluatorFactory.cs#L33-L61) and holds **rows 1–5**; `RadiativeThermalConductivityPenaltyEvaluator` (row 6) is implemented but is not wired into any run. Thresholds and $k_P$ default in `PenaltyConfiguration` ([RunConfiguration.cs:161-183](../src/dotnet/Apps/src/PastyPropellant.ConsoleApp/Configuration/RunConfiguration.cs#L161-L183)): $k_P = 0.01$, ratio threshold $100$, flame-flux caps $10^{9}$ / $10^{8}$ / $10^{8}$ W/m². The same factory feeds both the optimisation run and `--forward-eval`, so a replayed vector reports identical penalties.
 
-**In PDF:** all six rendered by `ConstraintPenaltyEvaluatorReport` under header `HeaderOfConstraintPenaltyEvaluators` ("Functional Constraints"); each evaluator prints its `PenaltyRate` plus its threshold values (`HeatFluxRatioThreshold`, `MaxInterPocketKineticFlameHeatFlux`, …).
+**In PDF:** the active evaluators are rendered by `ConstraintPenaltyEvaluatorReport` under header `HeaderOfConstraintPenaltyEvaluators` ("Functional Constraints"); each evaluator prints its `PenaltyRate` plus its threshold values (`HeatFluxRatioThreshold`, `MaxInterPocketKineticFlameHeatFlux`, …).
 
 ---
 
@@ -517,15 +517,15 @@ The optimization layer (`GroupDifferentialEvolutionOptimizer`) wraps the externa
 
 | Setting | Source | Bounds & semantics |
 |---|---|---|
-| `PopulationSize` | `Builder.WithPopulationSize` | positive int; current value $32 \cdot 8 = 256$ ([Program.cs:137](../src/dotnet/Apps/src/PastyPropellant.ConsoleApp/Program.cs#L137)) |
-| `MutationForce` $F$ | `Builder.WithMutationForce` | $\in [0,2]$; current `0.7` |
+| `PopulationSize` | `Builder.WithPopulationSize` | positive int; current value $32 \cdot 12 = 384$ for the default jDE branch ([GroupScenarioRunner.cs:95](../src/dotnet/Apps/src/PastyPropellant.ConsoleApp/Runners/GroupScenarioRunner.cs#L95)); the L-SHADE branch uses $32 \cdot 18 = 576$ |
+| `MutationForce` $F$ | `Builder.WithMutationForce` | $\in [0,2]$; current `0.5` (jDE self-adapts it per genome) |
 | `CrossoverProbability` $C_r$ | `Builder.WithCrossoverProbability` | $\in [0,1]$; current `0.9` |
 | `ProcessorsCount` | `Builder.WithProcessorsCount` | positive int; chosen so it divides population size |
 | `TerminationStrategy` | `Builder.WithTerminationStrategy` | `TimeoutTerminationStrategy` (9 h default) or `CustomStagnationStreakTerminationStrategy` |
 | `LowerBound` / `UpperBound` | `Builder.WithLowerBound/Upper` | length must equal vector dimension (32 for group, 18 for single); validated in `Builder.Build` |
 
 **Settings record:** [DifferentialEvolutionSettings.cs:7-198](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Optimization/Settings/DifferentialEvolutionSettings.cs#L7-L198).
-**Group optimizer:** [GroupDifferentialEvolutionOptimizer.cs:96-179](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Optimization/Optimizers/GroupDifferentialEvolutionOptimizer.cs#L96-L179).
+**Group optimizer:** [GroupDifferentialEvolutionOptimizer.cs:225-262](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Optimization/Optimizers/GroupDifferentialEvolutionOptimizer.cs#L225-L262).
 
 **Evaluate flow** (one DE function evaluation):
 1. Wrap the 32-vector genome with `GroupCombustionSolverParamsByDoubles.FromVector`.
@@ -593,29 +593,31 @@ This section is the audit log for the model. New issues should be appended here 
 
 2. **`SkeletonSurfaceFraction` actually stores the *pocket* surface fraction** ([ProblemContextBy…MatrixBuilder.cs:135](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Builders/ProblemContextByUnitsMatrixBuilder.cs#L135)). The field name and the `pocket_surface_fraction_coefficients` JSON name reflect the original intent; the rename never reached `PropellantParamsByUnits`. Renaming to `PocketSurfaceFraction` is a cosmetic fix worth doing.
 
-3. **`KCoefficientRadiationTemperature` is a free parameter with a fixed structural role**, not derived from physics. The current bounds are `[0, 0]` (lock-out, [Program.cs:55-60](../src/dotnet/Apps/src/PastyPropellant.ConsoleApp/Program.cs#L55-L60)), so $\bar T_r = T_f^{(S)}$ in every DE evaluation. If the bounds are relaxed, document the chosen physical justification before rerunning campaigns.
+3. **`KCoefficientRadiationTemperature` is a free parameter with a fixed structural role**, not derived from physics. The bounds are now `[0, 1]` ([BoundsProvider.cs:109-134](../src/dotnet/Apps/src/PastyPropellant.ConsoleApp/Configuration/BoundsProvider.cs#L109-L134)) — they were `[0, 0]` (lock-out, $\bar T_r = T_f^{(S)}$) until the closure was opened for the DE to explore. The physical justification of whatever value the search settles on still has to be documented before the number is published: the layer that $\lambda_r$ feeds ($q_{\text{metal}}$, §10) spans $[T_s, T_{melt}]$, so the defensible reference value is the layer mean $(T_s + T_{melt})/2 \approx 1000$ K, which corresponds to $k_{rT} \approx 0.55$.
 
 4. **Pore radiative β closure is heuristic.** $\beta = 3(1-\varphi)/d_p$ assumes geometric-optics scattering by opaque spherical particles. For high-porosity skeletons ($\varphi \to 1$) the Rosseland regime breaks down before the formula's singularity is reached.
 
 5. **Conductive conductivity uses the Bruggeman symmetric closure** (§7.3). This is a closure, not a derivation; for very contrasted $\lambda_g$ vs $\lambda_c^{(s)}$ ratios it can deviate from measured values by a factor of a few.
 
-6. **Kinetic-flame `Nu` reaction orders are tuned as free parameters** ($\nu \in \mathbb{R}$, not restricted to $\{1, 1.5, 2\}$). With $\nu \to 0$ the flame height becomes independent of density, which is unphysical; with $\nu \gg 1$ the flame becomes infinitely thin and $q_k$ diverges. Bounds in [Program.cs:53-61](../src/dotnet/Apps/src/PastyPropellant.ConsoleApp/Program.cs#L53-L61) limit this.
+6. **Kinetic-flame `Nu` reaction orders are tuned as free parameters** ($\nu \in \mathbb{R}$, not restricted to $\{1, 1.5, 2\}$). With $\nu \to 0$ the flame height becomes independent of density, which is unphysical; with $\nu \gg 1$ the flame becomes infinitely thin and $q_k$ diverges. Bounds in [BoundsProvider.cs:89-136](../src/dotnet/Apps/src/PastyPropellant.ConsoleApp/Configuration/BoundsProvider.cs#L89-L136) limit this.
 
-7. **`VolumetricSpecificHeatCapacity` accessor name (`JoulesPerKilogramKelvin`) is misleading.** In `DiffusionFlameParamsByUnits` and `KineticFlameParamsByUnits` the field type is `SpecificEntropy`, but the numeric value stored is volumetric $\mathrm{J/(m^{3}\cdot K)}$ as per JSON `c_volume`. The code retrieves it as `.JoulesPerKilogramKelvin` because UnitsNet does not distinguish those slots. Anyone reading the diffusion-flame-height expression ([PocketPropellantSolver.cs:713-714](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L713-L714)) must keep this in mind.
+7. **`VolumetricSpecificHeatCapacity` accessor name (`JoulesPerKilogramKelvin`) is misleading.** In `DiffusionFlameParamsByUnits` and `KineticFlameParamsByUnits` the field type is `SpecificEntropy`, but the numeric value stored is volumetric $\mathrm{J/(m^{3}\cdot K)}$ as per JSON `c_volume`. The code retrieves it as `.JoulesPerKilogramKelvin` because UnitsNet does not distinguish those slots. Anyone reading the diffusion-flame-height expression ([PocketPropellantSolver.cs:670-671](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L670-L671)) must keep this in mind.
 
-8. **ByUnits / ByDoubles drift risk.** Every formula in §5–§11 has two mirror implementations. The current code is consistent (verified by reading both paths during the authoring of this doc), but the only safeguard is human discipline — a single integration test that compares ByUnits vs ByDoubles output for a fixed input would catch any future drift before it lands in a release.
+8. **ByUnits / ByDoubles drift risk** — now covered by a test. Every formula in §5–§11 has two mirror implementations; `BurnRateIsFoundParityTests` ([BurnRateIsFoundParityTests.cs](../src/dotnet/ParametricCombustionModel/tests/ParametricCombustionModel.Computation.Tests/BurnRateIsFoundParityTests.cs)) runs a fixed parameter vector through both paths over the real propellant set and compares every shared quantity ($T_s$, $\dot m_d$, $v_b$, all heat fluxes and flame heights) plus the `BurnRateIsFound` flag. Drift in any of them now fails the build rather than reaching a release.
 
 9. **Rosseland 1/3 prefactor** — recently fixed (commit `9ca96ff`, 2026-05-27). Optimization results obtained before this commit must be regenerated; the previous code overestimated $\lambda_r$ by a factor of 3, which feeds into $\lambda_{\text{eff}}$ and $q_{\text{metal}}$ and therefore through the surface heat balance.
 
 10. **Metal heat flux sign flip** — also fixed in `9ca96ff`: the previous code divided by $\lambda_{\text{eff}}$ instead of multiplying. Same caveat as point 9.
 
-11. **`MetalMeltingTemperature` is hard-coded to 1300 K** in [PropellantExtensions.cs:155-159](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L155-L159), ignoring any pressure dependence and any composition difference. Plausible for aluminum-skeleton propellants, but should be made explicit if the metal binder changes.
+11. **`MetalMeltingTemperature` is hard-coded to 1300 K** in [PropellantExtensions.cs:95-125](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L95-L125), ignoring any pressure dependence and any composition difference. Plausible for aluminum-skeleton propellants, but should be made explicit if the metal binder changes.
 
-12. **`MetalBoilingTemperature(p)` polynomial coefficients in [PropellantExtensions.cs:177-186](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L177-L186) are hard-coded without provenance.** They should be documented (source publication, fit window) or replaced by JSON-driven coefficients.
+12. **`MetalBoilingTemperature(p)` polynomial coefficients in [PropellantExtensions.cs:143-152](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Extensions/PropellantExtensions.cs#L143-L152) are hard-coded without provenance.** They should be documented (source publication, fit window) or replaced by JSON-driven coefficients.
 
-13. **Surface-temperature bounds [600, 900] K are hard-coded** as default field values in `ProblemContextByUnits` and `ProblemContextByDoubles`. For high-pressure / high-flame-temperature points these bounds may be too narrow, producing the `−1 K` failure sentinel; the failure then collapses the genome's fitness to `MaxValue` and the DE silently rejects it. Worth widening or making JSON-configurable.
+13. **Surface-temperature bounds [600, 900] K are hard-coded** in [SurfaceTemperatureSearchBounds.cs:29-34](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Models/ProblemContexts/SurfaceTemperatureSearchBounds.cs#L29-L34), from which both `ProblemContextByUnits` and `ProblemContextByDoubles` initialise their fields. For high-pressure / high-flame-temperature points these bounds may be too narrow, producing the `−1 K` failure sentinel; the failure then collapses the genome's fitness to `MaxValue` and the DE silently rejects it. Worth widening or making JSON-configurable.
 
 14. **`PressureTablesReport`'s `.en-US.resx` file has duplicate / placeholder entries** at the top of the file (`Name1`, `Color1`, `Bitmap1`, etc., visible in `grep` output) — these are Visual-Studio resource-editor scaffolding leftovers and do not appear in the rendered PDF. Cosmetic.
+
+15. **Dead metal-burning-temperature path — removed.** `GetAverageMetalBurningTemperature` (both tiers), the `PocketCombustionParams.AverageMetalBurningTemperature` field it fed, its PDF resource key and its always-zero curve in `skeleton_layer_plots.py` are gone. The helper had never been called (both call sites were commented out) and computed $0.5\,(T_{melt} - T_s)$ — a *difference*, not a mean — so wiring it back in as written would have evaluated $\lambda_r$ near 300 K instead of ~1000 K. The radiative temperature closure of §7.1 is the surviving mechanism; see point 3 for the value it should be reproducing.
 
 ---
 
