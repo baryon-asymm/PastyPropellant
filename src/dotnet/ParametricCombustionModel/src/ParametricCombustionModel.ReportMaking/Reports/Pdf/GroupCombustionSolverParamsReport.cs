@@ -77,8 +77,10 @@ public class GroupCombustionSolverParamsReport : ITransformable<Queue<IPdfOperat
             groupParams.KCoefficientRadiationTemperature, 10);
         operations.Enqueue(new LineBreakOperation());
 
-        // Composition-specific parameters (Condensed phase)
-        // Note: Order is inverted compared to optimizer internals (0=Bas_2, 1=Bas_1, 2=Bas_0)
+        // Composition-specific parameters (Condensed phase). comp is the compositionIndex used everywhere
+        // else — 0 = Bas_2 group, 1 = Bas_1, 2 = Bas_0 — so the name, the block start and the parameter
+        // values below must all be selected by it. They once disagreed: the value switch read the Bas_0
+        // properties for comp 0 and the Bas_2 ones for comp 2, silently swapping those two blocks in the PDF.
         var compositionNames = CompositionGroups.ReportNames;
         int[] blockStarts = [11, 18, 25];
 
@@ -101,18 +103,19 @@ public class GroupCombustionSolverParamsReport : ITransformable<Queue<IPdfOperat
     private void AddCompositionParameters(Queue<IPdfOperation> operations,
         GroupCombustionSolverParamsByDoubles groupParams, int compositionIndex, int baseIndex)
     {
-        // Get composition-specific parameters
+        // Get composition-specific parameters. The index-to-composition mapping is the one fixed by
+        // GroupCombustionSolverParams.ToCompositionVector: 0 = Bas_2 group, 1 = Bas_1, 2 = Bas_0.
         var (aDecompose, eDecompose, aFlame, eFlame, nuPocket, aMetal, bMetal) = compositionIndex switch
         {
-            0 => (groupParams.ADecomposeBas0, groupParams.EDecomposeBas0,
-                  groupParams.AKineticFlamePocketSkeletonBas0, groupParams.EKineticFlamePocketSkeletonBas0,
-                  groupParams.NuPocketSkeletonBas0, groupParams.AMetalBurningConstantBas0, groupParams.BMetalBurningConstantBas0),
+            0 => (groupParams.ADecomposeBas2, groupParams.EDecomposeBas2,
+                  groupParams.AKineticFlamePocketSkeletonBas2, groupParams.EKineticFlamePocketSkeletonBas2,
+                  groupParams.NuPocketSkeletonBas2, groupParams.AMetalBurningConstantBas2, groupParams.BMetalBurningConstantBas2),
             1 => (groupParams.ADecomposeBas1, groupParams.EDecomposeBas1,
                   groupParams.AKineticFlamePocketSkeletonBas1, groupParams.EKineticFlamePocketSkeletonBas1,
                   groupParams.NuPocketSkeletonBas1, groupParams.AMetalBurningConstantBas1, groupParams.BMetalBurningConstantBas1),
-            2 => (groupParams.ADecomposeBas2, groupParams.EDecomposeBas2,
-                  groupParams.AKineticFlamePocketSkeletonBas2, groupParams.EKineticFlamePocketSkeletonBas2,
-                  groupParams.NuPocketSkeletonBas2, groupParams.AMetalBurningConstantBas2, groupParams.BMetalBurningConstantBas2),
+            2 => (groupParams.ADecomposeBas0, groupParams.EDecomposeBas0,
+                  groupParams.AKineticFlamePocketSkeletonBas0, groupParams.EKineticFlamePocketSkeletonBas0,
+                  groupParams.NuPocketSkeletonBas0, groupParams.AMetalBurningConstantBas0, groupParams.BMetalBurningConstantBas0),
             _ => throw new ArgumentOutOfRangeException()
         };
 
