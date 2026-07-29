@@ -92,7 +92,10 @@ public static class PropellantExtensions
     }
 
     /// <summary>
-    /// The metal (aluminum) melting temperature used by the model, in Kelvins.
+    /// The <b>default</b> metal (aluminum) melting temperature of the model, in Kelvins. A run reads its
+    /// actual value from <c>ModelConstants.MetalMeltingTemperatureKelvins</c>, which this seeds and which
+    /// <c>model.metalMeltingTemperatureKelvins</c> can override — so do not read this constant directly
+    /// from solver or builder code, or a configured run would silently compute at 1300 K anyway.
     /// <para>
     /// PROVENANCE — this is a deliberate experimental setting of the current line of work, not a handbook
     /// constant and not a fitted parameter. The published value for this model is 2300 K; the 1300 K value
@@ -101,28 +104,12 @@ public static class PropellantExtensions
     /// (aluminum) skeleton, so there is no composition-dependent melting temperature to resolve.
     /// </para>
     /// <para>
-    /// Changing this value changes every computed result. Do not "correct" it to 2300 K without the
-    /// model owner's approval.
+    /// Changing this value changes every computed result, and changing it <i>here</i> silently redefines
+    /// what every unconfigured run means. A campaign at another temperature belongs in the run
+    /// configuration, where the resolved record and the PDF header report it.
     /// </para>
     /// </summary>
     public const double MetalMeltingTemperatureKelvins = 1300;
-
-    /// <summary>
-    /// Gets the metal melting temperature in Kelvins.
-    /// </summary>
-    /// <remarks>
-    /// The value is composition-independent by design — see <see cref="MetalMeltingTemperatureKelvins"/>
-    /// for the provenance. This method deliberately takes no <see cref="Propellant"/>: the previous
-    /// extension-method signature accepted one and ignored it, which suggested a per-composition lookup
-    /// that does not exist.
-    /// </remarks>
-    /// <returns>
-    /// The melting temperature of the metal in Kelvins.
-    /// </returns>
-    public static double GetMetalMeltingTemperature()
-    {
-        return MetalMeltingTemperatureKelvins;
-    }
 
     /// <summary>
     /// Calculates the metal boiling temperature based on the given pressure.

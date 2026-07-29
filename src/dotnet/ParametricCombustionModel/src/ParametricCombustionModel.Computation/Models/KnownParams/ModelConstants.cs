@@ -1,0 +1,59 @@
+using ParametricCombustionModel.Computation.Extensions;
+
+namespace ParametricCombustionModel.Computation.Models.KnownParams;
+
+/// <summary>
+/// Physical constants of the combustion model that are neither fitted by the optimiser nor properties of an
+/// individual propellant — they apply to every composition and every pressure in a run.
+///
+/// <para>They live here, in one object threaded through the context builders, for a single reason:
+/// <b>anything that changes every computed number must appear in the run record</b>. Before this type
+/// existed, the metal melting temperature was a <c>const</c> in source, so changing it meant editing and
+/// rebuilding, and the resulting PDF said nothing about which value produced it — a whole campaign of runs
+/// at 2300 K left no trace of that in any report. Passing these values instead of compiling them in is what
+/// lets <c>run_configuration.resolved.json</c> and the PDF header state them.</para>
+///
+/// <para>The defaults reproduce the historical hardcoded behaviour exactly, so a run with no configuration
+/// file computes what it always computed.</para>
+/// </summary>
+public sealed record ModelConstants
+{
+    /// <summary>
+    /// Melting temperature of the metal skeleton, in Kelvins. Uniform across compositions by design — the
+    /// model assumes a single metal (aluminium). Default 1300 K, the historical value.
+    /// </summary>
+    public double MetalMeltingTemperatureKelvins { get; init; } = PropellantExtensions.MetalMeltingTemperatureKelvins;
+
+    /// <summary>
+    /// Dimensionless divisor on the skeleton conduction flux; the reciprocal of the fraction of the skeleton
+    /// footprint in genuine conductive contact with the surface. Default <c>1.0</c> — no correction, the
+    /// historical behaviour.
+    ///
+    /// <para>It is a <b>fixed calibration constant, not a fitted parameter</b>, and that distinction is
+    /// load-bearing. δ enters the model in exactly one place, the Fourier flux <c>λ_eff·ΔT/δ</c>, so a
+    /// multiplier that the optimiser were free to choose would be algebraically indistinguishable from
+    /// removing the δ ≤ d_AP constraint: the search would simply restore the unconstrained solution under a
+    /// new name and report the constraint as satisfied. Held fixed, it adds no degree of freedom and the
+    /// constraint keeps its meaning.</para>
+    /// </summary>
+    public double SkeletonContactFactor { get; init; } = 1.0;
+
+    /// <summary>The historical hardcoded constants: 1300 K, no contact correction.</summary>
+    public static ModelConstants Default { get; } = new();
+
+    /// <summary>Throws when a value cannot describe a physical model.</summary>
+    public void Validate()
+    {
+        if (!double.IsFinite(MetalMeltingTemperatureKelvins) || MetalMeltingTemperatureKelvins <= 0)
+            throw new ArgumentOutOfRangeException(
+                nameof(MetalMeltingTemperatureKelvins),
+                MetalMeltingTemperatureKelvins,
+                "Metal melting temperature must be a positive, finite number of Kelvins.");
+
+        if (!double.IsFinite(SkeletonContactFactor) || SkeletonContactFactor <= 0)
+            throw new ArgumentOutOfRangeException(
+                nameof(SkeletonContactFactor),
+                SkeletonContactFactor,
+                "Skeleton contact factor must be positive and finite (1.0 means no correction).");
+    }
+}

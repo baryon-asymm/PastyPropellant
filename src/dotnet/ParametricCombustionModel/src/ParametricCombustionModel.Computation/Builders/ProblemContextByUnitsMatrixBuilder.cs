@@ -26,6 +26,12 @@ public class ProblemContextByUnitsMatrixBuilder
     /// </summary>
     public IEnumerable<Pressure> Pressures { get; private set; }
 
+    /// <summary>
+    /// Run-wide physical constants that are neither fitted nor per-propellant. Defaults to
+    /// <see cref="ModelConstants.Default"/>, i.e. the historical hardcoded values.
+    /// </summary>
+    public ModelConstants ModelConstants { get; }
+
 #endregion
 
 #region Constructors
@@ -40,9 +46,12 @@ public class ProblemContextByUnitsMatrixBuilder
     /// Thrown when <paramref name="propellants"/> is <c>null</c>.
     /// </exception>
     private ProblemContextByUnitsMatrixBuilder(
-        IEnumerable<Propellant> propellants)
+        IEnumerable<Propellant> propellants,
+        ModelConstants modelConstants)
     {
         ArgumentNullException.ThrowIfNull(propellants, nameof(propellants));
+        ArgumentNullException.ThrowIfNull(modelConstants, nameof(modelConstants));
+        ModelConstants = modelConstants;
 
         Propellants = propellants;
         
@@ -252,7 +261,8 @@ public class ProblemContextByUnitsMatrixBuilder
         return new MetalCombustionParamsByUnits
         {
             MetalBoilingTemperature = Temperature.FromKelvins(propellant.GetMetalBoilingTemperature(pressure.Pascals)),
-            MetalMeltingTemperature = Temperature.FromKelvins(PropellantExtensions.GetMetalMeltingTemperature())
+            MetalMeltingTemperature = Temperature.FromKelvins(ModelConstants.MetalMeltingTemperatureKelvins),
+            SkeletonContactFactor = ModelConstants.SkeletonContactFactor
         };
     }
 
@@ -285,9 +295,10 @@ public class ProblemContextByUnitsMatrixBuilder
     /// Thrown when <paramref name="propellants"/> is <c>null</c>.
     /// </exception>
     public static ProblemContextByUnitsMatrixBuilder FromPropellants(
-        IEnumerable<Propellant> propellants)
+        IEnumerable<Propellant> propellants,
+        ModelConstants? modelConstants = null)
     {
-        return new ProblemContextByUnitsMatrixBuilder(propellants);
+        return new ProblemContextByUnitsMatrixBuilder(propellants, modelConstants ?? ModelConstants.Default);
     }
 
 #endregion

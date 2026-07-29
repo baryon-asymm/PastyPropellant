@@ -4,6 +4,7 @@ using System.Text.Json;
 using DotNetDifferentialEvolution.Interfaces;
 using DotNetDifferentialEvolution.Models;
 using DotNetDifferentialEvolution.TerminationStrategies.Interfaces;
+using ParametricCombustionModel.Computation.Models.KnownParams;
 using ParametricCombustionModel.Core.Models;
 using ParametricCombustionModel.Optimization.ConstraintPenaltyEvaluators.Interfaces;
 using ParametricCombustionModel.Optimization.Optimizers;
@@ -24,16 +25,24 @@ public record DifferentialEvolutionScenarioSettings
 
     public ReadOnlyCollection<IPenaltyEvaluator> PenaltyEvaluators { get; init; }
 
+    /// <summary>
+    /// Run-wide physical constants of the model (metal melting temperature, skeleton contact factor).
+    /// Defaults to <see cref="ModelConstants.Default"/> — the historical hardcoded values.
+    /// </summary>
+    public ModelConstants ModelConstants { get; init; }
+
     private DifferentialEvolutionScenarioSettings(
         DifferentialEvolutionSettings differentialEvolutionSettings,
         PerformanceMeter meter,
         ReadOnlyCollection<Propellant> propellants,
-        ReadOnlyCollection<IPenaltyEvaluator> penaltyEvaluators)
+        ReadOnlyCollection<IPenaltyEvaluator> penaltyEvaluators,
+        ModelConstants modelConstants)
     {
         DifferentialEvolutionSettings = differentialEvolutionSettings;
         Meter = meter;
         Propellants = propellants;
         PenaltyEvaluators = penaltyEvaluators;
+        ModelConstants = modelConstants;
     }
 
     public static Builder CreateBuilder() => new();
@@ -52,6 +61,7 @@ public record DifferentialEvolutionScenarioSettings
         private long? _maxEvaluationNumber;
         private int? _processorsCount;
         private int? _seed;
+        private ModelConstants _modelConstants = ModelConstants.Default;
         private double? _pBestRate;
         private double? _archiveSizeRate;
         private int? _memorySize;
@@ -143,6 +153,18 @@ public record DifferentialEvolutionScenarioSettings
         public Builder WithSeed(int? seed)
         {
             _seed = seed;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the run-wide model constants. Omitted, the historical hardcoded values apply, so a run
+        /// that does not mention them computes what it always computed.
+        /// </summary>
+        public Builder WithModelConstants(ModelConstants modelConstants)
+        {
+            ArgumentNullException.ThrowIfNull(modelConstants);
+            modelConstants.Validate();
+            _modelConstants = modelConstants;
             return this;
         }
 
@@ -269,7 +291,8 @@ public record DifferentialEvolutionScenarioSettings
                 baseSettings,
                 _meter!,
                 _propellants!,
-                new ReadOnlyCollection<IPenaltyEvaluator>(_penaltyEvaluators));
+                new ReadOnlyCollection<IPenaltyEvaluator>(_penaltyEvaluators),
+                _modelConstants);
         }
 
         private class PopulationUpdateHandler : IPopulationUpdatedHandler

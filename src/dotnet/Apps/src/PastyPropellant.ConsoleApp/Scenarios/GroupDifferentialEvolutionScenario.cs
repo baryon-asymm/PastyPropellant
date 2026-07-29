@@ -134,11 +134,12 @@ public class GroupDifferentialEvolutionScenario
     /// <param name="propellants">The collection of propellants to build contexts for.</param>
     /// <returns>A two-dimensional array of <see cref="ProblemContextByDoubles"/> representing 
     /// the problem context matrix for optimization calculations.</returns>
-    private static ProblemContextByDoubles[,] GetProblemContextMatrixByDoubles(
+    private ProblemContextByDoubles[,] GetProblemContextMatrixByDoubles(
         IEnumerable<Propellant> propellants)
     {
-        var contextMatrix = ProblemContextByDoublesMatrixBuilder.FromPropellants(propellants)
-                                                                .BuildMatrix();
+        var contextMatrix = ProblemContextByDoublesMatrixBuilder
+                            .FromPropellants(propellants, _settings.ModelConstants)
+                            .BuildMatrix();
         return contextMatrix;
     }
 
@@ -148,11 +149,12 @@ public class GroupDifferentialEvolutionScenario
     /// <param name="propellants">The collection of propellants to build contexts for.</param>
     /// <returns>A two-dimensional array of <see cref="ProblemContextByUnits"/> representing 
     /// the problem context matrix with proper unit handling.</returns>
-    private static ProblemContextByUnits[,] GetProblemContextMatrixByUnits(
+    private ProblemContextByUnits[,] GetProblemContextMatrixByUnits(
         IEnumerable<Propellant> propellants)
     {
-        var contextMatrix = ProblemContextByUnitsMatrixBuilder.FromPropellants(propellants)
-                                                              .BuildMatrix();
+        var contextMatrix = ProblemContextByUnitsMatrixBuilder
+                            .FromPropellants(propellants, _settings.ModelConstants)
+                            .BuildMatrix();
         return contextMatrix;
     }
 

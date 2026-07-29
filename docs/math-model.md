@@ -393,12 +393,16 @@ $$q_{\text{diff}} \;=\; \lambda_g \,\frac{T_{f,\text{diff}} - T_s}{h_{\text{diff
 
 ## 10. Metal-combustion heat flux
 
-Fourier conduction through the skeleton layer between the melting front $T_{melt}$ and the surface:
+Fourier conduction through the skeleton layer between the melting front $T_{melt}$ and the surface, reduced by a contact-area correction $k_c$:
 
-$$q_{\text{metal}} \;=\; \lambda_{\text{eff}}\,\frac{T_{melt} - T_s}{\delta_s}$$
+$$q_{\text{metal}} \;=\; \frac{\lambda_{\text{eff}}}{k_c}\,\frac{T_{melt} - T_s}{\delta_s}$$
+
+$k_c$ is the reciprocal of the fraction of the skeleton footprint in genuine conductive contact with the surface: the metal touches the condensed phase at oxide-separated spots, not over its whole projected area, so the bulk Fourier law over-predicts the flux by the ratio of nominal to real contact area. **$k_c = 1$ is the historical model and the default.**
+
+> **$k_c$ is a fixed calibration constant, not a fitted parameter, and the distinction is load-bearing.** $\delta_s$ enters the model in this equation and nowhere else, so multiplying $\delta_s$, dividing $\lambda_{\text{eff}}$ and dividing $q_{\text{metal}}$ are the same operation as far as any burn-rate observation is concerned. A $k_c$ the optimiser were free to choose would therefore be algebraically indistinguishable from switching the $\delta_s \le d_{AP}$ constraint (§14) off: the search would restore the unconstrained solution under a new name while the report showed the constraint as satisfied. Held fixed, it adds no degree of freedom and the constraint keeps its meaning.
 
 **Code:** [PocketPropellantSolver.cs:623-638](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L623-L638), [PocketPropellantSolver.cs:965-979](../src/dotnet/ParametricCombustionModel/src/ParametricCombustionModel.Computation/Solvers/PocketPropellantSolver.cs#L965-L979).
-**Inputs:** $T_{melt}$ from `MetalCombustionParamsByUnits.MetalMeltingTemperature` (hard-coded 1300 K), $\delta_s$ (§6.1), $\lambda_{\text{eff}}$ (§7.4).
+**Inputs:** $T_{melt}$ and $k_c$ from `MetalCombustionParams{,ByUnits}`, both supplied by `ModelConstants` through the context builders and configurable as `model.metalMeltingTemperatureKelvins` / `model.skeletonContactFactor` (defaults 1300 K and 1.0); $\delta_s$ (§6.1), $\lambda_{\text{eff}}$ (§7.4).
 **In PDF:** `PressureTablesReport` row `MetalHeatFlux`.
 
 > **History.** The original implementation had `/ effectiveThermalConductivity` rather than `* effectiveThermalConductivity` — fixed in commit `9ca96ff`.

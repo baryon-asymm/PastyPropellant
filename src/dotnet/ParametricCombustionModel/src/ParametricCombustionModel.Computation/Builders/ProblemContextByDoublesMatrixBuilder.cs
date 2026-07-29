@@ -26,6 +26,12 @@ public class ProblemContextByDoublesMatrixBuilder
     /// </summary>
     public IEnumerable<Pressure> Pressures { get; private set; }
 
+    /// <summary>
+    /// Run-wide physical constants that are neither fitted nor per-propellant. Defaults to
+    /// <see cref="ModelConstants.Default"/>, i.e. the historical hardcoded values.
+    /// </summary>
+    public ModelConstants ModelConstants { get; }
+
 #endregion
 
 #region Constructors
@@ -40,9 +46,12 @@ public class ProblemContextByDoublesMatrixBuilder
     /// Thrown when <paramref name="propellants"/> is <c>null</c>.
     /// </exception>
     private ProblemContextByDoublesMatrixBuilder(
-        IEnumerable<Propellant> propellants)
+        IEnumerable<Propellant> propellants,
+        ModelConstants modelConstants)
     {
         ArgumentNullException.ThrowIfNull(propellants, nameof(propellants));
+        ArgumentNullException.ThrowIfNull(modelConstants, nameof(modelConstants));
+        ModelConstants = modelConstants;
         
         Propellants = propellants;
 
@@ -246,7 +255,8 @@ public class ProblemContextByDoublesMatrixBuilder
         return new MetalCombustionParamsByDoubles
         {
             MetalBoilingTemperature = propellant.GetMetalBoilingTemperature(pressure.Pascals),
-            MetalMeltingTemperature = PropellantExtensions.GetMetalMeltingTemperature()
+            MetalMeltingTemperature = ModelConstants.MetalMeltingTemperatureKelvins,
+            SkeletonContactFactor = ModelConstants.SkeletonContactFactor
         };
     }
 
@@ -279,9 +289,10 @@ public class ProblemContextByDoublesMatrixBuilder
     /// Thrown when <paramref name="propellants"/> is <c>null</c>.
     /// </exception>
     public static ProblemContextByDoublesMatrixBuilder FromPropellants(
-        IEnumerable<Propellant> propellants)
+        IEnumerable<Propellant> propellants,
+        ModelConstants? modelConstants = null)
     {
-        return new ProblemContextByDoublesMatrixBuilder(propellants);
+        return new ProblemContextByDoublesMatrixBuilder(propellants, modelConstants ?? ModelConstants.Default);
     }
 
 #endregion

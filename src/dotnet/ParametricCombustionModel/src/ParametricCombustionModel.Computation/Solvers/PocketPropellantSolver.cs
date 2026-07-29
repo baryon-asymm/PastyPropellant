@@ -629,9 +629,12 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
     {
         var metalMeltingTemperatureDouble = metalCombustionParamsByUnits.MetalMeltingTemperature.Kelvins;
 
+        // The contact-area correction divides the bulk Fourier flux: only a fraction of the skeleton
+        // footprint is in genuine conductive contact with the surface. 1.0 leaves the flux untouched.
         var heatFluxDouble = (metalMeltingTemperatureDouble - surfaceTemperature.Kelvins)
                              / skeletonLayerThickness.Meters
-                             * effectiveThermalConductivity.WattsPerMeterKelvin;
+                             * effectiveThermalConductivity.WattsPerMeterKelvin
+                             / metalCombustionParamsByUnits.SkeletonContactFactor;
         var heatFlux = HeatFlux.FromWattsPerSquareMeter(heatFluxDouble);
 
         return heatFlux;
@@ -971,9 +974,12 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
     {
         var metalMeltingTemperatureDouble = metalCombustionParamsByDoubles.MetalMeltingTemperature;
 
+        // The contact-area correction divides the bulk Fourier flux: only a fraction of the skeleton
+        // footprint is in genuine conductive contact with the surface. 1.0 leaves the flux untouched.
         var heatFluxDouble = (metalMeltingTemperatureDouble - surfaceTemperature)
                              / skeletonLayerThickness
-                             * effectiveThermalConductivity;
+                             * effectiveThermalConductivity
+                             / metalCombustionParamsByDoubles.SkeletonContactFactor;
 
         return heatFluxDouble;
     }

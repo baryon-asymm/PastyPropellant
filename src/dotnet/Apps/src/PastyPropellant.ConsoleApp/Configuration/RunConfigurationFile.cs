@@ -27,15 +27,31 @@ internal sealed record RunConfigurationFile
 
     public NelderMeadFileSection? NelderMead { get; init; }
 
+    public ModelFileSection? Model { get; init; }
+
     /// <summary>Merges this file onto <paramref name="defaults"/>, member by member.</summary>
     public RunConfiguration ApplyTo(RunConfiguration defaults) => new()
     {
+        Model = Model?.ApplyTo(defaults.Model) ?? defaults.Model,
         InputFileName = InputFileName ?? defaults.InputFileName,
         Bounds = Bounds?.ApplyTo(defaults.Bounds) ?? defaults.Bounds,
         Penalties = Penalties?.ApplyTo(defaults.Penalties) ?? defaults.Penalties,
         DifferentialEvolution = DifferentialEvolution?.ApplyTo(defaults.DifferentialEvolution)
                                 ?? defaults.DifferentialEvolution,
         NelderMead = NelderMead?.ApplyTo(defaults.NelderMead) ?? defaults.NelderMead
+    };
+}
+
+/// <summary>Model-constant overrides. Absent members keep the historical hardcoded values.</summary>
+internal sealed record ModelFileSection
+{
+    public double? MetalMeltingTemperatureKelvins { get; init; }
+    public double? SkeletonContactFactor { get; init; }
+
+    public ModelConfiguration ApplyTo(ModelConfiguration d) => new()
+    {
+        MetalMeltingTemperatureKelvins = MetalMeltingTemperatureKelvins ?? d.MetalMeltingTemperatureKelvins,
+        SkeletonContactFactor = SkeletonContactFactor ?? d.SkeletonContactFactor
     };
 }
 

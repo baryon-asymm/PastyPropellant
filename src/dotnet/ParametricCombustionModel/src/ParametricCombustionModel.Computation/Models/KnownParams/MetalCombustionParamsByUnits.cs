@@ -26,6 +26,22 @@ public readonly struct MetalCombustionParamsByDoubles
     /// Measured in Kelvin (K).
     /// </summary>
     public required double MetalBoilingTemperature { get; init; }
+
+    /// <summary>
+    /// Dimensionless divisor applied to the Fourier conduction flux through the skeleton layer
+    /// (see <c>PocketPropellantSolver.GetMetalBurningHeatFlux</c>). Physically it is the reciprocal of the
+    /// fraction of the skeleton footprint in genuine conductive contact with the surface: the metal skeleton
+    /// touches the condensed phase at oxide-separated spots, not over its whole projected area, so the
+    /// bulk Fourier law over-predicts the flux by the ratio of nominal to real contact area.
+    ///
+    /// <para><b>1.0 means no correction</b> — the historical behaviour, and the default. A value of, say,
+    /// 200 corresponds to a contact-spot fraction of 5·10⁻³, which is inside the range reported for packed
+    /// beds (10⁻³…10⁻²). It is a fixed calibration constant, NOT a fitted parameter: it adds no degree of
+    /// freedom to the search, which is the only reason it can coexist with the δ ≤ d_AP constraint without
+    /// making that constraint vacuous. A <i>fitted</i> multiplier here would be algebraically identical to
+    /// removing the constraint, because δ enters the model nowhere else.</para>
+    /// </summary>
+    public required double SkeletonContactFactor { get; init; }
 }
 
 #endregion
@@ -52,6 +68,13 @@ public struct MetalCombustionParamsByUnits
     /// It is important for understanding the metal's behavior at high temperatures and its potential vaporization during combustion.
     /// </summary>
     public required Temperature MetalBoilingTemperature { get; init; }
+
+    /// <summary>
+    /// Dimensionless contact-area correction on the skeleton conduction flux. See the ByDoubles twin,
+    /// <see cref="MetalCombustionParamsByDoubles.SkeletonContactFactor"/>, for the physical reading and for
+    /// why it must stay a fixed calibration constant rather than a fitted parameter. 1.0 = no correction.
+    /// </summary>
+    public required double SkeletonContactFactor { get; init; }
 }
 
 #endregion

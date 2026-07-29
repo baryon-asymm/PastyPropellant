@@ -112,6 +112,17 @@ public class RunConfigurationTest : IDisposable
         Assert.Equal(1e-8, nelderMead.FunctionTolerance);
         Assert.Equal(2, nelderMead.Restarts);
 
+        // The model constants default to the historical hardcoded physics: 1300 K and no contact
+        // correction. A non-unit default here would silently change every number a configuration-free
+        // run produces, which is exactly what this whole defaults contract exists to prevent.
+        var model = configuration.Model;
+        Assert.Equal(1300.0, model.MetalMeltingTemperatureKelvins);
+        Assert.Equal(1.0, model.SkeletonContactFactor);
+
+        var constants = model.ToModelConstants();
+        Assert.Equal(1300.0, constants.MetalMeltingTemperatureKelvins);
+        Assert.Equal(1.0, constants.SkeletonContactFactor);
+
         // The Nelder-Mead projection must hand the optimiser exactly these values, not a library default.
         var refinement = nelderMead.ToRefinementSettings();
         Assert.True(refinement.Enabled);
@@ -458,6 +469,71 @@ public class RunConfigurationTest : IDisposable
 
         Assert.Null(plan.Settings.DifferentialEvolutionSettings.Seed);
         Assert.Null(plan.Resolved.Effective.Seed);
+    }
+
+    /// <summary>
+    /// Configured model constants must reach the optimiser — both the search path and the forward-eval
+    /// replay, which have to score a point under the same physics or a replayed vector means nothing.
+    ///
+    /// <para>These constants used to be <c>const</c> in source. The failure mode this test guards is not a
+    /// wrong number but a <b>silently unused</b> one: a configuration that says 2300 K while the run
+    /// computes 1300 K would produce a report stating a temperature the model never used, which is worse
+    /// than the hardcoded value it replaced.</para>
+    /// </summary>
+    [Fact]
+    public void ConfiguredModelConstantsReachBothTheSearchAndTheForwardEvalPath()
+    {
+        var propellants = PythonRuntime.ResolveRepositoryPath("data", "propellants.01234.json");
+        var defaults = RunConfiguration.Default;
+
+        var loaded = new LoadedRunConfiguration
+        {
+            Configuration = defaults with
+            {
+                InputFileName = propellants,
+                Model = defaults.Model with
+                {
+                    MetalMeltingTemperatureKelvins = 2300.0,
+                    SkeletonContactFactor = 200.0
+                }
+            },
+            SourceDescription = "test",
+            FilePath = null
+        };
+
+        var optimisation = GroupScenarioRunner.CreateOptimizationPlan(loaded);
+        Assert.Equal(2300.0, optimisation.Settings.ModelConstants.MetalMeltingTemperatureKelvins);
+        Assert.Equal(200.0, optimisation.Settings.ModelConstants.SkeletonContactFactor);
+
+        var forwardEval = GroupScenarioRunner.CreateForwardEvalPlan(loaded);
+        Assert.Equal(2300.0, forwardEval.Settings.ModelConstants.MetalMeltingTemperatureKelvins);
+        Assert.Equal(200.0, forwardEval.Settings.ModelConstants.SkeletonContactFactor);
+
+        // And they must be in the provenance record, since that is the only reason they are configuration
+        // rather than source constants.
+        Assert.Equal(2300.0, optimisation.Resolved.Configuration.Model.MetalMeltingTemperatureKelvins);
+        Assert.Equal(200.0, optimisation.Resolved.Configuration.Model.SkeletonContactFactor);
+    }
+
+    /// <summary>A non-positive contact factor or melting temperature must be rejected at startup.</summary>
+    [Theory]
+    [InlineData(0.0, 1300.0)]
+    [InlineData(-1.0, 1300.0)]
+    [InlineData(1.0, 0.0)]
+    [InlineData(1.0, double.NaN)]
+    public void InvalidModelConstantsAreRejected(double contactFactor, double meltingTemperature)
+    {
+        var defaults = RunConfiguration.Default;
+        var configuration = defaults with
+        {
+            Model = defaults.Model with
+            {
+                SkeletonContactFactor = contactFactor,
+                MetalMeltingTemperatureKelvins = meltingTemperature
+            }
+        };
+
+        Assert.Throws<RunConfigurationException>(() => configuration.Validate());
     }
 
     /// <summary>

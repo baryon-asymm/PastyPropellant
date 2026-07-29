@@ -136,6 +136,9 @@ public static class GroupScenarioRunner
                         // count is resolved: the two together define the run, since the library gives each
                         // worker its own stream derived from the seed.
                         .WithSeed(deConfiguration.Seed)
+                        // Model constants are not fitted and not per-propellant, but they change every
+                        // computed number, so they travel with the run and land in the resolved record.
+                        .WithModelConstants(configuration.Model.ToModelConstants())
                         .WithNelderMeadRefinement(nelderMeadRefinement);
 
         if (maxEvaluationNumber.HasValue)
@@ -227,6 +230,9 @@ public static class GroupScenarioRunner
             .WithTerminationStrategy(new TimeoutTerminationStrategy(TimeSpan.FromMinutes(1)))
             .AddPenaltyEvaluators(GroupPenaltyEvaluatorFactory.Build(configuration.Penalties))
             .WithProcessorsCount(1)
+            // A replay must be scored by the model that produced the vector, so the constants matter here
+            // exactly as much as the penalties do.
+            .WithModelConstants(configuration.Model.ToModelConstants())
             .Build();
 
         var resolved = new ResolvedRunRecord

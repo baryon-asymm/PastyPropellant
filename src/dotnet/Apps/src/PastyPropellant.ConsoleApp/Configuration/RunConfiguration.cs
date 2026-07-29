@@ -1,3 +1,4 @@
+using ParametricCombustionModel.Computation.Models.KnownParams;
 using ParametricCombustionModel.Optimization.Settings;
 
 namespace PastyPropellant.ConsoleApp.Configuration;
@@ -39,6 +40,9 @@ public sealed record RunConfiguration
     /// <summary>Nelder–Mead refinement layered on the DE search.</summary>
     public NelderMeadConfiguration NelderMead { get; init; } = new();
 
+    /// <summary>Physical constants of the model itself — not fitted, not per-propellant.</summary>
+    public ModelConfiguration Model { get; init; } = new();
+
     /// <summary>The built-in configuration: exactly the values that used to be hardcoded.</summary>
     public static RunConfiguration Default => new();
 
@@ -57,6 +61,58 @@ public sealed record RunConfiguration
         Penalties.Validate();
         DifferentialEvolution.Validate();
         NelderMead.Validate();
+        Model.Validate();
+    }
+}
+
+/// <summary>
+/// Physical constants of the combustion model: values that change every computed number, apply to every
+/// composition, and are not fitted by the optimiser.
+///
+/// <para>They are configuration rather than source constants for one reason — <b>traceability</b>. The
+/// metal melting temperature used to be a <c>const</c>, so a campaign at 2300 K required editing and
+/// rebuilding, and none of the resulting reports recorded which value produced them; the only trace lived
+/// in a diff file kept beside the outputs. Here they merge, validate and serialise like every other
+/// setting, so <c>run_configuration.resolved.json</c> and the PDF header state them for every run.</para>
+///
+/// <para><b>These are not tuning knobs.</b> <see cref="SkeletonContactFactor"/> in particular is a fixed
+/// calibration constant: it must be chosen once, by a stated rule, and frozen. Scanning it across runs is
+/// legitimate only as a declared sensitivity analysis — treating it as something to adjust until the fit
+/// improves would make the δ ≤ d_AP constraint meaningless, because δ enters the model nowhere except the
+/// flux this factor divides.</para>
+/// </summary>
+public sealed record ModelConfiguration
+{
+    /// <summary>
+    /// Melting temperature of the aluminium skeleton, in Kelvins. Default 1300 K — the historical value.
+    /// The competing-flames campaign ran at 2300 K via a source patch; that is now this setting.
+    /// </summary>
+    public double MetalMeltingTemperatureKelvins { get; init; } =
+        ParametricCombustionModel.Computation.Extensions.PropellantExtensions.MetalMeltingTemperatureKelvins;
+
+    /// <summary>
+    /// Divisor on the skeleton conduction flux — the reciprocal of the fraction of the skeleton footprint
+    /// in genuine conductive contact with the surface. Default <c>1.0</c>: no correction, the historical
+    /// behaviour. A value of 200 corresponds to a contact-spot fraction of 5·10⁻³.
+    /// </summary>
+    public double SkeletonContactFactor { get; init; } = 1.0;
+
+    /// <summary>Projects onto the computation-layer type the context builders consume.</summary>
+    public ModelConstants ToModelConstants() => new()
+    {
+        MetalMeltingTemperatureKelvins = MetalMeltingTemperatureKelvins,
+        SkeletonContactFactor = SkeletonContactFactor
+    };
+
+    internal void Validate()
+    {
+        if (!double.IsFinite(MetalMeltingTemperatureKelvins) || MetalMeltingTemperatureKelvins <= 0)
+            throw new RunConfigurationException(
+                $"model.metalMeltingTemperatureKelvins must be positive (got {MetalMeltingTemperatureKelvins}).");
+
+        if (!double.IsFinite(SkeletonContactFactor) || SkeletonContactFactor <= 0)
+            throw new RunConfigurationException(
+                $"model.skeletonContactFactor must be positive; 1.0 means no correction (got {SkeletonContactFactor}).");
     }
 }
 

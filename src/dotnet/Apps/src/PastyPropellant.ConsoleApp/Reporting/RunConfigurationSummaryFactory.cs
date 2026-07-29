@@ -41,6 +41,10 @@ public static class RunConfigurationSummaryFactory
                     record.GeneratedAtUtc.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture))
             ]),
 
+            // Printed before the search settings on purpose: these constants change every computed number
+            // in the report that follows, and a reader who does not know them cannot interpret any of it.
+            new RunConfigurationSection("Model constants", BuildModelEntries(configuration.Model)),
+
             new RunConfigurationSection("Search", BuildSearchEntries(deConfiguration, effective)),
 
             new RunConfigurationSection("Nelder-Mead refinement", BuildNelderMeadEntries(configuration.NelderMead)),
@@ -51,6 +55,21 @@ public static class RunConfigurationSummaryFactory
                 BuildBoundsEntries(configuration.Bounds))
         ];
     }
+
+    /// <summary>
+    /// The physical constants of the model. The contact factor is spelled out as a contact-area fraction
+    /// as well as a divisor, because the divisor alone reads as an arbitrary number while the fraction is
+    /// the quantity a reader can weigh against the literature.
+    /// </summary>
+    private static List<RunConfigurationEntry> BuildModelEntries(ModelConfiguration model) =>
+    [
+        new("Metal melting temperature, K", Format(model.MetalMeltingTemperatureKelvins)),
+        new("Skeleton conduction contact factor",
+            Math.Abs(model.SkeletonContactFactor - 1.0) < double.Epsilon
+                ? "1 (no correction — bulk Fourier conduction)"
+                : $"{Format(model.SkeletonContactFactor)} " +
+                  $"(contact-area fraction {Format(1.0 / model.SkeletonContactFactor)}; fixed calibration, not fitted)")
+    ];
 
     private static List<RunConfigurationEntry> BuildSearchEntries(
         DifferentialEvolutionConfiguration deConfiguration,
