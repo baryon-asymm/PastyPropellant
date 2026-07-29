@@ -233,6 +233,19 @@ public sealed record DifferentialEvolutionConfiguration
     /// <summary>Wall-clock safety timeout that terminates any run, whichever strategy is selected.</summary>
     public double SafetyTimeoutHours { get; init; } = 9.0;
 
+    /// <summary>
+    /// Fixed RNG seed. Null by default, which leaves the search unseeded — the behaviour of every run in
+    /// this project's history, and the reason repeated campaigns had to be compared statistically rather
+    /// than exactly.
+    ///
+    /// <para>Set it and the run becomes bit-for-bit repeatable, but only together with the worker count:
+    /// the library derives one stream per worker, so the same seed under a different
+    /// <c>fixedPopulation.minProcessorsCount</c> — or simply on a machine with a different core count — is
+    /// a different search. Both numbers are recorded in <c>run_configuration.resolved.json</c> for that
+    /// reason; quoting a seed without the worker count does not identify a run.</para>
+    /// </summary>
+    public int? Seed { get; init; }
+
     /// <summary>Controls for the fixed-population strategies (Classic / jDE / JADE / SHADE).</summary>
     public FixedPopulationConfiguration FixedPopulation { get; init; } = new();
 

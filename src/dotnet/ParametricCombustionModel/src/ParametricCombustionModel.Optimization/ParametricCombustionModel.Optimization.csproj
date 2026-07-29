@@ -10,8 +10,17 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="DotNetDifferentialEvolution" Version="4.0.0" />
+      <PackageReference Include="DotNetDifferentialEvolution" Version="5.1.0" />
       <PackageReference Include="DotNetNelderMead" Version="1.0.0" />
+      <!--
+        DotNetNelderMead.DifferentialEvolution 1.0.0 was compiled against DotNetDifferentialEvolution
+        4.0.0 and its memetic refiner calls ProblemContext.Population / .PopulationFfValues, both removed
+        in 5.1.0. It still links and still loads — only the in-loop refiner throws MissingMethodException
+        the first time it fires. NelderMeadRefinementSettings.Validate rejects MemeticInLoop up front so
+        that failure cannot happen hours into a run; the final polish goes through DotNetNelderMead
+        directly, never touches a DE type, and is unaffected. Drop the guard when a build of this adapter
+        against 5.x is published.
+      -->
       <PackageReference Include="DotNetNelderMead.DifferentialEvolution" Version="1.0.0" />
     </ItemGroup>
 

@@ -113,6 +113,12 @@ public class GroupDifferentialEvolutionOptimizer : IFitnessFunctionEvaluator
         if (_settings.PopulationUpdatedHandler != null)
             builder = builder.WithPopulationUpdateHandler(_settings.PopulationUpdatedHandler);
 
+        // A seeded run is reproducible at THIS worker count and no other: the library derives one stream
+        // per worker and individual i draws from worker (i mod workerCount)'s stream. Left unseeded the
+        // library seeds itself, which is what every run before the 5.x upgrade did.
+        if (_settings.Seed.HasValue)
+            builder = builder.WithSeed(_settings.Seed.Value);
+
         // Memetic stage: an in-loop Nelder–Mead refiner polishes the best individual every N generations.
         // Bounds and the start point are injected by the refiner from the DE problem context; we only
         // tune simplex coefficients/convergence/restarts. Evaluations route through the same worker-indexed

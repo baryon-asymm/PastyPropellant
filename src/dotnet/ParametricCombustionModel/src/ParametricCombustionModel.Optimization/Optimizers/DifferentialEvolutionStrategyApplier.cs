@@ -26,7 +26,7 @@ internal static class DifferentialEvolutionStrategyApplier
             DifferentialEvolutionStrategy.Shade =>
                 builder.WithShade(settings.PBestRate, settings.ArchiveSizeRate, settings.MemorySize),
             // L-SHADE: evaluation budget drives the linear population-size reduction; the JADE/SHADE
-            // control parameters (pBestRate/archiveSizeRate/memorySize) are passed explicitly in v4.
+            // control parameters (pBestRate/archiveSizeRate/memorySize) are passed explicitly since v4.
             DifferentialEvolutionStrategy.LShade =>
                 builder.WithLShade(
                     settings.MaxEvaluationNumber

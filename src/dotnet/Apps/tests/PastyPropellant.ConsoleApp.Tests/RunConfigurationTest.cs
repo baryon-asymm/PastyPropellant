@@ -84,6 +84,11 @@ public class RunConfigurationTest : IDisposable
         Assert.Equal(0.9, de.CrossoverProbability);
         Assert.Equal(9.0, de.SafetyTimeoutHours);
 
+        // Unseeded by default. The seed exists only because DotNetDifferentialEvolution 5.x can honour one;
+        // defaulting it to a value would silently turn every campaign into a replay of the same search,
+        // which is the opposite of what the historical configuration did.
+        Assert.Null(de.Seed);
+
         Assert.Equal(12, de.FixedPopulation.PopulationSizeMultiplier);
         Assert.Equal(14, de.FixedPopulation.MinProcessorsCount);
         Assert.Equal(5_000, de.FixedPopulation.MaxStagnationStreak);
@@ -404,6 +409,85 @@ public class RunConfigurationTest : IDisposable
         Assert.Equal(BoundsProvider.GroupVectorLength * 4, plan.PopulationSize);
         Assert.Equal(plan.PopulationSize, plan.Resolved.Effective.PopulationSize);
         Assert.Equal(plan.PopulationSize, plan.Settings.DifferentialEvolutionSettings.PopulationSize);
+    }
+
+    /// <summary>
+    /// A configured seed must reach the optimiser and the provenance record, and it must be recorded
+    /// alongside the effective worker count.
+    ///
+    /// <para>The pairing is the point. DotNetDifferentialEvolution 5.x derives one random stream per worker,
+    /// so individual <i>i</i> draws from worker <i>i mod W</i>'s stream and the same seed under a different W
+    /// is a different search. W here is machine-dependent (<c>ProcessorCount − 1</c>, reduced until it
+    /// divides the population), so a record carrying the seed without the worker count would look like it
+    /// pins the run while pinning only half of it.</para>
+    /// </summary>
+    [Fact]
+    public void ConfiguredSeedFlowsThroughToTheOptimiserAndIsRecordedWithTheWorkerCount()
+    {
+        var propellants = PythonRuntime.ResolveRepositoryPath("data", "propellants.01234.json");
+        var defaults = RunConfiguration.Default;
+
+        var plan = GroupScenarioRunner.CreateOptimizationPlan(new LoadedRunConfiguration
+        {
+            Configuration = defaults with
+            {
+                InputFileName = propellants,
+                DifferentialEvolution = defaults.DifferentialEvolution with { Seed = 20260729 }
+            },
+            SourceDescription = "test",
+            FilePath = null
+        });
+
+        Assert.Equal(20260729, plan.Settings.DifferentialEvolutionSettings.Seed);
+        Assert.Equal(20260729, plan.Resolved.Effective.Seed);
+        Assert.Equal(plan.ProcessorsCount, plan.Resolved.Effective.ProcessorsCount);
+    }
+
+    /// <summary>An unseeded configuration must stay unseeded all the way down — no default seed anywhere.</summary>
+    [Fact]
+    public void AnUnseededConfigurationReachesTheOptimiserUnseeded()
+    {
+        var propellants = PythonRuntime.ResolveRepositoryPath("data", "propellants.01234.json");
+
+        var plan = GroupScenarioRunner.CreateOptimizationPlan(new LoadedRunConfiguration
+        {
+            Configuration = RunConfiguration.Default with { InputFileName = propellants },
+            SourceDescription = "test",
+            FilePath = null
+        });
+
+        Assert.Null(plan.Settings.DifferentialEvolutionSettings.Seed);
+        Assert.Null(plan.Resolved.Effective.Seed);
+    }
+
+    /// <summary>
+    /// The in-loop memetic refiner must be refused while the adapter package is built against
+    /// DotNetDifferentialEvolution 4.0.0.
+    ///
+    /// <para>Without this guard the configuration is accepted, the search starts, and the run dies with a
+    /// <c>MissingMethodException</c> on the <c>EveryNGenerations</c>-th generation — hours in, with nothing
+    /// written. The failure has to happen here, while building the plan, or not at all.</para>
+    /// </summary>
+    [Fact]
+    public void MemeticInLoopIsRejectedWhileTheAdapterTargetsTheOldLibrary()
+    {
+        var propellants = PythonRuntime.ResolveRepositoryPath("data", "propellants.01234.json");
+        var defaults = RunConfiguration.Default;
+
+        var exception = Assert.Throws<InvalidOperationException>(() =>
+            GroupScenarioRunner.CreateOptimizationPlan(new LoadedRunConfiguration
+            {
+                Configuration = defaults with
+                {
+                    InputFileName = propellants,
+                    NelderMead = defaults.NelderMead with { MemeticInLoop = true }
+                },
+                SourceDescription = "test",
+                FilePath = null
+            }));
+
+        Assert.Contains("MemeticInLoop", exception.Message);
+        Assert.Contains("DotNetNelderMead.DifferentialEvolution", exception.Message);
     }
 
     [Fact]

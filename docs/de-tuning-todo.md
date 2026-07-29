@@ -387,7 +387,7 @@ Run with both strategies wired up and observe which one fires. Log message at th
 > **STATUS: DONE, AND OVERTAKEN BY EVENTS. The premise below is obsolete — read the STATUS block, not
 > the section.**
 >
-> The dependency is now **`DotNetDifferentialEvolution 4.0.0`**, which ships a selectable
+> The dependency is now **`DotNetDifferentialEvolution 5.1.0`** (4.0.0 when this block was written), which ships a selectable
 > `DifferentialEvolutionStrategy` enum covering **Classic, jDE, JADE, SHADE and L-SHADE** — i.e. every
 > variant this section lists as "none of these are in the dependency". Option 1 (swap/upgrade the
 > library) was taken; option 2 (hand-implement `IMutationStrategy`) was not needed.
@@ -428,14 +428,21 @@ This is its own design task, not a tuning knob. Open it as a separate ticket onc
 
 ## Priority 7 — Reproducibility and instrumentation (low-effort, high value)
 
-> ## 🔴 STATUS: **STILL OPEN — both items. This is the only unfinished part of this document.**
+> ## 🔴 STATUS: **§7.1 DONE (2026-07-29). §7.2 still open.**
 >
-> **§7.1 fixed seed — NOT DONE.** No seed, `RandomProvider` or `BaseRandomProvider` usage appears
-> anywhere in `src/dotnet`. Every campaign still starts from an unseeded initial population, so no
-> two runs are comparable and no knob change can be attributed cleanly. This has become *more*
-> valuable, not less: the strategy comparison recorded in Priority 6 (jDE 0.157 vs JADE 0.42 vs
-> SHADE 0.92) was measured **without** a fixed seed, and the DE variants now differ in their internal
-> random streams as well as their update rules.
+> **§7.1 fixed seed — DONE, and it needed the library upgrade to be worth doing.** Under
+> `DotNetDifferentialEvolution` 4.0.0 a seed was injectable but bought reproducibility only at
+> `UseProcessors(1)`: all workers drew from one shared provider, so a multi-worker run — which is every
+> real run — stayed irreproducible. **5.1.0 derives one generator per worker**, so a seeded run is
+> bit-for-bit repeatable at full speed. The seed is now a run-configuration knob,
+> `differentialEvolution.seed`, **unseeded by default** (an unseeded default keeps repeated campaigns
+> genuinely independent), and it is written to `run_configuration.resolved.json` and the PDF header
+> **next to the effective worker count** — individual *i* draws from worker *i mod W*'s stream, so a
+> seed reproduces a run only at the worker count it ran on, and that count is machine-derived.
+>
+> Note what this does **not** retroactively fix: the Priority 6 strategy comparison (jDE 0.157 vs JADE
+> 0.42 vs SHADE 0.92) was measured unseeded on 4.0.0, and 5.x rewrote the RNG plumbing outright, so
+> those runs cannot be replayed. Re-measure before leaning on that ranking again.
 >
 > **§7.2 per-generation CSV — NOT DONE.** An `IPopulationUpdatedHandler` *is* now wired up
 > (`PopulationUpdateHandler` in `DifferentialEvolutionScenarioSettings.cs`), but it is not the handler
@@ -452,6 +459,8 @@ Two small things to make the whole tuning exercise tractable:
 ### 7.1 Fix the random seed during tuning
 
 The library exposes `BaseRandomProvider`/`RandomProvider`; pass a deterministic seed during benchmark runs so changes to F/CR/NP are evaluated against identical initial populations and identical mutation streams. Without a fixed seed every "did this knob help?" comparison is contaminated by run-to-run variance, which for DE on 32-D problems can swamp a 10–20% improvement.
+
+*(Superseded by the STATUS block above: on 5.1.0 the seam is `DifferentialEvolutionBuilder.WithSeed(int)`, not an injected `BaseRandomProvider` — that constructor is now `[Obsolete]` and the instance passed to it is ignored.)*
 
 ### 7.2 Log per-generation best fitness to CSV
 

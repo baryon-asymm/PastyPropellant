@@ -43,6 +43,19 @@ public record DifferentialEvolutionSettings
     public int ProcessorsCount { get; init; }
 
     /// <summary>
+    /// Fixed RNG seed, or <see langword="null"/> to let the library seed itself (the historical
+    /// behaviour: every run explores a different sequence).
+    ///
+    /// <para>Set, it makes the whole search bit-for-bit repeatable — initial population, mutation,
+    /// crossover, control-parameter sampling and archive eviction — because each worker draws from its own
+    /// stream derived from this seed. That also means the seed alone does not identify a run:
+    /// individual <i>i</i> draws from worker <i>i mod</i> <see cref="ProcessorsCount"/>'s stream, so the
+    /// same seed under a different worker count is a different search. Both numbers have to travel
+    /// together, which is why the resolved run record carries them side by side.</para>
+    /// </summary>
+    public int? Seed { get; init; }
+
+    /// <summary>
     /// Optional Nelder–Mead local-search refinement layered on top of the DE search.
     /// Defaults to <see cref="NelderMeadRefinementSettings.Disabled"/> (plain DE).
     /// </summary>
@@ -63,6 +76,7 @@ public record DifferentialEvolutionSettings
         double jadeAdaptationRate,
         long? maxEvaluationNumber,
         int processorsCount,
+        int? seed,
         NelderMeadRefinementSettings nelderMead)
     {
         LowerBound = lowerBound;
@@ -79,6 +93,7 @@ public record DifferentialEvolutionSettings
         JadeAdaptationRate = jadeAdaptationRate;
         MaxEvaluationNumber = maxEvaluationNumber;
         ProcessorsCount = processorsCount;
+        Seed = seed;
         NelderMead = nelderMead;
     }
 
@@ -86,7 +101,7 @@ public record DifferentialEvolutionSettings
 
     public sealed class Builder
     {
-        // Adaptive-variant defaults mirror DotNetDifferentialEvolution 4.x (Tanabe & Fukunaga 2013).
+        // Adaptive-variant defaults mirror DotNetDifferentialEvolution 5.x (Tanabe & Fukunaga 2013).
         private const double DefaultPBestRate = 0.1;
         private const double DefaultArchiveSizeRate = 1.0;
         private const int DefaultMemorySize = 100;
@@ -106,6 +121,7 @@ public record DifferentialEvolutionSettings
         private double _jadeAdaptationRate = DefaultJadeAdaptationRate;
         private long? _maxEvaluationNumber;
         private int? _processorsCount;
+        private int? _seed;
         private NelderMeadRefinementSettings _nelderMead = NelderMeadRefinementSettings.Disabled;
 
         internal Builder() { }
@@ -219,6 +235,16 @@ public record DifferentialEvolutionSettings
             return this;
         }
 
+        /// <summary>
+        /// Fixes the RNG seed, making the search bit-for-bit repeatable at this worker count.
+        /// Pass <see langword="null"/> to leave the run unseeded.
+        /// </summary>
+        public Builder WithSeed(int? seed)
+        {
+            _seed = seed;
+            return this;
+        }
+
         /// <summary>Layers an optional Nelder–Mead local-search refinement on top of the DE search.</summary>
         public Builder WithNelderMeadRefinement(NelderMeadRefinementSettings nelderMead)
         {
@@ -250,6 +276,7 @@ public record DifferentialEvolutionSettings
                 _jadeAdaptationRate,
                 _maxEvaluationNumber,
                 _processorsCount!.Value,
+                _seed,
                 _nelderMead);
         }
 

@@ -51,6 +51,7 @@ public record DifferentialEvolutionScenarioSettings
         private double? _crossoverProbability;
         private long? _maxEvaluationNumber;
         private int? _processorsCount;
+        private int? _seed;
         private double? _pBestRate;
         private double? _archiveSizeRate;
         private int? _memorySize;
@@ -131,6 +132,17 @@ public record DifferentialEvolutionScenarioSettings
         public Builder WithNelderMeadRefinement(NelderMeadRefinementSettings nelderMead)
         {
             _nelderMead = nelderMead ?? throw new ArgumentNullException(nameof(nelderMead));
+            return this;
+        }
+
+        /// <summary>
+        /// Fixes the RNG seed, making the search bit-for-bit repeatable at the configured worker count.
+        /// <see langword="null"/> leaves the run unseeded, which is what every run before the
+        /// DotNetDifferentialEvolution 5.x upgrade did.
+        /// </summary>
+        public Builder WithSeed(int? seed)
+        {
+            _seed = seed;
             return this;
         }
 
@@ -241,6 +253,7 @@ public record DifferentialEvolutionScenarioSettings
                 .WithMutationForce(_mutationForce!.Value)
                 .WithCrossoverProbability(_crossoverProbability!.Value)
                 .WithProcessorsCount(_processorsCount!.Value)
+                .WithSeed(_seed)
                 .WithNelderMeadRefinement(_nelderMead);
 
             if (_maxEvaluationNumber.HasValue)

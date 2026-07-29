@@ -4,7 +4,7 @@ using DotNetDifferentialEvolution.TerminationStrategies;
 namespace ParametricCombustionModel.Optimization.Tests.DependencyContracts;
 
 /// <summary>
-/// Characterises the behaviour of <b>DotNetDifferentialEvolution 4.0.0</b> that this codebase's
+/// Characterises the behaviour of <b>DotNetDifferentialEvolution 5.1.0</b> that this codebase's
 /// concurrency scheme is built on. These are not tests of our own logic — they assert what the
 /// third-party package does, so that a deliberate version bump is a checked change rather than a
 /// blind one (tech-debt TEST-7).
@@ -86,7 +86,7 @@ public class DifferentialEvolutionWorkerIndexContractTests
     /// <summary>
     /// Pins how the library uses the <b>index-free</b> overload.
     ///
-    /// Measured behaviour in 4.0.0: the library calls <c>Evaluate(genes)</c> exactly
+    /// Measured behaviour, unchanged from 4.0.0 through 5.1.0: the library calls <c>Evaluate(genes)</c> exactly
     /// <c>PopulationSize</c> times — the initial population evaluation — and does so
     /// <b>sequentially, on a single thread</b>, before any worker threads start. Every subsequent
     /// evaluation goes through the worker-indexed overload.
@@ -112,7 +112,7 @@ public class DifferentialEvolutionWorkerIndexContractTests
             + "index-free Evaluate(ReadOnlySpan<double>) overload.\n\n"
             + "THIS SILENTLY CORRUPTS RESULTS. GroupDifferentialEvolutionOptimizer implements that overload as "
             + "Evaluate(workerIndex: 0, genes) — it has no worker index to work with — so concurrent calls all "
-            + "mutate worker 0's OptimizationProblemByDoubles contexts simultaneously. In 4.0.0 this was safe only "
+            + "mutate worker 0's OptimizationProblemByDoubles contexts simultaneously. Through 5.1.0 this was safe only "
             + "because the initial population was evaluated sequentially before the worker threads started.\n\n"
             + "If you are seeing this after a package upgrade: the initial-population evaluation has been "
             + "parallelised. Production must stop routing the index-free overload to a shared context before this "

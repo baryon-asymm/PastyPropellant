@@ -65,6 +65,15 @@ public sealed record EffectiveRunValues
     /// <summary>Dimension of the vector handed to the optimiser (32 for the grouped formulation).</summary>
     public required int Dimensions { get; init; }
 
+    /// <summary>
+    /// RNG seed the search actually ran with, or null when it was left unseeded.
+    ///
+    /// <para>Only meaningful paired with <see cref="ProcessorsCount"/> immediately above: the library
+    /// derives one random stream per worker, so replaying this seed at a different worker count produces a
+    /// different search. The pair is what makes a run reproducible; either number alone does not.</para>
+    /// </summary>
+    public int? Seed { get; init; }
+
     /// <summary>Human-readable description of the composed termination strategy.</summary>
     public required string TerminationStrategy { get; init; }
 

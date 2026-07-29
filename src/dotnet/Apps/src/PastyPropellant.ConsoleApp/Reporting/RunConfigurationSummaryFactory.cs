@@ -63,6 +63,11 @@ public static class RunConfigurationSummaryFactory
             new("Population size (effective)", Format(effective.PopulationSize)),
             new("Worker processors (effective)",
                 $"{Format(effective.ProcessorsCount)} of {Format(effective.MachineProcessorCount)} machine cores"),
+            // Printed next to the worker count on purpose: a seed reproduces a run only at the worker count
+            // it ran on, so the two are one fact and quoting either alone would overstate what is repeatable.
+            new("RNG seed", effective.Seed is { } seed
+                ? $"{Format(seed)} (reproducible at {Format(effective.ProcessorsCount)} workers)"
+                : "unseeded (run not exactly reproducible)"),
             new("Termination", effective.TerminationStrategy)
         };
 

@@ -16,7 +16,13 @@ public sealed record NelderMeadRefinementSettings
     /// <summary>Master switch. When <c>false</c> the optimiser behaves exactly as plain DE.</summary>
     public bool Enabled { get; init; }
 
-    /// <summary>Run an in-loop memetic Nelder–Mead refiner during the DE search.</summary>
+    /// <summary>
+    /// Run an in-loop memetic Nelder–Mead refiner during the DE search.
+    ///
+    /// <para><b>Currently unavailable</b> — <see cref="Validate"/> rejects it. The adapter package that
+    /// provides the refiner is built against DotNetDifferentialEvolution 4.0.0 and is binary-incompatible
+    /// with the 5.x this project now references.</para>
+    /// </summary>
     public bool MemeticInLoop { get; init; }
 
     /// <summary>Generation interval between memetic refiner calls. Used only when <see cref="MemeticInLoop"/> is set.</summary>
@@ -55,6 +61,21 @@ public sealed record NelderMeadRefinementSettings
         if (!MemeticInLoop && !FinalPolish)
             throw new InvalidOperationException(
                 "Nelder–Mead refinement is enabled but neither MemeticInLoop nor FinalPolish is selected.");
+
+        // The in-loop refiner is unavailable on DotNetDifferentialEvolution 5.x. Rejected here, at
+        // configuration time, rather than left to fail where it actually breaks: the refiner sits behind a
+        // package boundary that links and loads cleanly, so the fault would otherwise surface as a
+        // MissingMethodException on the EveryNGenerations-th generation — hours into a run, with the search
+        // state gone. Deleting this one statement is the whole re-enablement once an adapter built against
+        // 5.x is published; see the PackageReference comment in the project file.
+        if (MemeticInLoop)
+            throw new InvalidOperationException(
+                "MemeticInLoop is not available: DotNetNelderMead.DifferentialEvolution 1.0.0 is built "
+                + "against DotNetDifferentialEvolution 4.0.0, whose ProblemContext.Population and "
+                + $".PopulationFfValues were removed in 5.1.0. Enabling it would abort the search at "
+                + $"generation {EveryNGenerations} with a MissingMethodException, not at startup. Use "
+                + "FinalPolish, which goes through DotNetNelderMead directly and is unaffected, until an "
+                + "adapter built against DotNetDifferentialEvolution 5.x is published.");
 
         if (MemeticInLoop)
         {

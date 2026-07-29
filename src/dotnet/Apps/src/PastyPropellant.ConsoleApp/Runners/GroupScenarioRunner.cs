@@ -132,6 +132,10 @@ public static class GroupScenarioRunner
                         .WithTerminationStrategy(terminationStrategy)
                         .AddPenaltyEvaluators(penaltyEvaluators)
                         .WithProcessorsCount(processorsCount)
+                        // Seeded only when the configuration asks for it. Note it is passed AFTER the worker
+                        // count is resolved: the two together define the run, since the library gives each
+                        // worker its own stream derived from the seed.
+                        .WithSeed(deConfiguration.Seed)
                         .WithNelderMeadRefinement(nelderMeadRefinement);
 
         if (maxEvaluationNumber.HasValue)
@@ -157,6 +161,7 @@ public static class GroupScenarioRunner
                 ProcessorsCount = processorsCount,
                 MachineProcessorCount = Environment.ProcessorCount,
                 Dimensions = dimensions,
+                Seed = deConfiguration.Seed,
                 TerminationStrategy = terminationDescription,
                 MaxEvaluationNumber = maxEvaluationNumber,
                 PBestRate = pBestRate,

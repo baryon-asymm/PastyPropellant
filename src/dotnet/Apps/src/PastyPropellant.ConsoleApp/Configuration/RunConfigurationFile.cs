@@ -115,6 +115,7 @@ internal sealed record DifferentialEvolutionFileSection
     public double? MutationForce { get; init; }
     public double? CrossoverProbability { get; init; }
     public double? SafetyTimeoutHours { get; init; }
+    public int? Seed { get; init; }
     public FixedPopulationFileSection? FixedPopulation { get; init; }
     public LShadeFileSection? LShade { get; init; }
 
@@ -124,6 +125,7 @@ internal sealed record DifferentialEvolutionFileSection
         MutationForce = MutationForce ?? d.MutationForce,
         CrossoverProbability = CrossoverProbability ?? d.CrossoverProbability,
         SafetyTimeoutHours = SafetyTimeoutHours ?? d.SafetyTimeoutHours,
+        Seed = Seed ?? d.Seed,
         FixedPopulation = FixedPopulation?.ApplyTo(d.FixedPopulation) ?? d.FixedPopulation,
         LShade = LShade?.ApplyTo(d.LShade) ?? d.LShade
     };

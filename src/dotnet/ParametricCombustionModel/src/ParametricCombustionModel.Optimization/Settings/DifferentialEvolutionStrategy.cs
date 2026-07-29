@@ -1,7 +1,7 @@
 namespace ParametricCombustionModel.Optimization.Settings;
 
 /// <summary>
-/// Selects which Differential Evolution variant the optimiser uses (DotNetDifferentialEvolution 4.x).
+/// Selects which Differential Evolution variant the optimiser uses (DotNetDifferentialEvolution 5.x).
 /// </summary>
 /// <remarks>
 /// <see cref="Classic"/> and <see cref="Jde"/> consume
