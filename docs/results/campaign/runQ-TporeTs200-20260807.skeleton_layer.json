@@ -1,0 +1,1477 @@
+[
+  {
+    "name": "Bas_2",
+    "pressure_frames": [
+      {
+        "pressure": 1000000,
+        "experimental_burn_rate": 16.944094345928313,
+        "calculated_burn_rate": 15.154189239281754,
+        "surface_temperature_pocket": 612.9843626302318,
+        "surface_temperature_inter_pocket": 620.5655623940402,
+        "heat_flux": {
+          "skeleton": 42108.43807557387,
+          "out_skeleton": 510007.09619602934,
+          "diffusion": 147643.24847947044,
+          "metal_burning": 44657.45696667581,
+          "to_surface_total": 699758.7827510736,
+          "sublimation": 699758.7831304173
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 725.7198739471194,
+          "out_skeleton_kinetic": 262.9055541571047,
+          "diffusion": 2025.8397645495213
+        },
+        "skeleton_layer": {
+          "thickness": 38.806644558912055,
+          "pore_diameter": 4.542170615497991
+        },
+        "thermal_conductivity": {
+          "effective": 0.4109045633062736,
+          "conductive": 0.40359482227358967,
+          "radiative": 0.007309741032683936
+        }
+      },
+      {
+        "pressure": 1611111.1111111112,
+        "experimental_burn_rate": 21.71318922791179,
+        "calculated_burn_rate": 19.892886048410872,
+        "surface_temperature_pocket": 617.4313922281726,
+        "surface_temperature_inter_pocket": 630.9008478958276,
+        "heat_flux": {
+          "skeleton": 83119.98835494829,
+          "out_skeleton": 777260.6382968293,
+          "diffusion": 118733.62528169967,
+          "metal_burning": 60364.73706656191,
+          "to_surface_total": 979114.2519334774,
+          "sublimation": 979114.2524487932
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 285.7445179606659,
+          "out_skeleton_kinetic": 178.24132671945517,
+          "diffusion": 2515.3519912207594
+        },
+        "skeleton_layer": {
+          "thickness": 28.572215628423713,
+          "pore_diameter": 3.9980296828408544
+        },
+        "thermal_conductivity": {
+          "effective": 0.4100288751025603,
+          "conductive": 0.40359482227358967,
+          "radiative": 0.006434052828970665
+        }
+      },
+      {
+        "pressure": 2222222.2222222225,
+        "experimental_burn_rate": 25.665389160498393,
+        "calculated_burn_rate": 24.088606756962037,
+        "surface_temperature_pocket": 620.787865256716,
+        "surface_temperature_inter_pocket": 638.2473373887478,
+        "heat_flux": {
+          "skeleton": 134671.93808451862,
+          "out_skeleton": 1012686.5497379988,
+          "diffusion": 100933.14049965913,
+          "metal_burning": 75577.31214867669,
+          "to_surface_total": 1248291.6283221764,
+          "sublimation": 1248291.628398755
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 154.70347217395593,
+          "out_skeleton_kinetic": 139.2281616994351,
+          "diffusion": 2955.6319361264295
+        },
+        "skeleton_layer": {
+          "thickness": 22.743112727086963,
+          "pore_diameter": 3.635335743908038
+        },
+        "thermal_conductivity": {
+          "effective": 0.4094451902160345,
+          "conductive": 0.40359482227358967,
+          "radiative": 0.005850367942444817
+        }
+      },
+      {
+        "pressure": 2833333.3333333335,
+        "experimental_burn_rate": 29.12146036175782,
+        "calculated_burn_rate": 27.941482279615272,
+        "surface_temperature_pocket": 623.4964721414144,
+        "surface_temperature_inter_pocket": 643.9916712392005,
+        "heat_flux": {
+          "skeleton": 195281.53040041955,
+          "out_skeleton": 1225875.6836761402,
+          "diffusion": 88645.96189145518,
+          "metal_burning": 90453.42319666437,
+          "to_surface_total": 1509803.1759680149,
+          "sublimation": 1509803.1763159533
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 97.9818893486229,
+          "out_skeleton_kinetic": 116.32446846580393,
+          "diffusion": 3362.2552728438322
+        },
+        "skeleton_layer": {
+          "thickness": 18.95225485189908,
+          "pore_diameter": 3.369296743426978
+        },
+        "thermal_conductivity": {
+          "effective": 0.40901705249366244,
+          "conductive": 0.40359482227358967,
+          "radiative": 0.005422230220072742
+        }
+      },
+      {
+        "pressure": 3444444.4444444445,
+        "experimental_burn_rate": 32.23445537173985,
+        "calculated_burn_rate": 31.554120767570545,
+        "surface_temperature_pocket": 625.777792801091,
+        "surface_temperature_inter_pocket": 648.7290208533523,
+        "heat_flux": {
+          "skeleton": 263985.49061297154,
+          "out_skeleton": 1422181.1299778493,
+          "diffusion": 79534.03540333864,
+          "metal_burning": 105110.05976433834,
+          "to_surface_total": 1765700.6559941596,
+          "sublimation": 1765700.6564612323
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 68.13926730379208,
+          "out_skeleton_kinetic": 101.07654651157283,
+          "diffusion": 3744.5883288777413
+        },
+        "skeleton_layer": {
+          "thickness": 16.274058726527073,
+          "pore_diameter": 3.162003061162143
+        },
+        "thermal_conductivity": {
+          "effective": 0.40868345384463906,
+          "conductive": 0.40359482227358967,
+          "radiative": 0.0050886315710494
+        }
+      },
+      {
+        "pressure": 4055555.5555555555,
+        "experimental_burn_rate": 35.09171112282886,
+        "calculated_burn_rate": 34.98786349680911,
+        "surface_temperature_pocket": 627.7562261166167,
+        "surface_temperature_inter_pocket": 652.771719325392,
+        "heat_flux": {
+          "skeleton": 340068.2567773199,
+          "out_skeleton": 1604960.3494991614,
+          "diffusion": 72439.6435428511,
+          "metal_burning": 119628.28608202972,
+          "to_surface_total": 2017468.2498193323,
+          "sublimation": 2017468.2500458616
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 50.42168528897276,
+          "out_skeleton_kinetic": 90.10933123507003,
+          "diffusion": 4108.584234160139
+        },
+        "skeleton_layer": {
+          "thickness": 14.272657981549944,
+          "pore_diameter": 2.9937046044318514
+        },
+        "thermal_conductivity": {
+          "effective": 0.4084126103702607,
+          "conductive": 0.40359482227358967,
+          "radiative": 0.0048177880966710435
+        }
+      },
+      {
+        "pressure": 4666666.666666667,
+        "experimental_burn_rate": 37.74869019374097,
+        "calculated_burn_rate": 38.282831143870204,
+        "surface_temperature_pocket": 629.5085634876159,
+        "surface_temperature_inter_pocket": 656.3048066411284,
+        "heat_flux": {
+          "skeleton": 422964.7145748553,
+          "out_skeleton": 1776499.1876252957,
+          "diffusion": 66718.76980017441,
+          "metal_burning": 134065.34420129083,
+          "to_surface_total": 2266182.6720003258,
+          "sublimation": 2266182.6728526223
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 38.99866614636986,
+          "out_skeleton_kinetic": 81.79631756926794,
+          "diffusion": 4458.252820639701
+        },
+        "skeleton_layer": {
+          "thickness": 12.715280546421933,
+          "pore_diameter": 2.852954395059457
+        },
+        "thermal_conductivity": {
+          "effective": 0.4081861004043276,
+          "conductive": 0.40359482227358967,
+          "radiative": 0.004591278130737979
+        }
+      },
+      {
+        "pressure": 5277777.777777779,
+        "experimental_burn_rate": 40.24323947778431,
+        "calculated_burn_rate": 41.466777997599465,
+        "surface_temperature_pocket": 631.0854029885377,
+        "surface_temperature_inter_pocket": 659.4472728829714,
+        "heat_flux": {
+          "skeleton": 512132.0534490759,
+          "out_skeleton": 1938514.8265029208,
+          "diffusion": 61982.0915177586,
+          "metal_burning": 148462.0676897898,
+          "to_surface_total": 2512628.9714697553,
+          "sublimation": 2512628.970267603
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 31.178844262373065,
+          "out_skeleton_kinetic": 75.25119004257311,
+          "diffusion": 4796.408969451583
+        },
+        "skeleton_layer": {
+          "thickness": 11.465967022718592,
+          "pore_diameter": 2.732590516222205
+        },
+        "thermal_conductivity": {
+          "effective": 0.4079923982459011,
+          "conductive": 0.40359482227358967,
+          "radiative": 0.0043975759723114596
+        }
+      },
+      {
+        "pressure": 5888888.888888889,
+        "experimental_burn_rate": 42.60256112521113,
+        "calculated_burn_rate": 44.560396321428456,
+        "surface_temperature_pocket": 632.5221824154141,
+        "surface_temperature_inter_pocket": 662.2803155201836,
+        "heat_flux": {
+          "skeleton": 607406.362731147,
+          "out_skeleton": 2092068.1883867467,
+          "diffusion": 57977.954347700594,
+          "metal_burning": 162851.85865363348,
+          "to_surface_total": 2757452.5054655946,
+          "sublimation": 2757452.5063345334
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 25.576276043673623,
+          "out_skeleton_kinetic": 69.94842907530568,
+          "diffusion": 5125.185686553004
+        },
+        "skeleton_layer": {
+          "thickness": 10.43950579190914,
+          "pore_diameter": 2.627836555203644
+        },
+        "thermal_conductivity": {
+          "effective": 0.4078238171948659,
+          "conductive": 0.40359482227358967,
+          "radiative": 0.004228994921276184
+        }
+      },
+      {
+        "pressure": 6500000,
+        "experimental_burn_rate": 44.8469906852505,
+        "calculated_burn_rate": 47.578513327382296,
+        "surface_temperature_pocket": 633.8440926003386,
+        "surface_temperature_inter_pocket": 664.8618988969247,
+        "heat_flux": {
+          "skeleton": 708214.4123490489,
+          "out_skeleton": 2238329.8109275154,
+          "diffusion": 54537.2894631315,
+          "metal_burning": 177256.07098602614,
+          "to_surface_total": 3001081.512739696,
+          "sublimation": 3001081.511952438
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 21.415550668528933,
+          "out_skeleton_kinetic": 65.55362610723441,
+          "diffusion": 5446.101074398935
+        },
+        "skeleton_layer": {
+          "thickness": 9.580069909505122,
+          "pore_diameter": 2.535405067993683
+        },
+        "thermal_conductivity": {
+          "effective": 0.407675066754243,
+          "conductive": 0.40359482227358967,
+          "radiative": 0.004080244480653324
+        }
+      }
+    ]
+  },
+  {
+    "name": "Bas_3",
+    "pressure_frames": [
+      {
+        "pressure": 1000000,
+        "experimental_burn_rate": 15.241050125963591,
+        "calculated_burn_rate": 15.465429179898313,
+        "surface_temperature_pocket": 620.5655623503844,
+        "surface_temperature_inter_pocket": 620.5655623940402,
+        "heat_flux": {
+          "skeleton": 113996.21194394634,
+          "out_skeleton": 353518.31946817215,
+          "diffusion": 761170.4824997669,
+          "metal_burning": 46915.97882170673,
+          "to_surface_total": 1228685.0139118852,
+          "sublimation": 1228685.0140583965
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 459.79237255320896,
+          "out_skeleton_kinetic": 376.84808141221384,
+          "diffusion": 401.149874811462
+        },
+        "skeleton_layer": {
+          "thickness": 23.087657053343218,
+          "pore_diameter": 3.6581891242737585
+        },
+        "thermal_conductivity": {
+          "effective": 0.2579868567833822,
+          "conductive": 0.22175699996296316,
+          "radiative": 0.036229856820419015
+        }
+      },
+      {
+        "pressure": 1611111.1111111112,
+        "experimental_burn_rate": 20.681174870071835,
+        "calculated_burn_rate": 20.31800585409212,
+        "surface_temperature_pocket": 623.4547674932401,
+        "surface_temperature_inter_pocket": 630.9008478958276,
+        "heat_flux": {
+          "skeleton": 259908.43539508918,
+          "out_skeleton": 582810.6709406426,
+          "diffusion": 662723.7898956317,
+          "metal_burning": 56273.0970510318,
+          "to_surface_total": 1505442.8962313635,
+          "sublimation": 1505442.896932498
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 168.14492068529833,
+          "out_skeleton_kinetic": 236.4591736346736,
+          "diffusion": 460.3041687981613
+        },
+        "skeleton_layer": {
+          "thickness": 19.005309745785276,
+          "pore_diameter": 3.3732247115058502
+        },
+        "thermal_conductivity": {
+          "effective": 0.25516463715336907,
+          "conductive": 0.22175699996296316,
+          "radiative": 0.0334076371904059
+        }
+      },
+      {
+        "pressure": 2222222.2222222225,
+        "experimental_burn_rate": 25.407321470694935,
+        "calculated_burn_rate": 24.717211352739426,
+        "surface_temperature_pocket": 626.1832507516374,
+        "surface_temperature_inter_pocket": 638.2473373887478,
+        "heat_flux": {
+          "skeleton": 448157.2127543207,
+          "out_skeleton": 784624.2095381396,
+          "diffusion": 582150.0746592636,
+          "metal_burning": 66758.33775079575,
+          "to_surface_total": 1814931.496951724,
+          "sublimation": 1814931.4978495224
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 88.42917735169891,
+          "out_skeleton_kinetic": 178.8918700134173,
+          "diffusion": 523.5448524218211
+        },
+        "skeleton_layer": {
+          "thickness": 15.841155693127059,
+          "pore_diameter": 3.1266701974351805
+        },
+        "thermal_conductivity": {
+          "effective": 0.25272281989043466,
+          "conductive": 0.22175699996296316,
+          "radiative": 0.030965819927471473
+        }
+      },
+      {
+        "pressure": 2833333.3333333335,
+        "experimental_burn_rate": 29.681469652820677,
+        "calculated_burn_rate": 28.934776244369516,
+        "surface_temperature_pocket": 628.6890307281283,
+        "surface_temperature_inter_pocket": 643.9916712392005,
+        "heat_flux": {
+          "skeleton": 668193.5974305451,
+          "out_skeleton": 961188.1055064364,
+          "diffusion": 517320.4389433544,
+          "metal_burning": 78039.4468678712,
+          "to_surface_total": 2146702.141880336,
+          "sublimation": 2146702.142189608
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 55.50826290793743,
+          "out_skeleton_kinetic": 147.76048977228635,
+          "diffusion": 588.6701433046081
+        },
+        "skeleton_layer": {
+          "thickness": 13.420193869832902,
+          "pore_diameter": 2.917839680406382
+        },
+        "thermal_conductivity": {
+          "effective": 0.2506546120301304,
+          "conductive": 0.22175699996296316,
+          "radiative": 0.02889761206716725
+        }
+      },
+      {
+        "pressure": 3444444.4444444445,
+        "experimental_burn_rate": 33.63343075146855,
+        "calculated_burn_rate": 33.0606836469658,
+        "surface_temperature_pocket": 630.9782901589642,
+        "surface_temperature_inter_pocket": 648.7290208533523,
+        "heat_flux": {
+          "skeleton": 913373.3804038946,
+          "out_skeleton": 1116995.1548141283,
+          "diffusion": 464802.2173765351,
+          "metal_burning": 89943.69738873302,
+          "to_surface_total": 2495170.752594558,
+          "sublimation": 2495170.752243432
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 38.633053602121,
+          "out_skeleton_kinetic": 128.2123379417314,
+          "diffusion": 654.6917368459738
+        },
+        "skeleton_layer": {
+          "thickness": 11.546613306941259,
+          "pore_diameter": 2.7405847738455846
+        },
+        "thermal_conductivity": {
+          "effective": 0.24889912144837412,
+          "conductive": 0.22175699996296316,
+          "radiative": 0.02714212148541095
+        }
+      },
+      {
+        "pressure": 4055555.5555555555,
+        "experimental_burn_rate": 37.3393813916852,
+        "calculated_burn_rate": 37.13225569479488,
+        "surface_temperature_pocket": 633.0745544793899,
+        "surface_temperature_inter_pocket": 652.771719325392,
+        "heat_flux": {
+          "skeleton": 1179334.6252661669,
+          "out_skeleton": 1256019.6115814438,
+          "diffusion": 421685.63967596705,
+          "metal_burning": 102371.21737520996,
+          "to_surface_total": 2857039.8765235776,
+          "sublimation": 2857039.87709777
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 28.752822799528378,
+          "out_skeleton_kinetic": 114.7354394552978,
+          "diffusion": 721.1356421473891
+        },
+        "skeleton_layer": {
+          "thickness": 10.070943089740242,
+          "pore_diameter": 2.588763206467919
+        },
+        "thermal_conductivity": {
+          "effective": 0.2473955165742102,
+          "conductive": 0.22175699996296316,
+          "radiative": 0.02563851661124703
+        }
+      },
+      {
+        "pressure": 4666666.666666667,
+        "experimental_burn_rate": 40.84879325522455,
+        "calculated_burn_rate": 41.16763158905723,
+        "surface_temperature_pocket": 635.0030097804847,
+        "surface_temperature_inter_pocket": 656.3048066411284,
+        "heat_flux": {
+          "skeleton": 1462956.125330163,
+          "out_skeleton": 1381418.7834877518,
+          "diffusion": 385778.97121642565,
+          "metal_burning": 115257.39943066779,
+          "to_surface_total": 3230153.8800343405,
+          "sublimation": 3230153.8801486716
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 22.42425940646373,
+          "out_skeleton_kinetic": 104.83270391176397,
+          "diffusion": 787.7559994099859
+        },
+        "skeleton_layer": {
+          "thickness": 8.887625196089752,
+          "pore_diameter": 2.4573503379575454
+        },
+        "thermal_conductivity": {
+          "effective": 0.2460940345797815,
+          "conductive": 0.22175699996296316,
+          "radiative": 0.024337034616818323
+        }
+      },
+      {
+        "pressure": 5277777.777777779,
+        "experimental_burn_rate": 44.19606417739376,
+        "calculated_burn_rate": 45.17718224479607,
+        "surface_temperature_pocket": 636.7865399850416,
+        "surface_temperature_inter_pocket": 659.4472728829714,
+        "heat_flux": {
+          "skeleton": 1761994.442209539,
+          "out_skeleton": 1495593.6260962763,
+          "diffusion": 355467.2707587,
+          "metal_burning": 128558.90097213833,
+          "to_surface_total": 3613055.3390645157,
+          "sublimation": 3613055.3388761445
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 18.100216826313375,
+          "out_skeleton_kinetic": 97.2141671792037,
+          "diffusion": 854.4284410579941
+        },
+        "skeleton_layer": {
+          "thickness": 7.92270524111789,
+          "pore_diameter": 2.34241645763714
+        },
+        "thermal_conductivity": {
+          "effective": 0.24495575655458093,
+          "conductive": 0.22175699996296316,
+          "radiative": 0.023198756591617777
+        }
+      },
+      {
+        "pressure": 5888888.888888889,
+        "experimental_burn_rate": 47.40631980182416,
+        "calculated_burn_rate": 49.16723657534376,
+        "surface_temperature_pocket": 638.4445277464692,
+        "surface_temperature_inter_pocket": 662.2803155201836,
+        "heat_flux": {
+          "skeleton": 2074692.9335011279,
+          "out_skeleton": 1600407.9551057608,
+          "diffusion": 329563.3769680696,
+          "metal_burning": 142243.45241222958,
+          "to_surface_total": 4004664.265574958,
+          "sublimation": 4004664.265171675
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 14.998648403848726,
+          "out_skeleton_kinetic": 91.14632599350317,
+          "diffusion": 921.0839809265691
+        },
+        "skeleton_layer": {
+          "thickness": 7.1240128300670165,
+          "pore_diameter": 2.240937306485612
+        },
+        "thermal_conductivity": {
+          "effective": 0.24395073096256592,
+          "conductive": 0.22175699996296316,
+          "radiative": 0.022193730999602767
+        }
+      },
+      {
+        "pressure": 6500000,
+        "experimental_burn_rate": 50.49861181061319,
+        "calculated_burn_rate": 53.14222436771708,
+        "surface_temperature_pocket": 639.9932857588283,
+        "surface_temperature_inter_pocket": 664.8618988969247,
+        "heat_flux": {
+          "skeleton": 2399704.098296904,
+          "out_skeleton": 1697298.3453544402,
+          "diffusion": 307181.9813875014,
+          "metal_burning": 156287.2159979301,
+          "to_surface_total": 4404184.425038845,
+          "sublimation": 4404184.423373635
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 12.688221320499887,
+          "out_skeleton_kinetic": 86.18189370952297,
+          "diffusion": 987.6903262805179
+        },
+        "skeleton_layer": {
+          "thickness": 6.454048309235981,
+          "pore_diameter": 2.1505646817795703
+        },
+        "thermal_conductivity": {
+          "effective": 0.24305570176629873,
+          "conductive": 0.22175699996296316,
+          "radiative": 0.021298701803335568
+        }
+      }
+    ]
+  },
+  {
+    "name": "Bas_4",
+    "pressure_frames": [
+      {
+        "pressure": 1000000,
+        "experimental_burn_rate": 9.727906416647908,
+        "calculated_burn_rate": 11.788259558837542,
+        "surface_temperature_pocket": 600.0000005980837,
+        "surface_temperature_inter_pocket": 620.5655623940402,
+        "heat_flux": {
+          "skeleton": 55165.879118117,
+          "out_skeleton": 16161.953754603273,
+          "diffusion": 158543.33945531675,
+          "metal_burning": 61738.89241036601,
+          "to_surface_total": 229871.17232803704,
+          "sublimation": 229871.17238020294
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 721.8319633721893,
+          "out_skeleton_kinetic": 1732.6396637722873,
+          "diffusion": 1879.6122307249548
+        },
+        "skeleton_layer": {
+          "thickness": 97.36559406883129,
+          "pore_diameter": 6.664555421442426
+        },
+        "thermal_conductivity": {
+          "effective": 1.4144103385415965,
+          "conductive": 1.4103436114965007,
+          "radiative": 0.004066727045095705
+        }
+      },
+      {
+        "pressure": 1611111.1111111112,
+        "experimental_burn_rate": 13.58336056282041,
+        "calculated_burn_rate": 14.119027791256654,
+        "surface_temperature_pocket": 602.1229667807347,
+        "surface_temperature_inter_pocket": 630.9008478958276,
+        "heat_flux": {
+          "skeleton": 111214.39478346237,
+          "out_skeleton": 27413.70243908795,
+          "diffusion": 142177.32121383285,
+          "metal_burning": 71851.53646321784,
+          "to_surface_total": 280805.41843638313,
+          "sublimation": 280805.4185387893
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 255.42644115044243,
+          "out_skeleton_kinetic": 1050.33936885411,
+          "diffusion": 2094.481038041628
+        },
+        "skeleton_layer": {
+          "thickness": 83.54267945559617,
+          "pore_diameter": 6.25253005070735
+        },
+        "thermal_conductivity": {
+          "effective": 1.4141589200384685,
+          "conductive": 1.4103436114965007,
+          "radiative": 0.003815308541967963
+        }
+      },
+      {
+        "pressure": 2222222.2222222225,
+        "experimental_burn_rate": 17.012597389240195,
+        "calculated_burn_rate": 16.510014718648105,
+        "surface_temperature_pocket": 604.5922949429951,
+        "surface_temperature_inter_pocket": 638.2473373887478,
+        "heat_flux": {
+          "skeleton": 188269.83783530825,
+          "out_skeleton": 37028.13476308873,
+          "diffusion": 125374.0944956285,
+          "metal_burning": 85601.1081176704,
+          "to_surface_total": 350672.0670940255,
+          "sublimation": 350672.0670554774
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 133.23217576492735,
+          "out_skeleton_kinetic": 786.4464401794993,
+          "diffusion": 2373.223684706852
+        },
+        "skeleton_layer": {
+          "thickness": 70.00833890700443,
+          "pore_diameter": 5.8084932298805265
+        },
+        "thermal_conductivity": {
+          "effective": 1.4138879680779792,
+          "conductive": 1.4103436114965007,
+          "radiative": 0.0035443565814786324
+        }
+      },
+      {
+        "pressure": 2833333.3333333335,
+        "experimental_burn_rate": 20.166371049485832,
+        "calculated_burn_rate": 19.054197976064238,
+        "surface_temperature_pocket": 607.1124561087345,
+        "surface_temperature_inter_pocket": 643.9916712392005,
+        "heat_flux": {
+          "skeleton": 280253.40996885655,
+          "out_skeleton": 44943.06427442493,
+          "diffusion": 110386.42424864836,
+          "metal_burning": 102199.80221061101,
+          "to_surface_total": 435582.8984919298,
+          "sublimation": 435582.898712742
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 84.01836363533506,
+          "out_skeleton_kinetic": 651.0816430282591,
+          "diffusion": 2693.164095246674
+        },
+        "skeleton_layer": {
+          "thickness": 58.540284693743324,
+          "pore_diameter": 5.391144087519178
+        },
+        "thermal_conductivity": {
+          "effective": 1.413633300957811,
+          "conductive": 1.4103436114965007,
+          "radiative": 0.0032896894613104266
+        }
+      },
+      {
+        "pressure": 3444444.4444444445,
+        "experimental_burn_rate": 23.120797662508902,
+        "calculated_burn_rate": 21.72628659343359,
+        "surface_temperature_pocket": 609.542620893626,
+        "surface_temperature_inter_pocket": 648.7290208533523,
+        "heat_flux": {
+          "skeleton": 383336.8573301895,
+          "out_skeleton": 51481.88376593272,
+          "diffusion": 97729.99360717979,
+          "metal_burning": 121078.92459242439,
+          "to_surface_total": 532548.7347033019,
+          "sublimation": 532548.7346032703
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 59.07405746274134,
+          "out_skeleton_kinetic": 569.4227553963407,
+          "diffusion": 3039.4531601485214
+        },
+        "skeleton_layer": {
+          "thickness": 49.3336075248199,
+          "pore_diameter": 5.020054007501671
+        },
+        "thermal_conductivity": {
+          "effective": 1.41340686117211,
+          "conductive": 1.4103436114965007,
+          "radiative": 0.0030632496756093025
+        }
+      },
+      {
+        "pressure": 4055555.5555555555,
+        "experimental_burn_rate": 25.9211719207763,
+        "calculated_burn_rate": 24.49294914855383,
+        "surface_temperature_pocket": 611.830329777149,
+        "surface_temperature_inter_pocket": 652.771719325392,
+        "heat_flux": {
+          "skeleton": 495225.719722269,
+          "out_skeleton": 56976.70192893155,
+          "diffusion": 87221.07236901007,
+          "metal_burning": 141852.21533366275,
+          "to_surface_total": 639423.4940202106,
+          "sublimation": 639423.4938125173
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 44.5013915796461,
+          "out_skeleton_kinetic": 514.6514183201085,
+          "diffusion": 3403.041936546347
+        },
+        "skeleton_layer": {
+          "thickness": 42.046176545019144,
+          "pore_diameter": 4.696521097075131
+        },
+        "thermal_conductivity": {
+          "effective": 1.4132094408339695,
+          "conductive": 1.4103436114965007,
+          "radiative": 0.0028658293374687386
+        }
+      },
+      {
+        "pressure": 4666666.666666667,
+        "experimental_burn_rate": 28.597240691161396,
+        "calculated_burn_rate": 27.328989778649582,
+        "surface_temperature_pocket": 613.9644099093857,
+        "surface_temperature_inter_pocket": 656.3048066411284,
+        "heat_flux": {
+          "skeleton": 614492.1169852503,
+          "out_skeleton": 61684.80911174582,
+          "diffusion": 78498.66374550859,
+          "metal_burning": 164256.46930674888,
+          "to_surface_total": 754675.5898425046,
+          "sublimation": 754675.5900050178
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 35.137511599102645,
+          "out_skeleton_kinetic": 475.1031663589012,
+          "diffusion": 3778.453604900147
+        },
+        "skeleton_layer": {
+          "thickness": 36.260859605903974,
+          "pore_diameter": 4.415515860286761
+        },
+        "thermal_conductivity": {
+          "effective": 1.4130379709418572,
+          "conductive": 1.4103436114965007,
+          "radiative": 0.0026943594453566165
+        }
+      },
+      {
+        "pressure": 5277777.777777779,
+        "experimental_burn_rate": 31.16988170983037,
+        "calculated_burn_rate": 30.21712339612734,
+        "surface_temperature_pocket": 615.9508703553001,
+        "surface_temperature_inter_pocket": 659.4472728829714,
+        "heat_flux": {
+          "skeleton": 740188.505769985,
+          "out_skeleton": 65791.60891493516,
+          "diffusion": 71211.670897127,
+          "metal_burning": 188107.3145657318,
+          "to_surface_total": 877191.7855820472,
+          "sublimation": 877191.7855114876
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 28.6999941494864,
+          "out_skeleton_kinetic": 444.98246143801657,
+          "diffusion": 4162.308077178235
+        },
+        "skeleton_layer": {
+          "thickness": 31.622557787596573,
+          "pore_diameter": 4.17068064925169
+        },
+        "thermal_conductivity": {
+          "effective": 1.4128885720523983,
+          "conductive": 1.4103436114965007,
+          "radiative": 0.002544960555897537
+        }
+      },
+      {
+        "pressure": 5888888.888888889,
+        "experimental_burn_rate": 33.65446849303042,
+        "calculated_burn_rate": 33.14555299096785,
+        "surface_temperature_pocket": 617.8018055376015,
+        "surface_temperature_inter_pocket": 662.2803155201836,
+        "heat_flux": {
+          "skeleton": 871637.5286875716,
+          "out_skeleton": 69429.73982583571,
+          "diffusion": 65068.345066278955,
+          "metal_burning": 213269.90571665007,
+          "to_surface_total": 1006135.6135796863,
+          "sublimation": 1006135.6138053938
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 24.046825946537034,
+          "out_skeleton_kinetic": 421.1092727525087,
+          "diffusion": 4552.441269937153
+        },
+        "skeleton_layer": {
+          "thickness": 27.858341319009558,
+          "pore_diameter": 3.9560888656124606
+        },
+        "thermal_conductivity": {
+          "effective": 1.4127576277481801,
+          "conductive": 1.4103436114965007,
+          "radiative": 0.002414016251679564
+        }
+      },
+      {
+        "pressure": 6500000,
+        "experimental_burn_rate": 36.06274106928336,
+        "calculated_burn_rate": 36.10623475761631,
+        "surface_temperature_pocket": 619.5307663132553,
+        "surface_temperature_inter_pocket": 664.8618988969247,
+        "heat_flux": {
+          "skeleton": 1008333.411346351,
+          "out_skeleton": 72694.43987542142,
+          "diffusion": 59838.43449241847,
+          "metal_burning": 239643.09167360584,
+          "to_surface_total": 1140866.285714191,
+          "sublimation": 1140866.286232127
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 20.551468587597086,
+          "out_skeleton_kinetic": 401.60151282445287,
+          "diffusion": 4947.437644047717
+        },
+        "skeleton_layer": {
+          "thickness": 24.764969279643083,
+          "pore_diameter": 3.766697500288956
+        },
+        "thermal_conductivity": {
+          "effective": 1.412642060778563,
+          "conductive": 1.4103436114965007,
+          "radiative": 0.002298449282062353
+        }
+      }
+    ]
+  },
+  {
+    "name": "Bas_1",
+    "pressure_frames": [
+      {
+        "pressure": 1000000,
+        "experimental_burn_rate": 14.264748764300235,
+        "calculated_burn_rate": 15.808044741671196,
+        "surface_temperature_pocket": 611.3293691116269,
+        "surface_temperature_inter_pocket": 618.12770699471,
+        "heat_flux": {
+          "skeleton": 65870.28831391648,
+          "out_skeleton": 488195.50210338196,
+          "diffusion": 144009.82670996373,
+          "metal_burning": 166154.1316803021,
+          "to_surface_total": 698075.6171272622,
+          "sublimation": 698075.6167404051
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 836.1064249895489,
+          "out_skeleton_kinetic": 275.70080829279254,
+          "diffusion": 2121.1542994496413
+        },
+        "skeleton_layer": {
+          "thickness": 10.254617516077758,
+          "pore_diameter": 3.844843911013258E-05
+        },
+        "thermal_conductivity": {
+          "effective": 0.40359488414887845,
+          "conductive": 0.40359482227358967,
+          "radiative": 6.18752887573142E-08
+        }
+      },
+      {
+        "pressure": 1611111.1111111112,
+        "experimental_burn_rate": 19.91828637166361,
+        "calculated_burn_rate": 20.739841152290285,
+        "surface_temperature_pocket": 615.4716230885242,
+        "surface_temperature_inter_pocket": 627.8155642721686,
+        "heat_flux": {
+          "skeleton": 111547.21088469721,
+          "out_skeleton": 745065.157006075,
+          "diffusion": 116024.7955423897,
+          "metal_burning": 224572.99007431828,
+          "to_surface_total": 972637.1634331619,
+          "sublimation": 972637.1629856264
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 305.58871851791105,
+          "out_skeleton_kinetic": 186.64905106843565,
+          "diffusion": 2629.2038375512284
+        },
+        "skeleton_layer": {
+          "thickness": 7.568441584470483,
+          "pore_diameter": 3.3876502718257E-05
+        },
+        "thermal_conductivity": {
+          "effective": 0.4035948767912426,
+          "conductive": 0.40359482227358967,
+          "radiative": 5.451765295525327E-08
+        }
+      },
+      {
+        "pressure": 2222222.2222222225,
+        "experimental_burn_rate": 24.94682999523813,
+        "calculated_burn_rate": 25.132881903340397,
+        "surface_temperature_pocket": 618.6280275884201,
+        "surface_temperature_inter_pocket": 634.6904528196319,
+        "heat_flux": {
+          "skeleton": 170757.194894268,
+          "out_skeleton": 970136.0341047721,
+          "diffusion": 98601.01549508749,
+          "metal_burning": 281757.18160261796,
+          "to_surface_total": 1239494.2444941276,
+          "sublimation": 1239494.2449625414
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 157.15060945747138,
+          "out_skeleton_kinetic": 145.8784757336601,
+          "diffusion": 3090.6091150383813
+        },
+        "skeleton_layer": {
+          "thickness": 6.021080827924647,
+          "pore_diameter": 3.079625372447289E-05
+        },
+        "thermal_conductivity": {
+          "effective": 0.4035948718341849,
+          "conductive": 0.40359482227358967,
+          "radiative": 4.95605952311929E-08
+        }
+      },
+      {
+        "pressure": 2833333.3333333335,
+        "experimental_burn_rate": 29.571441601891898,
+        "calculated_burn_rate": 29.196852711260426,
+        "surface_temperature_pocket": 621.1961486944347,
+        "surface_temperature_inter_pocket": 640.0595057712053,
+        "heat_flux": {
+          "skeleton": 242254.48263637442,
+          "out_skeleton": 1172453.985777497,
+          "diffusion": 86478.73302306668,
+          "metal_burning": 338286.8439274755,
+          "to_surface_total": 1501187.2014369383,
+          "sublimation": 1501187.201717498
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 95.71306618949733,
+          "out_skeleton_kinetic": 122.07181404583565,
+          "diffusion": 3520.870097036942
+        },
+        "skeleton_layer": {
+          "thickness": 5.007264036503075,
+          "pore_diameter": 2.8518310038089942E-05
+        },
+        "thermal_conductivity": {
+          "effective": 0.4035948681682802,
+          "conductive": 0.40359482227358967,
+          "radiative": 4.589469053454521E-08
+        }
+      },
+      {
+        "pressure": 3444444.4444444445,
+        "experimental_burn_rate": 33.90373588724943,
+        "calculated_burn_rate": 33.03859491007185,
+        "surface_temperature_pocket": 623.3758546688478,
+        "surface_temperature_inter_pocket": 644.4830765438383,
+        "heat_flux": {
+          "skeleton": 325224.9946764797,
+          "out_skeleton": 1357157.2187068642,
+          "diffusion": 77431.85470436132,
+          "metal_burning": 394608.48929474445,
+          "to_surface_total": 1759814.0680877054,
+          "sublimation": 1759814.0685026618
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 64.50358799169192,
+          "out_skeleton_kinetic": 106.30141767720494,
+          "diffusion": 3929.421756650468
+        },
+        "skeleton_layer": {
+          "thickness": 4.287014309355007,
+          "pore_diameter": 2.6730869647497115E-05
+        },
+        "thermal_conductivity": {
+          "effective": 0.40359486529174443,
+          "conductive": 0.40359482227358967,
+          "radiative": 4.301815473688284E-08
+        }
+      },
+      {
+        "pressure": 4055555.5555555555,
+        "experimental_burn_rate": 38.01013180938074,
+        "calculated_burn_rate": 36.72158650710114,
+        "surface_temperature_pocket": 625.2801609560265,
+        "surface_temperature_inter_pocket": 648.2549564141664,
+        "heat_flux": {
+          "skeleton": 419021.38603343215,
+          "out_skeleton": 1527518.712410063,
+          "diffusion": 70350.18553486755,
+          "metal_burning": 451036.83659030497,
+          "to_surface_total": 2016890.2839783626,
+          "sublimation": 2016890.2832600551
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 46.50124089937705,
+          "out_skeleton_kinetic": 95.01255501575474,
+          "diffusion": 4322.262714626257
+        },
+        "skeleton_layer": {
+          "thickness": 3.7464142009676475,
+          "pore_diameter": 2.5270538937249107E-05
+        },
+        "thermal_conductivity": {
+          "effective": 0.40359486294162755,
+          "conductive": 0.40359482227358967,
+          "radiative": 4.0668037873249007E-08
+        }
+      },
+      {
+        "pressure": 4666666.666666667,
+        "experimental_burn_rate": 41.93424939959572,
+        "calculated_burn_rate": 40.287062630850095,
+        "surface_temperature_pocket": 626.9788640915067,
+        "surface_temperature_inter_pocket": 651.5490711128223,
+        "heat_flux": {
+          "skeleton": 523095.39149367984,
+          "out_skeleton": 1685802.0922953323,
+          "diffusion": 64613.03552751456,
+          "metal_burning": 507796.85838701675,
+          "to_surface_total": 2273510.519316527,
+          "sublimation": 2273510.5199157735
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 35.175037423946556,
+          "out_skeleton_kinetic": 86.4957878770376,
+          "diffusion": 4703.417988486811
+        },
+        "skeleton_layer": {
+          "thickness": 3.324275847645106,
+          "pore_diameter": 2.4042257544319636E-05
+        },
+        "thermal_conductivity": {
+          "effective": 0.4035948609649486,
+          "conductive": 0.40359482227358967,
+          "radiative": 3.869135893328575E-08
+        }
+      },
+      {
+        "pressure": 5277777.777777779,
+        "experimental_burn_rate": 45.706703226787454,
+        "calculated_burn_rate": 43.76313107706467,
+        "surface_temperature_pocket": 628.5178264530259,
+        "surface_temperature_inter_pocket": 654.4771935106837,
+        "heat_flux": {
+          "skeleton": 636861.8305566754,
+          "out_skeleton": 1833744.6611360582,
+          "diffusion": 59843.97227666348,
+          "metal_burning": 565046.8935408599,
+          "to_surface_total": 2530450.463969397,
+          "sublimation": 2530450.4646230014
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 27.584027509133385,
+          "out_skeleton_kinetic": 79.82090715032943,
+          "diffusion": 5075.669374861099
+        },
+        "skeleton_layer": {
+          "thickness": 2.9847151639514804,
+          "pore_diameter": 2.2986447763535376E-05
+        },
+        "thermal_conductivity": {
+          "effective": 0.40359485926582894,
+          "conductive": 0.40359482227358967,
+          "radiative": 3.699223928140364E-08
+        }
+      },
+      {
+        "pressure": 5888888.888888889,
+        "experimental_burn_rate": 49.350036615027676,
+        "calculated_burn_rate": 47.17125939072283,
+        "surface_temperature_pocket": 629.9294939162792,
+        "surface_temperature_inter_pocket": 657.1155544588692,
+        "heat_flux": {
+          "skeleton": 760195.810570211,
+          "out_skeleton": 1972411.5718985894,
+          "diffusion": 55797.802303844466,
+          "metal_burning": 622931.2020118829,
+          "to_surface_total": 2788405.184772645,
+          "sublimation": 2788405.1857610377
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 22.2461304587186,
+          "out_skeleton_kinetic": 74.43858598409959,
+          "diffusion": 5441.200873021725
+        },
+        "skeleton_layer": {
+          "thickness": 2.705081501007529,
+          "pore_diameter": 2.2063047282909185E-05
+        },
+        "thermal_conductivity": {
+          "effective": 0.40359485777979615,
+          "conductive": 0.40359482227358967,
+          "radiative": 3.550620647848086E-08
+        }
+      },
+      {
+        "pressure": 6500000,
+        "experimental_burn_rate": 52.88146483656272,
+        "calculated_burn_rate": 50.52569636614988,
+        "surface_temperature_pocket": 631.2363974211621,
+        "surface_temperature_inter_pocket": 659.5185464670067,
+        "heat_flux": {
+          "skeleton": 892397.5608457522,
+          "out_skeleton": 2103038.401668433,
+          "diffusion": 52310.687361422555,
+          "metal_burning": 681524.9024817557,
+          "to_surface_total": 3047746.649875608,
+          "sublimation": 3047746.651317528
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 18.347371281448694,
+          "out_skeleton_kinetic": 69.99795088016766,
+          "diffusion": 5801.421766093785
+        },
+        "skeleton_layer": {
+          "thickness": 2.470578859997538,
+          "pore_diameter": 2.124474818477564E-05
+        },
+        "thermal_conductivity": {
+          "effective": 0.40359485646290344,
+          "conductive": 0.40359482227358967,
+          "radiative": 3.418931378227079E-08
+        }
+      }
+    ]
+  },
+  {
+    "name": "Bas_0",
+    "pressure_frames": [
+      {
+        "pressure": 1000000,
+        "experimental_burn_rate": 5.965891836253176,
+        "calculated_burn_rate": 6.0462861105692385,
+        "surface_temperature_pocket": 829.6784551363089,
+        "surface_temperature_inter_pocket": 838.4564803549438,
+        "heat_flux": {
+          "skeleton": 942050.9909575736,
+          "out_skeleton": 725415.6905558533,
+          "diffusion": 349046.3169958409,
+          "metal_burning": 22189.93079457988,
+          "to_surface_total": 2016512.9985092678,
+          "sublimation": 2016512.9984129816
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 48.027053847510196,
+          "out_skeleton_kinetic": 87.60551740991706,
+          "diffusion": 812.5917411979132
+        },
+        "skeleton_layer": {
+          "thickness": 69.74671231306303,
+          "pore_diameter": 10.842526054232282
+        },
+        "thermal_conductivity": {
+          "effective": 0.42104387976436025,
+          "conductive": 0.40359482227358967,
+          "radiative": 0.01744905749077058
+        }
+      },
+      {
+        "pressure": 1611111.1111111112,
+        "experimental_burn_rate": 7.904591225407788,
+        "calculated_burn_rate": 7.840900812318842,
+        "surface_temperature_pocket": 834.3201581112226,
+        "surface_temperature_inter_pocket": 853.3100315908086,
+        "heat_flux": {
+          "skeleton": 879708.2359148585,
+          "out_skeleton": 1295743.8152811022,
+          "diffusion": 290246.98179539177,
+          "metal_burning": 28527.483695119565,
+          "to_surface_total": 2465699.0329913525,
+          "sublimation": 2465699.0334725664
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 44.924200809058085,
+          "out_skeleton_kinetic": 57.46079001899697,
+          "diffusion": 975.6104350759304
+        },
+        "skeleton_layer": {
+          "thickness": 53.85175703101565,
+          "pore_diameter": 9.734528165716844
+        },
+        "thermal_conductivity": {
+          "effective": 0.41926076261678363,
+          "conductive": 0.40359482227358967,
+          "radiative": 0.01566594034319396
+        }
+      },
+      {
+        "pressure": 2222222.2222222225,
+        "experimental_burn_rate": 9.556084735388243,
+        "calculated_burn_rate": 9.42800139241705,
+        "surface_temperature_pocket": 838.1124334831838,
+        "surface_temperature_inter_pocket": 863.6325040177326,
+        "heat_flux": {
+          "skeleton": 818760.3584539716,
+          "out_skeleton": 1832156.0474419405,
+          "diffusion": 250014.59404109878,
+          "metal_burning": 34964.43822279357,
+          "to_surface_total": 2900930.999937011,
+          "sublimation": 2900931.000174695
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 43.962591813048284,
+          "out_skeleton_kinetic": 44.29224056753433,
+          "diffusion": 1131.0889979694357
+        },
+        "skeleton_layer": {
+          "thickness": 43.68724496583005,
+          "pore_diameter": 8.921778596815239
+        },
+        "thermal_conductivity": {
+          "effective": 0.41795279273667546,
+          "conductive": 0.40359482227358967,
+          "radiative": 0.014357970463085807
+        }
+      },
+      {
+        "pressure": 2833333.3333333335,
+        "experimental_burn_rate": 11.028869579811483,
+        "calculated_burn_rate": 10.895956801072751,
+        "surface_temperature_pocket": 841.292610981327,
+        "surface_temperature_inter_pocket": 871.60097387532,
+        "heat_flux": {
+          "skeleton": 767220.6743148334,
+          "out_skeleton": 2332587.8111673766,
+          "diffusion": 220835.1820579982,
+          "metal_burning": 41417.786487924524,
+          "to_surface_total": 3320643.667540208,
+          "sublimation": 3320643.667708671
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 43.71523274296673,
+          "out_skeleton_kinetic": 36.78872203163354,
+          "diffusion": 1279.102071823328
+        },
+        "skeleton_layer": {
+          "thickness": 36.71164357655176,
+          "pore_diameter": 8.297791927310117
+        },
+        "thermal_conductivity": {
+          "effective": 0.4169486016787271,
+          "conductive": 0.40359482227358967,
+          "radiative": 0.013353779405137416
+        }
+      },
+      {
+        "pressure": 3444444.4444444445,
+        "experimental_burn_rate": 12.375868724099789,
+        "calculated_burn_rate": 12.27782442324821,
+        "surface_temperature_pocket": 844.0195212708204,
+        "surface_temperature_inter_pocket": 878.1161515813437,
+        "heat_flux": {
+          "skeleton": 724417.0839247644,
+          "out_skeleton": 2802285.100603217,
+          "diffusion": 198688.68658265466,
+          "metal_burning": 47848.680575818194,
+          "to_surface_total": 3725390.871110636,
+          "sublimation": 3725390.8719447684
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 43.75955003433579,
+          "out_skeleton_kinetic": 31.870787010484513,
+          "diffusion": 1420.3025483060073
+        },
+        "skeleton_layer": {
+          "thickness": 31.65735115434276,
+          "pore_diameter": 7.801007401722018
+        },
+        "thermal_conductivity": {
+          "effective": 0.41614911886257794,
+          "conductive": 0.40359482227358967,
+          "radiative": 0.012554296588988281
+        }
+      },
+      {
+        "pressure": 4055555.5555555555,
+        "experimental_burn_rate": 13.627779081285386,
+        "calculated_burn_rate": 13.591356746754418,
+        "surface_temperature_pocket": 846.4010431038332,
+        "surface_temperature_inter_pocket": 883.6407938986667,
+        "heat_flux": {
+          "skeleton": 688647.1875823402,
+          "out_skeleton": 3246483.0107518495,
+          "diffusion": 181271.87574622687,
+          "metal_burning": 54239.677393250124,
+          "to_surface_total": 4116402.0740804165,
+          "sublimation": 4116402.074575415
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 43.93517679389567,
+          "out_skeleton_kinetic": 28.359048266090706,
+          "diffusion": 1555.4530703061125
+        },
+        "skeleton_layer": {
+          "thickness": 27.837632443844814,
+          "pore_diameter": 7.393943621842142
+        },
+        "thermal_conductivity": {
+          "effective": 0.41549402494621374,
+          "conductive": 0.40359482227358967,
+          "radiative": 0.011899202672624083
+        }
+      },
+      {
+        "pressure": 4666666.666666667,
+        "experimental_burn_rate": 14.804351088945499,
+        "calculated_burn_rate": 14.848073835704476,
+        "surface_temperature_pocket": 848.5122716796468,
+        "surface_temperature_inter_pocket": 888.4451554578845,
+        "heat_flux": {
+          "skeleton": 658398.486913423,
+          "out_skeleton": 3669423.148095861,
+          "diffusion": 167184.01303067198,
+          "metal_burning": 60583.40325744185,
+          "to_surface_total": 4495005.648039956,
+          "sublimation": 4495005.648486989
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 44.17180723445048,
+          "out_skeleton_kinetic": 25.703104557676735,
+          "diffusion": 1685.2614536794558
+        },
+        "skeleton_layer": {
+          "thickness": 24.85364061283743,
+          "pore_diameter": 7.052651071834143
+        },
+        "thermal_conductivity": {
+          "effective": 0.4149447776332125,
+          "conductive": 0.40359482227358967,
+          "radiative": 0.01134995535962283
+        }
+      },
+      {
+        "pressure": 5277777.777777779,
+        "experimental_burn_rate": 15.919210457142944,
+        "calculated_burn_rate": 16.05621395615751,
+        "surface_temperature_pocket": 850.4069318980328,
+        "surface_temperature_inter_pocket": 892.7011969484738,
+        "heat_flux": {
+          "skeleton": 632505.0784087203,
+          "out_skeleton": 4074394.6065350017,
+          "diffusion": 155528.57918873217,
+          "metal_burning": 66877.18947267803,
+          "to_surface_total": 4862428.264132454,
+          "sublimation": 4862428.262440729
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 44.435557542856145,
+          "out_skeleton_kinetic": 23.610261730193635,
+          "diffusion": 1810.338063131971
+        },
+        "skeleton_layer": {
+          "thickness": 22.459864675984758,
+          "pore_diameter": 6.76115251096454
+        },
+        "thermal_conductivity": {
+          "effective": 0.41447566452101264,
+          "conductive": 0.40359482227358967,
+          "radiative": 0.010880842247422987
+        }
+      },
+      {
+        "pressure": 5888888.888888889,
+        "experimental_burn_rate": 16.982243263635624,
+        "calculated_burn_rate": 17.222031984230554,
+        "surface_temperature_pocket": 852.1245535564958,
+        "surface_temperature_inter_pocket": 896.5253011570894,
+        "heat_flux": {
+          "skeleton": 610086.984696412,
+          "out_skeleton": 4463961.123153299,
+          "diffusion": 145706.04812493708,
+          "metal_burning": 73120.76155253506,
+          "to_surface_total": 5219754.155974649,
+          "sublimation": 5219754.155671844
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 44.70910678614128,
+          "out_skeleton_kinetic": 21.909770331966186,
+          "diffusion": 1931.2001681843155
+        },
+        "skeleton_layer": {
+          "thickness": 20.497603099946804,
+          "pore_diameter": 6.508373105104547
+        },
+        "thermal_conductivity": {
+          "effective": 0.4140688627191791,
+          "conductive": 0.40359482227358967,
+          "radiative": 0.010474040445589406
+        }
+      },
+      {
+        "pressure": 6500000,
+        "experimental_burn_rate": 18.000901505342892,
+        "calculated_burn_rate": 18.350440397552017,
+        "surface_temperature_pocket": 853.6949218876543,
+        "surface_temperature_inter_pocket": 899.9999996027327,
+        "heat_flux": {
+          "skeleton": 590483.9925689531,
+          "out_skeleton": 4840134.152016535,
+          "diffusion": 137300.6614177171,
+          "metal_burning": 79314.92840025917,
+          "to_surface_total": 5567918.8060032055,
+          "sublimation": 5567918.805269011
+        },
+        "flame_heights": {
+          "skeleton_kinetic": 44.98323527899711,
+          "out_skeleton_kinetic": 20.494850910247575,
+          "diffusion": 2048.2822508453332
+        },
+        "skeleton_layer": {
+          "thickness": 18.860043909327544,
+          "pore_diameter": 6.286387139769058
+        },
+        "thermal_conductivity": {
+          "effective": 0.4137116172602863,
+          "conductive": 0.40359482227358967,
+          "radiative": 0.010116794986696645
+        }
+      }
+    ]
+  }
+]

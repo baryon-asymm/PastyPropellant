@@ -1,0 +1,65 @@
+6-hour run, run P: CLASSIC DE/rand/1/bin, SEEDED, metal 2300 K,
+constraint #5 delta <= d_AP ON, skeleton contact factor k_c = 400,
+SKELETON SURFACE FRACTION f_s FROM THE KINETIC-COVERAGE CLOSURE (new)
+================================================================================
+Branch:     experiment/skeleton-surface-fraction-kinetic
+Baselines:  run I  /root/runs/4h-Classic-Tm2300-kc400-constrON-20260730-0701
+                   polynomial closure, 22 coefficients, objective 0.0391309, pen 0
+            run M  /root/runs/6h-Classic-Tm2300-kc400-constrON-fsEquilibrium-20260803-0118
+                   equilibrium-carbon closure, 0 fitted numbers, objective 0.0227826, pen 0
+
+THE ONE MODEL CHANGE vs run M:
+    model.skeletonSurfaceFraction.mode  EquilibriumCarbon -> KineticCoverage
+`diff` of the two run-config.json files is that block alone. Seed, strategy, F/CR,
+population, budget, bounds, penalties, stagnation gate, metal melting temperature
+and contact factor are identical.
+
+WHAT THE NEW CLOSURE IS
+    f_s(p) = 1 / (1 + a0 + a1 * w_fine * (p/p_ref)^m)
+    a0 = 0.9966, a1 = 3.3653, m = 0.71, p_ref = 1 MPa
+Coverage as the steady state of a rate competition: the pocket surface gains skeleton
+where condensed residue accumulates and loses it where the carbonaceous binder residue
+holding the skeleton is oxidised away.  Both rates written per unit skeleton area, so
+the layer thickness delta CANCELS IDENTICALLY - this closure cannot inherit the
+delta -> 0 non-identifiability, and it is independent of skeletonContactFactor.
+    a0                    burnout by the binder's own decomposition products.  The
+                          binder is itself a perchlorate (XPEPA-22E), so this channel
+                          exists with no AP in the pocket; it carries no pressure term.
+    a1 * w_fine * p^m     burnout by the FINE AP inside the pocket (the coarse fraction
+                          is the pocket wall, not pocket material).
+
+WHY THIS SHAPE AND NOT THE INVENTORY.  The measured coverage of Bas_4 (0.529 at 1 MPa)
+EXCEEDS its whole condensed inventory phi_Al + phi_C = 0.386, so coverage cannot be
+inventory-limited.  Normalising K by phi_C or phi_C*phi_s was tried and is worse:
+leave-one-composition-out error rises 13..21 % -> 19..42 % and a1 turns negative.
+And no law of the form K ~ p^a / r^b can work at all: Bas_1 and Bas_4 share nu = 0.70
+yet need d lnK/d lnp of 0.609 and 0.015, so the pocket recipe must enter.
+
+CALIBRATION, AND WHAT IT IS NOT.  Three constants, fitted on Bas_2/Bas_3/Bas_4 - one
+binder, the same 0.5 % activated carbon, differing only in AP dispersity, so every
+input is published (Babuk et al., 10th Int. Seminar on Flame Structure 2024, Table 1).
+In-sample 4.7..8.6 % RMS on f_s; leave-one-composition-out 12.7..20.9 %.  This is NOT
+a zero-fit closure the way run M's is.  The claim is 3 shared constants carrying a
+transferable recipe dependence, in place of 12 per-composition coefficients that
+transfer to nothing.
+
+WHAT THE TARGET ACTUALLY IS.  The shipped polynomial was PROVEN this session to be
+Babuk's measured agglomeration curve: agglomeration_coefficients evaluated at the
+points of his Fig. 2 reproduce them to <= 0.023 over 20 points, inside the plotted
+confidence intervals, for all five compositions.  f_s_poly = Z_m^a(p) / Z_pocket is
+his stated correlation.  So "beating the polynomial" means describing a measurement
+with fewer and more transferable numbers, not beating an arbitrary fit.
+
+PRE-REGISTERED PREDICTION (written before the run started, per campaign practice)
+    Bas_2 + Bas_3 + Bas_4 group error:  IMPROVES on run M's 0.0605.  This group is the
+        calibration set and its coverage is now within 4.7..8.6 % of measurement,
+        against run M's 9..75 %.  Expect 0.02..0.05.
+    Bas_0:  DEGRADES.  Its coverage is overshot by 65..137 %; run M had 0.0026.
+    Bas_1:  DEGRADES.  Overshot by 13..83 %; run M had 0.0052.
+    Aggregate objective:  I do NOT expect it to beat run M's 0.0227826, because two of
+        the three groups are modelled with constants calibrated for a binder they do
+        not have.  If the aggregate improves anyway, that is evidence the closure is
+        carrying more than its calibration set.
+    Penalty: expected 0.  delta is no longer coupled to f_s, so nothing pushes it to 0.
+
+The interesting number in this run is the Bas_2/3/4 group error, not the aggregate.

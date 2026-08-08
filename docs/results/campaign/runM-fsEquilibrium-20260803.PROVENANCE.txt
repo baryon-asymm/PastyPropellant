@@ -1,0 +1,57 @@
+6-hour run, run M: CLASSIC DE/rand/1/bin, SEEDED, metal 2300 K,
+constraint #5 delta <= d_AP ON, skeleton contact factor k_c = 400,
+SKELETON SURFACE FRACTION f_s FROM EQUILIBRIUM CARBON (new closure)
+================================================================================
+Branch:     experiment/skeleton-surface-fraction-kinetic
+Baseline:   run I, /root/runs/4h-Classic-Tm2300-kc400-constrON-20260730-0701
+            objective 0.0391309, penalty 0, delta 7.5..135 um (physical).
+
+THE ONE MODEL CHANGE vs run I:
+    model.skeletonSurfaceFraction.mode  (absent = Polynomial)  ->  EquilibriumCarbon
+`diff` of the two run-config.json files is that block plus the 4h -> 6h budget.
+Seed, strategy, F/CR, population, bounds, penalties, stagnation gate, metal
+melting temperature, contact factor: all identical.
+
+WHAT THE NEW CLOSURE IS
+    f_s(p, T_s) = n_C(s)(T_pore, p) / n_C,total ,  T_pore = (T_flame,skeleton + T_s)/2
+The skeleton is the carbonaceous residue of binder pyrolysis; how much survives is
+decided by equilibrium at the pocket conditions, not by a fit.  Numerator: Gibbs
+minimisation over the pocket matrix (binder + Al + FINE AP - coarse AP and HMX are
+the pocket walls, not pocket material).  Denominator: the carbon that matrix holds.
+Both from data/propellants.01234.json + data/propellant_components.json and the
+AerospacePropellantThermodynamics submodule.
+
+ZERO FITTED NUMBERS.  This replaces 22 polynomial coefficients that were byte-
+identical to the agglomeration measurements.  Nothing in the new closure is
+calibrated against those measurements or against anything else.
+
+WHY PRESSURE LOWERS IT.  C(s) + 2H2 -> CH4 is the only carbon sink here with
+dn < 0, so the only one pressure drives forward.  Boudouard (C + CO2 -> 2CO) and
+steam gasification (C + H2O -> CO + H2) go with dn = +1 and are suppressed by
+pressure.  Six transport candidates for the same trend all gave the WRONG sign,
+because any length of the form (transport coefficient)/(velocity) shrinks with p.
+
+IMPLEMENTATION.  f_s now depends on T_s, so it is evaluated INSIDE the surface-
+temperature bisection instead of once at matrix-build time.  Loop gain measured on
+the shipped table: |d ln f_s / dT_s| <= 0.16 %/K, gentle enough not to threaten the
+bracketing.  The Gibbs minimisation itself does not depend on the search vector, so
+it is tabulated ahead of the run into data/skeleton_carbon_equilibrium.json by
+generate_skeleton_carbon_equilibrium.py (250 equilibria, 1224 s).
+
+PREDICTION, RECORDED BEFORE THE FACT.  Objective WORSE than run I's 0.0391 - the
+closure has no freedom left to absorb error.  Expect 0.06..0.25.  Bas_3 is the
+identified weak point: its skeleton flame is ~2622 K, above the methanation
+regime, so the Boudouard/steam channels dominate and the closure predicts f_s
+FLAT to RISING with pressure (-10 % .. +25 %) where the measured polynomial falls
+51.6 %.  If the aggregate lands under ~0.10 with Bas_3 carrying most of the error,
+the closure is working and Bas_3 is a temperature problem, not a mechanism problem.
+Bas_4 is the second suspect: its shipped polynomial is essentially flat (-1.3 %
+over the window) while the closure predicts -27 %.
+
+FORWARD-EVAL PREFLIGHT (run I's best vector scored under the new closure):
+    Bas_2 group  fitness 1.7977E+308 (no surface-temperature root)
+    Bas_1        fitness 2.7566E-002  penalty 1.0307E+000
+    Bas_0        fitness 1.1844E-001  penalty 9.4215E+000
+Expected: run I's vector was optimised against a different f_s (0.13..0.53 there,
+0.16..0.86 here), so it need not have a root.  Two of three groups solving on a
+foreign vector is enough to show the model is not degenerate under the new closure.
