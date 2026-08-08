@@ -141,7 +141,8 @@ public class ProblemContextByDoublesMatrixBuilder
             AverageOxidizerDiameter = propellant.GetAverageParticlesDiameter(),
             Density = propellant.Density,
             InitialTemperature = propellant.InitialTemperature,
-            SkeletonCoverage = propellant.GetSkeletonCoverage(pressure.Pascals),
+            SkeletonCoverage = propellant.GetSkeletonCoverage(
+                pressure.Pascals, ModelConstants.SkeletonSurfaceFraction),
             SpecificHeatCapacity = propellant.SpecificHeatCapacity
         };
     }

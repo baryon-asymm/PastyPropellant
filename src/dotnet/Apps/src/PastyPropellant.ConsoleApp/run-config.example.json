@@ -101,7 +101,42 @@
     // make the fit better is algebraically the same as switching the delta <= d_AP constraint off, and it
     // would leave that constraint reading as satisfied while meaning nothing. Choose it once by a stated
     // rule, freeze it, and record any scan as a declared sensitivity analysis.
-    "skeletonContactFactor": 1.0
+    "skeletonContactFactor": 1.0,
+
+    // How f_s, the share of the pocket surface carrying a skeleton layer, is obtained.
+    //
+    //   "Polynomial" (default, historical) - the per-propellant fit shipped in propellants*.json.
+    //       22 coefficients across the five compositions, none of which transfers to a composition that
+    //       was not measured, and four of which go negative or turn upward outside 1..6.5 MPa.
+    //
+    //   "EquilibriumCarbon" - the skeleton is the pocket's aluminium held together by the carbonaceous
+    //       residue of binder pyrolysis. f_s is an AREA fraction, and Delesse's theorem equates that to
+    //       the volume fraction, so it is the share of the pocket still solid at the surface:
+    //
+    //           f_s(p, T_s) = phi_Al + phi_C(s)(T_pore, p) ,  T_pore = (T_s + T_m) / 2
+    //
+    //       C(s) + 2H2 -> CH4 is the only carbon sink here that runs with a DECREASE in mole number,
+    //       hence the only one pressure drives forward; Boudouard and steam gasification both go with
+    //       dn = +1 and are suppressed by pressure. That is why coverage falls with pressure at all.
+    //
+    //       ZERO fitted numbers, NO SCALE FACTOR (Delesse fixes the mapping) and no agglomeration data:
+    //       phi_Al is recipe, phi_C(s) is a Gibbs minimisation over the pocket matrix (binder +
+    //       aluminium + fine AP, from the recipe), and T_s is the model's own surface temperature.
+    //       Coverage is therefore evaluated INSIDE the surface-temperature bisection, not per pressure.
+    //
+    // NOT A TUNING KNOB, for the same reason as skeletonContactFactor: f_s weighs (q_metal + q_k^S)
+    // against q_k^OS and appears nowhere else, so a coverage the optimiser could choose would be
+    // algebraically the same as redistributing between the skeleton and out-skeleton kinetic-flame
+    // pre-exponentials. There is deliberately nothing here for the search to move.
+    "skeletonSurfaceFraction": {
+      "mode": "Polynomial",
+
+      // Read only when mode is EquilibriumCarbon; resolved against the process working directory.
+      // DERIVED DATA, not configuration: regenerate it whenever the propellants file changes, with
+      //     python generate_skeleton_carbon_equilibrium.py
+      // A missing or malformed table is a hard startup error, never a silent fallback to the polynomial.
+      "equilibriumTableFile": "skeleton_carbon_equilibrium.json"
+    }
   },
 
   "differentialEvolution": {

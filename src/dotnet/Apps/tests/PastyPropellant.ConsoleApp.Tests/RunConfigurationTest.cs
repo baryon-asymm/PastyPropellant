@@ -124,6 +124,14 @@ public class RunConfigurationTest : IDisposable
         Assert.Equal(1300.0, constants.MetalMeltingTemperatureKelvins);
         Assert.Equal(1.0, constants.SkeletonContactFactor);
 
+        // Skeleton coverage defaults to the shipped per-propellant polynomials. The kinetic closure is
+        // opt-in for the same reason as everything else in this section: switching it silently would
+        // change every computed number of a configuration-free run.
+        var coverage = model.SkeletonSurfaceFraction;
+        Assert.Equal(SkeletonSurfaceFractionMode.Polynomial, coverage.Mode);
+        Assert.Equal(SkeletonSurfaceFractionMode.Polynomial, constants.SkeletonSurfaceFraction.Mode);
+        Assert.Null(constants.SkeletonSurfaceFraction.EquilibriumTable);
+
         // The Nelder-Mead projection must hand the optimiser exactly these values, not a library default.
         var refinement = nelderMead.ToRefinementSettings();
         Assert.True(refinement.Enabled);
@@ -470,6 +478,83 @@ public class RunConfigurationTest : IDisposable
 
         Assert.Null(plan.Settings.DifferentialEvolutionSettings.Seed);
         Assert.Null(plan.Resolved.Effective.Seed);
+    }
+
+    /// <summary>
+    /// A kinetic skeleton-coverage configuration must survive the JSON round trip and arrive at the
+    /// context builders intact.
+    ///
+    /// <para>The failure mode guarded here is a configuration that <em>parses</em> but does not
+    /// <em>reach</em> the model: <c>f_s</c> weighs the metal and skeleton-flame fluxes against the
+    /// out-skeleton flux, so a run that silently kept the polynomial while its sidecar advertised the
+    /// kinetic closure would report a model it never solved.</para>
+    /// </summary>
+    [Fact]
+    public void AnEquilibriumCoverageConfigurationReachesTheModelConstants()
+    {
+        var table = Path.Combine(_directory, "coverage.json");
+        File.WriteAllText(table, """
+        {
+          "surfaceTemperaturesKelvins": [600.0, 900.0],
+          "propellants": [
+            { "name": "Bas_0", "frames": [ { "pressure": 1000000.0, "coverages": [0.25, 0.45] } ] }
+          ]
+        }
+        """);
+
+        var path = Path.Combine(_directory, RunConfigurationLoader.DefaultFileName);
+        File.WriteAllText(path, $$"""
+        {
+          "model": {
+            "skeletonSurfaceFraction": {
+              "mode": "EquilibriumCarbon",
+              "equilibriumTableFile": {{System.Text.Json.JsonSerializer.Serialize(table)}}
+            }
+          }
+        }
+        """);
+
+        var loaded = RunConfigurationLoader.Load(baseDirectory: _directory);
+        var coverage = loaded.Configuration.Model.SkeletonSurfaceFraction;
+
+        Assert.Equal(SkeletonSurfaceFractionMode.EquilibriumCarbon, coverage.Mode);
+        Assert.Equal(table, coverage.EquilibriumTableFile);
+
+        var constants = loaded.Configuration.Model.ToModelConstants();
+        Assert.Equal(SkeletonSurfaceFractionMode.EquilibriumCarbon, constants.SkeletonSurfaceFraction.Mode);
+
+        // The table has to be loaded, not merely named: coverage is what weighs the metal and
+        // skeleton-flame fluxes against the out-skeleton flux, so a run whose sidecar advertised the
+        // equilibrium closure while the solver kept the polynomial would report a model it never solved.
+        var curve = constants.SkeletonSurfaceFraction.EquilibriumTable!.CurveFor("Bas_0", 1e6);
+        Assert.Equal(0.25, curve.At(600.0));
+        Assert.Equal(0.45, curve.At(900.0));
+        Assert.Equal(0.35, curve.At(750.0), 12);
+    }
+
+    /// <summary>
+    /// Selecting the equilibrium closure without a readable table fails at startup rather than at the
+    /// first context build, where it would surface as an opaque mid-run exception hours in.
+    /// </summary>
+    [Fact]
+    public void EquilibriumCoverageWithoutATableIsRejected()
+    {
+        var path = Path.Combine(_directory, RunConfigurationLoader.DefaultFileName);
+        File.WriteAllText(path, """
+        {
+          "model": {
+            "skeletonSurfaceFraction": {
+              "mode": "EquilibriumCarbon",
+              "equilibriumTableFile": "definitely-not-here.json"
+            }
+          }
+        }
+        """);
+
+        var error = Assert.Throws<RunConfigurationException>(
+            () => RunConfigurationLoader.Load(baseDirectory: _directory));
+
+        Assert.Contains("definitely-not-here.json", error.Message, StringComparison.Ordinal);
     }
 
     /// <summary>

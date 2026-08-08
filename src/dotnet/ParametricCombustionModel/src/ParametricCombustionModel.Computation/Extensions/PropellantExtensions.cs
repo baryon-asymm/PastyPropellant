@@ -93,19 +93,37 @@ public static class PropellantExtensions
     }
 
     /// <summary>
-    /// Skeleton coverage of the pocket surface — the single entry point the context builders use, so the
-    /// two tiers cannot drift apart on which model is in force.
+    /// Skeleton coverage of the pocket surface under the configured closure — the single entry point the
+    /// context builders use, so the two tiers cannot drift apart on which model is in force.
     ///
-    /// <para>A curve in the surface temperature rather than a number. Under the historical polynomial the
-    /// curve is constant and reproduces the previous value exactly, which is what lets this change ship
-    /// without invalidating the archive.</para>
+    /// <para>A curve in the surface temperature rather than a number, because
+    /// <see cref="SkeletonSurfaceFractionMode.EquilibriumCarbon"/> makes coverage depend on how hot the
+    /// pocket is. Under <see cref="SkeletonSurfaceFractionMode.Polynomial"/> the curve is constant and
+    /// reproduces the historical value exactly, which is what lets the change ship without invalidating
+    /// the archive. The derivation is on <see cref="SkeletonSurfaceFractionSettings"/>.</para>
     /// </summary>
     /// <param name="propellant">Propellant whose coverage is wanted.</param>
     /// <param name="pressure">Chamber pressure, Pa.</param>
+    /// <param name="settings">Configured closure; <c>null</c> selects the historical polynomial.</param>
+    /// <exception cref="InvalidOperationException">
+    /// The equilibrium closure is selected but its table does not cover this propellant at this pressure.
+    /// </exception>
     public static SkeletonCoverageCurve GetSkeletonCoverage(
         this Propellant propellant,
-        double pressure) =>
-        SkeletonCoverageCurve.Constant(propellant.GetPocketSurfaceFraction(pressure));
+        double pressure,
+        SkeletonSurfaceFractionSettings? settings)
+    {
+        settings ??= SkeletonSurfaceFractionSettings.Default;
+
+        if (settings.Mode == SkeletonSurfaceFractionMode.Polynomial)
+            return SkeletonCoverageCurve.Constant(propellant.GetPocketSurfaceFraction(pressure));
+
+        var table = settings.EquilibriumTable
+                    ?? throw new InvalidOperationException(
+                        $"Skeleton-surface-fraction mode is {settings.Mode} but no coverage table was loaded.");
+
+        return table.CurveFor(propellant.Name, pressure);
+    }
 
     /// <summary>
     /// The <b>default</b> metal (aluminum) melting temperature of the model, in Kelvins. A run reads its

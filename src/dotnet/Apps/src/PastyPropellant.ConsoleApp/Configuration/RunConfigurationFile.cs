@@ -47,6 +47,7 @@ internal sealed record ModelFileSection
 {
     public double? MetalMeltingTemperatureKelvins { get; init; }
     public double? SkeletonContactFactor { get; init; }
+    public SkeletonSurfaceFractionFileSection? SkeletonSurfaceFraction { get; init; }
     public double? MinSurfaceTemperatureKelvins { get; init; }
     public double? MaxSurfaceTemperatureKelvins { get; init; }
 
@@ -54,8 +55,23 @@ internal sealed record ModelFileSection
     {
         MetalMeltingTemperatureKelvins = MetalMeltingTemperatureKelvins ?? d.MetalMeltingTemperatureKelvins,
         SkeletonContactFactor = SkeletonContactFactor ?? d.SkeletonContactFactor,
+        SkeletonSurfaceFraction = SkeletonSurfaceFraction?.ApplyTo(d.SkeletonSurfaceFraction)
+                                  ?? d.SkeletonSurfaceFraction,
         MinSurfaceTemperatureKelvins = MinSurfaceTemperatureKelvins ?? d.MinSurfaceTemperatureKelvins,
         MaxSurfaceTemperatureKelvins = MaxSurfaceTemperatureKelvins ?? d.MaxSurfaceTemperatureKelvins
+    };
+}
+
+/// <summary>Skeleton-coverage closure overrides.</summary>
+internal sealed record SkeletonSurfaceFractionFileSection
+{
+    public ParametricCombustionModel.Computation.Models.KnownParams.SkeletonSurfaceFractionMode? Mode { get; init; }
+    public string? EquilibriumTableFile { get; init; }
+
+    public SkeletonSurfaceFractionConfiguration ApplyTo(SkeletonSurfaceFractionConfiguration d) => new()
+    {
+        Mode = Mode ?? d.Mode,
+        EquilibriumTableFile = EquilibriumTableFile ?? d.EquilibriumTableFile
     };
 }
 

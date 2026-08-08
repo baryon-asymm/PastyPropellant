@@ -1,4 +1,5 @@
 using System.Globalization;
+using ParametricCombustionModel.Computation.Models.KnownParams;
 using ParametricCombustionModel.Optimization.Settings;
 using ParametricCombustionModel.ReportMaking.Models;
 using PastyPropellant.ConsoleApp.Configuration;
@@ -77,6 +78,26 @@ public static class RunConfigurationSummaryFactory
                     : $"{Format(model.SkeletonContactFactor)} " +
                       $"(contact-area fraction {Format(1.0 / model.SkeletonContactFactor)}; fixed calibration, not fitted)")
         };
+
+        // Which closure produced f_s has to be stated, not inferred. f_s weighs the metal and
+        // skeleton-flame fluxes against the out-skeleton flux, so two runs under different closures are
+        // two different models; a report that named only the constants would leave the reader unable to
+        // tell them apart.
+        var coverage = model.SkeletonSurfaceFraction;
+        if (coverage.Mode == SkeletonSurfaceFractionMode.Polynomial)
+        {
+            entries.Add(new RunConfigurationEntry(
+                "Skeleton surface fraction",
+                "per-propellant polynomial fit from the propellants file (historical closure)"));
+
+            return entries;
+        }
+
+        entries.Add(new RunConfigurationEntry(
+            "Skeleton surface fraction",
+            "equilibrium carbon: f_s = φ_Al + φ_C(s)(T_pore, p) by Delesse, " +
+            "T_pore = (T_s + T_m)/2 — no fitted coefficients, no agglomeration data"));
+        entries.Add(new RunConfigurationEntry("    coverage table", coverage.EquilibriumTableFile));
 
         return entries;
     }

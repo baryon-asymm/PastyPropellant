@@ -39,6 +39,14 @@ public sealed record ModelConstants
     public double SkeletonContactFactor { get; init; } = 1.0;
 
     /// <summary>
+    /// How the skeleton surface fraction is obtained. Defaults to the historical per-propellant
+    /// polynomial fit; see <see cref="SkeletonSurfaceFractionSettings"/> for the kinetic alternative and
+    /// why its coefficients are configuration rather than search parameters.
+    /// </summary>
+    public SkeletonSurfaceFractionSettings SkeletonSurfaceFraction { get; init; } =
+        SkeletonSurfaceFractionSettings.Default;
+
+    /// <summary>
     /// Lower bound of the surface-temperature bracket the condensed-phase solve bisects on, in Kelvins.
     /// Default <see cref="ProblemContexts.SurfaceTemperatureSearchBounds.MinKelvins"/>.
     /// </summary>
@@ -58,7 +66,7 @@ public sealed record ModelConstants
     public double MaxSurfaceTemperatureKelvins { get; init; } =
         ProblemContexts.SurfaceTemperatureSearchBounds.MaxKelvins;
 
-    /// <summary>The historical hardcoded constants: 1300 K, no contact correction.</summary>
+    /// <summary>The historical hardcoded constants: 1300 K, no contact correction, polynomial coverage.</summary>
     public static ModelConstants Default { get; } = new();
 
     /// <summary>Throws when a value cannot describe a physical model.</summary>
@@ -88,5 +96,7 @@ public sealed record ModelConstants
                 nameof(SkeletonContactFactor),
                 SkeletonContactFactor,
                 "Skeleton contact factor must be positive and finite (1.0 means no correction).");
+
+        SkeletonSurfaceFraction.Validate();
     }
 }

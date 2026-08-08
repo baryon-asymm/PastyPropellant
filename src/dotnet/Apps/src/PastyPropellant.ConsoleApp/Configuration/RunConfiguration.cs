@@ -99,6 +99,12 @@ public sealed record ModelConfiguration
     public double SkeletonContactFactor { get; init; } = 1.0;
 
     /// <summary>
+    /// Which closure produces the skeleton surface fraction. Defaults to the historical per-propellant
+    /// polynomial fit, so an unconfigured run is unchanged.
+    /// </summary>
+    public SkeletonSurfaceFractionConfiguration SkeletonSurfaceFraction { get; init; } = new();
+
+    /// <summary>
     /// Bracket the condensed-phase solve bisects the surface temperature in, Kelvins. Defaults to the
     /// historical 600..900 K. It is a soft constraint, not a handbook constant: the solve reports failure
     /// when no root lies inside, and moving a bound can move the search onto a different root.
@@ -113,6 +119,7 @@ public sealed record ModelConfiguration
     {
         MetalMeltingTemperatureKelvins = MetalMeltingTemperatureKelvins,
         SkeletonContactFactor = SkeletonContactFactor,
+        SkeletonSurfaceFraction = SkeletonSurfaceFraction.ToSettings(),
         MinSurfaceTemperatureKelvins = MinSurfaceTemperatureKelvins,
         MaxSurfaceTemperatureKelvins = MaxSurfaceTemperatureKelvins
     };
@@ -135,7 +142,83 @@ public sealed record ModelConfiguration
             throw new RunConfigurationException(
                 $"model.maxSurfaceTemperatureKelvins ({MaxSurfaceTemperatureKelvins}) must exceed " +
                 $"model.minSurfaceTemperatureKelvins ({MinSurfaceTemperatureKelvins}).");
+
+        SkeletonSurfaceFraction.Validate();
     }
+}
+
+/// <summary>
+/// Configuration surface for the skeleton-coverage closure. Mirrors
+/// <see cref="SkeletonSurfaceFractionSettings"/> — which carries the derivation and the reason these
+/// numbers must not enter the search vector — so the serialised sidecar does not depend on the shape of
+/// a computation-layer type.
+/// </summary>
+public sealed record SkeletonSurfaceFractionConfiguration
+{
+    /// <summary><c>Polynomial</c> (default, historical) or <c>EquilibriumCarbon</c>.</summary>
+    public SkeletonSurfaceFractionMode Mode { get; init; } = SkeletonSurfaceFractionMode.Polynomial;
+
+    /// <summary>
+    /// Where to read the equilibrium coverage table from, resolved against the process working directory
+    /// like every other path in this file. Read only when <see cref="Mode"/> is
+    /// <c>EquilibriumCarbon</c>.
+    ///
+    /// <para>The table is derived data, not configuration: it is a pure function of the recipe and of the
+    /// thermodynamics, produced by <c>generate_skeleton_carbon_equilibrium.py</c>. It is a path rather
+    /// than an inline block because it holds one curve per propellant per pressure, and because a run
+    /// must be able to record <em>which</em> table it used — the file is regenerated whenever the
+    /// propellants file changes.</para>
+    /// </summary>
+    public string EquilibriumTableFile { get; init; } = "skeleton_carbon_equilibrium.json";
+
+    /// <summary>
+    /// Projects onto the computation-layer settings type, loading the table when the mode needs it.
+    /// </summary>
+    public SkeletonSurfaceFractionSettings ToSettings() => new()
+    {
+        Mode = Mode,
+        EquilibriumTable = Mode == SkeletonSurfaceFractionMode.EquilibriumCarbon
+            ? SkeletonCarbonEquilibriumTable.Load(EquilibriumTableFile)
+            : null
+    };
+
+    internal void Validate()
+    {
+        if (!Enum.IsDefined(Mode))
+            throw new RunConfigurationException(
+                $"model.skeletonSurfaceFraction.mode '{Mode}' is not a known closure.");
+
+        if (Mode != SkeletonSurfaceFractionMode.EquilibriumCarbon)
+            return;
+
+        if (string.IsNullOrWhiteSpace(EquilibriumTableFile))
+            throw new RunConfigurationException(
+                "model.skeletonSurfaceFraction.mode is EquilibriumCarbon but " +
+                "equilibriumTableFile is empty.");
+
+        // Load it now rather than at first use: a missing or malformed table must stop the run before the
+        // search starts, not hours in when the first context is built.
+        try
+        {
+            ToSettings().Validate();
+        }
+        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or IOException)
+        {
+            throw new RunConfigurationException($"model.skeletonSurfaceFraction: {ex.Message}", ex);
+        }
+    }
+
+    /// <summary>
+    /// Equality over the declared closure, not over the loaded table: two configurations naming the same
+    /// file are the same configuration, and comparing them must not re-read it from disk.
+    /// </summary>
+    public bool Equals(SkeletonSurfaceFractionConfiguration? other) =>
+        other is not null
+        && Mode == other.Mode
+        && string.Equals(EquilibriumTableFile, other.EquilibriumTableFile, StringComparison.Ordinal);
+
+    /// <inheritdoc />
+    public override int GetHashCode() => HashCode.Combine(Mode, EquilibriumTableFile);
 }
 
 /// <summary>

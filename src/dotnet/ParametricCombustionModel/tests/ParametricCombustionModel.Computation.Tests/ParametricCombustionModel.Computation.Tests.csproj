@@ -30,6 +30,12 @@
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
           <Link>propellants.01234.json</Link>
       </None>
+      <!-- The shipped equilibrium coverage table, linked from data/ rather than copied, so the tests
+           check the file a run actually loads instead of a snapshot that can silently fall behind it. -->
+      <None Include="../../../../../data/skeleton_carbon_equilibrium.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>skeleton_carbon_equilibrium.json</Link>
+      </None>
   </ItemGroup>
 
 </Project>
