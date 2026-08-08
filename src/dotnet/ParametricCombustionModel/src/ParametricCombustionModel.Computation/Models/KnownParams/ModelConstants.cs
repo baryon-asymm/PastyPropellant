@@ -38,12 +38,45 @@ public sealed record ModelConstants
     /// </summary>
     public double SkeletonContactFactor { get; init; } = 1.0;
 
+    /// <summary>
+    /// Lower bound of the surface-temperature bracket the condensed-phase solve bisects on, in Kelvins.
+    /// Default <see cref="ProblemContexts.SurfaceTemperatureSearchBounds.MinKelvins"/>.
+    /// </summary>
+    public double MinSurfaceTemperatureKelvins { get; init; } =
+        ProblemContexts.SurfaceTemperatureSearchBounds.MinKelvins;
+
+    /// <summary>
+    /// Upper bound of the surface-temperature bracket, in Kelvins. Default
+    /// <see cref="ProblemContexts.SurfaceTemperatureSearchBounds.MaxKelvins"/>.
+    ///
+    /// <para>The bracket is a <b>deliberate experimental setting, not a handbook constant</b>: it acts as a
+    /// soft constraint, because the search reports failure when no root lies inside it, and widening it can
+    /// move the solve onto a different root. It is configuration for the same reason as the metal melting
+    /// temperature — it changes every computed number, so every run must record which bracket produced
+    /// it.</para>
+    /// </summary>
+    public double MaxSurfaceTemperatureKelvins { get; init; } =
+        ProblemContexts.SurfaceTemperatureSearchBounds.MaxKelvins;
+
     /// <summary>The historical hardcoded constants: 1300 K, no contact correction.</summary>
     public static ModelConstants Default { get; } = new();
 
     /// <summary>Throws when a value cannot describe a physical model.</summary>
     public void Validate()
     {
+        if (!double.IsFinite(MinSurfaceTemperatureKelvins) || MinSurfaceTemperatureKelvins <= 0)
+            throw new ArgumentOutOfRangeException(
+                nameof(MinSurfaceTemperatureKelvins),
+                MinSurfaceTemperatureKelvins,
+                "Minimum surface temperature must be a positive, finite number of Kelvins.");
+
+        if (!(MaxSurfaceTemperatureKelvins > MinSurfaceTemperatureKelvins))
+            throw new ArgumentOutOfRangeException(
+                nameof(MaxSurfaceTemperatureKelvins),
+                MaxSurfaceTemperatureKelvins,
+                $"Maximum surface temperature must exceed the minimum ({MinSurfaceTemperatureKelvins} K); " +
+                "the solve bisects between them.");
+
         if (!double.IsFinite(MetalMeltingTemperatureKelvins) || MetalMeltingTemperatureKelvins <= 0)
             throw new ArgumentOutOfRangeException(
                 nameof(MetalMeltingTemperatureKelvins),

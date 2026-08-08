@@ -108,7 +108,11 @@ public class ProblemContextByUnitsMatrixBuilder
                         Ratio.FromDecimalFractions(propellant.GetPocketAreaVolumeFraction()),
                     MixedCombustionParams = new MixedCombustionParams(),
                     InterPocketCombustionParams = new InterPocketCombustionParams(),
-                    PocketCombustionParams = new PocketCombustionParams()
+                    PocketCombustionParams = new PocketCombustionParams(),
+                    MinSurfaceTemperature =
+                        Temperature.FromKelvins(ModelConstants.MinSurfaceTemperatureKelvins),
+                    MaxSurfaceTemperature =
+                        Temperature.FromKelvins(ModelConstants.MaxSurfaceTemperatureKelvins)
                 };
             }
         }

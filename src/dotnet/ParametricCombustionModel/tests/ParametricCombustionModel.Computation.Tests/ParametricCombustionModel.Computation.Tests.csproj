@@ -24,6 +24,12 @@
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
           <Link>propellants.json</Link>
       </None>
+      <!-- The whole shipped set, not just one composition: the skeleton-coverage closure is a claim
+           about all five at once, and it cannot be checked against one of them. -->
+      <None Update="data/propellants.01234.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <Link>propellants.01234.json</Link>
+      </None>
   </ItemGroup>
 
 </Project>

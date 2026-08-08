@@ -106,7 +106,9 @@ public class ProblemContextByDoublesMatrixBuilder
                     PocketVolumeFraction = propellant.GetPocketAreaVolumeFraction(),
                     MixedCombustionParams = new MixedCombustionParamsByDoubles(),
                     InterPocketCombustionParams = new InterPocketCombustionParamsByDoubles(),
-                    PocketCombustionParams = new PocketCombustionParamsByDoubles()
+                    PocketCombustionParams = new PocketCombustionParamsByDoubles(),
+                    MinSurfaceTemperature = ModelConstants.MinSurfaceTemperatureKelvins,
+                    MaxSurfaceTemperature = ModelConstants.MaxSurfaceTemperatureKelvins
                 };
             }
         }

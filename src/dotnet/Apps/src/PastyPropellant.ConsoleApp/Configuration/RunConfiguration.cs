@@ -1,4 +1,5 @@
 using ParametricCombustionModel.Computation.Models.KnownParams;
+using ParametricCombustionModel.Computation.Models.ProblemContexts;
 using ParametricCombustionModel.Optimization.Settings;
 
 namespace PastyPropellant.ConsoleApp.Configuration;
@@ -97,11 +98,23 @@ public sealed record ModelConfiguration
     /// </summary>
     public double SkeletonContactFactor { get; init; } = 1.0;
 
+    /// <summary>
+    /// Bracket the condensed-phase solve bisects the surface temperature in, Kelvins. Defaults to the
+    /// historical 600..900 K. It is a soft constraint, not a handbook constant: the solve reports failure
+    /// when no root lies inside, and moving a bound can move the search onto a different root.
+    /// </summary>
+    public double MinSurfaceTemperatureKelvins { get; init; } = SurfaceTemperatureSearchBounds.MinKelvins;
+
+    /// <inheritdoc cref="MinSurfaceTemperatureKelvins"/>
+    public double MaxSurfaceTemperatureKelvins { get; init; } = SurfaceTemperatureSearchBounds.MaxKelvins;
+
     /// <summary>Projects onto the computation-layer type the context builders consume.</summary>
     public ModelConstants ToModelConstants() => new()
     {
         MetalMeltingTemperatureKelvins = MetalMeltingTemperatureKelvins,
-        SkeletonContactFactor = SkeletonContactFactor
+        SkeletonContactFactor = SkeletonContactFactor,
+        MinSurfaceTemperatureKelvins = MinSurfaceTemperatureKelvins,
+        MaxSurfaceTemperatureKelvins = MaxSurfaceTemperatureKelvins
     };
 
     internal void Validate()
@@ -113,6 +126,15 @@ public sealed record ModelConfiguration
         if (!double.IsFinite(SkeletonContactFactor) || SkeletonContactFactor <= 0)
             throw new RunConfigurationException(
                 $"model.skeletonContactFactor must be positive; 1.0 means no correction (got {SkeletonContactFactor}).");
+
+        if (!double.IsFinite(MinSurfaceTemperatureKelvins) || MinSurfaceTemperatureKelvins <= 0)
+            throw new RunConfigurationException(
+                $"model.minSurfaceTemperatureKelvins must be positive (got {MinSurfaceTemperatureKelvins}).");
+
+        if (!(MaxSurfaceTemperatureKelvins > MinSurfaceTemperatureKelvins))
+            throw new RunConfigurationException(
+                $"model.maxSurfaceTemperatureKelvins ({MaxSurfaceTemperatureKelvins}) must exceed " +
+                $"model.minSurfaceTemperatureKelvins ({MinSurfaceTemperatureKelvins}).");
     }
 }
 

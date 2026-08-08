@@ -47,11 +47,15 @@ internal sealed record ModelFileSection
 {
     public double? MetalMeltingTemperatureKelvins { get; init; }
     public double? SkeletonContactFactor { get; init; }
+    public double? MinSurfaceTemperatureKelvins { get; init; }
+    public double? MaxSurfaceTemperatureKelvins { get; init; }
 
     public ModelConfiguration ApplyTo(ModelConfiguration d) => new()
     {
         MetalMeltingTemperatureKelvins = MetalMeltingTemperatureKelvins ?? d.MetalMeltingTemperatureKelvins,
-        SkeletonContactFactor = SkeletonContactFactor ?? d.SkeletonContactFactor
+        SkeletonContactFactor = SkeletonContactFactor ?? d.SkeletonContactFactor,
+        MinSurfaceTemperatureKelvins = MinSurfaceTemperatureKelvins ?? d.MinSurfaceTemperatureKelvins,
+        MaxSurfaceTemperatureKelvins = MaxSurfaceTemperatureKelvins ?? d.MaxSurfaceTemperatureKelvins
     };
 }
 

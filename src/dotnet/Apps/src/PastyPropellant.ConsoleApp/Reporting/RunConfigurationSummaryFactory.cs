@@ -61,15 +61,25 @@ public static class RunConfigurationSummaryFactory
     /// as well as a divisor, because the divisor alone reads as an arbitrary number while the fraction is
     /// the quantity a reader can weigh against the literature.
     /// </summary>
-    private static List<RunConfigurationEntry> BuildModelEntries(ModelConfiguration model) =>
-    [
-        new("Metal melting temperature, K", Format(model.MetalMeltingTemperatureKelvins)),
-        new("Skeleton conduction contact factor",
-            Math.Abs(model.SkeletonContactFactor - 1.0) < double.Epsilon
-                ? "1 (no correction — bulk Fourier conduction)"
-                : $"{Format(model.SkeletonContactFactor)} " +
-                  $"(contact-area fraction {Format(1.0 / model.SkeletonContactFactor)}; fixed calibration, not fitted)")
-    ];
+    private static List<RunConfigurationEntry> BuildModelEntries(ModelConfiguration model)
+    {
+        var entries = new List<RunConfigurationEntry>
+        {
+            new("Metal melting temperature, K", Format(model.MetalMeltingTemperatureKelvins)),
+            // A bracket, not a handbook constant: the solve fails when no root lies inside it, so it acts as
+            // a soft constraint and a reader who does not know it cannot tell a converged surface
+            // temperature from one the bracket imposed.
+            new("Surface-temperature search bracket, K",
+                $"{Format(model.MinSurfaceTemperatureKelvins)} .. {Format(model.MaxSurfaceTemperatureKelvins)}"),
+            new("Skeleton conduction contact factor",
+                Math.Abs(model.SkeletonContactFactor - 1.0) < double.Epsilon
+                    ? "1 (no correction — bulk Fourier conduction)"
+                    : $"{Format(model.SkeletonContactFactor)} " +
+                      $"(contact-area fraction {Format(1.0 / model.SkeletonContactFactor)}; fixed calibration, not fitted)")
+        };
+
+        return entries;
+    }
 
     private static List<RunConfigurationEntry> BuildSearchEntries(
         DifferentialEvolutionConfiguration deConfiguration,

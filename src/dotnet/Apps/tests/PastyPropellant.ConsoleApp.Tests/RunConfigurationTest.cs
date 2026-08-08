@@ -1,4 +1,5 @@
 using System.Text.Json;
+using ParametricCombustionModel.Computation.Models.KnownParams;
 using ParametricCombustionModel.Optimization.Settings;
 using PastyPropellant.Interop;
 using PastyPropellant.ConsoleApp.Configuration;
