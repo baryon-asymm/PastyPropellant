@@ -1,0 +1,8 @@
+{"name": "Bas_3", "mixture": "pocket_matrix", "carbonTotal": 6.921657605255501, "kind": "flame", "pressure": 6500000.0, "value": 3615.6105082842732, "seconds": 608.4705634117126}
+{"name": "Bas_4", "mixture": "pocket_matrix", "carbonTotal": 11.897687515575777, "kind": "flame", "pressure": 1000000.0, "value": 2289.8691261183963, "seconds": 613.5496726036072}
+{"name": "Bas_3", "mixture": "pocket_matrix", "carbonTotal": 6.921657605255501, "kind": "flame", "pressure": 1000000.0, "value": 3398.47891151798, "seconds": 816.6391546726227}
+{"name": "Bas_4", "mixture": "pocket_matrix", "carbonTotal": 11.897687515575777, "kind": "flame", "pressure": 6500000.0, "value": 2450.9046782206633, "seconds": 833.5230891704559}
+{"name": "Bas_4", "mixture": "bridge", "carbonTotal": 8.783179448146464, "kind": "flame", "pressure": 6500000.0, "value": 3662.2442068327186, "seconds": 855.7039976119995}
+{"name": "Bas_3", "mixture": "bridge", "carbonTotal": 8.783179448146464, "kind": "flame", "pressure": 6500000.0, "value": 3662.2442068327186, "seconds": 857.7526206970215}
+{"name": "Bas_3", "mixture": "bridge", "carbonTotal": 8.783179448146464, "kind": "flame", "pressure": 1000000.0, "value": 3445.008585580604, "seconds": 924.8382475376129}
+{"name": "Bas_4", "mixture": "bridge", "carbonTotal": 8.783179448146464, "kind": "flame", "pressure": 1000000.0, "value": 3445.008585580604, "seconds": 929.5038478374481}
