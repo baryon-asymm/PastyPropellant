@@ -365,3 +365,12 @@ Thumbs.db
 /out.txt
 /combined_analysis_report_*.json
 /unitsnet_analysis_report_*.json
+
+# Run outputs written to the repo root by the console host and the analysis scripts.
+# The run directories under /root/runs are the record; a curated bundle belongs in
+# docs/results/campaign/ under a run prefix, not loose at the top level.
+/report*.pdf
+/best_vector.txt
+/*_plot.png
+/shard_*.jsonl
+/bridge_*.jsonl
