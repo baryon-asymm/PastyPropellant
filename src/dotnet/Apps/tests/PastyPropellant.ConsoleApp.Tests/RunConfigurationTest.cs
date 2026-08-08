@@ -558,6 +558,68 @@ public class RunConfigurationTest : IDisposable
     }
 
     /// <summary>
+    /// The kinetic closure can be selected with nothing else set, and its constants can be overridden one
+    /// at a time.
+    ///
+    /// <para>Selecting it must need no companion file — unlike the equilibrium closure it reads only the
+    /// recipe — because the first thing anyone will do is flip the mode and run.</para>
+    /// </summary>
+    [Fact]
+    public void KineticCoverageIsSelectableAndPartiallyOverridable()
+    {
+        var path = Path.Combine(_directory, RunConfigurationLoader.DefaultFileName);
+        File.WriteAllText(path, """
+        {
+          "model": {
+            "skeletonSurfaceFraction": {
+              "mode": "KineticCoverage",
+              "kinetic": { "pressureOrder": 0.95 }
+            }
+          }
+        }
+        """);
+
+        var loaded = RunConfigurationLoader.Load(baseDirectory: _directory);
+        var coverage = loaded.Configuration.Model.SkeletonSurfaceFraction;
+
+        Assert.Equal(SkeletonSurfaceFractionMode.KineticCoverage, coverage.Mode);
+        Assert.Equal(0.95, coverage.Kinetic.PressureOrder);
+        Assert.Equal(KineticCoverageSettings.Default.BinderChannel, coverage.Kinetic.BinderChannel);
+        Assert.Equal(
+            KineticCoverageSettings.Default.FineOxidiserChannel, coverage.Kinetic.FineOxidiserChannel);
+
+        var constants = loaded.Configuration.Model.ToModelConstants();
+        Assert.Equal(SkeletonSurfaceFractionMode.KineticCoverage, constants.SkeletonSurfaceFraction.Mode);
+        Assert.Equal(0.95, constants.SkeletonSurfaceFraction.Kinetic.PressureOrder);
+        Assert.Null(constants.SkeletonSurfaceFraction.EquilibriumTable);
+    }
+
+    /// <summary>
+    /// A broken kinetic constant is rejected at startup even when another closure is in force, so it
+    /// cannot lie dormant until someone switches the mode — the rule the DE strategy sub-records follow.
+    /// </summary>
+    [Fact]
+    public void BrokenKineticConstantsAreRejectedUnderEveryMode()
+    {
+        var path = Path.Combine(_directory, RunConfigurationLoader.DefaultFileName);
+        File.WriteAllText(path, """
+        {
+          "model": {
+            "skeletonSurfaceFraction": {
+              "mode": "Polynomial",
+              "kinetic": { "fineOxidiserChannel": -2.0 }
+            }
+          }
+        }
+        """);
+
+        var error = Assert.Throws<RunConfigurationException>(
+            () => RunConfigurationLoader.Load(baseDirectory: _directory));
+
+        Assert.Contains("fineOxidiserChannel", error.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>
     /// Configured model constants must reach the optimiser — both the search path and the forward-eval
     /// replay, which have to score a point under the same physics or a replayed vector means nothing.
     ///

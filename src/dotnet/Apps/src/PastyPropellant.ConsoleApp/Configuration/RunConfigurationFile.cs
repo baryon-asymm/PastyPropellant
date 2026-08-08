@@ -67,11 +67,30 @@ internal sealed record SkeletonSurfaceFractionFileSection
 {
     public ParametricCombustionModel.Computation.Models.KnownParams.SkeletonSurfaceFractionMode? Mode { get; init; }
     public string? EquilibriumTableFile { get; init; }
+    public KineticCoverageFileSection? Kinetic { get; init; }
 
     public SkeletonSurfaceFractionConfiguration ApplyTo(SkeletonSurfaceFractionConfiguration d) => new()
     {
         Mode = Mode ?? d.Mode,
+        Kinetic = Kinetic?.ApplyTo(d.Kinetic) ?? d.Kinetic,
         EquilibriumTableFile = EquilibriumTableFile ?? d.EquilibriumTableFile
+    };
+}
+
+/// <summary>Kinetic-coverage constant overrides. Absent members keep the shipped calibration.</summary>
+internal sealed record KineticCoverageFileSection
+{
+    public double? BinderChannel { get; init; }
+    public double? FineOxidiserChannel { get; init; }
+    public double? PressureOrder { get; init; }
+    public double? ReferencePressurePascals { get; init; }
+
+    public KineticCoverageConfiguration ApplyTo(KineticCoverageConfiguration d) => new()
+    {
+        BinderChannel = BinderChannel ?? d.BinderChannel,
+        FineOxidiserChannel = FineOxidiserChannel ?? d.FineOxidiserChannel,
+        PressureOrder = PressureOrder ?? d.PressureOrder,
+        ReferencePressurePascals = ReferencePressurePascals ?? d.ReferencePressurePascals
     };
 }
 

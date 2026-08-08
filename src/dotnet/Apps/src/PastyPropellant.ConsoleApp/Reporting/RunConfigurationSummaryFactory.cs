@@ -93,6 +93,32 @@ public static class RunConfigurationSummaryFactory
             return entries;
         }
 
+        if (coverage.Mode == SkeletonSurfaceFractionMode.KineticCoverage)
+        {
+            var kinetic = coverage.Kinetic;
+
+            entries.Add(new RunConfigurationEntry(
+                "Skeleton surface fraction",
+                "kinetic coverage: f_s = 1/(1 + a₀ + a₁·w_fine·(p/p_ref)^m) — accumulation against " +
+                "burnout of the binder residue; independent of the layer thickness"));
+            entries.Add(new RunConfigurationEntry(
+                "    burnout channels",
+                $"a₀ = {Format(kinetic.BinderChannel)} (binder), " +
+                $"a₁ = {Format(kinetic.FineOxidiserChannel)} (fine oxidiser), " +
+                $"m = {Format(kinetic.PressureOrder)} at p_ref = " +
+                $"{Format(kinetic.ReferencePressurePascals / 1e6)} MPa"));
+            // The calibration set is part of the result, not a footnote: these constants were fitted on
+            // Bas_2/3/4 and overshoot Bas_0 and Bas_1 by up to 137 %, so a report that printed the
+            // numbers without their provenance would invite exactly the quotation they do not support.
+            entries.Add(new RunConfigurationEntry(
+                "    calibration",
+                "3 shared constants fitted on Bas_2/Bas_3/Bas_4 (one binder, one additive, AP dispersity " +
+                "varied); 4.7–8.6 % RMS in-sample, 12.7–20.9 % leaving one composition out. " +
+                "NOT calibrated for Bas_0 or Bas_1 — different binder"));
+
+            return entries;
+        }
+
         entries.Add(new RunConfigurationEntry(
             "Skeleton surface fraction",
             "equilibrium carbon: f_s = φ_Al + φ_C(s)(T_pore, p) by Delesse, " +

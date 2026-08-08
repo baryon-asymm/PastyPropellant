@@ -135,7 +135,34 @@
       // DERIVED DATA, not configuration: regenerate it whenever the propellants file changes, with
       //     python generate_skeleton_carbon_equilibrium.py
       // A missing or malformed table is a hard startup error, never a silent fallback to the polynomial.
-      "equilibriumTableFile": "skeleton_carbon_equilibrium.json"
+      "equilibriumTableFile": "skeleton_carbon_equilibrium.json",
+
+      // mode = KineticCoverage: coverage as the steady state of a rate competition —
+      //
+      //           f_s = 1 / (1 + a0 + a1 * w_fine * (p / p_ref)^m)
+      //
+      //       w_fine is the FINE ammonium perchlorate mass fraction, the oxidiser that lies inside the
+      //       pocket (the coarse fraction is the wall). a0 is burnout of the skeleton's binder residue by
+      //       the binder's own decomposition products — the binder is itself a perchlorate, so this
+      //       channel exists with no AP in the pocket at all, and it carries no pressure dependence.
+      //       a1 * w_fine * p^m is burnout by the fine AP.
+      //
+      //       Writing both rates per unit skeleton area makes the layer thickness cancel identically, so
+      //       this closure is independent of the fitted delta and of skeletonContactFactor.
+      //
+      //       THESE THREE CONSTANTS ARE CALIBRATED, NOT DERIVED. They were fitted on Bas_2/Bas_3/Bas_4 —
+      //       one binder, the same 0.5 % activated carbon, differing only in AP dispersity — giving
+      //       4.7-8.6 % RMS on f_s in-sample and 12.7-20.9 % when one composition is left out of the fit
+      //       and predicted. They do NOT describe Bas_0 or Bas_1, which carry a different binder; the
+      //       same constants overshoot those two by 13-137 %. Do not quote a Bas_0/Bas_1 number from a
+      //       run under this closure.
+      "kinetic": {
+        "binderChannel": 0.9966,
+        "fineOxidiserChannel": 3.3653,
+        "pressureOrder": 0.71,
+        // A unit choice, not a physical constant: moving it rescales fineOxidiserChannel.
+        "referencePressurePascals": 1000000.0
+      }
     }
   },
 

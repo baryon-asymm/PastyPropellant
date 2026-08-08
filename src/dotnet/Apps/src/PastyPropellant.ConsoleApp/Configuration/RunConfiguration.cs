@@ -155,8 +155,18 @@ public sealed record ModelConfiguration
 /// </summary>
 public sealed record SkeletonSurfaceFractionConfiguration
 {
-    /// <summary><c>Polynomial</c> (default, historical) or <c>EquilibriumCarbon</c>.</summary>
+    /// <summary>
+    /// <c>Polynomial</c> (default, historical), <c>EquilibriumCarbon</c> or <c>KineticCoverage</c>.
+    /// </summary>
     public SkeletonSurfaceFractionMode Mode { get; init; } = SkeletonSurfaceFractionMode.Polynomial;
+
+    /// <summary>
+    /// Constants of the <c>KineticCoverage</c> closure. Defaults are the Bas_2/3/4 calibration described
+    /// on <see cref="KineticCoverageSettings"/>; they are <em>calibrated</em>, not derived, and they do
+    /// not describe Bas_0 or Bas_1. Read only when <see cref="Mode"/> is <c>KineticCoverage</c>, but
+    /// validated always.
+    /// </summary>
+    public KineticCoverageConfiguration Kinetic { get; init; } = new();
 
     /// <summary>
     /// Where to read the equilibrium coverage table from, resolved against the process working directory
@@ -177,6 +187,7 @@ public sealed record SkeletonSurfaceFractionConfiguration
     public SkeletonSurfaceFractionSettings ToSettings() => new()
     {
         Mode = Mode,
+        Kinetic = Kinetic.ToSettings(),
         EquilibriumTable = Mode == SkeletonSurfaceFractionMode.EquilibriumCarbon
             ? SkeletonCarbonEquilibriumTable.Load(EquilibriumTableFile)
             : null
@@ -187,6 +198,17 @@ public sealed record SkeletonSurfaceFractionConfiguration
         if (!Enum.IsDefined(Mode))
             throw new RunConfigurationException(
                 $"model.skeletonSurfaceFraction.mode '{Mode}' is not a known closure.");
+
+        // Whichever mode is in force: a broken kinetic block must fail now, not on the day someone
+        // switches the mode.
+        try
+        {
+            Kinetic.ToSettings().Validate();
+        }
+        catch (ArgumentException ex)
+        {
+            throw new RunConfigurationException($"model.skeletonSurfaceFraction.kinetic: {ex.Message}", ex);
+        }
 
         if (Mode != SkeletonSurfaceFractionMode.EquilibriumCarbon)
             return;
@@ -215,10 +237,41 @@ public sealed record SkeletonSurfaceFractionConfiguration
     public bool Equals(SkeletonSurfaceFractionConfiguration? other) =>
         other is not null
         && Mode == other.Mode
+        && Kinetic == other.Kinetic
         && string.Equals(EquilibriumTableFile, other.EquilibriumTableFile, StringComparison.Ordinal);
 
     /// <inheritdoc />
-    public override int GetHashCode() => HashCode.Combine(Mode, EquilibriumTableFile);
+    public override int GetHashCode() => HashCode.Combine(Mode, Kinetic, EquilibriumTableFile);
+}
+
+/// <summary>
+/// Configuration surface for the kinetic-coverage constants. Mirrors
+/// <see cref="KineticCoverageSettings"/>, which carries the derivation, the calibration set and the
+/// compositions the calibration does <em>not</em> cover.
+/// </summary>
+public sealed record KineticCoverageConfiguration
+{
+    /// <summary><c>a₀</c>, the pressure-independent burnout channel of the binder.</summary>
+    public double BinderChannel { get; init; } = KineticCoverageSettings.Default.BinderChannel;
+
+    /// <summary><c>a₁</c>, the burnout channel of the fine oxidiser, per unit fine-AP mass fraction.</summary>
+    public double FineOxidiserChannel { get; init; } = KineticCoverageSettings.Default.FineOxidiserChannel;
+
+    /// <summary><c>m</c>, the pressure order of the fine-oxidiser channel.</summary>
+    public double PressureOrder { get; init; } = KineticCoverageSettings.Default.PressureOrder;
+
+    /// <summary><c>p_ref</c> in pascals, the pressure at which <see cref="FineOxidiserChannel"/> is quoted.</summary>
+    public double ReferencePressurePascals { get; init; } =
+        KineticCoverageSettings.Default.ReferencePressurePascals;
+
+    /// <summary>Projects onto the computation-layer settings type.</summary>
+    public KineticCoverageSettings ToSettings() => new()
+    {
+        BinderChannel = BinderChannel,
+        FineOxidiserChannel = FineOxidiserChannel,
+        PressureOrder = PressureOrder,
+        ReferencePressurePascals = ReferencePressurePascals
+    };
 }
 
 /// <summary>

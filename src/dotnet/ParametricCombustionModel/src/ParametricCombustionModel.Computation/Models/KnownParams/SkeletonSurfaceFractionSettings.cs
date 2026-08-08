@@ -21,7 +21,153 @@ public enum SkeletonSurfaceFractionMode
     /// <see cref="SkeletonSurfaceFractionSettings"/> for the derivation and
     /// <c>generate_skeleton_carbon_equilibrium.py</c> for the calculation that produces the table.
     /// </summary>
-    EquilibriumCarbon
+    EquilibriumCarbon,
+
+    /// <summary>
+    /// Skeleton coverage as the steady state of a rate competition — accumulation of condensed residue
+    /// against burnout of the carbonaceous binder residue that holds it. See
+    /// <see cref="KineticCoverageSettings"/> for the derivation, the calibration and its limits.
+    /// </summary>
+    KineticCoverage
+}
+
+/// <summary>
+/// The kinetic-coverage closure: <c>f_s</c> as the steady state of a two-channel rate competition.
+///
+/// <para><b>The balance.</b> The pocket surface gains skeleton where condensed residue accumulates and
+/// loses it where the carbonaceous binder residue holding the skeleton together is oxidised away. With
+/// <c>k_g</c> the accumulation rate and <c>k_d</c> the burnout rate, a coverage balance
+/// <c>k_g(1 − f_s) = k_d f_s</c> gives</para>
+///
+/// <code>
+///   f_s = 1 / (1 + K) ,   K = k_d / k_g = a₀ + a₁ · w_fine · (p / p_ref)^m
+/// </code>
+///
+/// <para>where <c>w_fine</c> is the mass fraction of <em>fine</em> ammonium perchlorate — the oxidiser
+/// that sits inside the pocket, the coarse fraction being the wall that bounds it.</para>
+///
+/// <para><b>Why this shape and not another.</b> Three things fix it, and each was tested rather than
+/// assumed. (1) Writing both rates per unit skeleton area makes the layer thickness <c>δ</c> cancel
+/// identically, so the closure cannot inherit the <c>δ → 0</c> non-identifiability that makes the
+/// skeleton Arrhenius pair unreportable, and it is independent of the contact factor. (2) The measured
+/// coverage of the all-coarse composition <em>exceeds</em> its whole condensed inventory
+/// (0.529 against φ_Al + φ_C = 0.386), so coverage cannot be an inventory-limited quantity; it must be a
+/// competition of rates, and in that competition the inventory cancels because both channels scale with
+/// the same arriving flux. Normalising <c>K</c> by <c>φ_C</c> or <c>φ_C·φ_s</c> was tried and is
+/// <em>worse</em> — leave-one-composition-out error rises from 13..21 % to 19..42 % and the fine-oxidiser
+/// coefficient turns negative. (3) No law of the form <c>K ∝ p^a / r^b</c> can work at all: Bas_1 and
+/// Bas_4 share ν = 0.70 yet need d ln K / d ln p of 0.609 and 0.015, so the pocket's own recipe must
+/// enter, which is what <c>w_fine</c> does.</para>
+///
+/// <para><b>What the two channels mean.</b> <c>a₀</c> is burnout by the binder's own decomposition
+/// products — the binder here is itself a perchlorate, so every pocket has an oxidising channel whether
+/// or not fine AP is present — and it carries no pressure dependence, which is why the composition with
+/// no fine AP in its pocket is measured flat (coverage 0.529 → 0.522 over 1..6.5 MPa) instead of
+/// decaying. <c>a₁ · w_fine · p^m</c> is burnout by the fine AP inside the pocket. The fitted
+/// <c>m ≈ 0.7..1</c> was not imposed; it is the order a heterogeneous carbon oxidation first order in
+/// oxidiser partial pressure would have.</para>
+///
+/// <para><b>Calibration, and its limits — read this before quoting a number from a run.</b> The defaults
+/// were fitted on <c>Bas_2</c>, <c>Bas_3</c> and <c>Bas_4</c> only: one binder, the same 0.5 % activated
+/// carbon, differing solely in AP dispersity, so every input is published. In-sample error on <c>f_s</c>
+/// is 4.7..8.6 % RMS; leaving one composition out of the fit and predicting it gives 12.7..20.9 % RMS.
+/// These are <b>three calibrated constants, not derived ones</b> — the honest claim is three shared and
+/// transferable constants in place of twelve per-composition polynomial coefficients that transfer to
+/// nothing, not that the closure is free of fitted numbers the way the equilibrium closure is.</para>
+///
+/// <para><b>It does not describe Bas_0 or Bas_1</b>, and must not be quoted for them: they carry a
+/// different binder (Bas_1's modifier is a ferrocene-containing compound of unpublished loading), and the
+/// same constants overshoot them by 13..137 %. Their binder channel is genuinely different — at equal
+/// fine-AP loading the decay exponent falls from 0.470 (plain binder) to 0.209 (modified binder plus
+/// carbon) — so a per-binder <c>a₀</c> is the physically honest extension, not a fudge; it is deliberately
+/// not offered here until there is data to fix it.</para>
+///
+/// <para><b>Coverage does not depend on the surface temperature under this closure</b>, so the curve it
+/// produces is constant and the surface-temperature bisection sees no extra loop gain at all.</para>
+/// </summary>
+public sealed record KineticCoverageSettings
+{
+    /// <summary>
+    /// <c>a₀</c> — the pressure-independent burnout channel carried by the binder's own decomposition
+    /// products. Default from the Bas_2/3/4 calibration; it is fixed almost entirely by the composition
+    /// whose pocket holds no fine AP.
+    /// </summary>
+    public double BinderChannel { get; init; } = 0.9966;
+
+    /// <summary>
+    /// <c>a₁</c> — the burnout channel carried by the fine oxidiser inside the pocket, per unit fine-AP
+    /// mass fraction at the reference pressure. Default from the Bas_2/3/4 calibration.
+    /// </summary>
+    public double FineOxidiserChannel { get; init; } = 3.3653;
+
+    /// <summary>
+    /// <c>m</c> — the pressure order of the fine-oxidiser channel. Default from the Bas_2/3/4
+    /// calibration; the value it takes there is the order a first-order heterogeneous oxidation has.
+    /// </summary>
+    public double PressureOrder { get; init; } = 0.71;
+
+    /// <summary>
+    /// <c>p_ref</c>, in pascals — the pressure at which <see cref="FineOxidiserChannel"/> is quoted. It is
+    /// a unit choice, not a physical constant, and moving it rescales <c>a₁</c> by <c>(p_ref/p_ref')^m</c>;
+    /// it is configurable only so a recalibration can report <c>a₁</c> at its own reference.
+    /// </summary>
+    public double ReferencePressurePascals { get; init; } = 1e6;
+
+    /// <summary>The calibrated defaults.</summary>
+    public static KineticCoverageSettings Default { get; } = new();
+
+    /// <summary>
+    /// Skeleton coverage of the pocket surface.
+    /// </summary>
+    /// <param name="fineOxidiserMassFraction">
+    /// Mass fraction of fine oxidiser in the propellant — the share that lies inside the pockets.
+    /// </param>
+    /// <param name="pressurePascals">Chamber pressure, Pa.</param>
+    public double CoverageAt(double fineOxidiserMassFraction, double pressurePascals)
+    {
+        var burnout = BinderChannel
+                      + FineOxidiserChannel
+                      * fineOxidiserMassFraction
+                      * Math.Pow(pressurePascals / ReferencePressurePascals, PressureOrder);
+
+        return 1.0 / (1.0 + burnout);
+    }
+
+    /// <summary>Throws when the constants cannot describe a coverage in (0, 1].</summary>
+    public void Validate()
+    {
+        Require(BinderChannel, nameof(BinderChannel), "binderChannel");
+        Require(FineOxidiserChannel, nameof(FineOxidiserChannel), "fineOxidiserChannel");
+
+        if (!double.IsFinite(PressureOrder))
+            throw new ArgumentOutOfRangeException(
+                nameof(PressureOrder), PressureOrder,
+                "model.skeletonSurfaceFraction.kinetic.pressureOrder must be a finite number.");
+
+        if (!double.IsFinite(ReferencePressurePascals) || ReferencePressurePascals <= 0)
+            throw new ArgumentOutOfRangeException(
+                nameof(ReferencePressurePascals), ReferencePressurePascals,
+                "model.skeletonSurfaceFraction.kinetic.referencePressurePascals must be positive.");
+
+        // Both channels vanishing means f_s ≡ 1 — the pocket is entirely skeleton at every pressure,
+        // which is not a closure but the absence of one.
+        if (BinderChannel == 0 && FineOxidiserChannel == 0)
+            throw new ArgumentOutOfRangeException(
+                nameof(BinderChannel), BinderChannel,
+                "model.skeletonSurfaceFraction.kinetic has both burnout channels at zero, which pins the " +
+                "coverage at 1 for every composition and every pressure.");
+
+        return;
+
+        static void Require(double value, string name, string key)
+        {
+            if (!double.IsFinite(value) || value < 0)
+                throw new ArgumentOutOfRangeException(
+                    name, value,
+                    $"model.skeletonSurfaceFraction.kinetic.{key} must be finite and non-negative; a " +
+                    "negative burnout channel is a coverage the surface creates out of nothing.");
+        }
+    }
 }
 
 /// <summary>
@@ -280,6 +426,12 @@ public sealed record SkeletonSurfaceFractionSettings
     /// </summary>
     public SkeletonCarbonEquilibriumTable? EquilibriumTable { get; init; }
 
+    /// <summary>
+    /// Constants of the <see cref="SkeletonSurfaceFractionMode.KineticCoverage"/> closure, unused by the
+    /// other modes. Never null, so the mode can be switched on without also supplying a block.
+    /// </summary>
+    public KineticCoverageSettings Kinetic { get; init; } = KineticCoverageSettings.Default;
+
     /// <summary>The historical closure: the shipped polynomials, no table.</summary>
     public static SkeletonSurfaceFractionSettings Default { get; } = new();
 
@@ -289,6 +441,10 @@ public sealed record SkeletonSurfaceFractionSettings
         if (!Enum.IsDefined(Mode))
             throw new ArgumentOutOfRangeException(
                 nameof(Mode), Mode, "Unknown skeleton-surface-fraction mode.");
+
+        // Validated whatever the mode: a broken kinetic block must not lie dormant until someone
+        // switches to it, the same rule the DE strategy sub-records follow.
+        Kinetic.Validate();
 
         if (Mode == SkeletonSurfaceFractionMode.EquilibriumCarbon && EquilibriumTable is null)
             throw new InvalidOperationException(

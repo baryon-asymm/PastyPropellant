@@ -70,6 +70,26 @@ public static class PropellantExtensions
     }
 
     /// <summary>
+    /// Mass fraction of <b>fine</b> ammonium perchlorate in the propellant — the oxidiser that lies
+    /// inside the pockets, the coarse fraction being the wall that bounds them.
+    ///
+    /// <para>This is the one recipe variable the
+    /// <see cref="SkeletonSurfaceFractionMode.KineticCoverage"/> closure reads, and it is what makes that
+    /// closure transferable across oxidiser dispersity rather than tabulated per composition.</para>
+    /// </summary>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when ammonium perchlorate is not found in the propellant.
+    /// </exception>
+    public static double GetFineOxidiserMassFraction(
+        this Propellant propellant)
+    {
+        var ammoniumPerchlorate = propellant.Components.OfType<AmmoniumPerchlorate>().FirstOrDefault()
+                                  ?? throw new ArgumentNullException(nameof(AmmoniumPerchlorate));
+
+        return ammoniumPerchlorate.MassFraction * ammoniumPerchlorate.SmallParticlesFraction;
+    }
+
+    /// <summary>
     /// Calculates the pocket surface fraction based on the given pressure.
     /// </summary>
     /// <param name="propellant">
@@ -117,6 +137,10 @@ public static class PropellantExtensions
 
         if (settings.Mode == SkeletonSurfaceFractionMode.Polynomial)
             return SkeletonCoverageCurve.Constant(propellant.GetPocketSurfaceFraction(pressure));
+
+        if (settings.Mode == SkeletonSurfaceFractionMode.KineticCoverage)
+            return SkeletonCoverageCurve.Constant(
+                settings.Kinetic.CoverageAt(propellant.GetFineOxidiserMassFraction(), pressure));
 
         var table = settings.EquilibriumTable
                     ?? throw new InvalidOperationException(
