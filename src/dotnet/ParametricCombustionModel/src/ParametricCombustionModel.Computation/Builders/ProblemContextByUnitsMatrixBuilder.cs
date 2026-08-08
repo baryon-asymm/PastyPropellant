@@ -145,7 +145,7 @@ public class ProblemContextByUnitsMatrixBuilder
             AverageOxidizerDiameter = Length.FromMeters(propellant.GetAverageParticlesDiameter()),
             Density = Density.FromKilogramsPerCubicMeter(propellant.Density),
             InitialTemperature = Temperature.FromKelvins(propellant.InitialTemperature),
-            SkeletonSurfaceFraction = Ratio.FromDecimalFractions(propellant.GetPocketSurfaceFraction(pressure.Pascals)),
+            SkeletonCoverage = propellant.GetSkeletonCoverage(pressure.Pascals),
             SpecificHeatCapacity = SpecificEntropy.FromJoulesPerKilogramKelvin(propellant.SpecificHeatCapacity)
         };
     }

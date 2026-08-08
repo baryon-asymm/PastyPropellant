@@ -40,11 +40,16 @@ public readonly struct PropellantParamsByDoubles
     public required double AverageOxidizerDiameter { get; init; }
 
     /// <summary>
-    /// Gets the fraction of the propellant surface occupied by the pocket.
-    /// This property represents the proportion of the surface area that is occupied by pockets in the propellant.
-    /// It is a dimensionless value (ratio).
+    /// Skeleton coverage of the pocket surface, <c>f_s</c>, as a function of the surface temperature the
+    /// solver bisects on. Dimensionless.
+    ///
+    /// <para>This is a curve rather than a number because the equilibrium closure makes coverage depend
+    /// on how hot the pocket is: the skeleton is condensed carbon, and how much of it survives is decided
+    /// by equilibrium at the pore temperature, which follows the surface temperature. Under the
+    /// historical polynomial closure the curve is constant and the distinction costs nothing. See
+    /// <see cref="SkeletonSurfaceFractionSettings"/>.</para>
     /// </summary>
-    public required double SkeletonSurfaceFraction { get; init; }
+    public required SkeletonCoverageCurve SkeletonCoverage { get; init; }
 }
 
 #endregion
@@ -85,11 +90,12 @@ public struct PropellantParamsByUnits
     public required Length AverageOxidizerDiameter { get; init; }
 
     /// <summary>
-    /// Gets the fraction of the propellant surface occupied by the pocket.
-    /// This property represents the proportion of the surface area that is occupied by pockets in the propellant.
-    /// It is important for modeling the distribution of heat and combustion characteristics.
+    /// Skeleton coverage of the pocket surface, <c>f_s</c>, as a function of the surface temperature the
+    /// solver bisects on. Dimensionless, so it is held as the same curve type as the doubles tier — the
+    /// two tiers must agree on which closure is in force, or the search would minimise a different model
+    /// from the one the report is computed from. See <see cref="SkeletonSurfaceFractionSettings"/>.
     /// </summary>
-    public required Ratio SkeletonSurfaceFraction { get; set; }
+    public required SkeletonCoverageCurve SkeletonCoverage { get; init; }
 }
 
 #endregion

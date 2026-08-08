@@ -69,7 +69,7 @@ internal static class PlotRendererFixture
                 AverageOxidizerDiameter = Length.FromMicrometers(100.0),
                 Density = Density.FromKilogramsPerCubicMeter(propellant.Density),
                 InitialTemperature = Temperature.FromKelvins(propellant.InitialTemperature),
-                SkeletonSurfaceFraction = Ratio.FromDecimalFractions(0.5),
+                SkeletonCoverage = SkeletonCoverageCurve.Constant(0.5),
                 SpecificHeatCapacity =
                     SpecificEntropy.FromJoulesPerKilogramKelvin(propellant.SpecificHeatCapacity)
             },

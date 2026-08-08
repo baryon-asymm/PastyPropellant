@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using ParametricCombustionModel.Computation.Models.KnownParams;
 using ParametricCombustionModel.Core.Models;
 using ParametricCombustionModel.Core.Models.PropellantComponents;
 
@@ -90,6 +91,21 @@ public static class PropellantExtensions
             pocketSurfaceFraction += coefficients[i] * Math.Pow(pressure / 1e6, i);
         return pocketSurfaceFraction / propellant.PocketMassFraction;
     }
+
+    /// <summary>
+    /// Skeleton coverage of the pocket surface — the single entry point the context builders use, so the
+    /// two tiers cannot drift apart on which model is in force.
+    ///
+    /// <para>A curve in the surface temperature rather than a number. Under the historical polynomial the
+    /// curve is constant and reproduces the previous value exactly, which is what lets this change ship
+    /// without invalidating the archive.</para>
+    /// </summary>
+    /// <param name="propellant">Propellant whose coverage is wanted.</param>
+    /// <param name="pressure">Chamber pressure, Pa.</param>
+    public static SkeletonCoverageCurve GetSkeletonCoverage(
+        this Propellant propellant,
+        double pressure) =>
+        SkeletonCoverageCurve.Constant(propellant.GetPocketSurfaceFraction(pressure));
 
     /// <summary>
     /// The <b>default</b> metal (aluminum) melting temperature of the model, in Kelvins. A run reads its

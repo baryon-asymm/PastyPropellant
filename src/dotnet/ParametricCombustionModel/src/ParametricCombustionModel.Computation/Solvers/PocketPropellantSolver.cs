@@ -472,11 +472,14 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
                                                                       contextBag.DiffusionFlameHeight,
                                                                       context.PocketDiffusionFlameParamsByUnits);
 
-        var fullRatio = Ratio.FromDecimalFractions(1.0);
-        var outSkeletonSurfaceFraction = fullRatio - context.PropellantParamsByUnits.SkeletonSurfaceFraction;
-        contextBag.OutSkeletonHeatFlux = outSkeletonSurfaceFraction.DecimalFractions
+        // Evaluated at the TRIAL surface temperature, inside the bisection: under the equilibrium closure
+        // coverage is decided by how much carbon stays condensed at the pore temperature, which follows
+        // T_s. Under the polynomial closure the curve is constant and this is the historical value.
+        var skeletonSurfaceFraction =
+            context.PropellantParamsByUnits.SkeletonCoverage.At(surfaceTemperature.Kelvins);
+        contextBag.OutSkeletonHeatFlux = (1.0 - skeletonSurfaceFraction)
                                          * outSkeletonKineticFlameParams.KineticFlameHeatFlux;
-        contextBag.SkeletonHeatFlux = context.PropellantParamsByUnits.SkeletonSurfaceFraction.DecimalFractions
+        contextBag.SkeletonHeatFlux = skeletonSurfaceFraction
                                       * (contextBag.MetalBurningHeatFlux
                                          + skeletonKineticFlameParams.KineticFlameHeatFlux);
         contextBag.ToSurfaceTotalHeatFlux = contextBag.OutSkeletonHeatFlux
@@ -824,11 +827,13 @@ public sealed class PocketPropellantSolver : BasePropellantSolver
                                                                       contextBag.DiffusionFlameHeight,
                                                                       context.PocketDiffusionFlameParams);
 
-        var fullRatio = 1.0;
-        var outSkeletonSurfaceFraction = fullRatio - context.PropellantParams.SkeletonSurfaceFraction;
-        contextBag.OutSkeletonHeatFlux = outSkeletonSurfaceFraction
+        // Evaluated at the TRIAL surface temperature, inside the bisection: under the equilibrium closure
+        // coverage is decided by how much carbon stays condensed at the pore temperature, which follows
+        // T_s. Under the polynomial closure the curve is constant and this is the historical value.
+        var skeletonSurfaceFraction = context.PropellantParams.SkeletonCoverage.At(surfaceTemperature);
+        contextBag.OutSkeletonHeatFlux = (1.0 - skeletonSurfaceFraction)
                                          * outSkeletonKineticFlameParams.KineticFlameHeatFlux;
-        contextBag.SkeletonHeatFlux = context.PropellantParams.SkeletonSurfaceFraction
+        contextBag.SkeletonHeatFlux = skeletonSurfaceFraction
                                       * (contextBag.MetalBurningHeatFlux
                                          + skeletonKineticFlameParams.KineticFlameHeatFlux);
         contextBag.ToSurfaceTotalHeatFlux = contextBag.OutSkeletonHeatFlux
