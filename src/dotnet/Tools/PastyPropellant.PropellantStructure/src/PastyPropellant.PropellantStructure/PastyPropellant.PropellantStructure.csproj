@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Port of the Fortran-77 PropStructV3 Monte-Carlo microstructure model.
+       Deliberately has no project references: Tools libraries are independent
+       utilities, and this one must never appear in the optimiser's dependency
+       graph (see BOOT.md, "Ограничения"). -->
+
+  <ItemGroup>
+    <!-- Boundary types only. The kernel works on bare doubles in SI; UnitsNet
+         never crosses into Sampling/, Geometry/ or Kernel/. -->
+    <PackageReference Include="UnitsNet" Version="6.0.0-pre011" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Sampling/, Geometry/ and Kernel/ are internal; L0 and L1 test exactly
+         those, so the test assembly is the one consumer that sees them. -->
+    <InternalsVisibleTo Include="PastyPropellant.PropellantStructure.Tests" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\PastyPropellant.PropellantStructure\PastyPropellant.PropellantStructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <!-- The fixtures (reference/propstruct/runs.json) are NOT copied to the output
+       directory: they are located from the repository root by RepositoryPaths.
+       The sibling Tools tests compile-link Shared/PythonRuntime.cs for the same
+       job, but that file needs PastyPropellant.Core and .ProcessHandling, and
+       nothing here ever launches Python — so this project carries its own
+       ten-line root finder instead of two project references it would not use. -->
+
+</Project>
