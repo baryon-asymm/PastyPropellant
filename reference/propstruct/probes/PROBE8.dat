@@ -1,0 +1,12 @@
+ PLOT1      PLOT2         GGG  		Gm
+ 1.95E3    1.800E3       0.583	  	0.207
+ AK1       AK2            AK3           AK4
+ 0.5       2.0           0.27           4.7
+                     NMM  JZZ  KXX    N       NNZ      GSV    
+                      3    1    0    20     6E6       2
+        mass
+    0.0103 0.504 0.486
+        bounds
+   10 50 113 180 160 315
+        SFR
+    1 1 0

@@ -1,0 +1,14 @@
+# The vendored original and its inputs are byte-exact artefacts: runs.json records
+# the SHA-256 of each one, and the checks in README.md compare against those digests.
+# They are DOS files (CRLF) in DOS codepages — the source is CP1251, the .dat files
+# CP866 — so any end-of-line normalisation on checkout would break both the digests
+# and the fixed-form column layout the compiler depends on. -text switches off EOL
+# conversion in both directions; diffs stay available, mojibake and all.
+PropStructv3.for -text
+inputs/*.dat     -text
+
+# Probes are the same kind of artefact: a DOS input and the DOS report the original
+# wrote for it. The test asserts against literal lines of the .m, so a normalised
+# checkout would break the assertion rather than merely look wrong.
+probes/*.dat     -text
+probes/*.m       -text
