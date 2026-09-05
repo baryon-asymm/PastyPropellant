@@ -53,6 +53,17 @@ Per-object keys: `name`, `a`, `nu` (Vieille law coefficients), `density`,
 (6-term polynomial), `pocket_mass_fraction`, `components`, `pressure_frames`
 (the per-pressure experimental burn-rate data the fitness function targets).
 
+Inside `components.Aluminum`, next to the `agglomeration_coefficients` polynomial, sits
+`agglomeration_confidence_intervals` — the four measured `Z_a^m` points per composition with their
+error bars, digitised from Babuk's published `Z_a^m(p)` figure — the source image is not kept in the
+tree — added 2026-08-10. Same record shape and conventions as the burn-rate
+`confidence_intervals`: `x_value` in **MPa** (not Pa),
+`size_of_confidence_interval` the **full** bar height, so a whisker reaches `y_value ± size/2`.
+Optional and read by nothing in the solver — `PropellantsPlotRendering/src/main.py` draws them on the
+agglomeration panels, and `AgglomerationConfidenceIntervalTests` pins the binding. Digitising error
+is about ±0.002 on `Z_a^m` and ±0.03 MPa on the pressure; the measurement error the bars themselves
+report is 2.9–16 %, median 6.6 %.
+
 **Consumers:** `ConsoleApp/Program.cs` — hardcoded literal `"propellants.01234.json"` at the
 group-optimisation call site, the forward-eval call site, the plot-rendering call, and the report
 call. There is no ticket/config file; the name is baked in.
@@ -89,7 +100,9 @@ Only `ConsoleApp.Tests` reaches out to repo-root `data/`.
 
 Single-composition / subgroup slices of the same dataset: `Bas_0` alone; `Bas_1` alone;
 `Bas_2`+`Bas_3`+`Bas_4`. Same schema family as `.01234` (all three have `pressure_frames`);
-`.1` and `.234` additionally carry `confidence_intervals`.
+`.1` and `.234` additionally carry `confidence_intervals`. All three carry
+`agglomeration_confidence_intervals`, kept in step with `.01234`. `propellants.json` does **not** —
+it is the older schema, formatted differently, and no plot reads it.
 
 **Consumers: none found.** They match the split described in `CLAUDE.md` ("the suffix selects which
 set is loaded") — that mechanism is real in shape but no longer exercised, since the entry point

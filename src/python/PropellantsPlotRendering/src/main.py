@@ -89,6 +89,50 @@ def _calculate_agglomeration_fraction(coefficients: List[float], pressure: float
     return max(0, min(100, fraction))
 
 
+def _draw_confidence_intervals(ax, fuel, color, divisor=1.0):
+    """Overlay the measured Z_a^m points and their error bars on an agglomeration panel.
+
+    The intervals are optional: a fuel that carries none is simply drawn as the bare
+    polynomial, which is what every propellants file did before the measurements were
+    digitised from Babuk's figure.
+
+    Two unit conversions are load-bearing and easy to get wrong:
+
+    * `x_value` is a pressure in MPa -- the same convention as the burn-rate
+      `confidence_intervals` -- while this plot's x axis is in Pa.
+    * `size_of_confidence_interval` is the FULL height of the bar (matching the .NET
+      `ConfidenceIntervalDrawer`, which draws `y ± size/2`), so matplotlib's `yerr`,
+      which is a half-height, gets half of it.
+
+    `divisor` converts Z_a^m into the skeleton surface fraction f_s = Z_a^m / Z_p; it
+    scales the interval as well as the point, since f_s is a plain rescaling.
+    """
+    try:
+        intervals = fuel['components']['Aluminum'].get('agglomeration_confidence_intervals')
+    except KeyError:
+        return
+
+    if not intervals or not divisor:
+        return
+
+    pressures = [ci['x_value'] * 1e6 for ci in intervals]
+    values = [ci['y_value'] / divisor for ci in intervals]
+    half_heights = [ci['size_of_confidence_interval'] / 2 / divisor for ci in intervals]
+
+    ax.errorbar(pressures, values,
+                yerr=half_heights,
+                fmt='o',
+                markersize=5,
+                markerfacecolor='none',
+                color=color,
+                ecolor=color,
+                elinewidth=1.5,
+                capsize=5,
+                capthick=1.5,
+                linestyle='none',
+                zorder=5)
+
+
 def _gas_phase_phases(parameter_name):
     """(phase title, frame -> value) pairs for a per-phase thermodynamic field."""
     def value_fn(path):
@@ -181,11 +225,17 @@ def plot_parameter(data, parameter_name, output_filename):
 
                 values.append(value)
 
-            ax.plot(pressures, values,
-                    label=name,
-                    marker='D',
-                    markersize=6,
-                    linewidth=2)
+            line, = ax.plot(pressures, values,
+                            label=name,
+                            marker='D',
+                            markersize=6,
+                            linewidth=2)
+
+            _draw_confidence_intervals(
+                ax,
+                fuel,
+                line.get_color(),
+                divisor=pocket_mass if parameter_name == 'skeleton_surface_fraction' else 1.0)
 
         ax.legend(fontsize=10)
         plt.tight_layout(rect=[0, 0.03, 1, 0.95])

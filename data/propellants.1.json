@@ -24,6 +24,28 @@
                     0.0004719595486120565,
                     -1.447964550264008e-05
                 ],
+                "agglomeration_confidence_intervals": [
+                    {
+                        "x_value": 1.35,
+                        "y_value": 0.235,
+                        "size_of_confidence_interval": 0.0134
+                    },
+                    {
+                        "x_value": 2.33,
+                        "y_value": 0.1848,
+                        "size_of_confidence_interval": 0.02
+                    },
+                    {
+                        "x_value": 4.35,
+                        "y_value": 0.1346,
+                        "size_of_confidence_interval": 0.0204
+                    },
+                    {
+                        "x_value": 6.2,
+                        "y_value": 0.1167,
+                        "size_of_confidence_interval": 0.0204
+                    }
+                ],
                 "mass_fraction": 0.2073,
                 "density": 2700
             },

@@ -22,6 +22,28 @@
                     -0.004557442506902735,
                     0.00023310022859899398
                 ],
+                "agglomeration_confidence_intervals": [
+                    {
+                        "x_value": 1.0,
+                        "y_value": 0.2452,
+                        "size_of_confidence_interval": 0.04
+                    },
+                    {
+                        "x_value": 2.3,
+                        "y_value": 0.2422,
+                        "size_of_confidence_interval": 0.0304
+                    },
+                    {
+                        "x_value": 4.3,
+                        "y_value": 0.2502,
+                        "size_of_confidence_interval": 0.0604
+                    },
+                    {
+                        "x_value": 6.3,
+                        "y_value": 0.1778,
+                        "size_of_confidence_interval": 0.04
+                    }
+                ],
                 "mass_fraction": 0.2073,
                 "density": 2700
             },
@@ -367,6 +389,28 @@
                     -0.0008857808796132974,
                     1.0360009859915167e-05
                 ],
+                "agglomeration_confidence_intervals": [
+                    {
+                        "x_value": 1.29,
+                        "y_value": 0.175,
+                        "size_of_confidence_interval": 0.0196
+                    },
+                    {
+                        "x_value": 2.37,
+                        "y_value": 0.1596,
+                        "size_of_confidence_interval": 0.0392
+                    },
+                    {
+                        "x_value": 4.11,
+                        "y_value": 0.1296,
+                        "size_of_confidence_interval": 0.0366
+                    },
+                    {
+                        "x_value": 6.43,
+                        "y_value": 0.088,
+                        "size_of_confidence_interval": 0.0282
+                    }
+                ],
                 "mass_fraction": 0.2073,
                 "density": 2700
             },
@@ -711,6 +755,28 @@
                     -0.0011137752148531604,
                     0.00013586415670452482,
                     -1.2432013705540037e-05
+                ],
+                "agglomeration_confidence_intervals": [
+                    {
+                        "x_value": 1.35,
+                        "y_value": 0.293,
+                        "size_of_confidence_interval": 0.04
+                    },
+                    {
+                        "x_value": 2.43,
+                        "y_value": 0.3002,
+                        "size_of_confidence_interval": 0.05
+                    },
+                    {
+                        "x_value": 4.11,
+                        "y_value": 0.2902,
+                        "size_of_confidence_interval": 0.03
+                    },
+                    {
+                        "x_value": 6.3,
+                        "y_value": 0.2928,
+                        "size_of_confidence_interval": 0.036
+                    }
                 ],
                 "mass_fraction": 0.2073,
                 "density": 2700
