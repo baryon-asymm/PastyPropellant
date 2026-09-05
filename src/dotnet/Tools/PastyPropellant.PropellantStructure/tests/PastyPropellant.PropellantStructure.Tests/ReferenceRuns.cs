@@ -22,10 +22,17 @@ namespace PastyPropellant.PropellantStructure.Tests;
 /// <c>input_dat</c> — the original <c>.dat</c> named by the <c>.m</c> header
 /// itself, with the bounds at the precision they were written and with
 /// <c>AK1..AK4</c>, which no report prints. It is exposed as
-/// <see cref="ReferenceRun.InputDat"/>, and only 21 of the 43 files still describe
+/// <see cref="ReferenceRun.InputDat"/>, and only 20 of the 43 files still describe
 /// their own run: <see cref="ReferenceInputFile.AgreesWithM"/> says which, and
 /// reading the file without checking that flag replays a different run on half the
 /// sample. <see cref="ReferenceRun.ToConfiguration"/> applies the rule for you.
+/// </para>
+/// <para>
+/// ⚠ That count was 21 until 2026-08-23. The archive's own <c>agrees_with_m</c>
+/// compares each fraction's size bounds and never its mass share, so a file that
+/// kept a later recipe on the same size grid passed it — which is what
+/// <c>HPEPA10.dat</c> did to <c>hp90</c>. The flag is re-checked here against the
+/// shares the report echoed; see <see cref="ReferenceInputFile.SharesMatchReport"/>.
 /// </para>
 /// </remarks>
 public static class ReferenceRuns
@@ -135,7 +142,7 @@ public static class ReferenceRuns
                 PocketFormingFractions = ReadFlags(input, "pocket_forming_fractions"),
                 Parameters = parameterValues,
                 RecoveredEta = element.GetProperty("derived").GetProperty("recovered_eta").GetDouble(),
-                InputDat = ReadInputFile(element),
+                InputDat = ReadInputFile(element, fractions),
                 Arrays = ReadArrays(element.GetProperty("expected"), "arrays"),
                 ArraySteps = ReadNumbers(element.GetProperty("expected"), "array_steps"),
                 ConditionCounters = ReadNumbers(element.GetProperty("expected"), "conditions_per_particle"),
@@ -205,7 +212,29 @@ public static class ReferenceRuns
         return element.EnumerateArray().Select(flag => flag.GetDouble() != 0.0).ToArray();
     }
 
-    private static ReferenceInputFile? ReadInputFile(JsonElement run)
+    /// <summary>
+    /// The <c>.dat</c> record, with <c>agrees_with_m</c> re-checked here against the
+    /// mass shares the report itself echoed.
+    /// </summary>
+    /// <remarks>
+    /// The generator's own check compares only each fraction's <em>size bounds</em>,
+    /// never its mass share, and a <c>.dat</c> that kept a later revision of the same
+    /// size grid therefore passes it. One run does exactly that: <c>hp90</c>'s file
+    /// carries <c>hp95</c>'s shares under <c>hp90</c>'s bounds, so the flag said the
+    /// file still described the run and the fixture replayed the wrong recipe under
+    /// the right name. Fourteen of the forty-three files disagree on shares; the
+    /// other thirteen were already caught by the bounds, which is why re-checking
+    /// here moves exactly one run and cannot quietly disqualify the rest.
+    /// <para>
+    /// The tolerance is the resolution of the report's own <c>E9.3</c> print — half
+    /// of the last printed digit. The worst agreeing run misses by 3e-4 of its
+    /// share and the disagreeing one by 2.5e-2, so the two populations are two
+    /// orders of magnitude apart and the threshold is not a tuned number.
+    /// </para>
+    /// </remarks>
+    private static ReferenceInputFile? ReadInputFile(
+        JsonElement run,
+        IReadOnlyList<ReferenceFraction> reported)
     {
         if (!run.TryGetProperty("input_dat", out var dat))
         {
@@ -225,6 +254,7 @@ public static class ReferenceRuns
             // case-sensitive filesystem.
             dat.GetProperty("archive_file").GetString()!,
             dat.GetProperty("agrees_with_m").GetBoolean(),
+            SharesAgree(reported, bounds),
             new GeometricCriteria(
                 dat.GetProperty("ak1").GetDouble(),
                 dat.GetProperty("ak2").GetDouble(),
@@ -232,6 +262,46 @@ public static class ReferenceRuns
                 dat.GetProperty("ak4").GetDouble()),
             dat.GetProperty("cycles_requested").GetInt32(),
             bounds);
+    }
+
+    /// <summary>
+    /// Whether two fraction lists carry the same mass shares to the precision the
+    /// report printed them at.
+    /// </summary>
+    private static bool SharesAgree(
+        IReadOnlyList<ReferenceFraction> reported,
+        IReadOnlyList<ReferenceFraction> file)
+    {
+        if (reported.Count != file.Count)
+        {
+            return false;
+        }
+
+        for (var index = 0; index < reported.Count; index++)
+        {
+            var share = reported[index].MassFraction;
+            if (Math.Abs(share - file[index].MassFraction) > PrintedResolution(share))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Half of the last digit of <c>E9.3</c>, which prints a three-digit mantissa in
+    /// [0.1, 1) against a decimal exponent.
+    /// </summary>
+    private static double PrintedResolution(double value)
+    {
+        if (value == 0.0)
+        {
+            return 5e-4;
+        }
+
+        var exponent = (int)Math.Floor(Math.Log10(Math.Abs(value))) + 1;
+        return (0.5 * Math.Pow(10.0, exponent - 3)) + 1e-12;
     }
 }
 
@@ -396,10 +466,15 @@ public sealed record ReferenceFraction(double MassFraction, double MinSizeMetres
 /// The <c>.dat</c> a run named, as schema <c>/3</c> parsed it.
 /// </summary>
 /// <param name="ArchiveFile">the name under <c>reference/propstruct/inputs/</c></param>
-/// <param name="AgreesWithM">
-/// whether the file still describes this run. False for 20 of the 41: a
-/// <c>.dat</c> was a working file, kept only its last state, and using a drifted one
-/// silently replays a different case
+/// <param name="FlaggedAgreement">
+/// the archive's own <c>agrees_with_m</c>, which compares each fraction's
+/// <em>size bounds</em> only. False for 20 of the 41: a <c>.dat</c> was a working
+/// file, kept only its last state, and using a drifted one silently replays a
+/// different case
+/// </param>
+/// <param name="SharesMatchReport">
+/// the half of the comparison the archive never made — whether the file's mass
+/// shares are the ones the report echoed. One run passes the bounds and fails this
 /// </param>
 /// <param name="Criteria">
 /// <c>AK1..AK4</c> — the four constants that decide what counts as a pocket, and
@@ -409,10 +484,18 @@ public sealed record ReferenceFraction(double MassFraction, double MinSizeMetres
 /// <param name="Fractions">the bounds at the precision they were typed</param>
 public sealed record ReferenceInputFile(
     string ArchiveFile,
-    bool AgreesWithM,
+    bool FlaggedAgreement,
+    bool SharesMatchReport,
     GeometricCriteria Criteria,
     int CyclesRequested,
-    IReadOnlyList<ReferenceFraction> Fractions);
+    IReadOnlyList<ReferenceFraction> Fractions)
+{
+    /// <summary>
+    /// Whether the file still describes the run: both halves of the comparison, not
+    /// just the one the archive made.
+    /// </summary>
+    public bool AgreesWithM => FlaggedAgreement && SharesMatchReport;
+}
 
 /// <summary>
 /// The <c>conditional_dok</c> block: what surrounds a pocket, by pocket size.
