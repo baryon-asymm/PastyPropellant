@@ -75,11 +75,12 @@ public class AgglomerationConfidenceIntervalTests
     /// <summary>
     /// Every measured point agrees with the polynomial that approximates it.
     ///
-    /// <para>⚠ <c>Bas_0</c> is deliberately not among the rows. Its shipped coefficients miss its own
-    /// four points ONE-SIDEDLY, by −0.1 % at 1.1 MPa growing monotonically to −9.1 % at 6.1 MPa, so no
-    /// tolerance in line with the others admits it. Loosening one until it passes would be the wrong
-    /// repair: what is wrong is the polynomial, not the threshold. Keep these tolerances tight enough
-    /// that a misassigned curve cannot hide inside them.</para>
+    /// <para>This is the check that caught <c>Bas_0</c>: its shipped coefficients used to reproduce
+    /// <c>Bas_3</c>'s curve rather than its own, and the tell was that the deviation was one-sided and
+    /// grew with pressure (−0.1 % at 1.1 MPa to −9.1 % at 6.1 MPa) instead of scattering about zero.
+    /// The coefficients were refitted to the dashed <c>Bas_0</c> curve of the source figure on
+    /// 2026-08-11, which is why its tolerance is now the same order as everyone else's. Keep the
+    /// tolerances tight enough that a repeat of that mix-up cannot hide inside them.</para>
     ///
     /// <para><c>Bas_2</c> is the one genuinely loose entry: its own points scatter about its own fit by
     /// 6.6 % RMS in BOTH directions, which the source figure itself shows and which is scatter, not a
@@ -90,6 +91,7 @@ public class AgglomerationConfidenceIntervalTests
     [InlineData("Bas_2", 0.12)]     // worst point 9.9 % — real scatter, both signs
     [InlineData("Bas_3", 0.02)]     // worst point 1.9 %
     [InlineData("Bas_4", 0.02)]     // worst point 1.8 %
+    [InlineData("Bas_0", 0.04)]     // worst point 3.2 %, both signs, after the 2026-08-11 refit
     public void MeasuredPointsAgreeWithTheApproximatingPolynomial(string name, double tolerance)
     {
         var propellant = LoadPropellants().Single(candidate => candidate.Name == name);
@@ -102,6 +104,41 @@ public class AgglomerationConfidenceIntervalTests
                 .Sum();
 
             Assert.InRange(Math.Abs(fitted - interval.YValue) / interval.YValue, 0, tolerance);
+        }
+    }
+
+    /// <summary>
+    /// No composition's polynomial may miss its own measurements ONE-SIDEDLY AND WIDELY — the joint
+    /// signature of a polynomial fitted to somebody else's curve.
+    ///
+    /// <para>This is the shape <c>Bas_0</c> had before 2026-08-11: all four deviations negative, growing
+    /// monotonically to −9.1 %, because the coefficients traced <c>Bas_3</c>'s dotted curve. Either half
+    /// of the signature alone is innocent — four same-sign deviations happen by chance one time in
+    /// eight, and a 9 % miss is ordinary scatter for <c>Bas_2</c> — so the test fires only when both
+    /// hold at once. That keeps it from blocking a legitimate refit while still catching the mix-up
+    /// this file exists to prevent.</para>
+    /// </summary>
+    [Fact]
+    public void NoPolynomialMissesItsOwnMeasurementsOneSidedlyAndWidely()
+    {
+        foreach (var propellant in LoadPropellants())
+        {
+            var coefficients = Aluminum(propellant).AgglomerationCoefficients.ToArray();
+
+            var deviations = Aluminum(propellant).AgglomerationConfidenceIntervals!
+                .Select(interval => (coefficients
+                    .Select((coefficient, power) => coefficient * Math.Pow(interval.XValue, power))
+                    .Sum() - interval.YValue) / interval.YValue)
+                .ToArray();
+
+            var oneSided = deviations.All(deviation => deviation > 0) || deviations.All(deviation => deviation < 0);
+            var widest = deviations.Max(Math.Abs);
+
+            Assert.False(
+                oneSided && widest > 0.05,
+                $"{propellant.Name}: the polynomial misses all four of its own measured points on the same "
+                + $"side, by up to {widest:P1}. That is what a polynomial fitted to another composition's "
+                + "curve looks like — check which curve of the source figure these coefficients trace.");
         }
     }
 

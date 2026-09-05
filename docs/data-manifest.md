@@ -64,6 +64,24 @@ agglomeration panels, and `AgglomerationConfidenceIntervalTests` pins the bindin
 is about ±0.002 on `Z_a^m` and ±0.03 MPa on the pressure; the measurement error the bars themselves
 report is 2.9–16 %, median 6.6 %.
 
+⚠ **`Bas_0`'s polynomial was corrected on 2026-08-11 — every `Bas_0` number computed before that date
+came from the wrong curve.** The shipped coefficients traced `Bas_3`'s *dotted* curve rather than
+`Bas_0`'s own *dashed* one (the two agreed to within 3 px everywhere on the source figure), and so
+sat below all four `Bas_0` measured points, by −0.1 % at 1.1 MPa growing monotonically to −9.1 % at
+6.1 MPa. One-sided and pressure-growing is the signature; ordinary scatter changes sign.
+
+The replacement was refitted from the figure itself, not from the four points: the dashed curve's
+strokes are connected components 4–9 px wide where `Bas_3`'s dots are 2–3 px, so the two line styles
+separate without any curve tracing. A cubic through the 14 recovered strokes (0.95–5.8 MPa) fits them
+to 0.06 % RMS and then agrees with `Bas_0`'s own measured points to −0.9 / −0.9 / +3.2 / −1.3 %, all
+four inside their error bars — in line with the other compositions (`Bas_1` 0.8 %, `Bas_3` 1.0 %,
+`Bas_4` 1.2 % RMS; `Bas_2` scatters 6.6 % about a smooth fit, in both directions). Effect on the
+model: `f_s(Bas_0)` is unchanged at 1 MPa (where the two curves coincide, which is why this hid) and
+rises by up to +9.9 % at 5 MPa. The right edge is a 0.3 MPa extrapolation — the stroke at 6.24 MPa
+is merged with a marker and was dropped — which lands 1.3 % from the measured point at 6.06 MPa.
+Old coefficients, should a pre-2026-08-11 result need reproducing:
+`[0.1895454545454542, -0.005582750582750498, -0.003205128205128215, 0.00025641025641025706]`.
+
 **Consumers:** `ConsoleApp/Program.cs` — hardcoded literal `"propellants.01234.json"` at the
 group-optimisation call site, the forward-eval call site, the plot-rendering call, and the report
 call. There is no ticket/config file; the name is baked in.
