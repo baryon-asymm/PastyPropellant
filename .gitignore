@@ -367,10 +367,26 @@ Thumbs.db
 /unitsnet_analysis_report_*.json
 
 # Run outputs written to the repo root by the console host and the analysis scripts.
-# The run directories under /root/runs are the record; a curated bundle belongs in
-# docs/results/campaign/ under a run prefix, not loose at the top level.
-/report*.pdf
+# The run directories under /root/runs are the record; a curated bundle belongs
+# under docs/results/ behind its own prefix, not loose at the top level.
+#
+# The rules are by EXTENSION rather than by name, because the name-shaped ones
+# they replace (/report*.pdf, /*_plot.png) only caught the names that existed
+# when they were written: burn_rate.png, step11_*.png, metal_agglomeration.png
+# and Bas_015_report.pdf all slipped past them. Nothing at the top level of this
+# repository is a source image or a source document.
+/*.png
+/*.pdf
+/fs_*.json
 /best_vector.txt
-/*_plot.png
 /shard_*.jsonl
 /bridge_*.jsonl
+
+# Campaign bundles under docs/results/. A finished run drops 4-6 MB of PDF plus
+# per-point JSON, plots and logs; the fourteen sitting here are 667 MB against a
+# 349 MB repository, and most of them replay a model that has since been retired.
+# The run directory is the record. Commit a curated, kilobyte-sized bundle — the
+# vector, the resolved configuration, a README stating the numbers — by
+# un-ignoring its own directory, for example:
+#   !/docs/results/nA30b-calibration/
+/docs/results/*/
