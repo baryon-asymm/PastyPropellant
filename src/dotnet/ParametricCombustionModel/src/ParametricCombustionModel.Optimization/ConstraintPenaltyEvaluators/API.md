@@ -23,6 +23,9 @@ public abstract class BaseConstraintPenaltyEvaluator : IPenaltyEvaluator
 
 ```csharp
 // max/min из четырёх потоков кармана не должно превышать порог (> 1).
+// ⚠ Единственный оценщик, возвращающий PenaltyRate * ratio без деления на порог:
+// на границе штраф равен PenaltyRate * HeatFluxRatioThreshold, а не PenaltyRate.
+// См. инвариант-исключение в BOOT.md.
 public sealed class PocketHeatFluxRatioCompetitionPenaltyEvaluator : BaseConstraintPenaltyEvaluator
 {
     public double HeatFluxRatioThreshold { get; init; }
@@ -55,7 +58,9 @@ public class KineticFlameHeatFluxPenaltyEvaluator : BaseConstraintPenaltyEvaluat
         double maxOutSkeletonKineticFlameHeatFlux);
 }
 
-// толщина каркасного слоя не больше доли диаметра крупной частицы окислителя.
+// толщина каркасного слоя не больше LargeParticleDiameterThreshold * СРЕДНЕГО
+// диаметра окислителя (AverageOxidizerDiameter) — не диаметра крупной фракции,
+// вопреки имени класса; множитель и есть переход от среднего к крупному.
 public sealed class LargeOxidizerParticleSizePenaltyEvaluator : BaseConstraintPenaltyEvaluator
 {
     public double LargeParticleDiameterThreshold { get; init; }
