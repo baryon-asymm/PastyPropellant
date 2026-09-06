@@ -92,17 +92,27 @@ public sealed class StructureSimulationTests(ITestOutputHelper output, ArchivedR
             ("nbase_accepted_cumulative", diagnostics.BaseParticlesAccepted),
         };
 
+        var ledger = new DeviationLedger(id, L2Group.Draws);
         var problems = new List<string>();
         foreach (var (name, value) in counters)
         {
             var expected = (long)run.Scalars[name];
             output.WriteLine($"{name,-26} {value,14} oracle {expected,14}");
-            if (value != expected)
+            if (value == expected)
             {
-                problems.Add($"{name}: {value}, oracle {expected}.");
+                continue;
             }
+
+            if (ledger.Excuses(name, DeviationKind.CounterDifference, value - expected, out var note))
+            {
+                output.WriteLine($"  {note}");
+                continue;
+            }
+
+            problems.Add($"{name}: {value}, oracle {expected}.");
         }
 
+        problems.AddRange(ledger.Unmet());
         Assert.True(problems.Count == 0, string.Join(Environment.NewLine, problems));
     }
 
@@ -145,18 +155,28 @@ public sealed class StructureSimulationTests(ITestOutputHelper output, ArchivedR
             ("pocket_bridge_ratio_above_max", conditions.PocketBridgeRatioAboveMax),
         };
 
+        var ledger = new DeviationLedger(id, L2Group.Conditions);
         var problems = new List<string>();
         foreach (var (name, value) in actual)
         {
             var expected = replay.Run.ConditionCounters[name];
             var error = expected == 0 ? Math.Abs(value) : Math.Abs((value - expected) / expected);
             output.WriteLine($"{name,-30} {value,-16:R} oracle {expected,-16:R} {error:E2}");
-            if (error > 1e-6)
+            if (error <= 1e-6)
             {
-                problems.Add($"{name}: {value:R}, oracle {expected:R}, {error:E2}.");
+                continue;
             }
+
+            if (ledger.Excuses(name, DeviationKind.RelativeError, error, out var note))
+            {
+                output.WriteLine($"  {note}");
+                continue;
+            }
+
+            problems.Add($"{name}: {value:R}, oracle {expected:R}, {error:E2}.");
         }
 
+        problems.AddRange(ledger.Unmet());
         Assert.True(problems.Count == 0, string.Join(Environment.NewLine, problems));
     }
 
@@ -189,6 +209,7 @@ public sealed class StructureSimulationTests(ITestOutputHelper output, ArchivedR
         var run = replay.Run;
         var result = replay.Result;
 
+        var ledger = new DeviationLedger(id, L2Group.Scalars);
         var problems = new List<string>();
         foreach (var (name, expected) in run.Scalars.OrderBy(entry => entry.Key, StringComparer.Ordinal))
         {
@@ -212,12 +233,21 @@ public sealed class StructureSimulationTests(ITestOutputHelper output, ArchivedR
             var allowed = relative ? tolerance * Math.Abs(expected) : tolerance;
             allowed = Math.Max(allowed, CancellationFloor(name));
             var absolute = Math.Abs(value - expected);
-            if (absolute > allowed)
+            if (absolute <= allowed)
             {
-                problems.Add($"{name}: {value:R}, oracle {expected:R}, {error:E2} over {tolerance:E0}.");
+                continue;
             }
+
+            if (ledger.Excuses(name, DeviationKind.RelativeError, error, out var note))
+            {
+                output.WriteLine($"  {note}");
+                continue;
+            }
+
+            problems.Add($"{name}: {value:R}, oracle {expected:R}, {error:E2} over {tolerance:E0}.");
         }
 
+        problems.AddRange(ledger.Unmet());
         Assert.True(problems.Count == 0, string.Join(Environment.NewLine, problems));
     }
 
@@ -278,19 +308,72 @@ public sealed class StructureSimulationTests(ITestOutputHelper output, ArchivedR
 
         static double AsPrinted(Length length) => (float)(length.Meters * 1.00001e6);
 
+        var ledger = new DeviationLedger(id, L2Group.Arrays);
         var problems = new List<string>();
-        foreach (var (name, mine) in expected)
+        foreach (var (name, printed) in expected)
         {
+            var mine = printed;
+
             if (!run.Arrays.TryGetValue(name, out var oracle))
             {
                 problems.Add($"{name}: the reference does not record it.");
                 continue;
             }
 
-            if (mine.Length != oracle.Count)
+            // ⚠ The port's histogram can be one bin longer than the archive's, and the
+            // extra bin is not the port's doing. The grid length is
+            // int(ddokmax / di) + 2, and rt56's largest oxidiser bound is 699.999975 µm
+            // — 25 nm under a multiple of the 10 µm step. Divided in single precision
+            // that quotient rounds to exactly 70.0 and the grid gets 72 cells; kept in
+            // an 80-bit register it stays 69.99999927, truncates to 69, and the grid
+            // gets 71. The archive is the 80-bit side. A fresh gfortran build of the
+            // unmodified original prints 72 and 71, the same as the port.
+            //
+            // The extension is accepted only when it carries nothing: every cell past
+            // the archive's last must equal the archive's last cell exactly. For rt56
+            // that is 0 for fmdok — an empty bin beyond the largest particle — and the
+            // clamped plateau 0.8868963 for pdoksmall, measured on both the port and
+            // the fresh Fortran. An extension holding anything else is still a failure,
+            // so a genuinely truncated array cannot slip through.
+            var extension = mine.Length - oracle.Count;
+            if (extension != 0)
             {
-                problems.Add($"{name}: {mine.Length} cells, oracle {oracle.Count}.");
-                continue;
+                // Exactly one cell, never more: ndok = int(ddokmax / di) + 2, so a
+                // one-ulp disagreement on that single division moves the grid by one
+                // cell and by one only. A longer extension is a different defect and
+                // must still fail.
+                var inert = extension == 1
+                    && oracle.Count > 0
+                    && Enumerable
+                        .Range(oracle.Count, extension)
+                        .All(i => mine[i] == mine[oracle.Count - 1]);
+
+                if (!inert)
+                {
+                    // A grid length the triangulation already measured and explained is
+                    // not a failure, but it is not a licence to stop comparing either:
+                    // the cells the two do share are still checked below.
+                    if (ledger.Excuses(name, DeviationKind.CellCount, mine.Length, out var lengthNote))
+                    {
+                        output.WriteLine($"  {lengthNote}");
+                        if (extension > 0)
+                        {
+                            mine = mine[..oracle.Count];
+                        }
+                    }
+                    else
+                    {
+                        problems.Add($"{name}: {mine.Length} cells, oracle {oracle.Count}.");
+                        continue;
+                    }
+                }
+                else
+                {
+                    output.WriteLine(
+                        $"{name,-14} {mine.Length,4} cells against the archive's {oracle.Count}; "
+                        + $"the {extension} extra repeat {mine[oracle.Count - 1]:R} and are compared as inert.");
+                    mine = mine[..oracle.Count];
+                }
             }
 
             // ⚠ epsdokfr carries the same cancellation floor as the epsilon scalars, and
@@ -305,22 +388,82 @@ public sealed class StructureSimulationTests(ITestOutputHelper output, ArchivedR
             // floor is zero for them and this changes nothing.
             var floor = name == "epsdokfr" ? Math.ScaleB(1.0, -23) : 0.0;
 
+            // How far the original's uninitialised element 1 reaches. The clamp on
+            // the line after the fill — pdoksmall(k) = max(pdoksmall(k), pdoksmall(k-1))
+            // — carries the leftover forward over every cell whose own value is
+            // smaller, so the defect is a leading RUN, not a single cell: `results`
+            // prints 1.46E-38 twice before the histogram takes over. The run is read
+            // off the data rather than assumed: cells still holding oracle[0] exactly,
+            // while ours sits at or below it, are cells the leftover decided.
+            //
+            // ⚠ Gated on the leftover being a NORMAL single. When it is a denormal the
+            // branch below already does something stronger — it has no reference value
+            // either, but it still demands that ours be negligible too — and excluding
+            // the cell outright would throw that demand away. rcspx01 and rnano2 are the
+            // whole point: their pdoksmall is one denormal repeated over every cell
+            // (5.85E-39, 8.33E-39), the original never wrote a real number into it, and
+            // the denormal branch checks them meaningfully and passes. Only a leftover
+            // at or above the smallest normal single — `results` prints 1.46E-38 — is
+            // out of that branch's reach and needs excluding by index.
+            var unwrittenPrefix = 0;
+            if (name == "pdoksmall" && Math.Abs(oracle[0]) >= Denormal)
+            {
+                while (unwrittenPrefix < mine.Length
+                       && oracle[unwrittenPrefix] == oracle[0]
+                       && mine[unwrittenPrefix] <= oracle[unwrittenPrefix])
+                {
+                    unwrittenPrefix++;
+                }
+
+                // The leftover masks only cells whose own content is smaller than it,
+                // so the run ends where the histogram's real content takes over. If it
+                // swallowed the whole array the leftover would be larger than every
+                // value in it — the runaway seen on a fresh build of the original, not
+                // anything the archive contains — and excluding every cell would make
+                // the comparison vacuous. Fail instead of passing on an empty check.
+                if (unwrittenPrefix >= mine.Length)
+                {
+                    problems.Add(
+                        $"{name}: the uninitialised leading run covers all {mine.Length} cells, "
+                        + "so there is nothing left to compare.");
+                    continue;
+                }
+
+                if (unwrittenPrefix > 0)
+                {
+                    output.WriteLine(
+                        $"{name,-14} first {unwrittenPrefix} cell(s) hold the original's uninitialised "
+                        + $"element 1 ({oracle[0]:R}) and are excluded.");
+                }
+            }
+
             var worst = 0.0;
             var worstAt = -1;
             for (var i = 0; i < mine.Length; i++)
             {
-                // A cell the original left below the smallest normal single was never
-                // written by it at all — the report is printing whatever the allocation
-                // happened to hold. pdoksmall[0] is the known case: 1.01E-38 here, a
-                // different denormal on a re-run of the original itself under wine. Such
-                // a cell has no reference value, so the only meaningful demand is that
-                // ours is negligible too.
-                // Both an exact zero and a denormal land here: E9.3 prints 1.000E-45 for
-                // a genuinely tiny number, so a printed zero means exactly zero, and the
-                // demand in either case is the same — ours must be negligible too.
-                var error = Math.Abs(oracle[i]) < Denormal
-                    ? (Math.Abs(mine[i]) < Denormal ? 0.0 : 1.0)
-                    : Math.Abs((mine[i] - oracle[i]) / oracle[i]);
+                // These cells have no reference value at all. The original's fill loop
+                // starts at index 2 (its line 1059), so element 1 — printed first — is
+                // never assigned, and the report prints whatever the allocation held.
+                // They are excluded by INDEX, not by magnitude: leftover memory is not
+                // reliably small. It was 1.01E-38 in the first runs looked at, which is
+                // why a denormal test used to be enough; `results` prints 1.46E-38,
+                // which is a normal single, and a fresh gfortran build of the original
+                // produced 4.89E-04, -1.93E+12 and 4.62E+18 on three other recipes. At
+                // the last of those the monotone clamp on the following line propagates
+                // the leftover through the whole array and the original prints NaN for
+                // four pocket diameters — so this cell is the original's own defect and
+                // the port's zero is the repair, not the deviation.
+                var unwritten = i < unwrittenPrefix;
+
+                // Both an exact zero and a denormal land in the second branch: E9.3
+                // prints 1.000E-45 for a genuinely tiny number, so a printed zero means
+                // exactly zero, and the demand in either case is the same — ours must be
+                // negligible too.
+                var error = unwritten
+                    ? 0.0
+                    : Math.Abs(oracle[i]) < Denormal
+                        ? (Math.Abs(mine[i]) < Denormal ? 0.0 : 1.0)
+                        : Math.Abs((mine[i] - oracle[i]) / oracle[i]);
 
                 // The floor is applied per cell, not to the worst one afterwards: a
                 // cell that clears the floor must not shield a later cell that does not.
@@ -332,13 +475,27 @@ public sealed class StructureSimulationTests(ITestOutputHelper output, ArchivedR
 
             output.WriteLine($"{name,-14} {mine.Length,4} cells, worst {worst:E2} at [{worstAt}]");
 
-            if (worst > 5e-3)
+            if (worst <= 5e-3)
             {
-                problems.Add(
-                    $"{name}[{worstAt}]: {mine[worstAt]:R}, oracle {oracle[worstAt]:R}, rel {worst:E2}.");
+                continue;
             }
+
+            // The absolute difference goes with the relative one: where the archive's cell
+            // is an empty bin the relative error is 1 whatever the content, so the
+            // relative number alone would bound nothing.
+            var worstAbsolute = Math.Abs(mine[worstAt] - oracle[worstAt]);
+            if (ledger.Excuses(name, DeviationKind.RelativeError, worst, out var note, worstAbsolute))
+            {
+                output.WriteLine($"  {note}");
+                continue;
+            }
+
+            problems.Add(
+                $"{name}[{worstAt}]: {mine[worstAt]:R}, oracle {oracle[worstAt]:R}, rel {worst:E2}, "
+                + $"abs {worstAbsolute:E2}.");
         }
 
+        problems.AddRange(ledger.Unmet());
         Assert.True(problems.Count == 0, string.Join(Environment.NewLine, problems));
     }
 
@@ -521,6 +678,31 @@ public sealed class StructureSimulationTests(ITestOutputHelper output, ArchivedR
     /// The claim is about the sets the branches read, so the sets are what is compared.
     /// </para>
     /// </remarks>
+    /// <summary>
+    /// Every run the recorded-deviation list names is a run that is actually replayed.
+    /// </summary>
+    /// <remarks>
+    /// Cheap, and it closes the one way the list could rot silently. A row naming a run
+    /// that has left <see cref="ArchivedRunFixture.ReplayableRunIds"/> is never consulted,
+    /// so <see cref="DeviationLedger.Unmet"/> never sees it either - the "a deviation
+    /// that stops reproducing fails" rule has nothing to fire on. This test is that rule
+    /// for whole runs.
+    /// </remarks>
+    [Fact]
+    public void EveryRunWithRecordedDeviationsIsStillReplayed()
+    {
+        var replayed = ArchivedRunFixture.ReplayableRunIds.ToHashSet(StringComparer.Ordinal);
+        var orphans = KnownDeviations.Runs
+            .Where(run => !replayed.Contains(run))
+            .OrderBy(run => run, StringComparer.Ordinal)
+            .ToList();
+
+        Assert.True(
+            orphans.Count == 0,
+            "KnownDeviations records deviations for runs that are no longer replayed, so nothing "
+            + "checks them: " + string.Join(", ", orphans));
+    }
+
     [Fact]
     public void TheToleranceTableClassifiesEveryPrintedScalarExactlyOnce()
     {

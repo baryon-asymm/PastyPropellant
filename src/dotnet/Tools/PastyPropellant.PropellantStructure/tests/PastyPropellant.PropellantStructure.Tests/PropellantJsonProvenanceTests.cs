@@ -81,15 +81,26 @@ public sealed class PropellantJsonProvenanceTests(ITestOutputHelper output)
             ("nkarm", result.Diagnostics.PocketsTotal),
         };
 
+        // The counters go through the same recorded-deviation list the L2 replays use, so
+        // this path and that one cannot disagree about what the port is allowed to differ by.
+        var ledger = new DeviationLedger(id, L2Group.Draws);
         output.WriteLine(string.Empty);
         foreach (var (name, value) in counters)
         {
             var expected = (long)run.Scalars[name];
             output.WriteLine($"  {name,-6} {value,14} oracle {expected,14} {(value == expected ? "=" : "DIFFER")}");
-            if (value != expected)
+            if (value == expected)
             {
-                problems.Add($"{name}: {value}, oracle {expected}.");
+                continue;
             }
+
+            if (ledger.Excuses(name, DeviationKind.CounterDifference, value - expected, out var note))
+            {
+                output.WriteLine($"  {note}");
+                continue;
+            }
+
+            problems.Add($"{name}: {value}, oracle {expected}.");
         }
 
         // Then the two published quantities, every branch of each. The pocket mass
