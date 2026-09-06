@@ -101,9 +101,17 @@ public sealed record ReferenceRun(
 public sealed record ReferenceFraction(
     double MassFraction, double MinSizeMetres, double MaxSizeMetres);
 
+// ⚠ AgreesWithM здесь ВЫЧИСЛЯЕТСЯ, а не читается: архивный флаг сверяет границы
+// размеров фракций и не сверяет их массовые доли, поэтому один прогон (hp90) проходил
+// его с чужой рецептурой. FlaggedAgreement — флаг архива, SharesMatchReport — доли,
+// и точным вход считается только при обоих.
 public sealed record ReferenceInputFile(
-    string ArchiveFile, bool AgreesWithM, GeometricCriteria Criteria,
-    int CyclesRequested, IReadOnlyList<ReferenceFraction> Fractions);
+    string ArchiveFile, bool FlaggedAgreement, bool SharesMatchReport,
+    GeometricCriteria Criteria, int CyclesRequested,
+    IReadOnlyList<ReferenceFraction> Fractions)
+{
+    public bool AgreesWithM => FlaggedAgreement && SharesMatchReport;
+}
 
 public sealed record ReferenceConditionalDok(
     IReadOnlyList<double> PocketCategoriesMicrometres,
