@@ -52,7 +52,7 @@ public sealed record ModelConstants
     public double MaxSurfaceTemperatureKelvins { get; init; } =
         ProblemContexts.SurfaceTemperatureSearchBounds.MaxKelvins;
 
-    /// <summary>The historical hardcoded constants: 1300 K, no contact correction, polynomial coverage.</summary>
+    /// <summary>The historical hardcoded constants: 1300 K, polynomial coverage, 600..900 K bracket.</summary>
     public static ModelConstants Default { get; } = new();
 
     /// <summary>Throws when a value cannot describe a physical model.</summary>
