@@ -86,8 +86,7 @@ internal static class PlotRendererFixture
             PocketMetalCombustionParamsByUnits = new MetalCombustionParamsByUnits
             {
                 MetalBoilingTemperature = Temperature.FromKelvins(2740.0),
-                MetalMeltingTemperature = Temperature.FromKelvins(933.0),
-                SkeletonContactFactor = 1.0
+                MetalMeltingTemperature = Temperature.FromKelvins(933.0)
             },
             SkeletonLayerParamsByUnits = new SkeletonLayerParamsByUnits
             {

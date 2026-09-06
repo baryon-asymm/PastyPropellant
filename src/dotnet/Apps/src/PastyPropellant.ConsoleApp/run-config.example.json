@@ -89,20 +89,6 @@
     "minSurfaceTemperatureKelvins": 600.0,
     "maxSurfaceTemperatureKelvins": 900.0,
 
-    // Divisor on the skeleton conduction flux q_metal = lambda_eff * (T_melt - T_s) / delta.
-    // 1.0 = no correction (the historical behaviour and the default).
-    //
-    // Physically it is the reciprocal of the fraction of the skeleton footprint in genuine conductive
-    // contact with the surface: the metal touches the condensed phase at oxide-separated spots, not over
-    // its whole projected area. 200 means a contact-spot fraction of 5e-3, inside the range reported for
-    // packed beds (1e-3 .. 1e-2).
-    //
-    // NOT A TUNING KNOB. delta enters the model in exactly one place — this flux — so a value chosen to
-    // make the fit better is algebraically the same as switching the delta <= d_AP constraint off, and it
-    // would leave that constraint reading as satisfied while meaning nothing. Choose it once by a stated
-    // rule, freeze it, and record any scan as a declared sensitivity analysis.
-    "skeletonContactFactor": 1.0,
-
     // How f_s, the share of the pocket surface carrying a skeleton layer, is obtained.
     //
     //   "Polynomial" (default, historical) - the per-propellant fit shipped in propellants*.json.
@@ -124,7 +110,7 @@
     //       aluminium + fine AP, from the recipe), and T_s is the model's own surface temperature.
     //       Coverage is therefore evaluated INSIDE the surface-temperature bisection, not per pressure.
     //
-    // NOT A TUNING KNOB, for the same reason as skeletonContactFactor: f_s weighs (q_metal + q_k^S)
+    // NOT A TUNING KNOB: f_s weighs (q_metal + q_k^S)
     // against q_k^OS and appears nowhere else, so a coverage the optimiser could choose would be
     // algebraically the same as redistributing between the skeleton and out-skeleton kinetic-flame
     // pre-exponentials. There is deliberately nothing here for the search to move.
@@ -148,7 +134,7 @@
       //       a1 * w_fine * p^m is burnout by the fine AP.
       //
       //       Writing both rates per unit skeleton area makes the layer thickness cancel identically, so
-      //       this closure is independent of the fitted delta and of skeletonContactFactor.
+      //       this closure is independent of the fitted delta.
       //
       //       THESE THREE CONSTANTS ARE CALIBRATED, NOT DERIVED. They were fitted on Bas_2/Bas_3/Bas_4 —
       //       one binder, the same 0.5 % activated carbon, differing only in AP dispersity — giving

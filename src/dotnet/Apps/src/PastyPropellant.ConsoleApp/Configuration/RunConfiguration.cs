@@ -76,11 +76,8 @@ public sealed record RunConfiguration
 /// in a diff file kept beside the outputs. Here they merge, validate and serialise like every other
 /// setting, so <c>run_configuration.resolved.json</c> and the PDF header state them for every run.</para>
 ///
-/// <para><b>These are not tuning knobs.</b> <see cref="SkeletonContactFactor"/> in particular is a fixed
-/// calibration constant: it must be chosen once, by a stated rule, and frozen. Scanning it across runs is
-/// legitimate only as a declared sensitivity analysis — treating it as something to adjust until the fit
-/// improves would make the δ ≤ d_AP constraint meaningless, because δ enters the model nowhere except the
-/// flux this factor divides.</para>
+/// <para><b>These are not tuning knobs.</b> They are chosen once, by a stated rule, and frozen; scanning one
+/// across runs is legitimate only as a declared sensitivity analysis.</para>
 /// </summary>
 public sealed record ModelConfiguration
 {
@@ -90,13 +87,6 @@ public sealed record ModelConfiguration
     /// </summary>
     public double MetalMeltingTemperatureKelvins { get; init; } =
         ParametricCombustionModel.Computation.Extensions.PropellantExtensions.MetalMeltingTemperatureKelvins;
-
-    /// <summary>
-    /// Divisor on the skeleton conduction flux — the reciprocal of the fraction of the skeleton footprint
-    /// in genuine conductive contact with the surface. Default <c>1.0</c>: no correction, the historical
-    /// behaviour. A value of 200 corresponds to a contact-spot fraction of 5·10⁻³.
-    /// </summary>
-    public double SkeletonContactFactor { get; init; } = 1.0;
 
     /// <summary>
     /// Which closure produces the skeleton surface fraction. Defaults to the historical per-propellant
@@ -118,7 +108,6 @@ public sealed record ModelConfiguration
     public ModelConstants ToModelConstants() => new()
     {
         MetalMeltingTemperatureKelvins = MetalMeltingTemperatureKelvins,
-        SkeletonContactFactor = SkeletonContactFactor,
         SkeletonSurfaceFraction = SkeletonSurfaceFraction.ToSettings(),
         MinSurfaceTemperatureKelvins = MinSurfaceTemperatureKelvins,
         MaxSurfaceTemperatureKelvins = MaxSurfaceTemperatureKelvins
@@ -129,10 +118,6 @@ public sealed record ModelConfiguration
         if (!double.IsFinite(MetalMeltingTemperatureKelvins) || MetalMeltingTemperatureKelvins <= 0)
             throw new RunConfigurationException(
                 $"model.metalMeltingTemperatureKelvins must be positive (got {MetalMeltingTemperatureKelvins}).");
-
-        if (!double.IsFinite(SkeletonContactFactor) || SkeletonContactFactor <= 0)
-            throw new RunConfigurationException(
-                $"model.skeletonContactFactor must be positive; 1.0 means no correction (got {SkeletonContactFactor}).");
 
         if (!double.IsFinite(MinSurfaceTemperatureKelvins) || MinSurfaceTemperatureKelvins <= 0)
             throw new RunConfigurationException(

@@ -58,9 +58,8 @@ public static class RunConfigurationSummaryFactory
     }
 
     /// <summary>
-    /// The physical constants of the model. The contact factor is spelled out as a contact-area fraction
-    /// as well as a divisor, because the divisor alone reads as an arbitrary number while the fraction is
-    /// the quantity a reader can weigh against the literature.
+    /// The physical constants of the model: the values that change every computed number but are not
+    /// fitted, so a reader can tell which model produced the run.
     /// </summary>
     private static List<RunConfigurationEntry> BuildModelEntries(ModelConfiguration model)
     {
@@ -71,12 +70,7 @@ public static class RunConfigurationSummaryFactory
             // a soft constraint and a reader who does not know it cannot tell a converged surface
             // temperature from one the bracket imposed.
             new("Surface-temperature search bracket, K",
-                $"{Format(model.MinSurfaceTemperatureKelvins)} .. {Format(model.MaxSurfaceTemperatureKelvins)}"),
-            new("Skeleton conduction contact factor",
-                Math.Abs(model.SkeletonContactFactor - 1.0) < double.Epsilon
-                    ? "1 (no correction — bulk Fourier conduction)"
-                    : $"{Format(model.SkeletonContactFactor)} " +
-                      $"(contact-area fraction {Format(1.0 / model.SkeletonContactFactor)}; fixed calibration, not fitted)")
+                $"{Format(model.MinSurfaceTemperatureKelvins)} .. {Format(model.MaxSurfaceTemperatureKelvins)}")
         };
 
         // Which closure produced f_s has to be stated, not inferred. f_s weighs the metal and

@@ -25,20 +25,6 @@ public sealed record ModelConstants
     public double MetalMeltingTemperatureKelvins { get; init; } = PropellantExtensions.MetalMeltingTemperatureKelvins;
 
     /// <summary>
-    /// Dimensionless divisor on the skeleton conduction flux; the reciprocal of the fraction of the skeleton
-    /// footprint in genuine conductive contact with the surface. Default <c>1.0</c> — no correction, the
-    /// historical behaviour.
-    ///
-    /// <para>It is a <b>fixed calibration constant, not a fitted parameter</b>, and that distinction is
-    /// load-bearing. δ enters the model in exactly one place, the Fourier flux <c>λ_eff·ΔT/δ</c>, so a
-    /// multiplier that the optimiser were free to choose would be algebraically indistinguishable from
-    /// removing the δ ≤ d_AP constraint: the search would simply restore the unconstrained solution under a
-    /// new name and report the constraint as satisfied. Held fixed, it adds no degree of freedom and the
-    /// constraint keeps its meaning.</para>
-    /// </summary>
-    public double SkeletonContactFactor { get; init; } = 1.0;
-
-    /// <summary>
     /// How the skeleton surface fraction is obtained. Defaults to the historical per-propellant
     /// polynomial fit; see <see cref="SkeletonSurfaceFractionSettings"/> for the kinetic alternative and
     /// why its coefficients are configuration rather than search parameters.
@@ -90,12 +76,6 @@ public sealed record ModelConstants
                 nameof(MetalMeltingTemperatureKelvins),
                 MetalMeltingTemperatureKelvins,
                 "Metal melting temperature must be a positive, finite number of Kelvins.");
-
-        if (!double.IsFinite(SkeletonContactFactor) || SkeletonContactFactor <= 0)
-            throw new ArgumentOutOfRangeException(
-                nameof(SkeletonContactFactor),
-                SkeletonContactFactor,
-                "Skeleton contact factor must be positive and finite (1.0 means no correction).");
 
         SkeletonSurfaceFraction.Validate();
     }

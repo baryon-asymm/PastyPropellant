@@ -46,7 +46,6 @@ internal sealed record RunConfigurationFile
 internal sealed record ModelFileSection
 {
     public double? MetalMeltingTemperatureKelvins { get; init; }
-    public double? SkeletonContactFactor { get; init; }
     public SkeletonSurfaceFractionFileSection? SkeletonSurfaceFraction { get; init; }
     public double? MinSurfaceTemperatureKelvins { get; init; }
     public double? MaxSurfaceTemperatureKelvins { get; init; }
@@ -54,7 +53,6 @@ internal sealed record ModelFileSection
     public ModelConfiguration ApplyTo(ModelConfiguration d) => new()
     {
         MetalMeltingTemperatureKelvins = MetalMeltingTemperatureKelvins ?? d.MetalMeltingTemperatureKelvins,
-        SkeletonContactFactor = SkeletonContactFactor ?? d.SkeletonContactFactor,
         SkeletonSurfaceFraction = SkeletonSurfaceFraction?.ApplyTo(d.SkeletonSurfaceFraction)
                                   ?? d.SkeletonSurfaceFraction,
         MinSurfaceTemperatureKelvins = MinSurfaceTemperatureKelvins ?? d.MinSurfaceTemperatureKelvins,

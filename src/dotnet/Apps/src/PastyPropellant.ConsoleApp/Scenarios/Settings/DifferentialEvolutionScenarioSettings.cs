@@ -26,7 +26,8 @@ public record DifferentialEvolutionScenarioSettings
     public ReadOnlyCollection<IPenaltyEvaluator> PenaltyEvaluators { get; init; }
 
     /// <summary>
-    /// Run-wide physical constants of the model (metal melting temperature, skeleton contact factor).
+    /// Run-wide physical constants of the model (metal melting temperature, surface-temperature bracket,
+    /// skeleton-coverage closure).
     /// Defaults to <see cref="ModelConstants.Default"/> — the historical hardcoded values.
     /// </summary>
     public ModelConstants ModelConstants { get; init; }

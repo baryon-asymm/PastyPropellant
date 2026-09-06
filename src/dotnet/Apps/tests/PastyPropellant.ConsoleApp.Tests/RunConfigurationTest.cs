@@ -113,16 +113,14 @@ public class RunConfigurationTest : IDisposable
         Assert.Equal(1e-8, nelderMead.FunctionTolerance);
         Assert.Equal(2, nelderMead.Restarts);
 
-        // The model constants default to the historical hardcoded physics: 1300 K and no contact
-        // correction. A non-unit default here would silently change every number a configuration-free
-        // run produces, which is exactly what this whole defaults contract exists to prevent.
+        // The model constants default to the historical hardcoded physics: 1300 K. A different default
+        // here would silently change every number a configuration-free run produces, which is exactly what
+        // this whole defaults contract exists to prevent.
         var model = configuration.Model;
         Assert.Equal(1300.0, model.MetalMeltingTemperatureKelvins);
-        Assert.Equal(1.0, model.SkeletonContactFactor);
 
         var constants = model.ToModelConstants();
         Assert.Equal(1300.0, constants.MetalMeltingTemperatureKelvins);
-        Assert.Equal(1.0, constants.SkeletonContactFactor);
 
         // Skeleton coverage defaults to the shipped per-propellant polynomials. The kinetic closure is
         // opt-in for the same reason as everything else in this section: switching it silently would
@@ -641,8 +639,7 @@ public class RunConfigurationTest : IDisposable
                 InputFileName = propellants,
                 Model = defaults.Model with
                 {
-                    MetalMeltingTemperatureKelvins = 2300.0,
-                    SkeletonContactFactor = 200.0
+                    MetalMeltingTemperatureKelvins = 2300.0
                 }
             },
             SourceDescription = "test",
@@ -651,32 +648,27 @@ public class RunConfigurationTest : IDisposable
 
         var optimisation = GroupScenarioRunner.CreateOptimizationPlan(loaded);
         Assert.Equal(2300.0, optimisation.Settings.ModelConstants.MetalMeltingTemperatureKelvins);
-        Assert.Equal(200.0, optimisation.Settings.ModelConstants.SkeletonContactFactor);
 
         var forwardEval = GroupScenarioRunner.CreateForwardEvalPlan(loaded);
         Assert.Equal(2300.0, forwardEval.Settings.ModelConstants.MetalMeltingTemperatureKelvins);
-        Assert.Equal(200.0, forwardEval.Settings.ModelConstants.SkeletonContactFactor);
 
         // And they must be in the provenance record, since that is the only reason they are configuration
         // rather than source constants.
         Assert.Equal(2300.0, optimisation.Resolved.Configuration.Model.MetalMeltingTemperatureKelvins);
-        Assert.Equal(200.0, optimisation.Resolved.Configuration.Model.SkeletonContactFactor);
     }
 
-    /// <summary>A non-positive contact factor or melting temperature must be rejected at startup.</summary>
+    /// <summary>A non-positive or non-finite melting temperature must be rejected at startup.</summary>
     [Theory]
-    [InlineData(0.0, 1300.0)]
-    [InlineData(-1.0, 1300.0)]
-    [InlineData(1.0, 0.0)]
-    [InlineData(1.0, double.NaN)]
-    public void InvalidModelConstantsAreRejected(double contactFactor, double meltingTemperature)
+    [InlineData(0.0)]
+    [InlineData(-1.0)]
+    [InlineData(double.NaN)]
+    public void InvalidModelConstantsAreRejected(double meltingTemperature)
     {
         var defaults = RunConfiguration.Default;
         var configuration = defaults with
         {
             Model = defaults.Model with
             {
-                SkeletonContactFactor = contactFactor,
                 MetalMeltingTemperatureKelvins = meltingTemperature
             }
         };

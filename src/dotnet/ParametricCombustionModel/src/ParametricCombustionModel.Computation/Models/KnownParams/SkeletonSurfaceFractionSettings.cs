@@ -49,7 +49,7 @@ public enum SkeletonSurfaceFractionMode
 /// <para><b>Why this shape and not another.</b> Three things fix it, and each was tested rather than
 /// assumed. (1) Writing both rates per unit skeleton area makes the layer thickness <c>δ</c> cancel
 /// identically, so the closure cannot inherit the <c>δ → 0</c> non-identifiability that makes the
-/// skeleton Arrhenius pair unreportable, and it is independent of the contact factor. (2) The measured
+/// skeleton Arrhenius pair unreportable. (2) The measured
 /// coverage of the all-coarse composition <em>exceeds</em> its whole condensed inventory
 /// (0.529 against φ_Al + φ_C = 0.386), so coverage cannot be an inventory-limited quantity; it must be a
 /// competition of rates, and in that competition the inventory cancels because both channels scale with
@@ -410,7 +410,7 @@ public sealed class SkeletonCarbonEquilibriumTable
 /// weighs <c>q_metal + q_k^(S)</c> against <c>q_k^(OS)</c> in the pocket energy balance and appears
 /// nowhere else, so a coverage the optimiser were free to move would be algebraically indistinguishable
 /// from redistributing between the skeleton and out-skeleton kinetic-flame pre-exponentials — the same
-/// degeneracy that makes the skeleton contact factor a fixed constant.</para>
+/// degeneracy that got the skeleton contact factor removed from the model outright.</para>
 /// </summary>
 public sealed record SkeletonSurfaceFractionSettings
 {

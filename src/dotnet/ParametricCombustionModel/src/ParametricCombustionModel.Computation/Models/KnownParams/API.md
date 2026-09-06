@@ -111,7 +111,6 @@ public readonly struct MetalCombustionParamsByDoubles
 {
     public required double MetalMeltingTemperature { get; init; }
     public required double MetalBoilingTemperature { get; init; }
-    public required double SkeletonContactFactor { get; init; }
 }
 
 public readonly struct SkeletonLayerParamsByDoubles
@@ -132,7 +131,6 @@ public readonly struct SkeletonLayerParamsByDoubles
 public sealed record ModelConstants
 {
     public double MetalMeltingTemperatureKelvins { get; init; }   // 1300
-    public double SkeletonContactFactor { get; init; }            // 1.0 — без поправки
     public SkeletonSurfaceFractionSettings SkeletonSurfaceFraction { get; init; }
     public double MinSurfaceTemperatureKelvins { get; init; }     // 600
     public double MaxSurfaceTemperatureKelvins { get; init; }     // 900

@@ -258,8 +258,7 @@ public class ProblemContextByDoublesMatrixBuilder
         return new MetalCombustionParamsByDoubles
         {
             MetalBoilingTemperature = propellant.GetMetalBoilingTemperature(pressure.Pascals),
-            MetalMeltingTemperature = ModelConstants.MetalMeltingTemperatureKelvins,
-            SkeletonContactFactor = ModelConstants.SkeletonContactFactor
+            MetalMeltingTemperature = ModelConstants.MetalMeltingTemperatureKelvins
         };
     }
 

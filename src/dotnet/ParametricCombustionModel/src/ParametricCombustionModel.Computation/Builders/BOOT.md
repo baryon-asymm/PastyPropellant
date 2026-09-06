@@ -49,11 +49,12 @@
 
 ## Acceptance criteria
 
-- [x] Настроенные постоянные (вилка, коэффициент контакта, замыкание) доходят
-      до собранных контекстов обоих ярусов (2026-09-05,
+- [x] Настроенные постоянные (вилка, замыкание) доходят до собранных
+      контекстов обоих ярусов, а ненастроенный контекст совпадает с
+      `ModelConstants.Default` (2026-09-06,
       `SurfaceTemperatureBracketTests.AConfiguredBracketReachesBothTiers`,
       `SkeletonSurfaceFractionTests.BothContextTiersUseTheConfiguredClosure`,
-      `SkeletonContactFactorTests`, узел
+      `ModelConstantsDefaultsTests`, узел
       [Computation.Tests](../../../tests/ParametricCombustionModel.Computation.Tests/BOOT.md)).
 - [ ] Требование «у всех топлив одинаковые давления» не проверяется: сборщик
       молча берёт кадры первого топлива.

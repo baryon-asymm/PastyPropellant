@@ -5,5 +5,5 @@
 перечислено в [BOOT.md](./BOOT.md).
 
 Классы: `BurnRateIsFoundParityTests`, `SkeletonSurfaceFractionTests`,
-`KineticCoverageTests`, `SkeletonContactFactorTests`,
+`KineticCoverageTests`, `ModelConstantsDefaultsTests`,
 `SurfaceTemperatureBracketTests`, `AgglomerationConfidenceIntervalTests`.
